@@ -1,0 +1,20 @@
+{
+  "name": "vue-echarts",
+  "version": "0.1.0",
+  "homepage": "https://github.com/Justineo/vue-echarts",
+  "authors": [
+    "Justineo <justice360@gmail.com>"
+  ],
+  "description": "ECharts component for Vue.js.",
+  "main": "dist/vue-echarts.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "ECharts",
+    "Vue.js"
+  ],
+  "license": "MIT"
+}
