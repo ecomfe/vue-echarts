@@ -12,19 +12,19 @@ Built upon ECharts 3.x & Vue.js 1.x.
 Just download `dist/vue-echarts.js` and include it in your HTML file:
 
 ```html
-<script src="path/to/echarts/dist/echarts.js"></script>
+<script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
 ```
 
 ### npm 
 
 ```bash
-$ npm install echarts
+$ npm install vue-echarts
 ```
 
 ### bower
 
 ```bash
-$ bower install echarts
+$ bower install vue-echarts
 ```
 
 ## Registering the component
@@ -35,10 +35,10 @@ $ bower install echarts
 var Vue = require('path/to/vue')
 
 // requiring the UMD module
-var ECharts = require('path/to/echarts/dist/echarts')
+var ECharts = require('path/to/vue-echarts/dist/vue-echarts')
 
 // or with vue-loader you can require the src directly
-var ECharts = require('path/to/echarts/src/components/ECharts.vue')
+var ECharts = require('path/to/vue-echarts/src/components/ECharts.vue')
 
 // register component to use
 Vue.component('chart', ECharts);
@@ -49,11 +49,11 @@ Vue.component('chart', ECharts);
 ```js
 require.config({
   paths: {
-    'echarts': 'path/to/vue-conticon/dist/echarts'
+    'vue-echarts': 'path/to/vue-conticon/dist/vue-echarts'
   }
 })
 
-require(['echarts'], function (ECharts) {
+require(['vue-echarts'], function (ECharts) {
   // register component to use...
 })
 ```
