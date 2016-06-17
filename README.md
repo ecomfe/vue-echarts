@@ -7,7 +7,7 @@ Built upon ECharts 3.x & Vue.js 1.x.
 
 ## Installation
 
-### 
+### Manual
 
 Just download `dist/vue-echarts.js` and include it in your HTML file:
 
@@ -41,7 +41,7 @@ var ECharts = require('path/to/vue-echarts/dist/vue-echarts')
 var ECharts = require('path/to/vue-echarts/src/components/ECharts.vue')
 
 // register component to use
-Vue.component('chart', ECharts);
+Vue.component('chart', ECharts)
 ```
 
 ### AMD
@@ -49,18 +49,25 @@ Vue.component('chart', ECharts);
 ```js
 require.config({
   paths: {
+    'vue': 'path/to/vue',
     'vue-echarts': 'path/to/vue-conticon/dist/vue-echarts'
   }
 })
 
-require(['vue-echarts'], function (ECharts) {
-  // register component to use...
+require(['vue', 'vue-echarts'], function (Vue, ECharts) {
+  // register component to use
+  Vue.component('chart', ECharts)
 })
 ```
 
 ### Global variable
 
 The component class is exposed as `window.VueECharts`.
+
+```js
+// register component to use
+Vue.component('chart', VueECharts)
+```
 
 ## Using the component
 
