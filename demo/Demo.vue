@@ -1,6 +1,7 @@
 <template>
 <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
 <chart :options="polar"></chart>
+<chart :options="bar" v-ref:bar></chart>
 </template>
 
 <style>
@@ -26,19 +27,24 @@ h1 {
 
 body .echarts {
   height: 300px;
-  margin: 0 auto;
+  margin: 0 auto 5em;
 }
 </style>
 
 <script>
+let asyncData = {
+  categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
+  data: [5, 20, 36, 10, 10, 20]
+}
+
 export default {
   data: function () {
-    var data = [];
+    let data = []
 
-    for (var i = 0; i <= 360; i++) {
-        var t = i / 180 * Math.PI;
-        var r = Math.sin(2 * t) * Math.cos(2 * t);
-        data.push([r, i]);
+    for (let i = 0; i <= 360; i++) {
+        let t = i / 180 * Math.PI
+        let r = Math.sin(2 * t) * Math.cos(2 * t)
+        data.push([r, i])
     }
 
     return {
@@ -75,12 +81,43 @@ export default {
           }
         ],
         animationDuration: 2000
+      },
+
+      bar: {
+        title: {
+          text: '异步数据加载示例'
+        },
+        tooltip: {},
+        legend: {
+          data:['销量']
+        },
+        xAxis: {
+          data: []
+        },
+        yAxis: {},
+        series: [{
+          name: '销量',
+          type: 'bar',
+          data: []
+        }]
       }
     }
   },
   methods: {
   },
   ready: function () {
+    // simulating async data from server
+    setTimeout(() => {
+      this.$refs.bar.mergeOptions({
+        xAxis: {
+          data: asyncData.categories
+        },
+        series: [{
+          name: '销量',
+          data: asyncData.data
+        }]
+      })
+    }, 3000)
   },
   destroy: function () {
   }
