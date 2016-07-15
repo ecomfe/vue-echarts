@@ -9,6 +9,11 @@ var demo = {
       {
         test: /\.vue$/,
         loader: 'vue'
+      },
+      {
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel?presets[]=es2015'
       }
     ]
   },
@@ -32,6 +37,11 @@ var build = {
       {
         test: /\.vue$/,
         loader: 'vue'
+      },
+      {
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel?presets[]=es2015'
       }
     ]
   },
