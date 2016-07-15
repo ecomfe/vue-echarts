@@ -1,7 +1,7 @@
 <template>
 <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
-<chart :options="polar"></chart>
-<chart :options="bar" v-ref:bar></chart>
+<chart :options="polar" theme="vue-echarts"></chart>
+<chart :options="bar" v-ref:bar theme="dark"></chart>
 </template>
 
 <style>
@@ -32,6 +32,13 @@ body .echarts {
 </style>
 
 <script>
+import ECharts from '../src/components/ECharts.vue'
+import 'echarts/theme/dark'
+import theme from './theme'
+
+// registering custom theme
+ECharts.registerTheme('vue-echarts', theme)
+
 let asyncData = {
   categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
   data: [5, 20, 36, 10, 10, 20]
