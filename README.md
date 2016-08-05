@@ -33,8 +33,15 @@ $ bower install vue-echarts
 ```js
 import ECharts from 'vue-echarts/src/components/ECharts.vue'
 
-// register component to use
+// register the component to use
 Vue.component('chart', ECharts)
+
+// or register in component
+export default {
+  components: {
+    chart: ECharts
+  }
+}
 ```
 
 ### CommonJS
