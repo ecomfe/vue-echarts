@@ -7,7 +7,6 @@ import theme from './theme'
 Vue.component('chart', ECharts)
 
 // registering custom theme
-console.log(ECharts);
 ECharts.registerTheme('vue-echarts', theme)
 
 new Vue({

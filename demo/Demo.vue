@@ -1,6 +1,6 @@
 <template>
 <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
-<chart :options="polar" theme="vue-echarts"></chart>
+<chart :options="polar" v-ref:polar theme="vue-echarts"></chart>
 <chart :options="bar" v-ref:bar theme="dark"></chart>
 </template>
 
@@ -26,6 +26,8 @@ h1 {
 }
 
 body .echarts {
+  width: 61.8%;
+  min-width: 480px;
   height: 300px;
   margin: 0 auto 5em;
 }
@@ -125,6 +127,11 @@ export default {
         }]
       })
     }, 3000)
+
+    window.addEventListener('resize', () => {
+      this.$refs.polar.resize()
+      this.$refs.bar.resize()
+    }, false)
   },
   destroy: function () {
   }
