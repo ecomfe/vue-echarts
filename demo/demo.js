@@ -7,12 +7,15 @@ import theme from './theme'
 Vue.component('chart', ECharts)
 
 // registering custom theme
+<<<<<<< HEAD
 console.log(ECharts);
+=======
+>>>>>>> gh-pages
 ECharts.registerTheme('vue-echarts', theme)
 
 new Vue({
-  el: 'body',
-  components: {
-    demo: Demo
-  }
+    el: '#app',
+    components: {
+        demo: Demo
+    }
 })
