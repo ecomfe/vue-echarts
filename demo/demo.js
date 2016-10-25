@@ -10,8 +10,8 @@ Vue.component('chart', ECharts)
 ECharts.registerTheme('vue-echarts', theme)
 
 new Vue({
-  el: 'body',
-  components: {
-    demo: Demo
-  }
+    el: '#app',
+    components: {
+        demo: Demo
+    }
 })

@@ -2,8 +2,9 @@
 
 > ECharts component for Vue.js.
 
-Built upon ECharts 3.x & Vue.js 1.x.
-*Vue-ECharts may not directly work in Vue.js 2.0.*
+Built upon ECharts 3.x & Vue.js 2.x.
+
+To work with Vue.js 1.x please install version 0.1.1.
 
 ## Installation
 
