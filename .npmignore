@@ -1,1 +1,5 @@
 node_modules
+demo
+.gitignore
+bower.json
+webpack.conf.js
