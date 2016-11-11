@@ -1,1 +1,7 @@
-node_modules
+build
+demo
+src
+.babelrc
+.gitignore
+bower.json
+webpack.config.js

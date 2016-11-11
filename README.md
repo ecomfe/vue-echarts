@@ -38,7 +38,7 @@ var Vue = require('path/to/vue')
 var ECharts = require('path/to/vue-echarts/dist/vue-echarts')
 
 // or with vue-loader you can require the src directly
-var ECharts = require('path/to/vue-echarts/src/components/ECharts.vue')
+var ECharts = require('path/to/vue-echarts/components/ECharts.vue')
 
 // register component to use
 Vue.component('chart', ECharts)

@@ -44,7 +44,7 @@ const MOUSE_EVENTS = [
 
 export default {
   props: ['options', 'theme', 'initOptions', 'group'],
-  data: function () {
+  data() {
     return {
       chart: null
     }
@@ -55,19 +55,19 @@ export default {
     // don't depend on reactive values
     width: {
       cache: false,
-      getter: function () {
+      getter() {
         return this.chart.getWidth()
       }
     },
     height: {
       cache: false,
-      getter: function () {
+      getter() {
         return this.chart.getHeight()
       }
     },
     isDisposed: {
       cache: false,
-      getter: function () {
+      getter() {
         return this.chart.isDisposed()
       }
     }
@@ -78,29 +78,29 @@ export default {
       this.chart.setOption(options)
     },
     // just delegates ECharts methods to Vue component
-    resize: function () {
+    resize() {
       this.chart.resize()
     },
     dispatchAction: function (payload) {
       this.chart.dispatchAction(payload)
     },
-    showLoading: function () {
+    showLoading() {
       this.chart.showLoading()
     },
-    hideLoading: function () {
+    hideLoading() {
       this.chart.hideLoading()
     },
-    getDataURL: function () {
+    getDataURL() {
       return this.chart.getDataURL()
     },
-    clear: function () {
+    clear() {
       this.chart.clear()
     },
-    dispose: function () {
+    dispose() {
       this.chart.dispose()
     }
   },
-  ready: function () {
+  mounted() {
     let chart = echarts.init(this.$el, this.theme, this.initOptions)
 
     // use assign statements to tigger "options" and "group" setters
@@ -117,14 +117,14 @@ export default {
     // expose ECharts events as custom events
     ACTION_EVENTS.forEach(event => {
       chart.on(event, params => {
-        this.$dispatch(event, params)
+        this.$emit(event, params)
       })
     })
     // mouse events of ECharts should be renamed to prevent
     // name collision with DOM events
     MOUSE_EVENTS.forEach(event => {
       chart.on(event, params => {
-        this.$dispatch('chart' + event, params)
+        this.$emit('chart' + event, params)
       })
     })
 
@@ -139,11 +139,11 @@ export default {
   disconnect: function (group) {
     echarts.connect(group)
   },
-  registerMap: function (name, geoData, area) {
-    echarts.registerMap(name, geoData, area)
+  registerMap: function (...args) {
+    echarts.registerMap(...args)
   },
-  registerTheme: function (name, theme) {
-    echarts.registerTheme(name, theme)
+  registerTheme: function (...args) {
+    echarts.registerTheme(...args)
   }
 }
 </script>
