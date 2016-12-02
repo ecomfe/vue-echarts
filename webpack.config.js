@@ -8,14 +8,19 @@ var demo = {
     loaders: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader'
       },
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel?presets[]=es2015'
+        loader: 'babel-loader?presets[]=es2015'
       }
     ]
+  },
+  resolve: {
+      alias: {
+        'vue$': 'vue/dist/vue.common.js'
+      }
   },
   vue: {
     autoprefixer: {
@@ -36,12 +41,12 @@ var build = {
     loaders: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader'
       },
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel?presets[]=es2015'
+        loader: 'babel-loader?presets[]=es2015'
       }
     ]
   },
