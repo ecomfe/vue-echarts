@@ -100,7 +100,7 @@ export default {
       this.chart.dispose()
     }
   },
-  ready: function () {
+  mounted  : function () {
     let chart = echarts.init(this.$el, this.theme, this.initOptions)
 
     // use assign statements to tigger "options" and "group" setters
@@ -117,14 +117,14 @@ export default {
     // expose ECharts events as custom events
     ACTION_EVENTS.forEach(event => {
       chart.on(event, params => {
-        this.$dispatch(event, params)
+        this.$emit(event, params)
       })
     })
     // mouse events of ECharts should be renamed to prevent
     // name collision with DOM events
     MOUSE_EVENTS.forEach(event => {
       chart.on(event, params => {
-        this.$dispatch('chart' + event, params)
+        this.$emit('chart' + event, params)
       })
     })
 

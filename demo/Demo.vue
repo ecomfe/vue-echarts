@@ -1,8 +1,8 @@
 <template>
 <div>
 <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
-<chart :options="polar" theme="vue-echarts"></chart>
-<chart :options="bar" theme="dark"></chart>
+<chart :options="polar" ref="polar" theme="vue-echarts"></chart>
+<chart :options="bar" ref="bar" theme="dark"></chart>
 </div>
 </template>
 
@@ -118,10 +118,8 @@ export default {
   },
   mounted: function () {
     // simulating async data from server
-    console.log('hello');
-
     setTimeout(() => {
-      this.data.bar.mergeOptions({
+      this.$refs.bar.mergeOptions({
         xAxis: {
           data: asyncData.categories
         },
@@ -133,8 +131,8 @@ export default {
     }, 3000)
 
     window.addEventListener('resize', () => {
-      this.data.polar.resize()
-      this.data.bar.resize()
+      this.$refs.polar.resize()
+      this.$refs.bar.resize()
     }, false)
   },
   destroy: function () {
