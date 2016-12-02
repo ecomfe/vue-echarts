@@ -1,7 +1,9 @@
 <template>
+<div>
 <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
 <chart :options="polar" v-ref:polar theme="vue-echarts"></chart>
 <chart :options="bar" v-ref:bar theme="dark"></chart>
+</div>
 </template>
 
 <style>
