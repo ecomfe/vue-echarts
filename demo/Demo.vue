@@ -1,9 +1,9 @@
 <template>
-<main>
-  <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
-  <chart :options="polar" theme="vue-echarts"></chart>
-  <chart :options="bar" v-ref:bar theme="dark"></chart>
-</main>
+  <main>
+    <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
+    <chart :options="polar" theme="vue-echarts"></chart>
+    <chart :options="bar" ref="bar" theme="dark"></chart>
+  </main>
 </template>
 
 <style>
@@ -35,11 +35,6 @@ body .echarts {
 
 <script>
 import ECharts from '../src/components/ECharts.vue'
-import 'echarts/theme/dark'
-import theme from './theme'
-
-// registering custom theme
-ECharts.registerTheme('vue-echarts', theme)
 
 let asyncData = {
   categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
@@ -112,9 +107,7 @@ export default {
       }
     }
   },
-  methods: {
-  },
-  ready: function () {
+  mounted: function () {
     // simulating async data from server
     setTimeout(() => {
       this.$refs.bar.mergeOptions({
@@ -127,8 +120,6 @@ export default {
         }]
       })
     }, 3000)
-  },
-  destroy: function () {
   }
 
 }

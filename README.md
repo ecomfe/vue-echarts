@@ -2,8 +2,7 @@
 
 > ECharts component for Vue.js.
 
-Built upon ECharts 3.x & Vue.js 1.x.
-*Vue-ECharts may not directly work in Vue.js 2.0.*
+Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.3.2`+ and depends on [Vue.js](https://vuejs.org/) `v2.0.1`+.
 
 ## Installation
 
@@ -27,22 +26,41 @@ $ npm install vue-echarts
 $ bower install vue-echarts
 ```
 
-## Registering the component
+### manual
 
-### CommonJS
+Just download `dist/vue-echarts.js` and include it in your HTML file:
+
+```html
+<script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
+```
+
+## Usage
+
+### ES Modules with NPM & vue-loader (Recommended)
 
 ```js
-var Vue = require('path/to/vue')
+import Vue from 'vue'
+import ECharts from 'vue-echarts/components/ECharts.vue'
+```
+
+**Heads up**
+
+if you are using `vue-cli` to create your project, the `webpack` template may exclude `node_modules` from files to be transpiled by Babel. Change the `exclude` value from `/node_modules/` to `/node_modules(?![\\/]vue-awesome[\\/])/` to fix the problem.
+
+### CommonJS with NPM without ES Next support
+
+```js
+var Vue = require('vue')
 
 // requiring the UMD module
-var ECharts = require('path/to/vue-echarts/dist/vue-echarts')
+var ECharts = require('vue-echarts')
 
 // or with vue-loader you can require the src directly
-var ECharts = require('path/to/vue-echarts/src/components/ECharts.vue')
+var ECharts = require('vue-echarts/components/ECharts.vue')
 
 // register component to use
-Vue.component('chart', ECharts)
 ```
+
 
 ### AMD
 
@@ -50,12 +68,12 @@ Vue.component('chart', ECharts)
 require.config({
   paths: {
     'vue': 'path/to/vue',
-    'vue-echarts': 'path/to/vue-conticon/dist/vue-echarts'
+    'vue-echarts': 'path/to/vue-ehcarts'
   }
 })
 
 require(['vue', 'vue-echarts'], function (Vue, ECharts) {
-  // register component to use
+  // register component to use...
   Vue.component('chart', ECharts)
 })
 ```
@@ -158,7 +176,11 @@ export default {
 * `dispatchAction`
 * `showLoading`
 * `hideLoading`
+* `convertToPixel`
+* `convertFromPixel`
+* `containPixel`
 * `getDataURL`
+* `getConnectedDataURL`
 * `clear`
 * `dispose`
 
