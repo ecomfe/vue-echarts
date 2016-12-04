@@ -2,8 +2,9 @@
 
 > ECharts component for Vue.js.
 
-Built upon ECharts 3.x & Vue.js 1.x.
-*Vue-ECharts may not directly work in Vue.js 2.0.*
+This version is built upon [ECharts](http://echarts.baidu.com/index.html) `v3.3.2`+ and depends on [Vue.js](https://vuejs.org/) `v1.x`.
+
+For Vue.js `v2.x`, see `v2.0.0`.
 
 ## Installation
 
@@ -32,13 +33,13 @@ $ bower install vue-echarts
 ### CommonJS
 
 ```js
-var Vue = require('path/to/vue')
+var Vue = require('vue')
 
 // requiring the UMD module
-var ECharts = require('path/to/vue-echarts/dist/vue-echarts')
+var ECharts = require('vue-echarts')
 
 // or with vue-loader you can require the src directly
-var ECharts = require('path/to/vue-echarts/src/components/ECharts.vue')
+var ECharts = require('vue-echarts/src/components/ECharts.vue')
 
 // register component to use
 Vue.component('chart', ECharts)
@@ -158,7 +159,11 @@ export default {
 * `dispatchAction`
 * `showLoading`
 * `hideLoading`
+* `convertToPixel`
+* `convertFromPixel`
+* `containPixel`
 * `getDataURL`
+* `getConnectedDataURL`
 * `clear`
 * `dispose`
 

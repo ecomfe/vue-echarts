@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "webpack-dev-server": "^1.14.1"
   },
   "dependencies": {
-    "echarts": "^3.3.1",
+    "echarts": "^3.3.2",
     "vue": "^1.0.17"
   }
 }
