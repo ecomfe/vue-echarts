@@ -24,12 +24,18 @@ const ACTION_EVENTS = [
   'restore',
   'dataviewchanged',
   'magictypechanged',
+  'geoselectchanged',
+  'geoselected',
+  'geounselected',
   'pieselectchanged',
   'pieselected',
   'pieunselected',
   'mapselectchanged',
   'mapselected',
-  'mapunselected'
+  'mapunselected',
+  'axisareaselected',
+  'brush',
+  'brushselected'
 ]
 
 const MOUSE_EVENTS = [
@@ -78,20 +84,32 @@ export default {
       this.chart.setOption(options)
     },
     // just delegates ECharts methods to Vue component
-    resize() {
-      this.chart.resize()
+    resize(options) {
+      this.chart.resize(options)
     },
     dispatchAction: function (payload) {
       this.chart.dispatchAction(payload)
     },
-    showLoading() {
-      this.chart.showLoading()
+    convertToPixel(...args) {
+      return this.chart.convertToPixel(...args)
+    },
+    convertFromPixel(...args) {
+      return this.chart.convertFromPixel(...args)
+    },
+    containPixel(...args) {
+      return this.chart.containPixel(...args)
+    },
+    showLoading(...args) {
+      this.chart.showLoading(...args)
     },
     hideLoading() {
       this.chart.hideLoading()
     },
-    getDataURL() {
-      return this.chart.getDataURL()
+    getDataURL(options) {
+      return this.chart.getDataURL(options)
+    },
+    getConnectedDataURL(options) {
+      return this.chart.getConnectedDataURL(options)
     },
     clear() {
       this.chart.clear()

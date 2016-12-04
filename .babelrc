@@ -1,8 +1,4 @@
 {
-  "presets": [
-    ["es2015", { "modules": false }]
-  ],
-  "plugins": [
-    "add-module-exports"
-  ]
+  "presets": ["es2015"],
+  "plugins": ["transform-runtime", "add-module-exports"]
 }
