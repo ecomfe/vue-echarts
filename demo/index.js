@@ -6,7 +6,7 @@ import Demo from './Demo.vue'
 import 'echarts/theme/dark'
 
 // custom theme
-import {default as theme} from './theme'
+import theme from './theme'
 
 Vue.component('chart', ECharts)
 

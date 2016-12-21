@@ -10,7 +10,7 @@
 </style>
 
 <script>
-import echarts from 'echarts'
+import echarts from 'echarts/lib/echarts'
 
 // enumerated ECharts events for now
 const ACTION_EVENTS = [
@@ -155,7 +155,7 @@ export default {
     echarts.connect(group)
   },
   disconnect: function (group) {
-    echarts.connect(group)
+    echarts.disconnect(group)
   },
   registerMap: function (...args) {
     echarts.registerMap(...args)

@@ -41,6 +41,12 @@ Just download `dist/vue-echarts.js` and include it in your HTML file:
 ```js
 import Vue from 'vue'
 import ECharts from 'vue-echarts/components/ECharts.vue'
+
+// import ECharts modules manually to reduce bundle size
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/component/tooltip'
+
+// register component to use
 ```
 
 **Heads up**
@@ -56,7 +62,10 @@ var Vue = require('vue')
 var ECharts = require('vue-echarts')
 
 // or with vue-loader you can require the src directly
+// and import ECharts modules manually to reduce bundle size
 var ECharts = require('vue-echarts/components/ECharts.vue')
+require('echarts/lib/chart/bar')
+require('echarts/lib/component/tooltip')
 
 // register component to use
 ```
