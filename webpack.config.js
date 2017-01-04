@@ -23,6 +23,10 @@ var base = {
         query: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /\.json$/,
+        loader: 'json'
       }
     ]
   },

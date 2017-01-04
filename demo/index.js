@@ -5,10 +5,15 @@ import Demo from './Demo.vue'
 // built-in theme
 import 'echarts/theme/dark'
 
+import chinaMap from './china.json'
+
 // custom theme
-import theme from './theme'
+import theme from './theme.json'
 
 Vue.component('chart', ECharts)
+
+// registering map data
+ECharts.registerMap('china', chinaMap)
 
 // registering custom theme
 ECharts.registerTheme('vue-echarts', theme)

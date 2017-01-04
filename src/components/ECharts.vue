@@ -11,8 +11,9 @@
 
 <script>
 import echarts from 'echarts/lib/echarts'
+import debounce from 'lodash.debounce'
 
-// enumerated ECharts events for now
+// enumerating ECharts events for now
 const ACTION_EVENTS = [
   'legendselectchanged',
   'legendselected',
@@ -49,7 +50,13 @@ const MOUSE_EVENTS = [
 ]
 
 export default {
-  props: ['options', 'theme', 'initOptions', 'group'],
+  props: {
+    options: Object,
+    theme: String,
+    initOptions: Object,
+    group: String,
+    autoResize: Boolean
+  },
   data() {
     return {
       chart: null
@@ -78,16 +85,29 @@ export default {
       }
     }
   },
+  watch: {
+    options: {
+      handler(options) {
+        this.chart.setOption(options, true)
+      },
+      deep: true
+    },
+    group: {
+      handler(group) {
+        this.chart.group = group
+      }
+    }
+  },
   methods: {
     // provide a explicit merge option method
-    mergeOptions: function (options) {
+    mergeOptions(options) {
       this.chart.setOption(options)
     },
     // just delegates ECharts methods to Vue component
     resize(options) {
       this.chart.resize(options)
     },
-    dispatchAction: function (payload) {
+    dispatchAction(payload) {
       this.chart.dispatchAction(payload)
     },
     convertToPixel(...args) {
@@ -123,14 +143,6 @@ export default {
 
     // use assign statements to tigger "options" and "group" setters
     chart.setOption(this.options)
-    this.$watch('options', options => {
-      chart.setOption(options, true)
-    }, { deep: true })
-
-    chart.group = this.group
-    this.$watch('group', (group) => {
-      chart.group = group
-    })
 
     // expose ECharts events as custom events
     ACTION_EVENTS.forEach(event => {
@@ -146,21 +158,28 @@ export default {
       })
     })
 
+    if (this.autoResize) {
+      this.__resizeHanlder = debounce(() => {
+        chart.resize()
+      }, 100, { leading: true })
+      window.addEventListener('resize', this.__resizeHanlder)
+    }
+
     this.chart = chart
   },
-  connect: function (group) {
+  connect(group) {
     if (typeof group !== 'string') {
       group = group.map(chart => chart.chart)
     }
     echarts.connect(group)
   },
-  disconnect: function (group) {
+  disconnect(group) {
     echarts.disconnect(group)
   },
-  registerMap: function (...args) {
+  registerMap(...args) {
     echarts.registerMap(...args)
   },
-  registerTheme: function (...args) {
+  registerTheme(...args) {
     echarts.registerTheme(...args)
   }
 }

@@ -175,6 +175,10 @@ export default {
 
   This property is automatically bound to the same property of the ECharts instance.
 
+* `auto-resize`
+
+  This property indicates ECharts instance should be resized automatically whenever the window is resized.
+
 ### Instance Methods
 
 * `mergeOptions` (`setOptions` in ECharts)
