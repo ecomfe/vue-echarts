@@ -1,3 +1,7 @@
+2.2.0
+* Add `auto-resize`.
+* Refined demo.
+
 2.1.0
 * Fix `disconnect`.
 * When importing `ECharts.vue`, only ECharts core will be imported instead of the whole ECharts bundle.
