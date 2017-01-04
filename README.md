@@ -161,6 +161,8 @@ export default {
 </script>
 ```
 
+See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/demo).
+
 ### Properties
 
 * `initOptions` & `theme`
