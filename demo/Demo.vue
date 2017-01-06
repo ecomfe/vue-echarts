@@ -1,6 +1,6 @@
 <template>
   <main>
-    <figure id="logo"><img src="assets/Vue-ECharts.svg" alt="Vue-ECharts" height="192"></figure>
+    <figure id="logo" v-html="logo"></figure>
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
@@ -133,7 +133,7 @@ button {
 
 body .echarts {
   width: 40vw;
-  min-width: 300px;
+  min-width: 400px;
   height: 300px;
   margin: 2em auto;
   border: 1px solid rgba(0, 0, 0, .1);
@@ -142,19 +142,25 @@ body .echarts {
   padding: 1.5em 2em;
 }
 
-#logo {
-  display: inline-block;
-  overflow: hidden;
-  transition: transform .3s;
-  border-radius: 50%;
-}
-
-#logo img {
+#logo svg {
+  height: 192px;
   margin: -2.5em auto;
 }
 
-#logo:hover {
-  transform: scale(1.1);
+#logo path {
+  animation: 6s ease-in 0s infinite fill;
+}
+
+@keyframes fill {
+  0% {
+    fill: #42b983;
+  }
+  50% {
+    fill: #2c3e50;
+  }
+  100% {
+    fill: #42b983;
+  }
 }
 </style>
 
@@ -163,15 +169,17 @@ import bar from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import map from './data/map'
+import logo from 'raw!./assets/Vue-ECharts.svg'
 
 export default {
   data() {
     return {
-      seconds: -1,
       bar,
       pie,
       polar,
-      map
+      map,
+      seconds: -1,
+      logo
     }
   },
   methods: {

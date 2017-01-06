@@ -18,7 +18,7 @@ var base = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif)$/,
         loader: 'file',
         query: {
           name: '[name].[ext]?[hash]'

@@ -427,7 +427,6 @@ export default {
         show: false
       }
     },
-    roam: true,
     itemStyle: {
       normal: {
         areaColor: '#323c48',
