@@ -12,7 +12,8 @@
       <p v-if="seconds"><small>Data coming in <b>{{seconds}}</b> second{{seconds > 1 ? 's' : ''}}...</small></p>
       <p v-else><small>Ready.</small></p>
     </template>
-    <chart :options="bar" ref="bar" theme="vue-echarts" auto-resize></chart>
+    <chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart>
+    <p><small>(Theme Ovilia-Green)</small></p>
 
     <h2>Pie chart <small>(with action dispatch)</small></h2>
     <chart :options="pie" ref="pie" auto-resize></chart>
@@ -165,11 +166,27 @@ body .echarts {
 </style>
 
 <script>
+import ECharts from '../src/components/ECharts.vue'
 import bar from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import map from './data/map'
 import logo from 'raw!./assets/Vue-ECharts.svg'
+
+// built-in theme
+import 'echarts/theme/dark'
+
+// custom theme
+import theme from './theme.json'
+
+// Map of China
+import chinaMap from './china.json'
+
+// registering map data
+ECharts.registerMap('china', chinaMap)
+
+// registering custom theme
+ECharts.registerTheme('ovilia-green', theme)
 
 export default {
   data() {
