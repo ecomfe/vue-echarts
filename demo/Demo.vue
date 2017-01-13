@@ -21,6 +21,9 @@
     <h2>Polar plot <small>(with built-in theme)</small></h2>
     <chart :options="polar" theme="dark" auto-resize></chart>
 
+    <h2>Scatter plot <small>(with gradient)</small></h2>
+    <chart id="scatter" :options="scatter" auto-resize></chart>
+
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
     <chart id="map" :options="map" ref="map" auto-resize></chart>
     <p><button @click="convert">Convert to image</button></p>
@@ -170,6 +173,7 @@ import ECharts from '../src/components/ECharts.vue'
 import bar from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
+import scatter from './data/scatter'
 import map from './data/map'
 import logo from 'raw!./assets/Vue-ECharts.svg'
 
@@ -194,6 +198,7 @@ export default {
       bar,
       pie,
       polar,
+      scatter,
       map,
       seconds: -1,
       logo
