@@ -204,6 +204,9 @@ export default {
       logo
     }
   },
+  components: {
+      chart: ECharts
+  },
   methods: {
     load() {
       let asyncData = {
