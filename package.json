@@ -35,6 +35,7 @@
     "raw-loader": "^0.5.1",
     "vue-loader": "^10.0.2",
     "vue-template-compiler": "^2.1.4",
+    "vuex": "^2.1.1",
     "webpack": "2.1.0-beta.22",
     "webpack-dev-server": "2.1.0-beta.10",
     "webpack-merge": "^0.14.1"

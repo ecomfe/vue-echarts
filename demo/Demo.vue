@@ -25,8 +25,19 @@
     <chart id="scatter" :options="scatter" auto-resize></chart>
 
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
-    <chart id="map" :options="map" ref="map" auto-resize></chart>
     <p><button @click="convert">Convert to image</button></p>
+    <chart id="map" :options="map" ref="map" auto-resize></chart>
+
+    <h2>Radar chart <small>(with Vuex integration)</h2>
+    <p>
+      <select v-model="metricIndex">
+        <option v-for="(metric, index) in metrics" :value="index">{{metric}}</option>
+      </select>
+      <button @click="increase(1)" :disabled="isMax">Increase</button>
+      <button @click="increase(-1)" :disabled="isMin">Decrease</button>
+      <label><small><input type="checkbox" v-model="asyncCount"> Async</small></label>
+    </p>
+    <chart :options="scoreRadar" auto-resize></chart>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
@@ -133,6 +144,12 @@ button {
   background-color: #fff;
   color: #42b983;
   cursor: pointer;
+  transition: opacity .3s;
+}
+
+button[disabled] {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 body .echarts {
@@ -176,6 +193,7 @@ import polar from './data/polar'
 import scatter from './data/scatter'
 import map from './data/map'
 import logo from 'raw!./assets/Vue-ECharts.svg'
+import store from './store'
 
 // built-in theme
 import 'echarts/theme/dark'
@@ -193,6 +211,7 @@ ECharts.registerMap('china', chinaMap)
 ECharts.registerTheme('ovilia-green', theme)
 
 export default {
+  store,
   data() {
     return {
       bar,
@@ -201,7 +220,24 @@ export default {
       scatter,
       map,
       seconds: -1,
-      logo
+      logo,
+      asyncCount: false,
+      metricIndex: 0
+    }
+  },
+  computed: {
+    scoreRadar() {
+      return this.$store.getters.scoreRadar
+    },
+    metrics() {
+      return this.$store.state.scores.map(({name}) => name)
+    },
+    isMax() {
+      let {value, max} = this.$store.state.scores[this.metricIndex]
+      return value === max
+    },
+    isMin() {
+      return this.$store.state.scores[this.metricIndex].value === 0
     }
   },
   methods: {
@@ -231,6 +267,13 @@ export default {
     },
     convert() {
       window.open(this.$refs.map.getDataURL())
+    },
+    increase(amount) {
+      if (!this.asyncCount) {
+        this.$store.commit('increment', {amount, index: this.metricIndex})
+      } else {
+        this.$store.dispatch('asyncIncrement', {amount, index: this.metricIndex, delay: 1000})
+      }
     }
   },
   mounted() {
