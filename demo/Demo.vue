@@ -257,6 +257,9 @@ export default {
             xAxis: {
               data: asyncData.categories
             },
+            yAxis: {
+              axisLabel: {show: true},
+            },
             series: [{
               name: '销量',
               data: asyncData.data

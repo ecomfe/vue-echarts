@@ -9,7 +9,9 @@ export default {
   xAxis: {
     data: []
   },
-  yAxis: {},
+  yAxis: {
+    axisLabel: {show: false}
+  },
   series: [{
     name: '销量',
     type: 'bar',
