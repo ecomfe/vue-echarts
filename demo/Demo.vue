@@ -1,6 +1,6 @@
 <template>
   <main>
-    <figure id="logo" v-html="logo"></figure>
+    <chart id="logo" :options="logo" auto-resize></chart>
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
@@ -12,21 +12,21 @@
       <p v-if="seconds"><small>Data coming in <b>{{seconds}}</b> second{{seconds > 1 ? 's' : ''}}...</small></p>
       <p v-else><small>Ready.</small></p>
     </template>
-    <chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart>
+    <figure><chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart></figure>
     <p><small>(Theme Ovilia-Green)</small></p>
 
     <h2>Pie chart <small>(with action dispatch)</small></h2>
-    <chart :options="pie" ref="pie" auto-resize></chart>
+    <figure><chart :options="pie" ref="pie" auto-resize></chart></figure>
 
     <h2>Polar plot <small>(with built-in theme)</small></h2>
-    <chart :options="polar" theme="dark" auto-resize></chart>
+    <figure><chart :options="polar" theme="dark" auto-resize></chart></figure>
 
     <h2>Scatter plot <small>(with gradient)</small></h2>
-    <chart id="scatter" :options="scatter" auto-resize></chart>
+    <figure><chart id="scatter" :options="scatter" auto-resize></chart></figure>
 
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
     <p><button @click="convert">Convert to image</button></p>
-    <chart id="map" :options="map" ref="map" auto-resize></chart>
+    <figure><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
 
     <h2>Radar chart <small>(with Vuex integration)</h2>
     <p>
@@ -37,7 +37,7 @@
       <button @click="increase(-1)" :disabled="isMin">Decrease</button>
       <label><small><input type="checkbox" v-model="asyncCount"> Async</small></label>
     </p>
-    <chart :options="scoreRadar" auto-resize></chart>
+    <figure><chart :options="scoreRadar" auto-resize></chart></figure>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
@@ -161,10 +161,8 @@ button[disabled] {
   cursor: not-allowed;
 }
 
-body .echarts {
-  width: 40vw;
-  min-width: 400px;
-  height: 300px;
+figure {
+  display: inline-block;
   margin: 2em auto;
   border: 1px solid rgba(0, 0, 0, .1);
   border-radius: 8px;
@@ -172,36 +170,29 @@ body .echarts {
   padding: 1.5em 2em;
 }
 
-#logo svg {
-  height: 192px;
-  margin: -2.5em auto;
+figure .chart {
+  width: 40vw;
+  min-width: 400px;
+  height: 300px;
 }
 
-#logo path {
-  animation: 6s ease-in 0s infinite fill;
-}
-
-@keyframes fill {
-  0% {
-    fill: #42b983;
-  }
-  50% {
-    fill: #2c3e50;
-  }
-  100% {
-    fill: #42b983;
-  }
+#logo {
+  display: inline-block;
+  width: 128px;
+  height: 128px;
+  pointer-events: none;
 }
 </style>
 
 <script>
 import ECharts from '../src/components/ECharts.vue'
+import 'echarts-liquidfill'
+import logo from './data/logo'
 import bar from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import scatter from './data/scatter'
 import map from './data/map'
-import logo from 'raw!./assets/Vue-ECharts.svg'
 import store from './store'
 
 // built-in theme
@@ -223,13 +214,13 @@ export default {
   store,
   data() {
     return {
+      logo,
       bar,
       pie,
       polar,
       scatter,
       map,
       seconds: -1,
-      logo,
       asyncCount: false,
       metricIndex: 0
     }
