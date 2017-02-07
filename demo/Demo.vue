@@ -84,7 +84,7 @@ h2 small {
 }
 
 p small {
-  font-size: 0.8em;
+  font-size: .8em;
   color: #7f8c8d;
 }
 
@@ -94,9 +94,9 @@ p {
 
 pre {
   display: inline-block;
-  padding: 0.8em;
+  padding: .8em;
   background-color: #f9f9f9;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.125);
+  box-shadow: 0 1px 2px rgba(0,0,0,.125);
   line-height: 1.1;
   color: #2973b7;
 }
@@ -106,7 +106,7 @@ pre, code {
 }
 
 pre code {
-  font-size: 0.8em;
+  font-size: .8em;
 }
 
 .attr {
@@ -119,7 +119,7 @@ pre code {
 
 footer {
   margin: 5em 0 3em;
-  font-size: 0.5em;
+  font-size: .5em;
   vertical-align: middle;
 }
 
@@ -145,6 +145,15 @@ button {
   color: #42b983;
   cursor: pointer;
   transition: opacity .3s;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 1px #4fc08d;
+}
+
+button:active {
+  background: rgba(79, 192, 141, .2);
 }
 
 button[disabled] {
@@ -248,11 +257,11 @@ export default {
       }
 
       // simulating async data from server
-      this.seconds = 3;
+      this.seconds = 3
       let timer = setInterval(() => {
-        this.seconds--;
+        this.seconds--
         if (this.seconds === 0) {
-          clearTimeout(timer);
+          clearTimeout(timer)
           this.$refs.bar.mergeOptions({
             xAxis: {
               data: asyncData.categories

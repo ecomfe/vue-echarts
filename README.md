@@ -171,7 +171,7 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
 * `options` **[reactive]**
 
-  Used to update data for ECharts instance. Modifying this property will trigger ECharts' `setOptions` method.
+  Used to update data for ECharts instance. Modifying this property will trigger ECharts' `setOption` method.
 
 * `group` **[reactive]**
 
@@ -183,9 +183,9 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
 ### Instance Methods
 
-* `mergeOptions` (`setOptions` in ECharts)
+* `mergeOptions` (`setOption` in ECharts)
 
-  *Providing a better method name to describe the actual behavior of `setOptions.`*
+  *Providing a better method name to describe the actual behavior of `setOption.`*
 
 * `resize`
 * `dispatchAction`
@@ -206,7 +206,44 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 * `registerMap`
 * `registerTheme`
 
-You can refer to [ECharts' API](http://echarts.baidu.com/api.html) to learn how to use the methods above.
+### Events
+
+Vue-ECharts support the following events:
+
+* `legendselectchanged`
+* `legendselected`
+* `legendunselected`
+* `datazoom`
+* `datarangeselected`
+* `timelinechanged`
+* `timelineplaychanged`
+* `restore`
+* `dataviewchanged`
+* `magictypechanged`
+* `geoselectchanged`
+* `geoselected`
+* `geounselected`
+* `pieselectchanged`
+* `pieselected`
+* `pieunselected`
+* `mapselectchanged`
+* `mapselected`
+* `mapunselected`
+* `axisareaselected`
+* `brush`
+* `brushselected`
+* Mouse events
+  * `chartclick`
+  * `chartdblclick`
+  * `chartmouseover`
+  * `chartmouseout`
+  * `chartmousedown`
+  * `chartmouseup`
+  * `chartglobalout`
+
+  Notice that mouse event names are prefixed with `chart` to prevent collision with Vue's native mouse events.
+
+For further details, see [ECharts' API documentation](https://ecomfe.github.io/echarts-doc/public/en/api.html).
 
 ## Local development
 
