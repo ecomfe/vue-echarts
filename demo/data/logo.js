@@ -11,7 +11,7 @@ export default {
       show: false
     },
     radius: '60%',
-    color: ['#4fc08d', '#44d64a', '#33c762', '#30ab68'],
+    color: ['#4fc08d', '#44d64a', '#33c762', '#4acc80'],
     backgroundStyle: {
       color: '#fff',
       borderColor: '#2c3e50',

@@ -1,3 +1,8 @@
+2.3.0
+* As native events are now not listened by `v-on` in Vue.js 2.0, change mouse events name to original ones (keeping emitting `chart*` events for now).
+* Fix getter for `width` / `height` / `isDisposed`.
+* `options` is now optional to initialize the component and the chart will be initialized automatically when `options` is set.
+
 2.2.0
 * Add `auto-resize`.
 * Refined demo.

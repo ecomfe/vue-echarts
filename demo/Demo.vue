@@ -19,14 +19,14 @@
     <figure><chart :options="pie" ref="pie" auto-resize></chart></figure>
 
     <h2>Polar plot <small>(with built-in theme)</small></h2>
-    <figure><chart :options="polar" theme="dark" auto-resize></chart></figure>
+    <figure style="background-color: #333;"><chart :options="polar" theme="dark" auto-resize></chart></figure>
 
     <h2>Scatter plot <small>(with gradient)</small></h2>
     <figure><chart id="scatter" :options="scatter" auto-resize></chart></figure>
 
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
     <p><button @click="convert">Convert to image</button></p>
-    <figure><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
+    <figure style="background-color: #404a59;"><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
 
     <h2>Radar chart <small>(with Vuex integration)</h2>
     <p>
@@ -249,11 +249,18 @@ export default {
 
       // simulating async data from server
       this.seconds = 3
+      let bar = this.$refs.bar
+      bar.showLoading({
+        text: '正在加载',
+        color: '#4ea397',
+        maskColor: 'rgba(255, 255, 255, 0.4)'
+      })
       let timer = setInterval(() => {
         this.seconds--
         if (this.seconds === 0) {
           clearTimeout(timer)
-          this.$refs.bar.mergeOptions({
+          bar.hideLoading()
+          bar.mergeOptions({
             xAxis: {
               data: asyncData.categories
             },
@@ -269,13 +276,17 @@ export default {
       }, 1000)
     },
     convert() {
-      window.open(this.$refs.map.getDataURL())
+      let map = this.$refs.map
+      let src = map.getDataURL({
+        pixelRatio: window.devicePixelRatio || 1
+      })
+      window.open(`data:text/html,<img src="${src}" width="${map.width}" height="${map.height}">`)
     },
     increase(amount) {
       if (!this.asyncCount) {
         this.$store.commit('increment', {amount, index: this.metricIndex})
       } else {
-        this.$store.dispatch('asyncIncrement', {amount, index: this.metricIndex, delay: 1000})
+        this.$store.dispatch('asyncIncrement', {amount, index: this.metricIndex, delay: 500})
       }
     }
   },

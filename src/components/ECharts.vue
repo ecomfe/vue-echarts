@@ -12,6 +12,7 @@
 <script>
 import echarts from 'echarts/lib/echarts'
 import debounce from 'lodash.debounce'
+import { warn } from '../util'
 
 // enumerating ECharts events for now
 const ACTION_EVENTS = [
@@ -68,27 +69,32 @@ export default {
     // don't depend on reactive values
     width: {
       cache: false,
-      getter() {
+      get() {
         return this.chart.getWidth()
       }
     },
     height: {
       cache: false,
-      getter() {
+      get() {
         return this.chart.getHeight()
       }
     },
     isDisposed: {
       cache: false,
-      getter() {
+      get() {
         return this.chart.isDisposed()
       }
     }
   },
   watch: {
+    // use assign statements to tigger "options" and "group" setters
     options: {
       handler(options) {
-        this.chart.setOption(options, true)
+        if (!this.chart && options) {
+          this._init()
+        } else {
+          this.chart.setOption(this.options, true)
+        }
       },
       deep: true
     },
@@ -101,71 +107,89 @@ export default {
   methods: {
     // provide a explicit merge option method
     mergeOptions(options) {
-      this.chart.setOption(options)
+      this._delegateMethod('setOption', options)
     },
     // just delegates ECharts methods to Vue component
+    // use explicit params to reduce transpiled size for now
     resize(options) {
-      this.chart.resize(options)
+      this._delegateMethod('resize', options)
     },
     dispatchAction(payload) {
-      this.chart.dispatchAction(payload)
+      this._delegateMethod('dispatchAction', payload)
     },
-    convertToPixel(...args) {
-      return this.chart.convertToPixel(...args)
+    convertToPixel(finder, value) {
+      return this._delegateMethod('convertToPixel', finder, value)
     },
-    convertFromPixel(...args) {
-      return this.chart.convertFromPixel(...args)
+    convertFromPixel(finder, value) {
+      return this._delegateMethod('convertFromPixel', finder, value)
     },
-    containPixel(...args) {
-      return this.chart.containPixel(...args)
+    containPixel(finder, value) {
+      return this._delegateMethod('containPixel', finder, value)
     },
-    showLoading(...args) {
-      this.chart.showLoading(...args)
+    showLoading(type, options) {
+      this._delegateMethod('showLoading', type, options)
     },
     hideLoading() {
-      this.chart.hideLoading()
+      this._delegateMethod('hideLoading')
     },
     getDataURL(options) {
-      return this.chart.getDataURL(options)
+      return this._delegateMethod('getDataURL', options)
     },
     getConnectedDataURL(options) {
-      return this.chart.getConnectedDataURL(options)
+      return this._delegateMethod('getConnectedDataURL', options)
     },
     clear() {
-      this.chart.clear()
+      this._delegateMethod('clear')
     },
     dispose() {
-      this.chart.dispose()
+      this._delegateMethod('dispose')
+    },
+    _delegateMethod(name, ...args) {
+      if (!this.chart) {
+        warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
+        return
+      }
+      return this.chart[name](...args)
+    },
+    _init() {
+      if (this.chart) {
+        return
+      }
+
+      let chart = echarts.init(this.$el, this.theme, this.initOptions)
+
+      chart.setOption(this.options, true)
+
+      // expose ECharts events as custom events
+      ACTION_EVENTS.forEach(event => {
+        chart.on(event, params => {
+          this.$emit(event, params)
+        })
+      })
+      MOUSE_EVENTS.forEach(event => {
+        chart.on(event, params => {
+          this.$emit(event, params)
+
+          // for backward compatibility, may remove in the future
+          this.$emit('chart' + event, params)
+        })
+      })
+
+      if (this.autoResize) {
+        this.__resizeHanlder = debounce(() => {
+          chart.resize()
+        }, 100, { leading: true })
+        window.addEventListener('resize', this.__resizeHanlder)
+      }
+
+      this.chart = chart
     }
   },
   mounted() {
-    let chart = echarts.init(this.$el, this.theme, this.initOptions)
-
-    // use assign statements to tigger "options" and "group" setters
-    chart.setOption(this.options)
-
-    // expose ECharts events as custom events
-    ACTION_EVENTS.forEach(event => {
-      chart.on(event, params => {
-        this.$emit(event, params)
-      })
-    })
-    // mouse events of ECharts should be renamed to prevent
-    // name collision with DOM events
-    MOUSE_EVENTS.forEach(event => {
-      chart.on(event, params => {
-        this.$emit('chart' + event, params)
-      })
-    })
-
-    if (this.autoResize) {
-      this.__resizeHanlder = debounce(() => {
-        chart.resize()
-      }, 100, { leading: true })
-      window.addEventListener('resize', this.__resizeHanlder)
+    // auto init if `options` is already provided
+    if (this.options) {
+      this._init()
     }
-
-    this.chart = chart
   },
   connect(group) {
     if (typeof group !== 'string') {

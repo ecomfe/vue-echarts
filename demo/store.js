@@ -36,7 +36,8 @@ export default new Vuex.Store({
   },
   mutations: {
     increment({scores}, {amount = 1, index = 0}) {
-      scores[index].value += amount
+      let metric = scores[index]
+      metric.value = Math.max(Math.min(metric.value + amount, metric.max), 0)
     }
   },
   actions: {

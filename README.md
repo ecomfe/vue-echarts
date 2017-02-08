@@ -233,15 +233,13 @@ Vue-ECharts support the following events:
 * `brush`
 * `brushselected`
 * Mouse events
-  * `chartclick`
-  * `chartdblclick`
-  * `chartmouseover`
-  * `chartmouseout`
-  * `chartmousedown`
-  * `chartmouseup`
-  * `chartglobalout`
-
-  Notice that mouse event names are prefixed with `chart` to prevent collision with Vue's native mouse events.
+  * `click`
+  * `dblclick`
+  * `mouseover`
+  * `mouseout`
+  * `mousedown`
+  * `mouseup`
+  * `globalout`
 
 For further details, see [ECharts' API documentation](https://ecomfe.github.io/echarts-doc/public/en/api.html).
 
