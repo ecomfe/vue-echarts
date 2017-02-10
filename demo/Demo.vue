@@ -5,6 +5,7 @@
     <p class="desc">ECharts component for Vue.js.</p>
 
     <h2>Bar chart <small>(with async data &amp; custom theme)</small></h2>
+    <figure><chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart></figure>
     <template v-if="seconds < 0">
       <p><button @click="load">Load</button></p>
     </template>
@@ -12,8 +13,6 @@
       <p v-if="seconds"><small>Data coming in <b>{{seconds}}</b> second{{seconds > 1 ? 's' : ''}}...</small></p>
       <p v-else><small>Ready.</small></p>
     </template>
-    <figure><chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart></figure>
-    <p><small>(Theme Ovilia-Green)</small></p>
 
     <h2>Pie chart <small>(with action dispatch)</small></h2>
     <figure><chart :options="pie" ref="pie" auto-resize></chart></figure>
@@ -25,19 +24,19 @@
     <figure><chart id="scatter" :options="scatter" auto-resize></chart></figure>
 
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
-    <p><button @click="convert">Convert to image</button></p>
     <figure style="background-color: #404a59;"><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
+    <p><button @click="convert">Convert to image</button></p>
 
     <h2>Radar chart <small>(with Vuex integration)</h2>
+    <figure><chart :options="scoreRadar" auto-resize></chart></figure>
     <p>
       <select v-model="metricIndex">
         <option v-for="(metric, index) in metrics" :value="index">{{metric}}</option>
       </select>
       <button @click="increase(1)" :disabled="isMax">Increase</button>
       <button @click="increase(-1)" :disabled="isMin">Decrease</button>
-      <label><small><input type="checkbox" v-model="asyncCount"> Async</small></label>
+      <input id="async" type="checkbox" v-model="asyncCount"><label for="async"> Async</label>
     </p>
-    <figure><chart :options="scoreRadar" auto-resize></chart></figure>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
@@ -45,150 +44,189 @@
   </main>
 </template>
 
-<style>
-body {
-  margin: 0;
-  padding: 3em 0 0;
-  font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
-  color: #666;
-  text-align: center;
-}
+<style lang="stylus">
+*,
+*::before,
+*::after
+  box-sizing border-box
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+body
+  margin 0
+  padding 3em 0 0
+  font-family "Source Sans Pro", "Helvetica Neue", Arial, sans-serif
+  color #666
+  text-align center
 
-h1 {
-  margin-bottom: 1em;
-  font-family: Dosis, "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
-}
+a
+  color inherit
+  text-decoration none
 
-h1, h2 {
-  color: #2c3e50;
-  font-weight: 300;
-}
+h1
+  margin-bottom 1em
+  font-family Dosis, "Source Sans Pro", "Helvetica Neue", Arial, sans-serif
 
-h2 {
-  margin-top: 3em;
-  font-size: 1.2em;
-}
+h1,
+h2
+  color #2c3e50
+  font-weight 300
 
-.desc {
-  margin-bottom: 4em;
-  color: #7f8c8d;
-}
+h2
+  margin-top 3em
+  font-size 1.2em
 
-h2 small {
-  opacity: .7;
-}
+.desc
+  margin-bottom 4em
+  color #7f8c8d
 
-p small {
-  font-size: .8em;
-  color: #7f8c8d;
-}
+h2 small
+  opacity .7
 
-p {
-  line-height: 1.5;
-}
+p small
+  font-size .8em
+  color #7f8c8d
 
-pre {
-  display: inline-block;
-  padding: .8em;
-  background-color: #f9f9f9;
-  box-shadow: 0 1px 2px rgba(0,0,0,.125);
-  line-height: 1.1;
-  color: #2973b7;
-}
+p
+  line-height 1.5
 
-pre, code {
-  font-family: "Roboto Mono", Monaco, courier, monospace;
-}
+pre
+  display inline-block
+  padding .8em
+  background-color #f9f9f9
+  box-shadow 0 1px 2px rgba(0,0,0,.125)
+  line-height 1.1
+  color #2973b7
 
-pre code {
-  font-size: .8em;
-}
+pre,
+code
+  font-family "Roboto Mono", Monaco, courier, monospace
 
-.attr {
-  color: #e96900;
-}
+pre code
+  font-size .8em
 
-.val {
-  color: #42b983;
-}
+.attr
+  color #e96900
 
-footer {
-  margin: 5em 0 3em;
-  font-size: .5em;
-  vertical-align: middle;
-}
+.val
+  color #42b983
 
-footer a {
-  display: inline-block;
-  margin: 0 5px;
-  padding: 3px 0 6px;
-  color: #7f8c8d;
-  font-size: 2em;
-  text-decoration: none;
-}
+footer
+  margin 5em 0 3em
+  font-size .5em
+  vertical-align middle
 
-footer a:hover {
-  padding-bottom: 3px;
-  border-bottom: 3px solid #42b983;
-}
+  a
+    display inline-block
+    margin 0 5px
+    padding 3px 0 6px
+    color #7f8c8d
+    font-size 2em
+    text-decoration none
 
-button {
-  box-sizing: border-box;
-  border: 1px solid #4fc08d;
-  border-radius: 2em;
-  background-color: #fff;
-  color: #42b983;
-  cursor: pointer;
-  transition: opacity .3s;
-}
+  a:hover
+    padding-bottom 3px
+    border-bottom 3px solid #42b983
 
-button:focus {
-  outline: none;
-  box-shadow: 0 0 1px #4fc08d;
-}
+button
+  border 1px solid #4fc08d
+  border-radius 2em
+  background-color #fff
+  color #42b983
+  cursor pointer
+  font inherit
+  transition opacity .3s
 
-button:active {
-  background: rgba(79, 192, 141, .2);
-}
+  &:focus
+    outline none
+    box-shadow 0 0 1px #4fc08d
 
-button[disabled] {
-  opacity: .5;
-  cursor: not-allowed;
-}
+  &:active
+    background rgba(79, 192, 141, .2)
 
-figure {
-  display: inline-block;
-  margin: 2em auto;
-  border: 1px solid rgba(0, 0, 0, .1);
-  border-radius: 8px;
-  box-shadow: 0 0 45px rgba(0, 0, 0, .2);
-  padding: 1.5em 2em;
-}
+  &[disabled]
+    opacity .5
+    cursor not-allowed
 
-figure .chart {
-  width: 40vw;
-  min-width: 400px;
-  height: 300px;
-}
+button,
+label
+  font-size .75em
 
-#logo {
-  display: inline-block;
-  width: 128px;
-  height: 128px;
-  pointer-events: none;
-}
+figure
+  display inline-block
+  margin 2em auto
+  border 1px solid rgba(0, 0, 0, .1)
+  border-radius 8px
+  box-shadow 0 0 45px rgba(0, 0, 0, .2)
+  padding 1.5em 2em
+
+  .echarts
+    width 40vw
+    min-width 400px
+    height 300px
+
+#logo
+  display inline-block
+  width 128px
+  height 128px
+  pointer-events none
+
+@media (max-width 980px)
+  p
+    display flex
+    justify-content center
+
+    select
+      text-indent calc(50% - 1em)
+
+    select,
+    label
+      border 1px solid #4fc08d
+      border-radius 2em
+      background-color #fff
+      color #42b983
+      cursor pointer
+      transition opacity .3s
+
+    button,
+    input,
+    select,
+    label
+      flex 1 0
+      margin 0 .5em
+      padding 0
+      line-height 2.4em
+      max-width 40vw
+      border-radius 2px
+      font-size .8em
+
+    select
+      -webkit-appearance none
+
+    input[type="checkbox"]
+      display none
+
+      &:checked + label
+        background #42b983
+        color #fff
+
+  figure
+    width 100vw
+    margin 1em auto
+    padding 0 1em
+    border none
+    border-radius 0
+    box-shadow none
+
+    .echarts
+      width 100%
+      min-width 0
+      height 75vw
 </style>
 
 <script>
 import ECharts from '../src/components/ECharts.vue'
 import 'echarts-liquidfill'
 import logo from './data/logo'
-import bar from './data/bar'
+import {initial as barInit, async as barAsync} from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import scatter from './data/scatter'
@@ -215,7 +253,7 @@ export default {
   data() {
     return {
       logo,
-      bar,
+      bar: barInit,
       pie,
       polar,
       scatter,
@@ -242,11 +280,6 @@ export default {
   },
   methods: {
     load() {
-      let asyncData = {
-        categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
-        data: [5, 20, 36, 10, 10, 20]
-      }
-
       // simulating async data from server
       this.seconds = 3
       let bar = this.$refs.bar
@@ -260,18 +293,7 @@ export default {
         if (this.seconds === 0) {
           clearTimeout(timer)
           bar.hideLoading()
-          bar.mergeOptions({
-            xAxis: {
-              data: asyncData.categories
-            },
-            yAxis: {
-              axisLabel: {show: true},
-            },
-            series: [{
-              name: '销量',
-              data: asyncData.data
-            }]
-          })
+          bar.mergeOptions(barAsync)
         }
       }, 1000)
     },

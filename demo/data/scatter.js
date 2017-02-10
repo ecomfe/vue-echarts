@@ -275,7 +275,7 @@ const data = [
 
 export default {
   title: {
-    text: '1990 与 2015 年各国家人均寿命与 GDP'
+    text: '各国人均寿命与GDP对比'
   },
   legend: {
     right: 10,

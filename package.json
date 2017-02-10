@@ -34,6 +34,8 @@
     "font-awesome-svg": "^0.4.0",
     "json-loader": "^0.5.4",
     "raw-loader": "^0.5.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.4.0",
     "vue-loader": "^10.0.2",
     "vue-template-compiler": "^2.1.4",
     "vuex": "^2.1.1",
