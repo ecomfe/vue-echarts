@@ -191,6 +191,15 @@ export default {
       this._init()
     }
   },
+  beforeDestroy() {
+    if (!this.chart) {
+      return
+    }
+    if (this.autoResize) {
+      window.removeEventListener('resize', this.__resizeHanlder)
+    }
+    this.dispose()
+  },
   connect(group) {
     if (typeof group !== 'string') {
       group = group.map(chart => chart.chart)

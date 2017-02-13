@@ -1,3 +1,6 @@
+2.3.1
+* Correctly dispose ECharts instance before component is destroyed.
+
 2.3.0
 * As native events are now not listened by `v-on` in Vue.js 2.0, change mouse events name to original ones (keeping emitting `chart*` events for now).
 * Fix getter for `width` / `height` / `isDisposed`.
