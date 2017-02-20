@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "prepublish": "npm run build && cp -r ./src/* . && rm index.js",
+    "prepublish": "npm run build && cp -r ./src/* . && rm index.js && rm util.js",
     "publish": "rm -rf ./components"
   },
   "keywords": [

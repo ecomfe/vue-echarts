@@ -158,6 +158,10 @@ export default {
 
       let chart = echarts.init(this.$el, this.theme, this.initOptions)
 
+      if (this.group) {
+        chart.group = this.group
+      }
+
       chart.setOption(this.options, true)
 
       // expose ECharts events as custom events

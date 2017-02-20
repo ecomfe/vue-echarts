@@ -38,6 +38,10 @@
       <input id="async" type="checkbox" v-model="asyncCount"><label for="async"> Async</label>
     </p>
 
+    <h2>Connectable charts</h2>
+    <figure class="half"><chart :options="c1" group="radiance" ref="c1" auto-resize></chart></figure>
+    <figure class="half"><chart :options="c2" group="radiance" ref="c2" auto-resize></chart></figure>
+
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
     </footer>
@@ -169,6 +173,18 @@ figure
   height 128px
   pointer-events none
 
+@media (min-width 980px)
+  figure.half
+    padding 1em 1.5em
+
+    .echarts
+      width 28vw
+      min-width 240px
+      height 180px
+
+    &:not(:last-child)
+      margin-right 15px
+
 @media (max-width 980px)
   p
     display flex
@@ -231,6 +247,7 @@ import pie from './data/pie'
 import polar from './data/polar'
 import scatter from './data/scatter'
 import map from './data/map'
+import {c1, c2} from './data/connect'
 import store from './store'
 
 // built-in theme
@@ -258,6 +275,8 @@ export default {
       polar,
       scatter,
       map,
+      c1,
+      c2,
       seconds: -1,
       asyncCount: false,
       metricIndex: 0
@@ -335,6 +354,8 @@ export default {
         dataIndex
       })
     }, 1000)
+
+    ECharts.connect('radiance')
   }
 }
 </script>
