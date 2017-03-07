@@ -1,3 +1,6 @@
+2.3.2
+* Fix the implementation of `disconnect`.
+
 2.3.1
 * Correctly dispose ECharts instance before component is destroyed.
 * Fix the problem that `group` is not properly initialized.

@@ -41,6 +41,9 @@
     <h2>Connectable charts</h2>
     <figure class="half"><chart :options="c1" group="radiance" ref="c1" auto-resize></chart></figure>
     <figure class="half"><chart :options="c2" group="radiance" ref="c2" auto-resize></chart></figure>
+    <p>
+      <input id="connect" type="checkbox" v-model="connected"><label for="connect"> Connected</label>
+    </p>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
@@ -279,6 +282,7 @@ export default {
       c2,
       seconds: -1,
       asyncCount: false,
+      connected: true,
       metricIndex: 0
     }
   },
@@ -331,6 +335,13 @@ export default {
       }
     }
   },
+  watch: {
+    connected: {
+      handler(value) {
+        ECharts[value ? 'connect' : 'disconnect']('radiance')
+      }
+    }
+  },
   mounted() {
     let dataIndex = -1
     let pie = this.$refs.pie
@@ -354,8 +365,6 @@ export default {
         dataIndex
       })
     }, 1000)
-
-    ECharts.connect('radiance')
   }
 }
 </script>

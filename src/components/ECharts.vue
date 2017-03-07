@@ -211,7 +211,7 @@ export default {
     echarts.connect(group)
   },
   disconnect(group) {
-    echarts.disconnect(group)
+    echarts.disConnect(group)
   },
   registerMap(...args) {
     echarts.registerMap(...args)
