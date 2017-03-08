@@ -1,3 +1,6 @@
+2.3.3
+* Fix NPM package.
+
 2.3.2
 * Fix the implementation of `disconnect`.
 

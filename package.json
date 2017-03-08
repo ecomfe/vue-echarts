@@ -1,13 +1,13 @@
 {
   "name": "vue-echarts",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "prepublish": "npm run build && cp -r ./src/* . && rm index.js && rm util.js",
-    "publish": "rm -rf ./components"
+    "prepublish": "npm run build && cp -r ./src/* .",
+    "publish": "rm -rf ./components && rm index.js && rm util.js"
   },
   "keywords": [
     "ECharts",
