@@ -1,4 +1,4 @@
-import logo from 'raw!../assets/Vue-ECharts.svg'
+import logo from 'raw-loader!../assets/Vue-ECharts.svg'
 
 let d = logo.match(/\bd="([^"]+)"/)[1]
 

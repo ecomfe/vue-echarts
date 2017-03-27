@@ -4,30 +4,26 @@ var merge = require('webpack-merge')
 
 var base = {
   resolveLoader: {
-    root: path.join(__dirname, 'node_modules'),
+    modules: [path.join(__dirname, 'node_modules')]
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader'
       },
       {
         test: /\.js$/,
-        loader: 'babel',
+        loader: 'babel-loader',
         exclude: /node_modules/
       },
       {
         test: /\.(png|jpg|gif)$/,
-        loader: 'file',
-        query: {
+        loader: 'file-loader',
+        options: {
           name: '[name].[ext]?[hash]'
         }
       },
-      {
-        test: /\.json$/,
-        loader: 'json'
-      }
     ]
   },
   devServer: {
