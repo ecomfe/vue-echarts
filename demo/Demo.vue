@@ -27,7 +27,7 @@
     <figure style="background-color: #404a59;"><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
     <p><button @click="convert">Convert to image</button></p>
 
-    <h2>Radar chart <small>(with Vuex integration)</h2>
+    <h2>Radar chart <small>(with Vuex integration)</small></h2>
     <figure><chart :options="scoreRadar" auto-resize></chart></figure>
     <p>
       <select v-model="metricIndex">
