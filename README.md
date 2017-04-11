@@ -51,9 +51,9 @@ import 'echarts/lib/component/tooltip'
 
 #### Heads up ####
 
-(This may not be a problem any more if you are scaffolding your project using the `webpack` template after [this commit](https://github.com/vuejs-templates/webpack/commit/49456eb8c53252d6d238cc0e27e3bcfd6732e1a5). From now on you can directly import `vue-echarts/components/ECharts` with ease.)
-
 If you are using `vue-cli` to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import `vue-echarts` directly, to optimize bundle size), the `webpack` template may exclude `node_modules` from files to be transpiled by Babel. To fix this problem, try change `build/webpack.base.conf.js` like this:
+
+For Webpack1:
 
 ```diff
       {
@@ -69,6 +69,16 @@ If you are using `vue-cli` to create your project and you want to use the untran
       },
 ```
 
+For Webpack2:
+
+```diff
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+-       include: [resolve('src'), resolve('test')]
++       include: [resolve('src'), resolve('test'), resolve('node_modules/vue-echarts')]
+      }
+```
 
 ### CommonJS with NPM without ES Next support
 
