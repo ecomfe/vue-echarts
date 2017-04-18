@@ -23,7 +23,7 @@ var base = {
         options: {
           name: '[name].[ext]?[hash]'
         }
-      },
+      }
     ]
   },
   devServer: {

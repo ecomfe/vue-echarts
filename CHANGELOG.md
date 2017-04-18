@@ -1,3 +1,6 @@
+2.3.4
+* Use `Vue.util.warn` directly.
+
 2.3.3
 * Fix NPM package.
 

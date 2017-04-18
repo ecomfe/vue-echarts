@@ -12,7 +12,7 @@
 <script>
 import echarts from 'echarts/lib/echarts'
 import debounce from 'lodash.debounce'
-import { warn } from '../util'
+import Vue from 'vue'
 
 // enumerating ECharts events for now
 const ACTION_EVENTS = [
@@ -146,7 +146,7 @@ export default {
     },
     _delegateMethod(name, ...args) {
       if (!this.chart) {
-        warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
+        Vue.util.warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
         return
       }
       return this.chart[name](...args)

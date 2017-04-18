@@ -49,7 +49,7 @@ import 'echarts/lib/component/tooltip'
 // register component to use
 ```
 
-#### Heads up ####
+#### Heads up (before `v2.3.4`)
 
 If you are using `vue-cli` to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import `vue-echarts` directly, to optimize bundle size), the `webpack` template may exclude `node_modules` from files to be transpiled by Babel. To fix this problem, try change `build/webpack.base.conf.js` like this:
 

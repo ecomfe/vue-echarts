@@ -1,13 +1,13 @@
 {
   "name": "vue-echarts",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
     "prepublish": "npm run build && cp -r ./src/* .",
-    "publish": "rm -rf ./components && rm index.js && rm util.js"
+    "publish": "rm -rf ./components && rm index.js"
   },
   "keywords": [
     "ECharts",
@@ -17,8 +17,10 @@
   "license": "MIT",
   "dependencies": {
     "echarts": "^3.3.2",
-    "lodash.debounce": "^4.0.8",
-    "vue": "^2.0.1"
+    "lodash.debounce": "^4.0.8"
+  },
+  "peerDependencies": {
+    "vue": "^2.2.6"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
@@ -36,8 +38,8 @@
     "raw-loader": "^0.5.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.4.0",
-    "vue-loader": "^10.0.2",
-    "vue-template-compiler": "^2.1.4",
+    "vue-loader": "^11.0.0",
+    "vue-template-compiler": "^2.2.6",
     "vuex": "^2.1.1",
     "webpack": "^2.3.2",
     "webpack-dev-server": "^2.4.2",
