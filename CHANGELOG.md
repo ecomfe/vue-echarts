@@ -1,3 +1,6 @@
+2.3.5
+* Mark Vue as an external dependency in webpack config.
+
 2.3.4
 * Use `Vue.util.warn` directly.
 

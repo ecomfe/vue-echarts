@@ -26,6 +26,13 @@ var base = {
       }
     ]
   },
+  externals : {
+    vue : {
+      commonjs: 'vue',
+      amd: 'vue',
+      root: 'Vue'
+    }
+  },
   devServer: {
     historyApiFallback: true,
     noInfo: true
