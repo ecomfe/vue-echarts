@@ -1,13 +1,14 @@
 {
   "name": "vue-echarts",
-  "version": "2.3.5",
+  "version": "2.3.7",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "prepublish": "npm run build && cp -r ./src/* .",
-    "publish": "rm -rf ./components && rm index.js"
+    "demo": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "prepublish": "npm run build && cp -r ./src/* . && rm index.js",
+    "publish": "rm -rf ./components"
   },
   "keywords": [
     "ECharts",
@@ -36,6 +37,11 @@
     "font-awesome-svg": "^0.4.0",
     "json-loader": "^0.5.4",
     "raw-loader": "^0.5.1",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-uglify": "^1.0.2",
+    "rollup-plugin-vue": "^2.3.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.4.0",
     "vue-loader": "^11.0.0",

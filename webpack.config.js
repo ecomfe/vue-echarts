@@ -1,8 +1,13 @@
 var path = require('path')
 var webpack = require('webpack')
-var merge = require('webpack-merge')
 
-var base = {
+var config = {
+  entry: './demo/index.js',
+  output: {
+    path: path.resolve(__dirname, './demo'),
+    publicPath: '/',
+    filename: 'bundle.js'
+  },
   resolveLoader: {
     modules: [path.join(__dirname, 'node_modules')]
   },
@@ -26,13 +31,6 @@ var base = {
       }
     ]
   },
-  externals : {
-    vue : {
-      commonjs: 'vue',
-      amd: 'vue',
-      root: 'Vue'
-    }
-  },
   devServer: {
     historyApiFallback: true,
     noInfo: true
@@ -40,9 +38,9 @@ var base = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  base.devtool = '#source-map'
+  config.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
-  base.plugins = (module.exports.plugins || []).concat([
+  config.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
@@ -56,24 +54,4 @@ if (process.env.NODE_ENV === 'production') {
   ])
 }
 
-var demo = merge(base, {
-  entry: './demo/index.js',
-  output: {
-    path: path.resolve(__dirname, './demo'),
-    publicPath: '/',
-    filename: 'bundle.js'
-  }
-})
-
-var build = merge(base, {
-  entry: './src/index.js',
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: '/',
-    filename: 'vue-echarts.js',
-    library: 'VueECharts',
-    libraryTarget: 'umd'
-  }
-})
-
-module.exports = [demo, build]
+module.exports = config

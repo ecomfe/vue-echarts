@@ -254,7 +254,7 @@ import {c1, c2} from './data/connect'
 import store from './store'
 
 // built-in theme
-import 'echarts/theme/dark'
+// import 'echarts/theme/dark'
 
 // custom theme
 import theme from './theme.json'

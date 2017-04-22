@@ -1,3 +1,10 @@
+2.3.7
+* Switch back to `Vue.util.warn`.
+* Switch build tool to rollup.
+
+2.3.6
+* Hot fix for last version. Use `console.warn` temporarily.
+
 2.3.5
 * Mark Vue as an external dependency in webpack config.
 
