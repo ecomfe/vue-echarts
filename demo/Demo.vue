@@ -1,6 +1,6 @@
 <template>
   <main>
-    <chart id="logo" :options="logo" auto-resize></chart>
+    <!--<chart id="logo" :options="logo" auto-resize></chart>-->
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
@@ -243,6 +243,20 @@ figure
 
 <script>
 import ECharts from '../src/components/ECharts.vue'
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/chart/line'
+import 'echarts/lib/chart/pie'
+import 'echarts/lib/chart/map'
+import 'echarts/lib/chart/radar'
+import 'echarts/lib/chart/scatter'
+import 'echarts/lib/chart/effectScatter'
+import 'echarts/lib/component/tooltip'
+import 'echarts/lib/component/polar'
+import 'echarts/lib/component/geo'
+import 'echarts/lib/component/legend'
+import 'echarts/lib/component/title'
+import 'echarts/lib/component/visualMap'
+
 import 'echarts-liquidfill'
 import logo from './data/logo'
 import {initial as barInit, async as barAsync} from './data/bar'
@@ -254,7 +268,7 @@ import {c1, c2} from './data/connect'
 import store from './store'
 
 // built-in theme
-// import 'echarts/theme/dark'
+import 'echarts/theme/dark'
 
 // custom theme
 import theme from './theme.json'
@@ -269,8 +283,11 @@ ECharts.registerMap('china', chinaMap)
 ECharts.registerTheme('ovilia-green', theme)
 
 export default {
+  components: {
+    chart: ECharts
+  },
   store,
-  data() {
+  data () {
     return {
       logo,
       bar: barInit,
@@ -282,27 +299,27 @@ export default {
       c2,
       seconds: -1,
       asyncCount: false,
-      connected: true,
+      connected: false,
       metricIndex: 0
     }
   },
   computed: {
-    scoreRadar() {
+    scoreRadar () {
       return this.$store.getters.scoreRadar
     },
-    metrics() {
+    metrics () {
       return this.$store.state.scores.map(({name}) => name)
     },
-    isMax() {
+    isMax () {
       let {value, max} = this.$store.state.scores[this.metricIndex]
       return value === max
     },
-    isMin() {
+    isMin () {
       return this.$store.state.scores[this.metricIndex].value === 0
     }
   },
   methods: {
-    load() {
+    load () {
       // simulating async data from server
       this.seconds = 3
       let bar = this.$refs.bar
@@ -320,14 +337,14 @@ export default {
         }
       }, 1000)
     },
-    convert() {
+    convert () {
       let map = this.$refs.map
       let src = map.getDataURL({
         pixelRatio: window.devicePixelRatio || 1
       })
       window.open(`data:text/html,<img src="${src}" width="${map.width}" height="${map.height}">`)
     },
-    increase(amount) {
+    increase (amount) {
       if (!this.asyncCount) {
         this.$store.commit('increment', {amount, index: this.metricIndex})
       } else {
@@ -337,12 +354,12 @@ export default {
   },
   watch: {
     connected: {
-      handler(value) {
+      handler (value) {
         ECharts[value ? 'connect' : 'disconnect']('radiance')
       }
     }
   },
-  mounted() {
+  mounted () {
     let dataIndex = -1
     let pie = this.$refs.pie
     let dataLen = pie.options.series[0].data.length
@@ -365,6 +382,7 @@ export default {
         dataIndex
       })
     }, 1000)
+    this.connected = true
   }
 }
 </script>

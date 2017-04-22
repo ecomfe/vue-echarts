@@ -58,7 +58,7 @@ export default {
     group: String,
     autoResize: Boolean
   },
-  data() {
+  data () {
     return {
       chart: null
     }
@@ -69,19 +69,19 @@ export default {
     // don't depend on reactive values
     width: {
       cache: false,
-      get() {
+      get () {
         return this.chart.getWidth()
       }
     },
     height: {
       cache: false,
-      get() {
+      get () {
         return this.chart.getHeight()
       }
     },
     isDisposed: {
       cache: false,
-      get() {
+      get () {
         return this.chart.isDisposed()
       }
     }
@@ -89,7 +89,7 @@ export default {
   watch: {
     // use assign statements to tigger "options" and "group" setters
     options: {
-      handler(options) {
+      handler (options) {
         if (!this.chart && options) {
           this._init()
         } else {
@@ -99,59 +99,59 @@ export default {
       deep: true
     },
     group: {
-      handler(group) {
+      handler (group) {
         this.chart.group = group
       }
     }
   },
   methods: {
     // provide a explicit merge option method
-    mergeOptions(options) {
+    mergeOptions (options) {
       this._delegateMethod('setOption', options)
     },
     // just delegates ECharts methods to Vue component
     // use explicit params to reduce transpiled size for now
-    resize(options) {
+    resize (options) {
       this._delegateMethod('resize', options)
     },
-    dispatchAction(payload) {
+    dispatchAction (payload) {
       this._delegateMethod('dispatchAction', payload)
     },
-    convertToPixel(finder, value) {
+    convertToPixel (finder, value) {
       return this._delegateMethod('convertToPixel', finder, value)
     },
-    convertFromPixel(finder, value) {
+    convertFromPixel (finder, value) {
       return this._delegateMethod('convertFromPixel', finder, value)
     },
-    containPixel(finder, value) {
+    containPixel (finder, value) {
       return this._delegateMethod('containPixel', finder, value)
     },
-    showLoading(type, options) {
+    showLoading (type, options) {
       this._delegateMethod('showLoading', type, options)
     },
-    hideLoading() {
+    hideLoading () {
       this._delegateMethod('hideLoading')
     },
-    getDataURL(options) {
+    getDataURL (options) {
       return this._delegateMethod('getDataURL', options)
     },
-    getConnectedDataURL(options) {
+    getConnectedDataURL (options) {
       return this._delegateMethod('getConnectedDataURL', options)
     },
-    clear() {
+    clear () {
       this._delegateMethod('clear')
     },
-    dispose() {
+    dispose () {
       this._delegateMethod('dispose')
     },
-    _delegateMethod(name, ...args) {
+    _delegateMethod (name, ...args) {
       if (!this.chart) {
         Vue.util.warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
         return
       }
       return this.chart[name](...args)
     },
-    _init() {
+    _init () {
       if (this.chart) {
         return
       }
@@ -189,13 +189,13 @@ export default {
       this.chart = chart
     }
   },
-  mounted() {
+  mounted () {
     // auto init if `options` is already provided
     if (this.options) {
       this._init()
     }
   },
-  beforeDestroy() {
+  beforeDestroy () {
     if (!this.chart) {
       return
     }
@@ -204,19 +204,19 @@ export default {
     }
     this.dispose()
   },
-  connect(group) {
+  connect (group) {
     if (typeof group !== 'string') {
       group = group.map(chart => chart.chart)
     }
     echarts.connect(group)
   },
-  disconnect(group) {
+  disconnect (group) {
     echarts.disConnect(group)
   },
-  registerMap(...args) {
+  registerMap (...args) {
     echarts.registerMap(...args)
   },
-  registerTheme(...args) {
+  registerTheme (...args) {
     echarts.registerTheme(...args)
   }
 }
