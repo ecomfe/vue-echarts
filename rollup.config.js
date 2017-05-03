@@ -18,7 +18,10 @@ export default {
   plugins: [
     resolve(),
     commonjs(),
-    vue({compileTemplate: true}),
+    vue({
+      compileTemplate: true,
+      css: true
+    }),
     buble(),
     uglify({
       compress: {

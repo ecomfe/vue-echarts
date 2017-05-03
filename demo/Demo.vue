@@ -1,6 +1,6 @@
 <template>
   <main>
-    <!--<chart id="logo" :options="logo" auto-resize></chart>-->
+    <chart id="logo" :options="logo" auto-resize></chart>
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
@@ -243,19 +243,19 @@ figure
 
 <script>
 import ECharts from '../src/components/ECharts.vue'
-import 'echarts/lib/chart/bar'
-import 'echarts/lib/chart/line'
-import 'echarts/lib/chart/pie'
-import 'echarts/lib/chart/map'
-import 'echarts/lib/chart/radar'
-import 'echarts/lib/chart/scatter'
-import 'echarts/lib/chart/effectScatter'
-import 'echarts/lib/component/tooltip'
-import 'echarts/lib/component/polar'
-import 'echarts/lib/component/geo'
-import 'echarts/lib/component/legend'
-import 'echarts/lib/component/title'
-import 'echarts/lib/component/visualMap'
+// import 'echarts/lib/chart/bar'
+// import 'echarts/lib/chart/line'
+// import 'echarts/lib/chart/pie'
+// import 'echarts/lib/chart/map'
+// import 'echarts/lib/chart/radar'
+// import 'echarts/lib/chart/scatter'
+// import 'echarts/lib/chart/effectScatter'
+// import 'echarts/lib/component/tooltip'
+// import 'echarts/lib/component/polar'
+// import 'echarts/lib/component/geo'
+// import 'echarts/lib/component/legend'
+// import 'echarts/lib/component/title'
+// import 'echarts/lib/component/visualMap'
 
 import 'echarts-liquidfill'
 import logo from './data/logo'

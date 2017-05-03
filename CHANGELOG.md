@@ -1,3 +1,6 @@
+2.3.8
+* Fixed the problem that styles are missing for precompiled version.
+
 2.3.7
 * Switch back to `Vue.util.warn`.
 * Switch build tool to rollup.
