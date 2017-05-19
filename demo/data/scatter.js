@@ -300,13 +300,13 @@ export default {
     name: '1990',
     data: data[0],
     type: 'scatter',
-    symbolSize(data) {
+    symbolSize (data) {
       return Math.sqrt(data[2]) / 5e2
     },
     label: {
       emphasis: {
         show: true,
-        formatter({data}) {
+        formatter ({data}) {
           return data[3]
         },
         position: 'top'
@@ -332,13 +332,13 @@ export default {
     name: '2015',
     data: data[1],
     type: 'scatter',
-    symbolSize(data) {
+    symbolSize (data) {
       return Math.sqrt(data[2]) / 5e2
     },
     label: {
       emphasis: {
         show: true,
-        formatter({data}) {
+        formatter ({data}) {
           return data[3]
         },
         position: 'top'

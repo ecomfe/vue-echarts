@@ -17,10 +17,10 @@ export default {
       borderColor: '#2c3e50',
       borderWidth: 1
     },
-    // shape: `path://${d}`,
+    shape: `path://${d}`,
     label: {
       normal: {
-        formatter() {
+        formatter () {
           return ''
         }
       }

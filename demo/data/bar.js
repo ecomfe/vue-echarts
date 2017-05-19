@@ -4,7 +4,7 @@ export let initial = {
   },
   tooltip: {},
   legend: {
-    data:['销量']
+    data: ['销量']
   },
   xAxis: {
     data: []
@@ -20,7 +20,7 @@ export let initial = {
 }
 
 let asyncData = {
-  categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
+  categories: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子'],
   data: [5, 20, 36, 10, 10, 20]
 }
 
@@ -29,7 +29,7 @@ export let async = {
     data: asyncData.categories
   },
   yAxis: {
-    axisLabel: {show: true},
+    axisLabel: {show: true}
   },
   series: [{
     name: '销量',

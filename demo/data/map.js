@@ -383,7 +383,7 @@ const geoCoordMap = {
   '大庆': [125.03, 46.58]
 }
 
-function convertData(data) {
+function convertData (data) {
   let res = []
   for (let i = 0; i < data.length; i++) {
     let geoCoord = geoCoordMap[data[i].name]
@@ -408,14 +408,14 @@ export default {
       color: '#fff'
     }
   },
-  tooltip : {
+  tooltip: {
     trigger: 'item'
   },
   legend: {
     orient: 'vertical',
     y: 'bottom',
-    x:'right',
-    data:['pm2.5'],
+    x: 'right',
+    data: ['pm2.5'],
     textStyle: {
       color: '#fff'
     }
@@ -437,7 +437,7 @@ export default {
       }
     }
   },
-  series : [
+  series: [
     {
       name: 'pm2.5',
       type: 'scatter',
