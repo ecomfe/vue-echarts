@@ -43,10 +43,16 @@ import Vue from 'vue'
 import ECharts from 'vue-echarts/components/ECharts.vue'
 
 // import ECharts modules manually to reduce bundle size
+import 'echarts/lib/chart/line'
+import 'echarts/lib/component/polar'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
+// or import All ECharts modules 
+import ECharts from 'vue-echarts'
+
 // register component to use
+Vue.component('chart', ECharts);
 ```
 
 #### Heads up (before `v2.3.4`)
