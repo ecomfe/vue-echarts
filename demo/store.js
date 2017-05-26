@@ -15,7 +15,7 @@ export default new Vuex.Store({
     ]
   },
   getters: {
-    scoreRadar({scores}) {
+    scoreRadar ({scores}) {
       return {
         title: {
           text: '能力雷达图'
@@ -29,19 +29,19 @@ export default new Vuex.Store({
         series: [{
           name: '能力值',
           type: 'radar',
-          data : [{value: scores.map(({value}) => value)}]
+          data: [{value: scores.map(({value}) => value)}]
         }]
       }
     }
   },
   mutations: {
-    increment({scores}, {amount = 1, index = 0}) {
+    increment ({scores}, {amount = 1, index = 0}) {
       let metric = scores[index]
       metric.value = Math.max(Math.min(metric.value + amount, metric.max), 0)
     }
   },
   actions: {
-    asyncIncrement({commit}, {amount = 1, index, delay}) {
+    asyncIncrement ({commit}, {amount = 1, index, delay}) {
       setTimeout(() => {
         commit('increment', {amount, index})
       }, delay)
