@@ -318,6 +318,9 @@ export default {
       return this.$store.state.scores[this.metricIndex].value === 0
     }
   },
+  components: {
+      chart: ECharts
+  },
   methods: {
     load () {
       // simulating async data from server
