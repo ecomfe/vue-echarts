@@ -87,13 +87,13 @@ export default {
     }
   },
   watch: {
-    // use assign statements to tigger "options" and "group" setters
+    // use assign statements to trigger "options" and "group" setters
     options: {
       handler (options) {
         if (!this.chart && options) {
           this._init()
         } else {
-          this.chart.setOption(this.options, true)
+          this.chart.setOption(this.options)
         }
       },
       deep: true
