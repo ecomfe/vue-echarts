@@ -53,7 +53,7 @@ const MOUSE_EVENTS = [
 export default {
   props: {
     options: Object,
-    theme: String,
+    theme: String | Object,
     initOptions: Object,
     group: String,
     autoResize: Boolean
