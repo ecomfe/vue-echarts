@@ -7,10 +7,12 @@ const commonjs = require('rollup-plugin-commonjs')
 export default {
   entry: 'src/index.js',
   external: [
-    'vue'
+    'vue',
+    'echarts'
   ],
   globals: {
-    vue: 'Vue'
+    vue: 'Vue',
+    echarts: 'echarts'
   },
   format: 'umd',
   moduleName: 'VueECharts',

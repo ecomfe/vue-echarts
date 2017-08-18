@@ -10,7 +10,6 @@
 </style>
 
 <script>
-import echarts from 'echarts/lib/echarts'
 import debounce from 'lodash.debounce'
 import Vue from 'vue'
 
@@ -56,7 +55,8 @@ export default {
     theme: String,
     initOptions: Object,
     group: String,
-    autoResize: Boolean
+    autoResize: Boolean,
+    echarts: Object
   },
   data () {
     return {
@@ -156,7 +156,7 @@ export default {
         return
       }
 
-      let chart = echarts.init(this.$el, this.theme, this.initOptions)
+      let chart = this.echarts.init(this.$el, this.theme, this.initOptions)
 
       if (this.group) {
         chart.group = this.group
@@ -208,16 +208,16 @@ export default {
     if (typeof group !== 'string') {
       group = group.map(chart => chart.chart)
     }
-    echarts.connect(group)
+    this.echarts.connect(group)
   },
   disconnect (group) {
-    echarts.disConnect(group)
+    this.echarts.disConnect(group)
   },
   registerMap (...args) {
-    echarts.registerMap(...args)
+    this.echarts.registerMap(...args)
   },
   registerTheme (...args) {
-    echarts.registerTheme(...args)
+    this.echarts.registerTheme(...args)
   }
 }
 </script>

@@ -14,7 +14,7 @@ Just download `dist/vue-echarts.js` and include it in your HTML file:
 <script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
 ```
 
-### npm 
+### npm
 
 ```bash
 $ npm install vue-echarts
@@ -43,10 +43,12 @@ import Vue from 'vue'
 import ECharts from 'vue-echarts/components/ECharts.vue'
 
 // import ECharts modules manually to reduce bundle size
+import echarts from 'echarts/lib/echarts'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
 // register component to use
+<Echarts :echarts="echarts" :options="..." />
 ```
 
 #### Heads up (before `v2.3.4`)
