@@ -195,6 +195,11 @@ export default {
       this._init()
     }
   },
+  activated () {
+    if (this.autoResize) {
+      this.chart && this.chart.resize()
+    }
+  },
   beforeDestroy () {
     if (!this.chart) {
       return
