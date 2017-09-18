@@ -1,6 +1,7 @@
 2.4.1
-* Make `theme` reactive.
-* Add `focusnodeadjacency` & `unfocusnodeadjacency` events.
+* Made `theme` reactive.
+* Added `focusnodeadjacency` & `unfocusnodeadjacency` events.
+* Fixed the problem that charts won't refresh after `keep-alive` components are activated.
 
 2.4.0
 * Add `computedOptions`.
