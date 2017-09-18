@@ -1,12 +1,13 @@
 {
   "name": "vue-echarts",
-  "version": "2.3.9",
+  "version": "2.4.1",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
     "dev": "node build/dev-server.js",
     "demo": "node build/build.js",
-    "build": "cross-env NODE_ENV=production rollup -c"
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "pub": "sh ./publish.sh"
   },
   "keywords": [
     "ECharts",

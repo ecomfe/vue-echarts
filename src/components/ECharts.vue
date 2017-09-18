@@ -36,6 +36,8 @@ const ACTION_EVENTS = [
   'mapselected',
   'mapunselected',
   'axisareaselected',
+  'focusnodeadjacency',
+  'unfocusnodeadjacency',
   'brush',
   'brushselected'
 ]
@@ -70,19 +72,25 @@ export default {
     width: {
       cache: false,
       get () {
-        return this.chart.getWidth()
+        return this._delegateGet('width', 'getWidth')
       }
     },
     height: {
       cache: false,
       get () {
-        return this.chart.getHeight()
+        return this._delegateGet('height', 'getHeight')
       }
     },
     isDisposed: {
       cache: false,
       get () {
-        return this.chart.isDisposed()
+        return !!this._delegateGet('isDisposed', 'isDisposed')
+      }
+    },
+    computedOptions: {
+      cache: false,
+      get () {
+        return this._delegateGet('computedOptions', 'getOption')
       }
     }
   },
@@ -91,17 +99,19 @@ export default {
     options: {
       handler (options) {
         if (!this.chart && options) {
-          this._init()
+          this.init()
         } else {
           this.chart.setOption(this.options, true)
         }
       },
       deep: true
     },
-    group: {
-      handler (group) {
-        this.chart.group = group
-      }
+    group (group) {
+      this.chart.group = group
+    },
+    theme () {
+      this._destroy()
+      this.init()
     }
   },
   methods: {
@@ -151,7 +161,13 @@ export default {
       }
       return this.chart[name](...args)
     },
-    _init () {
+    _delegateGet (name, method) {
+      if (!this.chart) {
+        Vue.util.warn(`Cannot get [${name}] before the chart is initialized. Set prop [options] first.`, this)
+      }
+      return this.chart[method]()
+    },
+    init () {
       if (this.chart) {
         return
       }
@@ -187,12 +203,19 @@ export default {
       }
 
       this.chart = chart
+    },
+    _destroy () {
+      if (this.autoResize) {
+        window.removeEventListener('resize', this.__resizeHanlder)
+      }
+      this.dispose()
+      this.chart = null
     }
   },
   mounted () {
     // auto init if `options` is already provided
     if (this.options) {
-      this._init()
+      this.init()
     }
   },
   activated () {
@@ -204,10 +227,7 @@ export default {
     if (!this.chart) {
       return
     }
-    if (this.autoResize) {
-      window.removeEventListener('resize', this.__resizeHanlder)
-    }
-    this.dispose()
+    this._destroy()
   },
   connect (group) {
     if (typeof group !== 'string') {

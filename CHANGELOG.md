@@ -1,3 +1,13 @@
+2.4.1
+* Make `theme` reactive.
+* Add `focusnodeadjacency` & `unfocusnodeadjacency` events.
+
+2.4.0
+* Add `computedOptions`.
+
+2.3.9
+* Replace publish npm scripts with shell commands to prevent failure upon npm install.
+
 2.3.8
 * Fixed the problem that styles are missing for precompiled version.
 

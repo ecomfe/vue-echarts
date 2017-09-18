@@ -18,7 +18,14 @@
     <figure><chart :options="pie" ref="pie" auto-resize></chart></figure>
 
     <h2>Polar plot <small>(with built-in theme)</small></h2>
-    <figure style="background-color: #333;"><chart :options="polar" theme="dark" auto-resize></chart></figure>
+    <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''"><chart :options="polar" :theme="polarTheme" auto-resize></chart></figure>
+    <p>
+      Theme
+      <select v-model="polarTheme">
+        <option :value="null">Default</option>
+        <option value="dark">Dark</option>
+      </select>
+    </p>
 
     <h2>Scatter plot <small>(with gradient)</small></h2>
     <figure><chart id="scatter" :options="scatter" auto-resize></chart></figure>
@@ -31,7 +38,7 @@
     <figure><chart :options="scoreRadar" auto-resize></chart></figure>
     <p>
       <select v-model="metricIndex">
-        <option v-for="(metric, index) in metrics" :value="index">{{metric}}</option>
+        <option v-for="(metric, index) in metrics" :value="index" :key="index">{{metric}}</option>
       </select>
       <button @click="increase(1)" :disabled="isMax">Increase</button>
       <button @click="increase(-1)" :disabled="isMin">Decrease</button>
@@ -297,6 +304,7 @@ export default {
       map,
       c1,
       c2,
+      polarTheme: 'dark',
       seconds: -1,
       asyncCount: false,
       connected: false,
