@@ -139,10 +139,14 @@ export default {
       return this._delegateMethod('getConnectedDataURL', options)
     },
     clear() {
-      this._delegateMethod('clear')
+      setTimeout(() => {
+        this._delegateMethod('clear')
+      }, 0);
     },
     dispose() {
-      this._delegateMethod('dispose')
+      setTimeout(() => {
+        this._delegateMethod('dispose')
+      }, 0);
     },
     _delegateMethod(name, ...args) {
       if (!this.chart) {
