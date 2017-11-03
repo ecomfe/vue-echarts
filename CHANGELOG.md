@@ -1,3 +1,6 @@
+2.4.2
+* Fixed collision with Vue's internal methods by removing `_` prefix.
+
 2.4.1
 * Made `theme` reactive.
 * Added `focusnodeadjacency` & `unfocusnodeadjacency` events.

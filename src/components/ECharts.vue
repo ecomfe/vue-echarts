@@ -72,25 +72,25 @@ export default {
     width: {
       cache: false,
       get () {
-        return this._delegateGet('width', 'getWidth')
+        return this.delegateGet('width', 'getWidth')
       }
     },
     height: {
       cache: false,
       get () {
-        return this._delegateGet('height', 'getHeight')
+        return this.delegateGet('height', 'getHeight')
       }
     },
     isDisposed: {
       cache: false,
       get () {
-        return !!this._delegateGet('isDisposed', 'isDisposed')
+        return !!this.delegateGet('isDisposed', 'isDisposed')
       }
     },
     computedOptions: {
       cache: false,
       get () {
-        return this._delegateGet('computedOptions', 'getOption')
+        return this.delegateGet('computedOptions', 'getOption')
       }
     }
   },
@@ -110,58 +110,58 @@ export default {
       this.chart.group = group
     },
     theme () {
-      this._destroy()
+      this.destroy()
       this.init()
     }
   },
   methods: {
     // provide a explicit merge option method
     mergeOptions (options) {
-      this._delegateMethod('setOption', options)
+      this.delegateMethod('setOption', options)
     },
     // just delegates ECharts methods to Vue component
     // use explicit params to reduce transpiled size for now
     resize (options) {
-      this._delegateMethod('resize', options)
+      this.delegateMethod('resize', options)
     },
     dispatchAction (payload) {
-      this._delegateMethod('dispatchAction', payload)
+      this.delegateMethod('dispatchAction', payload)
     },
     convertToPixel (finder, value) {
-      return this._delegateMethod('convertToPixel', finder, value)
+      return this.delegateMethod('convertToPixel', finder, value)
     },
     convertFromPixel (finder, value) {
-      return this._delegateMethod('convertFromPixel', finder, value)
+      return this.delegateMethod('convertFromPixel', finder, value)
     },
     containPixel (finder, value) {
-      return this._delegateMethod('containPixel', finder, value)
+      return this.delegateMethod('containPixel', finder, value)
     },
     showLoading (type, options) {
-      this._delegateMethod('showLoading', type, options)
+      this.delegateMethod('showLoading', type, options)
     },
     hideLoading () {
-      this._delegateMethod('hideLoading')
+      this.delegateMethod('hideLoading')
     },
     getDataURL (options) {
-      return this._delegateMethod('getDataURL', options)
+      return this.delegateMethod('getDataURL', options)
     },
     getConnectedDataURL (options) {
-      return this._delegateMethod('getConnectedDataURL', options)
+      return this.delegateMethod('getConnectedDataURL', options)
     },
     clear () {
-      this._delegateMethod('clear')
+      this.delegateMethod('clear')
     },
     dispose () {
-      this._delegateMethod('dispose')
+      this.delegateMethod('dispose')
     },
-    _delegateMethod (name, ...args) {
+    delegateMethod (name, ...args) {
       if (!this.chart) {
         Vue.util.warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
         return
       }
       return this.chart[name](...args)
     },
-    _delegateGet (name, method) {
+    delegateGet (name, method) {
       if (!this.chart) {
         Vue.util.warn(`Cannot get [${name}] before the chart is initialized. Set prop [options] first.`, this)
       }
@@ -204,7 +204,7 @@ export default {
 
       this.chart = chart
     },
-    _destroy () {
+    destroy () {
       if (this.autoResize) {
         window.removeEventListener('resize', this.__resizeHanlder)
       }
@@ -227,7 +227,7 @@ export default {
     if (!this.chart) {
       return
     }
-    this._destroy()
+    this.destroy()
   },
   connect (group) {
     if (typeof group !== 'string') {
