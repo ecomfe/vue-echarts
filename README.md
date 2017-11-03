@@ -190,9 +190,11 @@ export default {
 
 See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/demo).
 
-### Properties
+### Props
 
-* `initOptions` & `theme`
+* `initOptions`
+
+  `theme` **[reactive]**
 
   Used to initialize ECharts instance.
 
@@ -208,11 +210,25 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
   This property indicates ECharts instance should be resized automatically whenever the window is resized.
 
-### Instance Methods
+### Computed
 
-* `mergeOptions` (`setOption` in ECharts)
+* `width` **[reactive] [readonly]**
 
-  *Providing a better method name to describe the actual behavior of `setOption.`*
+  Used to retrieve the current width of the chart instance.
+
+* `height` **[reactive] [readonly]**
+
+  Used to retrieve the current height of the chart instance.
+
+* `computedOptions` **[reactive] [readonly]**
+
+  Used to retrive the actual options calculated by ECharts after updating `options`.
+
+### Methods
+
+* `mergeOptions` (use `setOption` in ECharts under the hood)
+
+  *Provides a better method name to describe the actual behavior of `setOption.`*
 
 * `resize`
 * `dispatchAction`
@@ -257,6 +273,8 @@ Vue-ECharts support the following events:
 * `mapselected`
 * `mapunselected`
 * `axisareaselected`
+* `focusnodeadjacency`
+* `unfocusnodeadjacency`
 * `brush`
 * `brushselected`
 * Mouse events

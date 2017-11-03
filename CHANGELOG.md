@@ -1,3 +1,17 @@
+2.4.2
+* Fixed collision with Vue's internal methods by removing `_` prefix.
+
+2.4.1
+* Made `theme` reactive.
+* Added `focusnodeadjacency` & `unfocusnodeadjacency` events.
+* Fixed the problem that charts won't refresh after `keep-alive` components are activated.
+
+2.4.0
+* Add `computedOptions`.
+
+2.3.9
+* Replace publish npm scripts with shell commands to prevent failure upon npm install.
+
 2.3.8
 * Fixed the problem that styles are missing for precompiled version.
 
