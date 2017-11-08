@@ -1,5 +1,7 @@
-2.4.2
+2.5.0
 * Fixed collision with Vue's internal methods by removing `_` prefix.
+* `mergeOptions` now accept same arguments as ECharts' `setOption` method.
+* Updated ECharts dependency to 3.7.2+.
 
 2.4.1
 * Made `theme` reactive.

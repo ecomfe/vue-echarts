@@ -2,7 +2,7 @@
 
 > ECharts component for Vue.js.
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.3.2`+ and depends on [Vue.js](https://vuejs.org/) `v2.0.1`+.
+Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.7.2`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
 
 ## Installation
 
@@ -14,7 +14,7 @@ Just download `dist/vue-echarts.js` and include it in your HTML file:
 <script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
 ```
 
-### npm 
+### npm
 
 ```bash
 $ npm install vue-echarts
