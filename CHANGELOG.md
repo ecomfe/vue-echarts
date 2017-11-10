@@ -1,3 +1,6 @@
+2.5.1
+* Updated ECharts dependency to `3.8.2`+ to fix module breaking change introduced in `3.8.0`.
+
 2.5.0
 * Fixed collision with Vue's internal methods by removing `_` prefix.
 * `mergeOptions` now accept same arguments as ECharts' `setOption` method.

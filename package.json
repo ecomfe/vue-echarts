@@ -16,7 +16,7 @@
   "author": "Justineo (justice360@gmail.com)",
   "license": "MIT",
   "dependencies": {
-    "echarts": "^3.7.2",
+    "echarts": "^3.8.2",
     "lodash.debounce": "^4.0.8"
   },
   "peerDependencies": {

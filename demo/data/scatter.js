@@ -1,4 +1,4 @@
-import echarts from 'echarts/lib/echarts'
+import { graphic } from 'echarts/lib/export'
 
 const data = [
   [
@@ -317,7 +317,7 @@ export default {
         shadowBlur: 10,
         shadowColor: 'rgba(120, 36, 50, 0.5)',
         shadowOffsetY: 5,
-        color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [
+        color: new graphic.RadialGradient(0.4, 0.3, 1, [
           {
             offset: 0,
             color: 'rgb(251, 118, 123)'
@@ -349,7 +349,7 @@ export default {
         shadowBlur: 10,
         shadowColor: 'rgba(25, 100, 150, 0.5)',
         shadowOffsetY: 5,
-        color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+        color: new graphic.RadialGradient(0.4, 0.3, 1, [{
           offset: 0,
           color: 'rgb(129, 227, 238)'
         }, {
