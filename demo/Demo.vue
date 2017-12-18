@@ -1,24 +1,47 @@
 <template>
   <main>
-    <chart id="logo" :options="logo" auto-resize></chart>
+    <chart 
+      id="logo"
+      :options="logo"
+      auto-resize
+    />
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
     <h2>Bar chart <small>(with async data &amp; custom theme)</small></h2>
-    <figure><chart :options="bar" ref="bar" theme="ovilia-green" auto-resize></chart></figure>
+    <figure>
+      <chart 
+        :options="bar"
+        ref="bar"
+        theme="ovilia-green"
+        auto-resize
+      />
+    </figure>
     <template v-if="seconds < 0">
       <p><button @click="load">Load</button></p>
     </template>
     <template v-else>
-      <p v-if="seconds"><small>Data coming in <b>{{seconds}}</b> second{{seconds > 1 ? 's' : ''}}...</small></p>
+      <p v-if="seconds"><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
       <p v-else><small>Ready.</small></p>
     </template>
 
     <h2>Pie chart <small>(with action dispatch)</small></h2>
-    <figure><chart :options="pie" ref="pie" auto-resize></chart></figure>
+    <figure>
+      <chart
+        :options="pie"
+        ref="pie"
+        auto-resize
+      />
+    </figure>
 
     <h2>Polar plot <small>(with built-in theme)</small></h2>
-    <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''"><chart :options="polar" :theme="polarTheme" auto-resize></chart></figure>
+    <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
+      <chart
+        :options="polar"
+        :theme="polarTheme"
+        auto-resize
+      />
+    </figure>
     <p>
       Theme
       <select v-model="polarTheme">
@@ -28,33 +51,94 @@
     </p>
 
     <h2>Scatter plot <small>(with gradient)</small></h2>
-    <figure><chart id="scatter" :options="scatter" auto-resize></chart></figure>
+    <figure>
+      <chart
+        :options="scatter"
+        auto-resize
+      />
+    </figure>
 
     <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
-    <figure style="background-color: #404a59;"><chart id="map" :options="map" ref="map" auto-resize></chart></figure>
+    <figure style="background-color: #404a59;">
+      <chart
+        :options="map"
+        ref="map"
+        auto-resize
+      />
+    </figure>
     <p><button @click="convert">Convert to image</button></p>
 
     <h2>Radar chart <small>(with Vuex integration)</small></h2>
-    <figure><chart :options="scoreRadar" auto-resize></chart></figure>
+    <figure>
+      <chart
+        :options="scoreRadar"
+        auto-resize
+      />
+    </figure>
     <p>
       <select v-model="metricIndex">
-        <option v-for="(metric, index) in metrics" :value="index" :key="index">{{metric}}</option>
+        <option
+          v-for="(metric, index) in metrics"
+          :value="index"
+          :key="index">{{ metric }}
+        </option>
       </select>
-      <button @click="increase(1)" :disabled="isMax">Increase</button>
-      <button @click="increase(-1)" :disabled="isMin">Decrease</button>
-      <input id="async" type="checkbox" v-model="asyncCount"><label for="async"> Async</label>
+      <button
+        @click="increase(1)"
+        :disabled="isMax"
+      >Increase</button>
+      <button
+        @click="increase(-1)"
+        :disabled="isMin"
+      >Decrease</button>
+      <input
+        id="async"
+        type="checkbox"
+        v-model="asyncCount"
+      >
+      <label for="async">Async</label>
     </p>
 
     <h2>Connectable charts</h2>
-    <figure class="half"><chart :options="c1" group="radiance" ref="c1" auto-resize></chart></figure>
-    <figure class="half"><chart :options="c2" group="radiance" ref="c2" auto-resize></chart></figure>
+    <figure class="half">
+      <chart
+        :options="c1"
+        group="radiance"
+        ref="c1"
+        auto-resize
+      />
+    </figure>
+    <figure class="half">
+      <chart
+        :options="c2"
+        group="radiance"
+        ref="c2"
+        auto-resize
+      />
+    </figure>
     <p>
-      <input id="connect" type="checkbox" v-model="connected"><label for="connect"> Connected</label>
+      <input
+        id="connect"
+        type="checkbox"
+        v-model="connected"
+      >
+      <label for="connect">Connected</label>
     </p>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
     </footer>
+
+    <aside
+      :class="{ modal: true, open }"
+      @click="open = false"
+    >
+      <img
+        v-if="img.src"
+        :src="img.src"
+        :width="img.width"
+      >
+    </aside>
   </main>
 </template>
 
@@ -183,6 +267,28 @@ figure
   height 128px
   pointer-events none
 
+.modal
+  display none
+  position fixed
+  top 0
+  right 0
+  bottom 0
+  left 0
+  background-color rgba(0, 0, 0, .2)
+
+  &.open
+    display block
+
+  img
+    position absolute
+    top 50%
+    left 50%
+    transform translate(-50%, -50%)
+    max-width 80vw
+    border 2px solid #fff
+    border-radius 3px
+    box-shadow 0 0 30px rgba(0, 0, 0, .2)
+
 @media (min-width 980px)
   figure.half
     padding 1em 1.5em
@@ -266,12 +372,12 @@ import 'echarts/lib/component/visualMap'
 
 import 'echarts-liquidfill'
 import logo from './data/logo'
-import {initial as barInit, async as barAsync} from './data/bar'
+import { initial as barInit, async as barAsync } from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import scatter from './data/scatter'
 import map from './data/map'
-import {c1, c2} from './data/connect'
+import { c1, c2 } from './data/connect'
 import store from './store'
 
 // built-in theme
@@ -308,7 +414,9 @@ export default {
       seconds: -1,
       asyncCount: false,
       connected: false,
-      metricIndex: 0
+      metricIndex: 0,
+      open: false,
+      img: {}
     }
   },
   computed: {
@@ -316,10 +424,10 @@ export default {
       return this.$store.getters.scoreRadar
     },
     metrics () {
-      return this.$store.state.scores.map(({name}) => name)
+      return this.$store.state.scores.map(({ name }) => name)
     },
     isMax () {
-      let {value, max} = this.$store.state.scores[this.metricIndex]
+      let { value, max } = this.$store.state.scores[this.metricIndex]
       return value === max
     },
     isMin () {
@@ -347,16 +455,21 @@ export default {
     },
     convert () {
       let map = this.$refs.map
-      let src = map.getDataURL({
-        pixelRatio: window.devicePixelRatio || 1
-      })
-      window.open(`data:text/html,<img src="${src}" width="${map.width}" height="${map.height}">`)
+      let { width, height } = map
+      this.img = {
+        src: map.getDataURL({
+          pixelRatio: window.devicePixelRatio || 1
+        }),
+        width,
+        height
+      }
+      this.open = true
     },
     increase (amount) {
       if (!this.asyncCount) {
-        this.$store.commit('increment', {amount, index: this.metricIndex})
+        this.$store.commit('increment', { amount, index: this.metricIndex })
       } else {
-        this.$store.dispatch('asyncIncrement', {amount, index: this.metricIndex, delay: 500})
+        this.$store.dispatch('asyncIncrement', { amount, index: this.metricIndex, delay: 500 })
       }
     }
   },

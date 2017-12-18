@@ -2,7 +2,7 @@
 
 > ECharts component for Vue.js.
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.7.2`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
+Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
 
 ## Installation
 
@@ -194,37 +194,43 @@ export default {
 
 See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/demo).
 
-### Props
+### Props *(all reactive)*
 
 * `initOptions`
 
-  `theme` **[reactive]**
-
   Used to initialize ECharts instance.
 
-* `options` **[reactive]**
+* `theme`
 
-  Used to update data for ECharts instance. Modifying this property will trigger ECharts' `setOption` method.
+  The theme used for current ECharts instance.
 
-* `group` **[reactive]**
+* `options`
 
-  This property is automatically bound to the same property of the ECharts instance.
+  Used to update data for ECharts instance. Modifying this prop will trigger ECharts' `setOption` method.
 
-* `auto-resize`
+* `group`
 
-  This property indicates ECharts instance should be resized automatically whenever the window is resized.
+  This prop is automatically bound to the same prop of the ECharts instance.
+
+* `auto-resize` (default: `false`)
+
+  This prop indicates ECharts instance should be resized automatically whenever the window is resized.
+
+* `watchShallow` (default: `false`)
+
+  This prop is used to turn off the default deep watch for `options` prop. For charts with large amount of data, you may need to set this prop so that Vue only watches the `options` prop itself instead of watching all its properties inside. To trigger the rerender of the chart, you have to change the root reference to `option` prop itself, or you can manually manage data via the `mergeOptions` method.
 
 ### Computed
 
-* `width` **[reactive] [readonly]**
+* `width` **[readonly]**
 
   Used to retrieve the current width of the chart instance.
 
-* `height` **[reactive] [readonly]**
+* `height` **[readonly]**
 
   Used to retrieve the current height of the chart instance.
 
-* `computedOptions` **[reactive] [readonly]**
+* `computedOptions` **[readonly]**
 
   Used to retrive the actual options calculated by ECharts after updating `options`.
 

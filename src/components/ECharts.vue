@@ -1,5 +1,5 @@
 <template>
-  <div class="echarts"></div>
+<div class="echarts"/>
 </template>
 
 <style>
@@ -58,7 +58,8 @@ export default {
     theme: [String, Object],
     initOptions: Object,
     group: String,
-    autoResize: Boolean
+    autoResize: Boolean,
+    watchShallow: Boolean
   },
   data () {
     return {
@@ -95,23 +96,8 @@ export default {
     }
   },
   watch: {
-    // use assign statements to tigger "options" and "group" setters
-    options: {
-      handler (options) {
-        if (!this.chart && options) {
-          this.init()
-        } else {
-          this.chart.setOption(this.options, true)
-        }
-      },
-      deep: true
-    },
     group (group) {
       this.chart.group = group
-    },
-    theme () {
-      this.destroy()
-      this.init()
     }
   },
   methods: {
@@ -210,7 +196,27 @@ export default {
       }
       this.dispose()
       this.chart = null
+    },
+    refresh () {
+      this.destroy()
+      this.init()
     }
+  },
+  created () {
+    this.$watch('options', options => {
+      if (!this.chart && options) {
+        this.init()
+      } else {
+        this.chart.setOption(this.options, true)
+      }
+    }, { deep: !this.watchShallow })
+
+    let watched = ['theme', 'initOptions', 'autoResize', 'watchShallow']
+    watched.forEach(prop => {
+      this.$watch(prop, () => {
+        this.refresh()
+      }, { deep: true })
+    })
   },
   mounted () {
     // auto init if `options` is already provided

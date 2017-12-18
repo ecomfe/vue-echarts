@@ -1,3 +1,8 @@
+2.6.0
+* Added `watchShallow` prop to manually disable deep watch on `options` to optimize performance for charts with large amout of data.
+* Made all props reactive.
+* Updated ECharts dependency to `^3.8.5`.
+
 2.5.1
 * Updated ECharts dependency to `3.8.2`+ to fix module breaking change introduced in `3.8.0`.
 
