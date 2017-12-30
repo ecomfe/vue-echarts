@@ -1,12 +1,10 @@
 # Vue-ECharts
 
-> ECharts component for Vue.js.
+> ECharts 的 Vue.js 组件。
 
-> [🇨🇳 中文版](./README.zh_CN.md)
+基于 [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
-
-## Installation
+## 安装
 
 ### npm
 
@@ -14,37 +12,43 @@ Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ and depends 
 $ npm install vue-echarts
 ```
 
-### Manual
+### bower
 
-Just download `dist/vue-echarts.js` and include it in your HTML file:
+```bash
+$ bower install vue-echarts
+```
+
+### 手动安装
+
+直接下载 `dist/vue-echarts.js` 并在 HTML 文件中引入：
 
 ```html
 <script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
 ```
 
-## Usage
+## 使用方法
 
-### ES Modules with npm & vue-loader (Recommended)
+### 用 npm 与 vue-loader 基于 ES Module 引入（推荐用法）
 
 ```js
 import Vue from 'vue'
-import ECharts from 'vue-echarts/components/ECharts'
+import ECharts from 'vue-echarts/components/ECharts.vue'
 
-// import ECharts modules manually to reduce bundle size
+// 手动引入 ECharts 各模块来减小打包体积
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
-// register component to use
+// 注册组件后即可使用
 Vue.component('chart', ECharts)
 ```
 
-## ⚠️ Heads up
+## ⚠️ 注意事项
 
-### Importing the souce version
+### 引入源码版本
 
-If you are using vue-cli to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import vue-echarts directly, to optimize bundle size, which is recommended), Vue's webpack template may exclude `node_modules` from files to be transpiled by Babel. To fix this problem, try change `build/webpack.base.conf.js` like this:
+如果你正在使用 vue-cli 来创建项目并且希望使用未经转译的组件（引入 `vue-echarts/components/ECharts` 而非直接引入 `vue-echarts`）来减小打包尺寸（是推荐用法），那么 Vue 的 `webpack` 模板可能会把 `node_modules` 中的文件排除在 Babel 转译范围以外。要解决此问题，需要按下述的方式修改 `build/webpack.base.conf.js`：
 
-For webpack 1.x:
+对于 webpack 1.x：
 
 ```diff
       {
@@ -60,7 +64,7 @@ For webpack 1.x:
       },
 ```
 
-For webpack 2+:
+对于 webpack 2+:
 
 ```diff
       {
@@ -71,23 +75,24 @@ For webpack 2+:
       }
 ```
 
-If you are using bare webpack config, just do similar modifications make it work.
+如果你正直接配置使用 webpack，那么也请做类似的修改使其能够正常工作。
 
-### CommonJS with npm
+### 在没有 ES Next 支持环境下用 npm 以 CommonJS 方式引入
 
 ```js
 var Vue = require('vue')
 
-// requiring the UMD module
+// 引入 UMD 模块
 var ECharts = require('vue-echarts')
 
-// or with vue-loader you can require the src directly
-// and import ECharts modules manually to reduce bundle size
+// 或者在使用 vue-loader 时可以直接引入源码版本，并且手动
+// 引入 ECharts 各个模块来减小打包尺寸
 var ECharts = require('vue-echarts/components/ECharts')
 require('echarts/lib/chart/bar')
 require('echarts/lib/component/tooltip')
 
-// register component to use
+// 注册组件后即可使用
+Vue.component('chart', ECharts)
 ```
 
 ### AMD
@@ -101,21 +106,21 @@ require.config({
 })
 
 require(['vue', 'vue-echarts'], function (Vue, ECharts) {
-  // register component to use...
+  // 注册组件后即可使用
   Vue.component('chart', ECharts)
 })
 ```
 
-### Global variable
+### 全局变量
 
-The component is exposed as `window.VueECharts`.
+组件将通过 `window.VueECharts` 变量暴露接口：
 
 ```js
-// register component to use
+// 注册组件后即可使用
 Vue.component('chart', VueECharts)
 ```
 
-## Using the component
+## 调用组件
 
 ```vue
 <template>
@@ -180,53 +185,53 @@ export default {
 </script>
 ```
 
-See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/demo).
+查看[这里](https://github.com/Justineo/vue-echarts/tree/master/demo)了解更多例子。
 
-### Props *(all reactive)*
+### Props *（均为响应式）*
 
 * `initOptions`
 
-  Used to initialize ECharts instance.
+  用来初始化 ECharts 实例。
 
 * `theme`
 
-  The theme used for current ECharts instance.
+  当前 ECharts 实例使用的主题。
 
 * `options`
 
-  Used to update data for ECharts instance. Modifying this prop will trigger ECharts' `setOption` method.
+  ECharts 实例的数据。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。
 
 * `group`
 
-  This prop is automatically bound to the same prop of the ECharts instance.
+  实例的分组，会自动绑定到 ECharts 组件的同名属性上。
 
-* `auto-resize` (default: `false`)
+* `auto-resize` （默认值：`false`）
 
-  This prop indicates ECharts instance should be resized automatically whenever the window is resized.
+  这个 prop 用来指定 ECharts 实例在窗口尺寸变化时是否需要自动进行重绘。
 
-* `watchShallow` (default: `false`)
+* `watchShallow` （默认值：`false`）
 
-  This prop is used to turn off the default deep watch for `options` prop. For charts with large amount of data, you may need to set this prop so that Vue only watches the `options` prop itself instead of watching all its properties inside. To trigger the rerender of the chart, you have to change the root reference to `options` prop itself, or you can manually manage data via the `mergeOptions` method (chart data won't be synchronized with `options` prop when doing this).
+  这个 prop 可以用来关闭默认的对 `options` prop 的深度监听。对于有大量数据的图表，你可能会需要开启这个选项，来让 Vue 仅监听 `options` prop 本身的变化而忽略内部属性的变化。此时在需要重绘图表时，你需要重新设置 `options` prop 的直接引用，或者调用 `mergeOptions` 方法来手动管理图表内的数据（此时 `options` prop 的数据将不和图表内数据同步）。
 
-### Computed
+### 计算属性
 
-* `width` **[readonly]**
+* `width` **[只读]**
 
-  Used to retrieve the current width of the ECharts instance.
+  用来获取 ECharts 实例的当前宽度。
 
-* `height` **[readonly]**
+* `height` **[只读]**
 
-  Used to retrieve the current height of the ECharts instance.
+  用来获取 ECharts 实例的当前高度。
 
-* `computedOptions` **[readonly]**
+* `computedOptions` **[只读]**
 
-  Used to retrive the actual options calculated by ECharts after updating `options`.
+  用来读取 ECharts 更新内部 `options` 后的实际数据。
 
-### Methods
+### 方法
 
-* `mergeOptions` (use `setOption` in ECharts under the hood)
+* `mergeOptions`（底层调用了 ECharts 实例的 `setOption` 方法）
 
-  *Provides a better method name to describe the actual behavior of `setOption`.*
+  *提供了一个更贴切的名称来描述 `setOption` 方法的实际行为。*
 
 * `resize`
 * `dispatchAction`
@@ -240,16 +245,16 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 * `clear`
 * `dispose`
 
-### Static Methods
+### 静态方法
 
 * `connect`
 * `disconnect`
 * `registerMap`
 * `registerTheme`
 
-### Events
+### 事件
 
-Vue-ECharts support the following events:
+Vue-ECharts 支持如下事件：
 
 * `legendselectchanged`
 * `legendselected`
@@ -275,7 +280,7 @@ Vue-ECharts support the following events:
 * `unfocusnodeadjacency`
 * `brush`
 * `brushselected`
-* Mouse events
+* 鼠标事件
   * `click`
   * `dblclick`
   * `mouseover`
@@ -284,13 +289,13 @@ Vue-ECharts support the following events:
   * `mouseup`
   * `globalout`
 
-For further details, see [ECharts' API documentation](https://ecomfe.github.io/echarts-doc/public/en/api.html).
+更多详细信息请参考 [ECharts 的 API 文档](https://ecomfe.github.io/echarts-doc/public/cn/api.html)。
 
-## Local development
+## 本地开发
 
 ```bash
 $ npm i
 $ npm run dev
 ```
 
-Open `http://localhost:8080/demo` to see the demo.
+打开 `http://localhost:8080/demo` 来查看 demo。
