@@ -6,7 +6,7 @@
 
 ## 安装
 
-### npm
+### npm（推荐方式）
 
 ```bash
 $ npm install vue-echarts
@@ -42,9 +42,9 @@ import 'echarts/lib/component/tooltip'
 Vue.component('chart', ECharts)
 ```
 
-## ⚠️ 注意事项
+#### ⚠️ 注意事项
 
-### 引入源码版本
+##### 引入源码版本
 
 如果你正在使用 vue-cli 来创建项目并且希望使用未经转译的组件（引入 `vue-echarts/components/ECharts` 而非直接引入 `vue-echarts`）来减小打包尺寸（是推荐用法），那么 Vue 的 `webpack` 模板可能会把 `node_modules` 中的文件排除在 Babel 转译范围以外。要解决此问题，需要按下述的方式修改 `build/webpack.base.conf.js`：
 

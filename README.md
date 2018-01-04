@@ -8,7 +8,7 @@ Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ and depends 
 
 ## Installation
 
-### npm
+### npm (Recommended)
 
 ```bash
 $ npm install vue-echarts
@@ -38,9 +38,9 @@ import 'echarts/lib/component/tooltip'
 Vue.component('chart', ECharts)
 ```
 
-## ⚠️ Heads up
+#### ⚠️ Heads up
 
-### Importing the souce version
+##### Importing the souce version
 
 If you are using vue-cli to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import vue-echarts directly, to optimize bundle size, which is recommended), Vue's webpack template may exclude `node_modules` from files to be transpiled by Babel. To fix this problem, try change `build/webpack.base.conf.js` like this:
 
