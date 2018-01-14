@@ -17,13 +17,9 @@
         auto-resize
       />
     </figure>
-    <template v-if="seconds < 0">
-      <p><button @click="load">Load</button></p>
-    </template>
-    <template v-else>
-      <p v-if="seconds"><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
-      <p v-else><small>Ready.</small></p>
-    </template>
+    <p v-if="seconds <= 0"><small>Loaded.</small></p>
+    <p v-else><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
+    <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
 
     <h2>Pie chart <small>(with action dispatch)</small></h2>
     <figure>
@@ -372,7 +368,7 @@ import 'echarts/lib/component/visualMap'
 
 import 'echarts-liquidfill'
 import logo from './data/logo'
-import { initial as barInit, async as barAsync } from './data/bar'
+import getBar from './data/bar'
 import pie from './data/pie'
 import polar from './data/polar'
 import scatter from './data/scatter'
@@ -403,7 +399,7 @@ export default {
   data () {
     return {
       logo,
-      bar: barInit,
+      bar: getBar(),
       pie,
       polar,
       scatter,
@@ -435,7 +431,7 @@ export default {
     }
   },
   methods: {
-    load () {
+    refresh () {
       // simulating async data from server
       this.seconds = 3
       let bar = this.$refs.bar
@@ -449,7 +445,7 @@ export default {
         if (this.seconds === 0) {
           clearTimeout(timer)
           bar.hideLoading()
-          bar.mergeOptions(barAsync)
+          bar.mergeOptions(getBar())
         }
       }, 1000)
     },
