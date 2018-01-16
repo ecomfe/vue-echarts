@@ -1,4 +1,6 @@
 # Vue-ECharts
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJustineo%2Fvue-echarts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FJustineo%2Fvue-echarts?ref=badge_shield)
+
 
 > ECharts component for Vue.js.
 
@@ -294,3 +296,7 @@ $ npm run dev
 ```
 
 Open `http://localhost:8080/demo` to see the demo.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJustineo%2Fvue-echarts.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FJustineo%2Fvue-echarts?ref=badge_large)
