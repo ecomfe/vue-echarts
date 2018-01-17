@@ -18,7 +18,7 @@
   "dependencies": {
     "echarts": "^4.0.1",
     "lodash": "^4.17.4",
-    "resize-detector": "0.0.3"
+    "resize-detector": "0.0.5"
   },
   "peerDependencies": {
     "vue": "^2.2.6"

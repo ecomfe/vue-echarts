@@ -1,3 +1,8 @@
+3.0.0
+* Added support for ECharts 4.
+* `auto-resize` now listens to element size change instead of window.
+* Remove deprecated `chart` prefixed events.
+
 2.6.0
 * Added `watchShallow` prop to manually disable deep watch on `options` to optimize performance for charts with large amout of data.
 * Made all props reactive.
