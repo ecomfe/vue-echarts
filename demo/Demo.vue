@@ -1,10 +1,11 @@
 <template>
   <main>
-    <chart 
+    <!-- <chart 
       id="logo"
       :options="logo"
+      :init-options="initOptions"
       auto-resize
-    />
+    /> -->
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
@@ -12,6 +13,7 @@
     <figure>
       <chart 
         :options="bar"
+        :init-options="initOptions"
         ref="bar"
         theme="ovilia-green"
         auto-resize
@@ -25,6 +27,7 @@
     <figure>
       <chart
         :options="pie"
+        :init-options="initOptions"
         ref="pie"
         auto-resize
       />
@@ -34,6 +37,7 @@
     <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
       <chart
         :options="polar"
+        :init-options="initOptions"
         :theme="polarTheme"
         auto-resize
       />
@@ -50,6 +54,7 @@
     <figure>
       <chart
         :options="scatter"
+        :init-options="initOptions"
         auto-resize
       />
     </figure>
@@ -58,6 +63,7 @@
     <figure style="background-color: #404a59;">
       <chart
         :options="map"
+        :init-options="initOptions"
         ref="map"
         auto-resize
       />
@@ -68,6 +74,7 @@
     <figure>
       <chart
         :options="scoreRadar"
+        :init-options="initOptions"
         auto-resize
       />
     </figure>
@@ -99,6 +106,7 @@
     <figure class="half">
       <chart
         :options="c1"
+        :init-options="initOptions"
         group="radiance"
         ref="c1"
         auto-resize
@@ -107,6 +115,7 @@
     <figure class="half">
       <chart
         :options="c2"
+        :init-options="initOptions"
         group="radiance"
         ref="c2"
         auto-resize
@@ -135,8 +144,176 @@
         :width="img.width"
       >
     </aside>
+
+    <aside class="renderer">
+      Renderer: <button @click="toggleRenderer">{{ initOptions.renderer.toUpperCase() }}</button>
+    </aside>
   </main>
 </template>
+
+<script>
+import ECharts from '../src/components/ECharts.vue'
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/chart/line'
+import 'echarts/lib/chart/pie'
+import 'echarts/lib/chart/map'
+import 'echarts/lib/chart/radar'
+import 'echarts/lib/chart/scatter'
+import 'echarts/lib/chart/effectScatter'
+import 'echarts/lib/component/tooltip'
+import 'echarts/lib/component/polar'
+import 'echarts/lib/component/geo'
+import 'echarts/lib/component/legend'
+import 'echarts/lib/component/title'
+import 'echarts/lib/component/visualMap'
+
+import 'echarts-liquidfill'
+import logo from './data/logo'
+import getBar from './data/bar'
+import pie from './data/pie'
+import polar from './data/polar'
+import scatter from './data/scatter'
+import map from './data/map'
+import { c1, c2 } from './data/connect'
+import store from './store'
+
+// built-in theme
+import 'echarts/theme/dark'
+
+// custom theme
+import theme from './theme.json'
+
+// Map of China
+import chinaMap from './china.json'
+
+// registering map data
+ECharts.registerMap('china', chinaMap)
+
+// registering custom theme
+ECharts.registerTheme('ovilia-green', theme)
+
+export default {
+  components: {
+    chart: ECharts
+  },
+  store,
+  data () {
+    return {
+      logo,
+      bar: getBar(),
+      pie,
+      polar,
+      scatter,
+      map,
+      c1,
+      c2,
+      initOptions: {
+        renderer: 'canvas'
+      },
+      polarTheme: 'dark',
+      seconds: -1,
+      asyncCount: false,
+      connected: true,
+      metricIndex: 0,
+      open: false,
+      img: {}
+    }
+  },
+  computed: {
+    scoreRadar () {
+      return this.$store.getters.scoreRadar
+    },
+    metrics () {
+      return this.$store.state.scores.map(({ name }) => name)
+    },
+    isMax () {
+      let { value, max } = this.$store.state.scores[this.metricIndex]
+      return value === max
+    },
+    isMin () {
+      return this.$store.state.scores[this.metricIndex].value === 0
+    }
+  },
+  methods: {
+    refresh () {
+      // simulating async data from server
+      this.seconds = 3
+      let bar = this.$refs.bar
+      bar.showLoading({
+        text: '正在加载',
+        color: '#4ea397',
+        maskColor: 'rgba(255, 255, 255, 0.4)'
+      })
+      let timer = setInterval(() => {
+        this.seconds--
+        if (this.seconds === 0) {
+          clearTimeout(timer)
+          bar.hideLoading()
+          bar.mergeOptions(getBar())
+        }
+      }, 1000)
+    },
+    toggleRenderer () {
+      if (this.initOptions.renderer === 'canvas') {
+        this.initOptions.renderer = 'svg'
+      } else {
+        this.initOptions.renderer = 'canvas'
+      }
+    },
+    convert () {
+      let map = this.$refs.map
+      let { width, height } = map
+      this.img = {
+        src: map.getDataURL({
+          pixelRatio: window.devicePixelRatio || 1
+        }),
+        width,
+        height
+      }
+      this.open = true
+    },
+    increase (amount) {
+      if (!this.asyncCount) {
+        this.$store.commit('increment', { amount, index: this.metricIndex })
+      } else {
+        this.$store.dispatch('asyncIncrement', { amount, index: this.metricIndex, delay: 500 })
+      }
+    }
+  },
+  watch: {
+    connected: {
+      handler (value) {
+        ECharts[value ? 'connect' : 'disconnect']('radiance')
+      }
+    }
+  },
+  mounted () {
+    let dataIndex = -1
+    let pie = this.$refs.pie
+    let dataLen = pie.options.series[0].data.length
+
+    setInterval(() => {
+      pie.dispatchAction({
+        type: 'downplay',
+        seriesIndex: 0,
+        dataIndex
+      })
+      dataIndex = (dataIndex + 1) % dataLen
+      pie.dispatchAction({
+        type: 'highlight',
+        seriesIndex: 0,
+        dataIndex
+      })
+      // 显示 tooltip
+      pie.dispatchAction({
+        type: 'showTip',
+        seriesIndex: 0,
+        dataIndex
+      })
+    }, 1000)
+  }
+}
+</script>
 
 <style lang="stylus">
 *,
@@ -348,158 +525,13 @@ figure
       width 100%
       min-width 0
       height 75vw
+
+.renderer
+  position fixed
+  top 10px
+  left 10px
+  font-size 12px
+
+  button
+    width 48px
 </style>
-
-<script>
-import ECharts from '../src/components/ECharts.vue'
-import 'echarts/lib/chart/bar'
-import 'echarts/lib/chart/line'
-import 'echarts/lib/chart/pie'
-import 'echarts/lib/chart/map'
-import 'echarts/lib/chart/radar'
-import 'echarts/lib/chart/scatter'
-import 'echarts/lib/chart/effectScatter'
-import 'echarts/lib/component/tooltip'
-import 'echarts/lib/component/polar'
-import 'echarts/lib/component/geo'
-import 'echarts/lib/component/legend'
-import 'echarts/lib/component/title'
-import 'echarts/lib/component/visualMap'
-
-import 'echarts-liquidfill'
-import logo from './data/logo'
-import getBar from './data/bar'
-import pie from './data/pie'
-import polar from './data/polar'
-import scatter from './data/scatter'
-import map from './data/map'
-import { c1, c2 } from './data/connect'
-import store from './store'
-
-// built-in theme
-import 'echarts/theme/dark'
-
-// custom theme
-import theme from './theme.json'
-
-// Map of China
-import chinaMap from './china.json'
-
-// registering map data
-ECharts.registerMap('china', chinaMap)
-
-// registering custom theme
-ECharts.registerTheme('ovilia-green', theme)
-
-export default {
-  components: {
-    chart: ECharts
-  },
-  store,
-  data () {
-    return {
-      logo,
-      bar: getBar(),
-      pie,
-      polar,
-      scatter,
-      map,
-      c1,
-      c2,
-      polarTheme: 'dark',
-      seconds: -1,
-      asyncCount: false,
-      connected: false,
-      metricIndex: 0,
-      open: false,
-      img: {}
-    }
-  },
-  computed: {
-    scoreRadar () {
-      return this.$store.getters.scoreRadar
-    },
-    metrics () {
-      return this.$store.state.scores.map(({ name }) => name)
-    },
-    isMax () {
-      let { value, max } = this.$store.state.scores[this.metricIndex]
-      return value === max
-    },
-    isMin () {
-      return this.$store.state.scores[this.metricIndex].value === 0
-    }
-  },
-  methods: {
-    refresh () {
-      // simulating async data from server
-      this.seconds = 3
-      let bar = this.$refs.bar
-      bar.showLoading({
-        text: '正在加载',
-        color: '#4ea397',
-        maskColor: 'rgba(255, 255, 255, 0.4)'
-      })
-      let timer = setInterval(() => {
-        this.seconds--
-        if (this.seconds === 0) {
-          clearTimeout(timer)
-          bar.hideLoading()
-          bar.mergeOptions(getBar())
-        }
-      }, 1000)
-    },
-    convert () {
-      let map = this.$refs.map
-      let { width, height } = map
-      this.img = {
-        src: map.getDataURL({
-          pixelRatio: window.devicePixelRatio || 1
-        }),
-        width,
-        height
-      }
-      this.open = true
-    },
-    increase (amount) {
-      if (!this.asyncCount) {
-        this.$store.commit('increment', { amount, index: this.metricIndex })
-      } else {
-        this.$store.dispatch('asyncIncrement', { amount, index: this.metricIndex, delay: 500 })
-      }
-    }
-  },
-  watch: {
-    connected: {
-      handler (value) {
-        ECharts[value ? 'connect' : 'disconnect']('radiance')
-      }
-    }
-  },
-  mounted () {
-    let dataIndex = -1
-    let pie = this.$refs.pie
-    let dataLen = pie.options.series[0].data.length
-    setInterval(() => {
-      pie.dispatchAction({
-        type: 'downplay',
-        seriesIndex: 0,
-        dataIndex
-      })
-      dataIndex = (dataIndex + 1) % dataLen
-      pie.dispatchAction({
-        type: 'highlight',
-        seriesIndex: 0,
-        dataIndex
-      })
-      // 显示 tooltip
-      pie.dispatchAction({
-        type: 'showTip',
-        seriesIndex: 0,
-        dataIndex
-      })
-    }, 1000)
-    this.connected = true
-  }
-}
-</script>

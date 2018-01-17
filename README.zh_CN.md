@@ -2,7 +2,7 @@
 
 > ECharts 的 Vue.js 组件。
 
-基于 [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
+基于 [ECharts](http://echarts.baidu.com/index.html) `v4.0.1`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
 
 ## 安装
 
@@ -207,7 +207,7 @@ export default {
 
 * `auto-resize` （默认值：`false`）
 
-  这个 prop 用来指定 ECharts 实例在窗口尺寸变化时是否需要自动进行重绘。
+  这个 prop 用来指定 ECharts 实例在组件根元素尺寸变化时是否需要自动进行重绘。
 
 * `watchShallow` （默认值：`false`）
 
@@ -233,6 +233,7 @@ export default {
 
   *提供了一个更贴切的名称来描述 `setOption` 方法的实际行为。*
 
+* `appendData`
 * `resize`
 * `dispatchAction`
 * `showLoading`

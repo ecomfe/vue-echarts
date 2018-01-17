@@ -11,11 +11,12 @@
 
 <script>
 import echarts from 'echarts/lib/echarts'
-import debounce from 'lodash.debounce'
+import debounce from 'lodash/debounce'
+import { addListener, removeListener } from 'resize-detector'
 import Vue from 'vue'
 
 // enumerating ECharts events for now
-const ACTION_EVENTS = [
+const EVENTS = [
   'legendselectchanged',
   'legendselected',
   'legendunselected',
@@ -39,10 +40,7 @@ const ACTION_EVENTS = [
   'focusnodeadjacency',
   'unfocusnodeadjacency',
   'brush',
-  'brushselected'
-]
-
-const MOUSE_EVENTS = [
+  'brushselected',
   'click',
   'dblclick',
   'mouseover',
@@ -107,6 +105,9 @@ export default {
     },
     // just delegates ECharts methods to Vue component
     // use explicit params to reduce transpiled size for now
+    appendData (params) {
+      this.delegateMethod('appendData', params)
+    },
     resize (options) {
       this.delegateMethod('resize', options)
     },
@@ -167,17 +168,9 @@ export default {
       chart.setOption(this.options, true)
 
       // expose ECharts events as custom events
-      ACTION_EVENTS.forEach(event => {
+      EVENTS.forEach(event => {
         chart.on(event, params => {
           this.$emit(event, params)
-        })
-      })
-      MOUSE_EVENTS.forEach(event => {
-        chart.on(event, params => {
-          this.$emit(event, params)
-
-          // for backward compatibility, may remove in the future
-          this.$emit('chart' + event, params)
         })
       })
 
@@ -185,14 +178,14 @@ export default {
         this.__resizeHanlder = debounce(() => {
           chart.resize()
         }, 100, { leading: true })
-        window.addEventListener('resize', this.__resizeHanlder)
+        addListener(this.$el, this.__resizeHanlder)
       }
 
       this.chart = chart
     },
     destroy () {
       if (this.autoResize) {
-        window.removeEventListener('resize', this.__resizeHanlder)
+        removeListener(this.$el, this.__resizeHanlder)
       }
       this.dispose()
       this.chart = null
@@ -244,11 +237,12 @@ export default {
   disconnect (group) {
     echarts.disConnect(group)
   },
-  registerMap (...args) {
-    echarts.registerMap(...args)
+  registerMap (mapName, geoJSON, specialAreas) {
+    echarts.registerMap(mapName, geoJSON, specialAreas)
   },
-  registerTheme (...args) {
-    echarts.registerTheme(...args)
-  }
+  registerTheme (name, theme) {
+    echarts.registerTheme(name, theme)
+  },
+  graphic: echarts.graphic
 }
 </script>

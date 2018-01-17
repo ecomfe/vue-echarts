@@ -4,7 +4,7 @@
 
 > [🇨🇳 中文版](./README.zh_CN.md)
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v3.8.5`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
+Built upon [ECharts](http://echarts.baidu.com/index.html) `v4.0.1`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
 
 ## Installation
 
@@ -202,7 +202,7 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
 * `auto-resize` (default: `false`)
 
-  This prop indicates ECharts instance should be resized automatically whenever the window is resized.
+  This prop indicates ECharts instance should be resized automatically whenever its root is resized.
 
 * `watchShallow` (default: `false`)
 
@@ -228,6 +228,7 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
   *Provides a better method name to describe the actual behavior of `setOption`.*
 
+* `appendData`
 * `resize`
 * `dispatchAction`
 * `showLoading`
