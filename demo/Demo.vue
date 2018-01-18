@@ -9,7 +9,7 @@
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
-    <h2>Bar chart <small>(with async data &amp; custom theme)</small></h2>
+    <h2 id="bar"><a href="#bar">Bar chart <small>(with async data &amp; custom theme)</small></a></h2>
     <figure>
       <chart 
         :options="bar"
@@ -23,7 +23,7 @@
     <p v-else><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
     <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
 
-    <h2>Pie chart <small>(with action dispatch)</small></h2>
+    <h2 id="pie"><a href="#pie">Pie chart <small>(with action dispatch)</small></a></h2>
     <figure>
       <chart
         :options="pie"
@@ -33,7 +33,7 @@
       />
     </figure>
 
-    <h2>Polar plot <small>(with built-in theme)</small></h2>
+    <h2 id="polar"><a href="#polar">Polar plot <small>(with built-in theme)</small></a></h2>
     <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
       <chart
         :options="polar"
@@ -50,7 +50,7 @@
       </select>
     </p>
 
-    <h2>Scatter plot <small>(with gradient)</small></h2>
+    <h2 id="scatter"><a href="#scatter">Scatter plot <small>(with gradient)</small></a></h2>
     <figure>
       <chart
         :options="scatter"
@@ -59,7 +59,7 @@
       />
     </figure>
 
-    <h2>Map <small>(with GeoJSON &amp; image converter)</small></h2>
+    <h2 id="map"><a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a></h2>
     <figure style="background-color: #404a59;">
       <chart
         :options="map"
@@ -70,7 +70,7 @@
     </figure>
     <p><button @click="convert">Convert to image</button></p>
 
-    <h2>Radar chart <small>(with Vuex integration)</small></h2>
+    <h2 id="radar"><a href="#radar">Radar chart <small>(with Vuex integration)</small></a></h2>
     <figure>
       <chart
         :options="scoreRadar"
@@ -102,7 +102,7 @@
       <label for="async">Async</label>
     </p>
 
-    <h2>Connectable charts</h2>
+    <h2 id="connect"><a href="connect">Connectable charts</a></h2>
     <figure class="half">
       <chart
         :options="c1"
@@ -122,12 +122,13 @@
       />
     </figure>
     <p>
-      <input
-        id="connect"
-        type="checkbox"
-        v-model="connected"
-      >
-      <label for="connect">Connected</label>
+      <label for="connect">
+        <input
+          type="checkbox"
+          v-model="connected"
+        >
+        Connected
+      </label>
     </p>
 
     <footer>
@@ -146,12 +147,22 @@
     </aside>
 
     <aside class="renderer">
-      Renderer: <button @click="toggleRenderer">{{ initOptions.renderer.toUpperCase() }}</button>
+      <button :class="{
+          active: initOptions.renderer === 'canvas'
+        }"
+        @click="initOptions.renderer = 'canvas'"
+      >Canvas</button>
+      <button :class="{
+          active: initOptions.renderer === 'svg'
+        }"
+        @click="initOptions.renderer = 'svg'"
+      >SVG</button>
     </aside>
   </main>
 </template>
 
 <script>
+import qs from 'qs'
 import ECharts from '../src/components/ECharts.vue'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/chart/line'
@@ -198,7 +209,9 @@ export default {
   },
   store,
   data () {
+    let options = qs.parse(location.search, { ignoreQueryPrefix: true })
     return {
+      options,
       logo,
       bar: getBar(),
       pie,
@@ -208,7 +221,7 @@ export default {
       c1,
       c2,
       initOptions: {
-        renderer: 'canvas'
+        renderer: options.renderer || 'canvas'
       },
       polarTheme: 'dark',
       seconds: -1,
@@ -281,10 +294,14 @@ export default {
     }
   },
   watch: {
-    connected: {
-      handler (value) {
-        ECharts[value ? 'connect' : 'disconnect']('radiance')
-      }
+    connected (value) {
+      ECharts[value ? 'connect' : 'disconnect']('radiance')
+    },
+    'initOptions.renderer' (value) {
+      this.options.renderer = value === 'svg' ? value : undefined
+      let query = qs.stringify(this.options)
+      query = query ? ('?' + query) : ''
+      history.pushState({}, document.title, `${location.origin}${location.pathname}${query}${location.hash}`)
     }
   },
   mounted () {
@@ -342,11 +359,12 @@ h2
   font-weight 300
 
 h2
-  margin-top 3em
+  margin-top 2em
+  padding-top 1em
   font-size 1.2em
 
 .desc
-  margin-bottom 4em
+  margin-bottom 3em
   color #7f8c8d
 
 h2 small
@@ -532,7 +550,25 @@ figure
   top 10px
   left 10px
   font-size 12px
+  text-align center
 
   button
+    float left
+    position relative
     width 48px
+    border-radius 4px
+
+    &.active
+      z-index 1
+      background-color #4fc08d
+      color #fff
+
+    &:first-child
+      border-top-right-radius 0
+      border-bottom-right-radius 0
+
+    &:last-child
+      left -1px
+      border-top-left-radius 0
+      border-bottom-left-radius 0
 </style>

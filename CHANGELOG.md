@@ -1,3 +1,6 @@
+3.0.1
+* Fix npm distribution.
+
 3.0.0
 * Added support for ECharts 4.
 * `auto-resize` now listens to element size change instead of window.
