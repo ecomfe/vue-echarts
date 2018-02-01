@@ -48,7 +48,7 @@ Vue.component('chart', ECharts)
 
 如果你正在使用 vue-cli 来创建项目并且希望使用未经转译的组件（引入 `vue-echarts/components/ECharts` 而非直接引入 `vue-echarts`）来减小打包尺寸（是推荐用法），那么 Vue 的 `webpack` 模板可能会把 `node_modules` 中的文件排除在 Babel 转译范围以外。要解决此问题，需要按下述的方式修改 `build/webpack.base.conf.js`：
 
-对于 webpack 1.x：
+对于老版本基于 webpack 1.x 的 cli 模板：
 
 ```diff
       {
@@ -64,14 +64,19 @@ Vue.component('chart', ECharts)
       },
 ```
 
-对于 webpack 2+:
+对于新版本基于 webpack 2+ 的 cli 模板:
 
 ```diff
       {
         test: /\.js$/,
         loader: 'babel-loader',
 -       include: [resolve('src'), resolve('test')]
-+       include: [resolve('src'), resolve('test'), resolve('node_modules/vue-echarts')]
++       include: [
++         resolve('src'),
++         resolve('test'),
++         resolve('node_modules/vue-echarts'),
++         resolve('node_modules/resize-detector')
++       ]
       }
 ```
 
