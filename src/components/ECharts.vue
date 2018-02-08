@@ -175,17 +175,17 @@ export default {
       })
 
       if (this.autoResize) {
-        this.__resizeHanlder = debounce(() => {
+        this.__resizeHandler = debounce(() => {
           chart.resize()
         }, 100, { leading: true })
-        addListener(this.$el, this.__resizeHanlder)
+        addListener(this.$el, this.__resizeHandler)
       }
 
       this.chart = chart
     },
     destroy () {
       if (this.autoResize) {
-        removeListener(this.$el, this.__resizeHanlder)
+        removeListener(this.$el, this.__resizeHandler)
       }
       this.dispose()
       this.chart = null
