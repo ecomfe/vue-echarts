@@ -3,6 +3,12 @@
 - [ ] Feature request / 新特性需求
 - [ ] Bug report / Bug 报告
 
+## Not introduced by ECharts / 非 ECharts 本身问题
+
+Problems about ECharts itself are not handled in this repo. / 本 repo 不负责处理 ECharts 本身的问题。
+
+- [ ] I've checked it's not a problem of ECharts itself. / 我已检查过，这个问题非 ECharts 本身的问题。
+
 ## Details / 详情
 
 ### How are you importing Vue-ECharts? / 你是如何引入 Vue-ECharts 的？
