@@ -1,5 +1,8 @@
+3.0.3
+* Update to `resize-detector@0.1.2`.
+
 3.0.2
-* Update ECharts t `4.0.2`.
+* Update ECharts to `4.0.2`.
 
 3.0.1
 * Fix npm distribution.
