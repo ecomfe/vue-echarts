@@ -1,23 +1,30 @@
 export default function getData () {
-  let items = ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
   return {
-    title: {
-      text: '异步数据加载示例'
-    },
+    legend: {},
     tooltip: {},
-    legend: {
-      data: ['销量']
+    dataset: {
+      // Provide data.
+      source: [
+        ['Product', '2015', '2016', '2017'],
+        ['Matcha Latte', ...randomize()],
+        ['Milk Tea', ...randomize()],
+        ['Cheese Cocoa', ...randomize()],
+        ['Walnut Brownie', ...randomize()]
+      ]
     },
-      xAxis: {
-      data: items
-    },
-    yAxis: {
-      axisLabel: {show: true}
-    },
-    series: [{
-      type: 'bar',
-      name: '销量',
-      data: items.map(() => Math.floor(Math.random() * 40 + 10))
-    }]
+    // Declare X axis, which is a category axis, mapping
+    // to the first column by default.
+    xAxis: { type: 'category' },
+    // Declare Y axis, which is a value axis.
+    yAxis: {},
+    // Declare several series, each of them mapped to a
+    // column of the dataset by default.
+    series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
   }
+}
+
+function randomize () {
+  return Array(3).fill(null).map(v => {
+    return Math.round(300 + Math.random() * 700) / 10
+  })
 }

@@ -177,6 +177,7 @@ import 'echarts/lib/component/geo'
 import 'echarts/lib/component/legend'
 import 'echarts/lib/component/title'
 import 'echarts/lib/component/visualMap'
+import 'echarts/lib/component/dataset'
 
 import 'echarts-liquidfill'
 import logo from './data/logo'
