@@ -1,3 +1,9 @@
+3.0.5
+* Update to `resize-detector@0.1.5`.
+
+3.0.4
+* Fix misused `MutationObserver` (#200).
+
 3.0.3
 * Update to `resize-detector@0.1.2`.
 
