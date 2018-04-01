@@ -1,3 +1,6 @@
+3.0.7
+* Only apply optimization introduce in last version for charts resize from `0` area.
+
 3.0.6
 * Optimize `auto-resize` for initially hidden (`display: none`) charts.
 

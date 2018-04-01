@@ -11,9 +11,12 @@
 
     <h2 id="bar">
       <a href="#bar">Bar chart <small>(with async data &amp; custom theme)</small></a>
-      <button class="round" @click="expand.bar = !expand.bar">{{ expand.bar ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.bar
+      }" @click="expand.bar = !expand.bar" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.bar">
+    <section v-if="expand.bar">
       <figure>
         <chart 
           :options="bar"
@@ -30,9 +33,12 @@
 
     <h2 id="pie">
       <a href="#pie">Pie chart <small>(with action dispatch)</small></a>
-      <button class="round" @click="expand.pie = !expand.pie">{{ expand.pie ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.pie
+      }" @click="expand.pie = !expand.pie" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.pie">
+    <section v-if="expand.pie">
       <figure>
         <chart
           :options="pie"
@@ -45,9 +51,12 @@
 
     <h2 id="polar">
       <a href="#polar">Polar plot <small>(with built-in theme)</small></a>
-      <button class="round" @click="expand.polar = !expand.polar">{{ expand.polar ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.polar
+      }" @click="expand.polar = !expand.polar" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.polar">
+    <section v-if="expand.polar">
       <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
         <chart
           :options="polar"
@@ -67,9 +76,12 @@
 
     <h2 id="scatter">
       <a href="#scatter">Scatter plot <small>(with gradient)</small></a>
-      <button class="round" @click="expand.scatter = !expand.scatter">{{ expand.scatter ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.scatter
+      }" @click="expand.scatter = !expand.scatter" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.scatter">
+    <section v-if="expand.scatter">
       <figure>
         <chart
           :options="scatter"
@@ -81,9 +93,12 @@
 
     <h2 id="map">
       <a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a>
-      <button class="round" @click="expand.map = !expand.map">{{ expand.map ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.map
+      }" @click="expand.map = !expand.map" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.map">
+    <section v-if="expand.map">
       <figure style="background-color: #404a59;">
         <chart
           :options="map"
@@ -97,9 +112,12 @@
 
     <h2 id="radar">
       <a href="#radar">Radar chart <small>(with Vuex integration)</small></a>
-      <button class="round" @click="expand.radar = !expand.radar">{{ expand.radar ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.radar
+      }" @click="expand.radar = !expand.radar" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.radar">
+    <section v-if="expand.radar">
       <figure>
         <chart
           :options="scoreRadar"
@@ -134,9 +152,12 @@
 
     <h2 id="connect">
       <a href="connect">Connectable charts</a>
-      <button class="round" @click="expand.connect = !expand.connect">{{ expand.connect ? '−' : '+' }}</button>
+      <button :class="{
+        round: true,
+        expand: expand.connect
+      }" @click="expand.connect = !expand.connect" aria-label="toggle"></button>
     </h2>
-    <section v-show="expand.connect">
+    <section v-if="expand.connect">
       <figure class="half">
         <chart
           :options="c1"
@@ -487,6 +508,25 @@ button
   &.round
     width 1.6em
     height 1.6em
+    position relative
+
+    &::before,
+    &::after
+      content ""
+      position absolute
+      top 50%
+      left 50%
+      transform translate(-50%, -50%)
+      width 9px
+      height 1px
+      background-color #42b983
+
+    &::after
+      width 1px
+      height 9px
+
+    &.expand::after
+      display none
 
 button,
 label
@@ -531,6 +571,7 @@ figure
     top 50%
     left 50%
     transform translate(-50%, -50%)
+    background-color #404a59
     max-width 80vw
     border 2px solid #fff
     border-radius 3px

@@ -61,7 +61,8 @@ export default {
   },
   data () {
     return {
-      chart: null
+      chart: null,
+      lastArea: 0
     }
   },
   computed: {
@@ -154,6 +155,9 @@ export default {
       }
       return this.chart[method]()
     },
+    getArea () {
+      return this.$el.offsetWidth * this.$el.offsetHeight
+    },
     init () {
       if (this.chart) {
         return
@@ -175,10 +179,17 @@ export default {
       })
 
       if (this.autoResize) {
+        this.lastArea = this.getArea()
         this.__resizeHandler = debounce(() => {
-          this.mergeOptions({}, true)
-          this.resize()
-          this.mergeOptions(this.options, true)
+          if (this.lastArea === 0) {
+            // emulate initial render for initially hidden charts
+            this.mergeOptions({}, true)
+            this.resize()
+            this.mergeOptions(this.options, true)
+          } else {
+            this.resize()
+          }
+          this.lastArea = this.getArea()
         }, 100, { leading: true })
         addListener(this.$el, this.__resizeHandler)
       }
