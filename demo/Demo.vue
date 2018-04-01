@@ -9,127 +9,162 @@
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
-    <h2 id="bar"><a href="#bar">Bar chart <small>(with async data &amp; custom theme)</small></a></h2>
-    <figure>
-      <chart 
-        :options="bar"
-        :init-options="initOptions"
-        ref="bar"
-        theme="ovilia-green"
-        auto-resize
-      />
-    </figure>
-    <p v-if="seconds <= 0"><small>Loaded.</small></p>
-    <p v-else><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
-    <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
+    <h2 id="bar">
+      <a href="#bar">Bar chart <small>(with async data &amp; custom theme)</small></a>
+      <button class="round" @click="expand.bar = !expand.bar">{{ expand.bar ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.bar">
+      <figure>
+        <chart 
+          :options="bar"
+          :init-options="initOptions"
+          ref="bar"
+          theme="ovilia-green"
+          auto-resize
+        />
+      </figure>
+      <p v-if="seconds <= 0"><small>Loaded.</small></p>
+      <p v-else><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
+      <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
+    </section>
 
-    <h2 id="pie"><a href="#pie">Pie chart <small>(with action dispatch)</small></a></h2>
-    <figure>
-      <chart
-        :options="pie"
-        :init-options="initOptions"
-        ref="pie"
-        auto-resize
-      />
-    </figure>
+    <h2 id="pie">
+      <a href="#pie">Pie chart <small>(with action dispatch)</small></a>
+      <button class="round" @click="expand.pie = !expand.pie">{{ expand.pie ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.pie">
+      <figure>
+        <chart
+          :options="pie"
+          :init-options="initOptions"
+          ref="pie"
+          auto-resize
+        />
+      </figure>
+    </section>
 
-    <h2 id="polar"><a href="#polar">Polar plot <small>(with built-in theme)</small></a></h2>
-    <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
-      <chart
-        :options="polar"
-        :init-options="initOptions"
-        :theme="polarTheme"
-        auto-resize
-      />
-    </figure>
-    <p>
-      Theme
-      <select v-model="polarTheme">
-        <option :value="null">Default</option>
-        <option value="dark">Dark</option>
-      </select>
-    </p>
+    <h2 id="polar">
+      <a href="#polar">Polar plot <small>(with built-in theme)</small></a>
+      <button class="round" @click="expand.polar = !expand.polar">{{ expand.polar ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.polar">
+      <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
+        <chart
+          :options="polar"
+          :init-options="initOptions"
+          :theme="polarTheme"
+          auto-resize
+        />
+      </figure>
+      <p>
+        Theme
+        <select v-model="polarTheme">
+          <option :value="null">Default</option>
+          <option value="dark">Dark</option>
+        </select>
+      </p>
+    </section>
 
-    <h2 id="scatter"><a href="#scatter">Scatter plot <small>(with gradient)</small></a></h2>
-    <figure>
-      <chart
-        :options="scatter"
-        :init-options="initOptions"
-        auto-resize
-      />
-    </figure>
+    <h2 id="scatter">
+      <a href="#scatter">Scatter plot <small>(with gradient)</small></a>
+      <button class="round" @click="expand.scatter = !expand.scatter">{{ expand.scatter ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.scatter">
+      <figure>
+        <chart
+          :options="scatter"
+          :init-options="initOptions"
+          auto-resize
+        />
+      </figure>
+    </section>
 
-    <h2 id="map"><a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a></h2>
-    <figure style="background-color: #404a59;">
-      <chart
-        :options="map"
-        :init-options="initOptions"
-        ref="map"
-        auto-resize
-      />
-    </figure>
-    <p><button @click="convert">Convert to image</button></p>
+    <h2 id="map">
+      <a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a>
+      <button class="round" @click="expand.map = !expand.map">{{ expand.map ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.map">
+      <figure style="background-color: #404a59;">
+        <chart
+          :options="map"
+          :init-options="initOptions"
+          ref="map"
+          auto-resize
+        />
+      </figure>
+      <p><button @click="convert">Convert to image</button></p>
+    </section>
 
-    <h2 id="radar"><a href="#radar">Radar chart <small>(with Vuex integration)</small></a></h2>
-    <figure>
-      <chart
-        :options="scoreRadar"
-        :init-options="initOptions"
-        auto-resize
-      />
-    </figure>
-    <p>
-      <select v-model="metricIndex">
-        <option
-          v-for="(metric, index) in metrics"
-          :value="index"
-          :key="index">{{ metric }}
-        </option>
-      </select>
-      <button
-        @click="increase(1)"
-        :disabled="isMax"
-      >Increase</button>
-      <button
-        @click="increase(-1)"
-        :disabled="isMin"
-      >Decrease</button>
-      <input
-        id="async"
-        type="checkbox"
-        v-model="asyncCount"
-      >
-      <label for="async">Async</label>
-    </p>
-
-    <h2 id="connect"><a href="connect">Connectable charts</a></h2>
-    <figure class="half">
-      <chart
-        :options="c1"
-        :init-options="initOptions"
-        group="radiance"
-        ref="c1"
-        auto-resize
-      />
-    </figure>
-    <figure class="half">
-      <chart
-        :options="c2"
-        :init-options="initOptions"
-        group="radiance"
-        ref="c2"
-        auto-resize
-      />
-    </figure>
-    <p>
-      <label for="connect">
+    <h2 id="radar">
+      <a href="#radar">Radar chart <small>(with Vuex integration)</small></a>
+      <button class="round" @click="expand.radar = !expand.radar">{{ expand.radar ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.radar">
+      <figure>
+        <chart
+          :options="scoreRadar"
+          :init-options="initOptions"
+          auto-resize
+        />
+      </figure>
+      <p>
+        <select v-model="metricIndex">
+          <option
+            v-for="(metric, index) in metrics"
+            :value="index"
+            :key="index">{{ metric }}
+          </option>
+        </select>
+        <button
+          @click="increase(1)"
+          :disabled="isMax"
+        >Increase</button>
+        <button
+          @click="increase(-1)"
+          :disabled="isMin"
+        >Decrease</button>
         <input
+          id="async"
           type="checkbox"
-          v-model="connected"
+          v-model="asyncCount"
         >
-        Connected
-      </label>
-    </p>
+        <label for="async">Async</label>
+      </p>
+    </section>
+
+    <h2 id="connect">
+      <a href="connect">Connectable charts</a>
+      <button class="round" @click="expand.connect = !expand.connect">{{ expand.connect ? '−' : '+' }}</button>
+    </h2>
+    <section v-show="expand.connect">
+      <figure class="half">
+        <chart
+          :options="c1"
+          :init-options="initOptions"
+          group="radiance"
+          ref="c1"
+          auto-resize
+        />
+      </figure>
+      <figure class="half">
+        <chart
+          :options="c2"
+          :init-options="initOptions"
+          group="radiance"
+          ref="c2"
+          auto-resize
+        />
+      </figure>
+      <p>
+        <label for="connect">
+          <input
+            type="checkbox"
+            v-model="connected"
+          >
+          Connected
+        </label>
+      </p>
+    </section>
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
@@ -221,6 +256,15 @@ export default {
       map,
       c1,
       c2,
+      expand: {
+        bar: false,
+        pie: true,
+        polar: true,
+        scatter: true,
+        map: true,
+        radar: true,
+        connect: true
+      },
       initOptions: {
         renderer: options.renderer || 'canvas'
       },
@@ -364,6 +408,10 @@ h2
   padding-top 1em
   font-size 1.2em
 
+  button
+    margin-left 1em
+    vertical-align middle
+
 .desc
   margin-bottom 3em
   color #7f8c8d
@@ -436,6 +484,10 @@ button
     opacity .5
     cursor not-allowed
 
+  &.round
+    width 1.6em
+    height 1.6em
+
 button,
 label
   font-size .75em
@@ -447,9 +499,11 @@ figure
   border-radius 8px
   box-shadow 0 0 45px rgba(0, 0, 0, .2)
   padding 1.5em 2em
+  width: 40vw
 
   .echarts
-    width 40vw
+    // width 40vw
+    width 100%
     min-width 400px
     height 300px
 

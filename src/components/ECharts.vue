@@ -176,7 +176,9 @@ export default {
 
       if (this.autoResize) {
         this.__resizeHandler = debounce(() => {
-          chart.resize()
+          this.mergeOptions({}, true)
+          this.resize()
+          this.mergeOptions(this.options, true)
         }, 100, { leading: true })
         addListener(this.$el, this.__resizeHandler)
       }

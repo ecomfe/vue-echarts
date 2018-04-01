@@ -1,3 +1,6 @@
+3.0.6
+* Optimize `auto-resize` for initially hidden (`display: none`) charts.
+
 3.0.5
 * Update to `resize-detector@0.1.5`.
 
