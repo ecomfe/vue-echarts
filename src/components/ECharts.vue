@@ -195,6 +195,9 @@ export default {
       }
 
       this.chart = chart
+
+      // emit chart init event
+      this.$emit('init', chart)
     },
     destroy () {
       if (this.autoResize) {
