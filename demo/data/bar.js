@@ -24,7 +24,7 @@ export default function getData () {
 }
 
 function randomize () {
-  return Array(3).fill(null).map(v => {
+  return [0, 0, 0].map(v => {
     return Math.round(300 + Math.random() * 700) / 10
   })
 }

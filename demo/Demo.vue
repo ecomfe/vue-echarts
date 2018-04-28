@@ -278,7 +278,7 @@ export default {
       c1,
       c2,
       expand: {
-        bar: false,
+        bar: true,
         pie: true,
         polar: true,
         scatter: true,
