@@ -188,6 +188,7 @@ export default {
             this.mergeOptions(this.options, true)
           } else {
             this.resize()
+            this.$emit('resize')
           }
           this.lastArea = this.getArea()
         }, 100, { leading: true })
