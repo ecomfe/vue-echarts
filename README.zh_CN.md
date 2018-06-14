@@ -64,6 +64,34 @@ Vue.component('chart', ECharts)
 
 如果你正直接配置使用 webpack，那么也请做类似的修改使其能够正常工作。
 
+#### 在 Nuxt.js 中使用
+
+在 Nuxt.js 的服务端中使用 Vue-ECharts 时，可能没有正常转译。这是因为 Nuxt.js 默认配置了 `externals` 选项，会使得 `node_modules` 目录下的绝大多数文件被排除在服务端打包代码以外。需要按如下方式将 `vue-echarts` 加入 `whitelist` 选项：
+
+```js
+// 别忘了运行
+// npm i --save-dev webpack-node-externals
+const nodeExternals = require('webpack-node-externals')
+
+module.exports = {
+  // ...
+  build: {
+    extend (config, { isServer }) {
+      // ...
+      if (isServer) {
+        config.externals = [
+          nodeExternals({
+            // `whitelist` 选项的默认值是
+            // [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i]
+            whitelist: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^vue-echarts/]
+          })
+        ]
+      }
+    }
+  }
+}
+```
+
 ### 在没有 ES Next 支持环境下用 npm 以 CommonJS 方式引入
 
 ```js
@@ -239,6 +267,8 @@ export default {
 * `disconnect`
 * `registerMap`
 * `registerTheme`
+* `graphic.clipPointsByRect`
+* `graphic.clipRectByRect`
 
 ### 事件
 
@@ -247,6 +277,7 @@ Vue-ECharts 支持如下事件：
 * `legendselectchanged`
 * `legendselected`
 * `legendunselected`
+* `legendunscroll`
 * `datazoom`
 * `datarangeselected`
 * `timelinechanged`
@@ -268,6 +299,8 @@ Vue-ECharts 支持如下事件：
 * `unfocusnodeadjacency`
 * `brush`
 * `brushselected`
+* `rendered`
+* `finished`
 * 鼠标事件
   * `click`
   * `dblclick`

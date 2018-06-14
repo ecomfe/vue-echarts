@@ -1,3 +1,6 @@
+3.0.8
+* Add new events and API to adapt the latest version of ECharts.
+
 3.0.7
 * Only apply optimization introduce in last version for charts resize from `0` area.
 

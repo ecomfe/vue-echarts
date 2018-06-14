@@ -60,6 +60,34 @@ If you are using vue-cli to create your project and you want to use the untransp
 
 If you are using bare webpack config, just do similar modifications make it work.
 
+#### Using with Nuxt.js
+
+When using Vue-ECharts on the server side with Nuxt.js, it may be not properly transpiled because Nuxt.js has configured an `external` option by default, which prevent files under `node_modules` from being bundled into the server bundle with only a few exceptions. We need to add `vue-echarts` into the `whitelist` as follows:
+
+```js
+// Don't forget to
+// npm i --save-dev webpack-node-externals
+const nodeExternals = require('webpack-node-externals')
+
+module.exports = {
+  // ...
+  build: {
+    extend (config, { isServer }) {
+      // ...
+      if (isServer) {
+        config.externals = [
+          nodeExternals({
+            // default value for `whitelist` is
+            // [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i]
+            whitelist: [/es6-promise|\.(?!(?:js|json)$).{1,5}$/i, /^vue-echarts/]
+          })
+        ]
+      }
+    }
+  }
+}
+```
+
 ### CommonJS with npm
 
 ```js
@@ -234,6 +262,8 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 * `disconnect`
 * `registerMap`
 * `registerTheme`
+* `graphic.clipPointsByRect`
+* `graphic.clipRectByRect`
 
 ### Events
 
@@ -242,6 +272,7 @@ Vue-ECharts support the following events:
 * `legendselectchanged`
 * `legendselected`
 * `legendunselected`
+* `legendunscroll`
 * `datazoom`
 * `datarangeselected`
 * `timelinechanged`
@@ -263,6 +294,8 @@ Vue-ECharts support the following events:
 * `unfocusnodeadjacency`
 * `brush`
 * `brushselected`
+* `rendered`
+* `finished`
 * Mouse events
   * `click`
   * `dblclick`
