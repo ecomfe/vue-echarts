@@ -1,3 +1,6 @@
+3.0.9
+* Update to `resize-detector@0.1.7` to better handle initial resize callback.
+
 3.0.8
 * Add new events and API to adapt the latest version of ECharts.
 
