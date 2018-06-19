@@ -5,16 +5,18 @@ const resolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
 
 export default {
-  entry: 'src/index.js',
+  input: 'src/index.js',
+  output: {
+    name: 'VueECharts',
+    format: 'umd',
+    file: 'dist/vue-echarts.js',
+    globals: {
+      vue: 'Vue'
+    }
+  },
   external: [
     'vue'
   ],
-  globals: {
-    vue: 'Vue'
-  },
-  format: 'umd',
-  moduleName: 'VueECharts',
-  dest: 'dist/vue-echarts.js',
   plugins: [
     resolve(),
     commonjs(),
