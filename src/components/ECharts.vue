@@ -15,8 +15,6 @@ import debounce from 'lodash/debounce'
 import { addListener, removeListener } from 'resize-detector'
 import Vue from 'vue'
 
-import chartStorage from '../models/chartStorage';
-
 // enumerating ECharts events for now
 const EVENTS = [
   'legendselectchanged',
@@ -66,7 +64,7 @@ export default {
   },
   data () {
     return {
-      chart: null,
+      // chart: null,  make this.chart not reactive
       lastArea: 0
     }
   },
@@ -101,7 +99,7 @@ export default {
   },
   watch: {
     group (group) {
-      chartStorage[this._uid].group = group
+      this.chart.group = group
     }
   },
   methods: {
@@ -148,23 +146,23 @@ export default {
       this.delegateMethod('dispose')
     },
     delegateMethod (name, ...args) {
-      if (!chartStorage[this._uid]) {
+      if (!this.chart) {
         Vue.util.warn(`Cannot call [${name}] before the chart is initialized. Set prop [options] first.`, this)
         return
       }
-      return chartStorage[this._uid][name](...args)
+      return this.chart[name](...args)
     },
     delegateGet (name, method) {
-      if (!chartStorage[this._uid]) {
+      if (!this.chart) {
         Vue.util.warn(`Cannot get [${name}] before the chart is initialized. Set prop [options] first.`, this)
       }
-      return chartStorage[this._uid][method]()
+      return this.chart[method]()
     },
     getArea () {
       return this.$el.offsetWidth * this.$el.offsetHeight
     },
     init () {
-      if (chartStorage[this._uid]) {
+      if (this.chart) {
         return
       }
 
@@ -199,14 +197,14 @@ export default {
         addListener(this.$el, this.__resizeHandler)
       }
 
-      chartStorage[this._uid] = chart
+      this.chart = chart
     },
     destroy () {
       if (this.autoResize) {
         removeListener(this.$el, this.__resizeHandler)
       }
       this.dispose()
-      chartStorage[this._uid] = null
+      this.chart = null
     },
     refresh () {
       this.destroy()
@@ -215,10 +213,10 @@ export default {
   },
   created () {
     this.$watch('options', options => {
-      if (!chartStorage[this._uid] && options) {
+      if (!this.chart && options) {
         this.init()
       } else {
-        chartStorage[this._uid].setOption(this.options, true)
+        this.chart.setOption(this.options, true)
       }
     }, { deep: !this.watchShallow })
 
@@ -237,11 +235,11 @@ export default {
   },
   activated () {
     if (this.autoResize) {
-      chartStorage[this._uid] && chartStorage[this._uid].resize()
+      this.chart && this.chart.resize()
     }
   },
   beforeDestroy () {
-    if (!chartStorage[this._uid]) {
+    if (!this.chart) {
       return
     }
     this.destroy()
