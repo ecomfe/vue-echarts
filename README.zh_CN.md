@@ -224,9 +224,9 @@ export default {
 
   这个 prop 用来指定 ECharts 实例在组件根元素尺寸变化时是否需要自动进行重绘。
 
-* `watchShallow` （默认值：`false`）
+* `manual-update` （默认值：`false`）
 
-  这个 prop 可以用来关闭默认的对 `options` prop 的深度监听。对于有大量数据的图表，你可能会需要开启这个选项，来让 Vue 仅监听 `options` prop 本身的变化而忽略内部属性的变化。此时在需要重绘图表时，你需要重新设置 `options` prop 的直接引用，或者调用 `mergeOptions` 方法来手动管理图表内的数据（此时 `options` prop 的数据将不和图表内数据同步）。
+  在性能敏感（数据量很大）的场景下，我们最好对于 `options` prop 绕过 Vue 的响应式系统。当将 `manual-update` prop 指定为 `true` 且不传入 `options` prop 时，数据将不会被监听。然后，你需要用 `ref` 获取组件实例以后手动调用 `mergeOptions` 方法来更新图表。
 
 ### 计算属性
 

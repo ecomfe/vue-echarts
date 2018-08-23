@@ -219,9 +219,9 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
   This prop indicates ECharts instance should be resized automatically whenever its root is resized.
 
-* `watchShallow` (default: `false`)
+* `manual-update` (default: `false`)
 
-  This prop is used to turn off the default deep watch for `options` prop. For charts with large amount of data, you may need to set this prop so that Vue only watches the `options` prop itself instead of watching all its properties inside. To trigger the rerender of the chart, you have to change the root reference to `options` prop itself, or you can manually manage data via the `mergeOptions` method (chart data won't be synchronized with `options` prop when doing this).
+  For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `options` prop. By specifying `manual-update` prop with `true` and not providing `options` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `mergeOptions` method to update the chart.
 
 ### Computed
 

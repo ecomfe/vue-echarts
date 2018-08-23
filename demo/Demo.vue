@@ -151,7 +151,7 @@
     </section>
 
     <h2 id="connect">
-      <a href="connect">Connectable charts</a>
+      <a href="#connect">Connectable charts</a>
       <button :class="{
         round: true,
         expand: expand.connect
@@ -185,6 +185,25 @@
           Connected
         </label>
       </p>
+    </section>
+
+    <h2 id="flight">
+      <a href="#flight">Manual Updates</a>
+      <button :class="{
+        round: true,
+        expand: expand.flight
+      }" @click="expand.flight = !expand.flight" aria-label="toggle"></button>
+    </h2>
+    <section v-if="expand.flight">
+      <p><small>You may use <code>manual-update</code> prop for performance critical use cases.</small></p>
+      <figure style="background-color: #003;">
+        <chart
+          ref="flight"
+          :init-options="initOptions"
+          manual-update
+          auto-resize
+        />
+      </figure>
     </section>
 
     <footer>
@@ -234,8 +253,10 @@ import 'echarts/lib/component/legend'
 import 'echarts/lib/component/title'
 import 'echarts/lib/component/visualMap'
 import 'echarts/lib/component/dataset'
+import 'echarts/map/js/world'
+import 'zrender/lib/svg/svg'
 
-import 'echarts-liquidfill'
+// import 'echarts-liquidfill'
 import logo from './data/logo'
 import getBar from './data/bar'
 import pie from './data/pie'
@@ -284,7 +305,8 @@ export default {
         scatter: true,
         map: true,
         radar: true,
-        connect: true
+        connect: true,
+        flight: true
       },
       initOptions: {
         renderer: options.renderer || 'canvas'
@@ -328,7 +350,7 @@ export default {
         if (this.seconds === 0) {
           clearTimeout(timer)
           bar.hideLoading()
-          bar.mergeOptions(getBar())
+          this.bar = getBar()
         }
       }, 1000)
     },
@@ -394,6 +416,77 @@ export default {
         dataIndex
       })
     }, 1000)
+
+    let { flight } = this.$refs
+    flight.showLoading({
+      text: '',
+      color: '#c23531',
+      textColor: 'rgba(255, 255, 255, 0.5)',
+      maskColor: '#003',
+      zlevel: 0
+    })
+    fetch('../static/flight.json')
+      .then(response => response.json())
+      .then(data => {
+        flight.hideLoading()
+
+        function getAirportCoord (idx) {
+          return [data.airports[idx][3], data.airports[idx][4]]
+        }
+        let routes = data.routes.map(function (airline) {
+          return [
+            getAirportCoord(airline[1]),
+            getAirportCoord(airline[2])
+          ]
+        })
+
+        flight.mergeOptions({
+          title: {
+            text: 'World Flights',
+            left: 'center',
+            textStyle: {
+              color: '#eee'
+            }
+          },
+          backgroundColor: '#003',
+          tooltip: {
+            formatter (param) {
+              let route = data.routes[param.dataIndex]
+              return data.airports[route[1]][1] + ' > ' + data.airports[route[2]][1]
+            }
+          },
+          geo: {
+            map: 'world',
+            left: 0,
+            right: 0,
+            silent: true,
+            itemStyle: {
+              normal: {
+                borderColor: '#003',
+                color: '#005'
+              }
+            }
+          },
+          series: [
+            {
+              type: 'lines',
+              coordinateSystem: 'geo',
+              data: routes,
+              large: true,
+              largeThreshold: 100,
+              lineStyle: {
+                normal: {
+                  opacity: 0.05,
+                  width: 0.5,
+                  curveness: 0.3
+                }
+              },
+              // 设置混合模式为叠加
+              blendMode: 'lighter'
+            }
+          ]
+        })
+      })
   }
 }
 </script>
@@ -403,6 +496,9 @@ export default {
 *::before,
 *::after
   box-sizing border-box
+
+html
+  scroll-behavior smooth
 
 body
   margin 0

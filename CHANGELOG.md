@@ -1,3 +1,9 @@
+3.1.0
+* Add `manual-update` prop to handle performance critical scenarios.
+* Deprecate `watch-shallow` prop as it was actually not working as expected.
+* Fix the computed getters by using `Object.defineProperties` directly instead of Vue's `computed` as it no longer works as expected after Vue 2.0.
+* Remove `chart` from `data` to gain a performance boost.
+
 3.0.9
 * Update to `resize-detector@0.1.7` to better handle initial resize callback.
 

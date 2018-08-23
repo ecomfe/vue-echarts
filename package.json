@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "3.0.9",
+  "version": "3.1.0",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "Justineo (justice360@gmail.com)",
   "license": "MIT",
   "dependencies": {
-    "echarts": "^4.0.4",
+    "echarts": "^4.1.0",
     "lodash": "^4.17.10",
     "resize-detector": "^0.1.7"
   },
@@ -36,7 +36,7 @@
     "connect-history-api-fallback": "^1.3.0",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.0",
-    "echarts-liquidfill": "^1.1.1",
+    "echarts-liquidfill": "^2.0.2",
     "eslint": "^3.19.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-friendly-formatter": "^2.0.7",
@@ -76,7 +76,8 @@
     "webpack-bundle-analyzer": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.18.0",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "zrender": "^4.0.4"
   },
   "engines": {
     "node": ">= 4.0.0",
