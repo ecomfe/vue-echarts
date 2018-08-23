@@ -64,7 +64,7 @@ export default {
   },
   data () {
     return {
-      // chart: null,  make this.chart not reactive
+      // deleted to make this.chart not reactive
       lastArea: 0
     }
   },
