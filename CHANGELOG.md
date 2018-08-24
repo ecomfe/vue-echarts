@@ -1,3 +1,6 @@
+3.1.1
+* Fix the problem that `options` are not watched as expected.
+
 3.1.0
 * Add `manual-update` prop to handle performance critical scenarios.
 * Deprecate `watch-shallow` prop as it was actually not working as expected.

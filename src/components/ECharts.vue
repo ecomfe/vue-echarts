@@ -228,7 +228,7 @@ export default {
         } else {
           this.chart.setOption(this.options, true)
         }
-      }, { deep: this.watchShallow })
+      }, { deep: !this.watchShallow })
     }
 
     let watched = ['theme', 'initOptions', 'autoResize', 'manualUpdate', 'watchShallow']
