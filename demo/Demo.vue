@@ -177,7 +177,7 @@
         />
       </figure>
       <p>
-        <label for="connect">
+        <label>
           <input
             type="checkbox"
             v-model="connected"
@@ -344,7 +344,7 @@ export default {
       this.seconds = 3
       let bar = this.$refs.bar
       bar.showLoading({
-        text: '正在加载',
+        text: 'Loading…',
         color: '#4ea397',
         maskColor: 'rgba(255, 255, 255, 0.4)'
       })
@@ -459,8 +459,11 @@ export default {
     }
   },
   watch: {
-    connected (value) {
-      ECharts[value ? 'connect' : 'disconnect']('radiance')
+    connected: {
+      handler (value) {
+        ECharts[value ? 'connect' : 'disconnect']('radiance')
+      },
+      immediate: true
     },
     'initOptions.renderer' (value) {
       this.options.renderer = value === 'svg' ? value : undefined
@@ -642,7 +645,7 @@ figure
   border-radius 8px
   box-shadow 0 0 45px rgba(0, 0, 0, .2)
   padding 1.5em 2em
-  width: 40vw
+  min-width: calc(40vw + 4em)
 
   .echarts
     // width 40vw
@@ -683,6 +686,7 @@ figure
 @media (min-width 980px)
   figure.half
     padding 1em 1.5em
+    min-width calc(240px + 3em)
 
     .echarts
       width 28vw
