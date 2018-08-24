@@ -188,7 +188,7 @@
     </section>
 
     <h2 id="flight">
-      <a href="#flight">Manual Updates</a>
+      <a href="#flight">Manual updates</a>
       <button :class="{
         round: true,
         expand: expand.flight
@@ -196,11 +196,12 @@
     </h2>
     <section v-if="expand.flight">
       <p><small>You may use <code>manual-update</code> prop for performance critical use cases.</small></p>
+      <p><button :disabled="flightLoaded" @click="loadFlights">Load</button></p>
       <figure style="background-color: #003;">
         <chart
           ref="flight"
           :init-options="initOptions"
-          manual-update
+          :options="flightOptions"
           auto-resize
         />
       </figure>
@@ -317,7 +318,9 @@ export default {
       connected: true,
       metricIndex: 0,
       open: false,
-      img: {}
+      img: {},
+      flightLoaded: false,
+      flightOptions: null
     }
   },
   computed: {
@@ -379,6 +382,80 @@ export default {
       } else {
         this.$store.dispatch('asyncIncrement', { amount, index: this.metricIndex, delay: 500 })
       }
+    },
+    loadFlights () {
+      this.flightLoaded = true
+
+      let { flight } = this.$refs
+      flight.showLoading({
+        text: '',
+        color: '#c23531',
+        textColor: 'rgba(255, 255, 255, 0.5)',
+        maskColor: '#003',
+        zlevel: 0
+      })
+      fetch('../static/flight.json')
+        .then(response => response.json())
+        .then(data => {
+          flight.hideLoading()
+
+          function getAirportCoord (idx) {
+            return [data.airports[idx][3], data.airports[idx][4]]
+          }
+          let routes = data.routes.map(function (airline) {
+            return [
+              getAirportCoord(airline[1]),
+              getAirportCoord(airline[2])
+            ]
+          })
+
+          this.flightOptions = ({
+            title: {
+              text: 'World Flights',
+              left: 'center',
+              textStyle: {
+                color: '#eee'
+              }
+            },
+            backgroundColor: '#003',
+            tooltip: {
+              formatter (param) {
+                let route = data.routes[param.dataIndex]
+                return data.airports[route[1]][1] + ' > ' + data.airports[route[2]][1]
+              }
+            },
+            geo: {
+              map: 'world',
+              left: 0,
+              right: 0,
+              silent: true,
+              itemStyle: {
+                normal: {
+                  borderColor: '#003',
+                  color: '#005'
+                }
+              }
+            },
+            series: [
+              {
+                type: 'lines',
+                coordinateSystem: 'geo',
+                data: routes,
+                large: true,
+                largeThreshold: 100,
+                lineStyle: {
+                  normal: {
+                    opacity: 0.05,
+                    width: 0.5,
+                    curveness: 0.3
+                  }
+                },
+                // 设置混合模式为叠加
+                blendMode: 'lighter'
+              }
+            ]
+          })
+        })
     }
   },
   watch: {
@@ -416,77 +493,6 @@ export default {
         dataIndex
       })
     }, 1000)
-
-    let { flight } = this.$refs
-    flight.showLoading({
-      text: '',
-      color: '#c23531',
-      textColor: 'rgba(255, 255, 255, 0.5)',
-      maskColor: '#003',
-      zlevel: 0
-    })
-    fetch('../static/flight.json')
-      .then(response => response.json())
-      .then(data => {
-        flight.hideLoading()
-
-        function getAirportCoord (idx) {
-          return [data.airports[idx][3], data.airports[idx][4]]
-        }
-        let routes = data.routes.map(function (airline) {
-          return [
-            getAirportCoord(airline[1]),
-            getAirportCoord(airline[2])
-          ]
-        })
-
-        flight.mergeOptions({
-          title: {
-            text: 'World Flights',
-            left: 'center',
-            textStyle: {
-              color: '#eee'
-            }
-          },
-          backgroundColor: '#003',
-          tooltip: {
-            formatter (param) {
-              let route = data.routes[param.dataIndex]
-              return data.airports[route[1]][1] + ' > ' + data.airports[route[2]][1]
-            }
-          },
-          geo: {
-            map: 'world',
-            left: 0,
-            right: 0,
-            silent: true,
-            itemStyle: {
-              normal: {
-                borderColor: '#003',
-                color: '#005'
-              }
-            }
-          },
-          series: [
-            {
-              type: 'lines',
-              coordinateSystem: 'geo',
-              data: routes,
-              large: true,
-              largeThreshold: 100,
-              lineStyle: {
-                normal: {
-                  opacity: 0.05,
-                  width: 0.5,
-                  curveness: 0.3
-                }
-              },
-              // 设置混合模式为叠加
-              blendMode: 'lighter'
-            }
-          ]
-        })
-      })
   }
 }
 </script>
@@ -630,6 +636,7 @@ label
 
 figure
   display inline-block
+  position relative
   margin 2em auto
   border 1px solid rgba(0, 0, 0, .1)
   border-radius 8px
