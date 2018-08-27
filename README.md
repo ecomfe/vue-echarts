@@ -42,7 +42,21 @@ Vue.component('chart', ECharts)
 
 ##### Importing the souce version
 
-If you are using vue-cli to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import vue-echarts directly, to optimize bundle size, which is recommended), Vue's webpack template may exclude `node_modules` from files to be transpiled by Babel. To fix this problem, try change `build/webpack.base.conf.js` like this:
+If you are using official Vue CLI to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import vue-echarts directly, to optimize bundle size, which is recommended), you'll encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel.
+
+For **Vue CLI 3+**, add `vue-echarts` and `resize-detector` into `transpileDependencies` in `vue.config.js` like this:
+
+```js
+// vue.config.js
+module.exports = {
+  transpileDependencies: [
+    /\bvue-echarts\b/,
+    /\bresize-detector\b/
+  ]
+}
+```
+
+For **Vue CLI 2** with the `webpack` template, modify `build/webpack.base.conf.js` like this:
 
 ```diff
       {
