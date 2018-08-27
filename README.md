@@ -134,17 +134,25 @@ Vue.component('chart', VueECharts)
 
 ```vue
 <template>
-<chart :options="polar"></chart>
+<chart :options="polar"/>
 </template>
 
 <style>
 .echarts {
-  height: 300px;
+  width: 100%;
+  height: 100%;
 }
 </style>
 
 <script>
+import ECharts from 'vue-echarts/components/ECharts'
+import 'echarts/lib/chart/line'
+import 'echarts/lib/component/polar'
+
 export default {
+  components: {
+    chart: ECharts
+  },
   data: function () {
     let data = []
 
