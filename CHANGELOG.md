@@ -1,3 +1,6 @@
+3.1.2
+* Fix the problem that `setOption` is always called with `notMerge: true`.
+
 3.1.1
 * Fix the problem that `options` are not watched as expected.
 

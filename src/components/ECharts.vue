@@ -222,11 +222,18 @@ export default {
   },
   created () {
     if (!this.manualUpdate) {
-      this.$watch('options', options => {
-        if (!this.chart && options) {
+      this.$watch('options', (val, oldVal) => {
+        if (!this.chart && val) {
           this.init()
         } else {
-          this.chart.setOption(this.options, true)
+          // mutating `options` will lead to merging
+          // replacing it with new reference will lead to not merging
+          // eg.
+          // `this.options = Object.assign({}, this.options, { ... })`
+          // will trigger `this.chart.setOption(val, true)
+          // `this.options.title.text = 'Trends'`
+          // will trigger `this.chart.setOption(val, false)`
+          this.chart.setOption(val, val !== oldVal)
         }
       }, { deep: !this.watchShallow })
     }

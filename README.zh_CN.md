@@ -39,7 +39,7 @@ import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
 // 注册组件后即可使用
-Vue.component('chart', ECharts)
+Vue.component('v-chart', ECharts)
 ```
 
 #### ⚠️ 注意事项
@@ -121,7 +121,7 @@ require('echarts/lib/chart/bar')
 require('echarts/lib/component/tooltip')
 
 // 注册组件后即可使用
-Vue.component('chart', ECharts)
+Vue.component('v-chart', ECharts)
 ```
 
 ### AMD
@@ -136,7 +136,7 @@ require.config({
 
 require(['vue', 'vue-echarts'], function (Vue, ECharts) {
   // 注册组件后即可使用
-  Vue.component('chart', ECharts)
+  Vue.component('v-chart', ECharts)
 })
 ```
 
@@ -146,14 +146,14 @@ require(['vue', 'vue-echarts'], function (Vue, ECharts) {
 
 ```js
 // 注册组件后即可使用
-Vue.component('chart', VueECharts)
+Vue.component('v-chart', VueECharts)
 ```
 
 ## 调用组件
 
 ```vue
 <template>
-<chart :options="polar"/>
+<v-chart :options="polar"/>
 </template>
 
 <style>
@@ -237,6 +237,21 @@ export default {
 * `options`
 
   ECharts 实例的数据。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。
+
+  如果直接修改 `options` 绑定的数据而对象引用保持不变，`setOption` 方法调用时将带有参数 `notMerge: false`。否则，如果为 `options` 绑定一个新的对象，`setOption` 方法调用时则将带有参数 `notMerge: true`。
+
+  例如，如果有如下模板：
+
+  ```html
+  <v-chart :options="data"/>
+  ```
+
+  那么：
+
+  ```
+  this.data = newObject // setOption(this.options, true)
+  this.data.title.text = 'Trends' // setOption(this.options, false)
+  ```
 
 * `group`
 

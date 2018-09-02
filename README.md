@@ -35,14 +35,14 @@ import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
 // register component to use
-Vue.component('chart', ECharts)
+Vue.component('v-chart', ECharts)
 ```
 
 #### ⚠️ Heads up
 
 ##### Importing the souce version
 
-If you are using official Vue CLI to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import vue-echarts directly, to optimize bundle size, which is recommended), you'll encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel.
+If you are using official Vue CLI to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import `vue-echarts` directly, to optimize bundle size, which is recommended), you'll encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel.
 
 For **Vue CLI 3+**, add `vue-echarts` and `resize-detector` into `transpileDependencies` in `vue.config.js` like this:
 
@@ -131,7 +131,7 @@ require.config({
 
 require(['vue', 'vue-echarts'], function (Vue, ECharts) {
   // register component to use...
-  Vue.component('chart', ECharts)
+  Vue.component('v-chart', ECharts)
 })
 ```
 
@@ -141,14 +141,14 @@ The component is exposed as `window.VueECharts`.
 
 ```js
 // register component to use
-Vue.component('chart', VueECharts)
+Vue.component('v-chart', VueECharts)
 ```
 
 ## Using the component
 
 ```vue
 <template>
-<chart :options="polar"/>
+<v-chart :options="polar"/>
 </template>
 
 <style>
@@ -232,6 +232,21 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 * `options`
 
   Used to update data for ECharts instance. Modifying this prop will trigger ECharts' `setOption` method.
+
+  If you mutate the data bound to `options` while retaining the object reference, `setOption` will be called with `notMerge: false`. Otherwise, if you bind a new object to `options`, `setOption` will be called with `notMerge: true`.
+
+  For example, if we have the following template:
+
+  ```html
+  <v-chart :options="data"/>
+  ```
+
+  Then:
+
+  ```
+  this.data = newObject // setOption(this.options, true)
+  this.data.title.text = 'Trends' // setOption(this.options, false)
+  ```
 
 * `group`
 
