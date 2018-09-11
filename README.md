@@ -148,7 +148,7 @@ Vue.component('v-chart', VueECharts)
 
 ```vue
 <template>
-<v-chart :options="polar"/>
+<chart :options="polar"/>
 </template>
 
 <style>
