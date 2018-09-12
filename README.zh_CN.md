@@ -153,7 +153,7 @@ Vue.component('v-chart', VueECharts)
 
 ```vue
 <template>
-<chart :options="polar"/>
+<v-chart :options="polar"/>
 </template>
 
 <style>
@@ -170,7 +170,7 @@ import 'echarts/lib/component/polar'
 
 export default {
   components: {
-    chart: ECharts
+    'v-chart': ECharts
   },
   data: function () {
     let data = []
