@@ -170,7 +170,7 @@ import 'echarts/lib/component/polar'
 
 export default {
   components: {
-    chart: ECharts
+    'v-chart': ECharts
   },
   data: function () {
     let data = []
