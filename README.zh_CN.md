@@ -54,8 +54,8 @@ Vue.component('v-chart', ECharts)
 // vue.config.js
 module.exports = {
   transpileDependencies: [
-    /\bvue-echarts\b/,
-    /\bresize-detector\b/
+    /\/node_modules\/vue-echarts\//,
+    /\/node_modules\/resize-detector\//
   ]
 }
 ```

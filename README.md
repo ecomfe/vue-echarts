@@ -50,8 +50,8 @@ For **Vue CLI 3+**, add `vue-echarts` and `resize-detector` into `transpileDepen
 // vue.config.js
 module.exports = {
   transpileDependencies: [
-    /\bvue-echarts\b/,
-    /\bresize-detector\b/
+    /\/node_modules\/vue-echarts\//,
+    /\/node_modules\/resize-detector\//
   ]
 }
 ```
