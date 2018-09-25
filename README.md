@@ -338,9 +338,11 @@ Vue-ECharts support the following events:
   * `dblclick`
   * `mouseover`
   * `mouseout`
+  * `mousemove`
   * `mousedown`
   * `mouseup`
   * `globalout`
+  * `contextmenu`
 
 For further details, see [ECharts' API documentation](https://ecomfe.github.io/echarts-doc/public/en/api.html).
 

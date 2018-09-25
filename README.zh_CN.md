@@ -343,9 +343,11 @@ Vue-ECharts 支持如下事件：
   * `dblclick`
   * `mouseover`
   * `mouseout`
+  * `mousemove`
   * `mousedown`
   * `mouseup`
   * `globalout`
+  * `contextmenu`
 
 更多详细信息请参考 [ECharts 的 API 文档](https://ecomfe.github.io/echarts-doc/public/cn/api.html)。
 

@@ -47,9 +47,11 @@ const EVENTS = [
   'dblclick',
   'mouseover',
   'mouseout',
+  'mousemove',
   'mousedown',
   'mouseup',
-  'globalout'
+  'globalout',
+  'contextmenu'
 ]
 
 export default {

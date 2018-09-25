@@ -1,8 +1,10 @@
-node_modules
+.*
+*.sh
+*.config.js
 build
+config
 demo
+node_modules
 src
-.babelrc
-.gitignore
-bower.json
-webpack.config.js
+static
+index.html
