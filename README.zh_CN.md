@@ -38,6 +38,10 @@ import ECharts from 'vue-echarts/components/ECharts.vue'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
+// 如果需要配合ECHARTS-GL使用，启用3D图表，地球组件和WebGL加速功能
+// 需要安装依赖：npm install echarts-gl，并引用扩展包
+import 'echarts-gl'
+
 // 注册组件后即可使用
 Vue.component('v-chart', ECharts)
 ```
