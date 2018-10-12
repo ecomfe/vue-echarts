@@ -40,7 +40,7 @@ Vue.component('v-chart', ECharts)
 
 #### ⚠️ Heads up
 
-##### Importing the souce version
+##### Importing the source version
 
 If you are using official Vue CLI to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import `vue-echarts` directly, to optimize bundle size, which is recommended), you'll encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel.
 
