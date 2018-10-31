@@ -34,8 +34,9 @@ import ECharts from 'vue-echarts/components/ECharts'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
-// If you wanna make it work with ECHARTS-GL to enable 3D plots, globe visualization and WebGL acceleration
-// you need to install required module by using `npm install echarts-gl`, and import the module
+// If you want to use ECharts extensions, just import the extension package and it will work
+// Taking ECharts-GL as an example:
+// You only need to install the package with `npm install --save echarts-gl` and import it as follows
 import 'echarts-gl'
 
 // register component to use
