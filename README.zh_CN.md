@@ -2,23 +2,17 @@
 
 > ECharts 的 Vue.js 组件。
 
-基于 [ECharts](http://echarts.baidu.com/index.html) `v4.0.1`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
+基于 [ECharts](http://echarts.baidu.com/index.html) `v4.1.0`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
 
 ## 安装
 
 ### npm（推荐方式）
 
 ```bash
-$ npm install vue-echarts
+$ npm install vue-echarts echarts
 ```
 
-### bower
-
-```bash
-$ bower install vue-echarts
-```
-
-### 手动安装
+### 手动引入
 
 直接下载 `dist/vue-echarts.js` 并在 HTML 文件中引入：
 
@@ -28,11 +22,11 @@ $ bower install vue-echarts
 
 ## 使用方法
 
-### 用 npm 与 vue-loader 基于 ES Module 引入（推荐用法）
+### 用 npm 与 Vue Loader 基于 ES Module 引入（推荐用法）
 
 ```js
 import Vue from 'vue'
-import ECharts from 'vue-echarts/components/ECharts.vue'
+import ECharts from 'vue-echarts' // 在 webpack 环境下指向 components/ECharts.vue
 
 // 手动引入 ECharts 各模块来减小打包体积
 import 'echarts/lib/chart/bar'
@@ -51,7 +45,7 @@ Vue.component('v-chart', ECharts)
 
 ##### 引入源码版本
 
-如果你正在使用官方的 Vue CLI 来创建项目并且希望使用未经转译的组件（引入 `vue-echarts/components/ECharts` 而非直接引入 `vue-echarts`）来减小打包尺寸（是推荐用法），会遇到默认配置把 `node_modules` 中的文件排除在 Babel 转译范围以外的问题。
+Vue-ECharts 默认在 webpack 环境下会引入未编译的源码版本，如果你正在使用官方的 Vue CLI 来创建项目，可能会遇到默认配置把 `node_modules` 中的文件排除在 Babel 转译范围以外的问题。请按如下方法修改配置：
 
 当使用 **Vue CLI 3+** 时，需要在 `vue.config.js` 中的 `transpileDependencies` 增加 `vue-echarts` 及 `resize-detector`，如下：
 
@@ -59,8 +53,8 @@ Vue.component('v-chart', ECharts)
 // vue.config.js
 module.exports = {
   transpileDependencies: [
-    /\/node_modules\/vue-echarts\//,
-    /\/node_modules\/resize-detector\//
+    'vue-echarts',
+    'resize-detector'
   ]
 }
 ```
@@ -85,7 +79,20 @@ module.exports = {
 
 #### 在 Nuxt.js 中使用
 
-在 Nuxt.js 的服务端中使用 Vue-ECharts 时，可能没有正常转译。这是因为 Nuxt.js 默认配置了 `externals` 选项，会使得 `node_modules` 目录下的绝大多数文件被排除在服务端打包代码以外。需要按如下方式将 `vue-echarts` 加入 `whitelist` 选项：
+在 Nuxt.js 的服务端中使用 Vue-ECharts 时，可能没有正常转译。这是因为 Nuxt.js 默认会将 `node_modules` 目录下的绝大多数文件被排除在服务端打包代码以外。需要手动将 `vue-echarts` 加入白名单。
+
+对于 **Nuxt.js v2** 项目，按如下方式修改 `nuxt.config.js`：
+
+```js
+module.exports = {
+  build: {
+    transpile: ['vue-echarts', 'resize-detector']
+  }
+}
+```
+
+对于 **Nuxt.js v1** 项目，按如下方式修改 `nuxt.config.js`：
+
 
 ```js
 // 别忘了运行
@@ -135,6 +142,7 @@ Vue.component('v-chart', ECharts)
 require.config({
   paths: {
     'vue': 'path/to/vue',
+    'echarts': 'path/to/echarts',
     'vue-echarts': 'path/to/vue-ehcarts'
   }
 })
@@ -147,7 +155,7 @@ require(['vue', 'vue-echarts'], function (Vue, ECharts) {
 
 ### 全局变量
 
-组件将通过 `window.VueECharts` 变量暴露接口：
+在没有使用任何模块系统的情况下，组件将通过 `window.VueECharts` 变量暴露接口：
 
 ```js
 // 注册组件后即可使用
@@ -169,7 +177,7 @@ Vue.component('v-chart', VueECharts)
 </style>
 
 <script>
-import ECharts from 'vue-echarts/components/ECharts'
+import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/line'
 import 'echarts/lib/component/polar'
 
@@ -177,7 +185,7 @@ export default {
   components: {
     'v-chart': ECharts
   },
-  data: function () {
+  data () {
     let data = []
 
     for (let i = 0; i <= 360; i++) {
@@ -262,7 +270,7 @@ export default {
 
   实例的分组，会自动绑定到 ECharts 组件的同名属性上。
 
-* `auto-resize` （默认值：`false`）
+* `autoresize` （默认值：`false`）
 
   这个 prop 用来指定 ECharts 实例在组件根元素尺寸变化时是否需要自动进行重绘。
 

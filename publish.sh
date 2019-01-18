@@ -1,5 +1,4 @@
 npm run build
-cp -r ./src/* .
-rm index.js
+cp -r ./src/components .
 npm publish
 rm -rf ./components

@@ -1,20 +1,24 @@
 const vue = require('rollup-plugin-vue')
 const buble = require('rollup-plugin-buble')
-const uglify = require('rollup-plugin-uglify')
+const { terser } = require('rollup-plugin-terser')
 const resolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
 
 export default {
-  entry: 'src/index.js',
-  external: [
-    'vue'
-  ],
-  globals: {
-    vue: 'Vue'
+  input: 'src/components/ECharts.vue',
+  output: {
+    file: 'dist/vue-echarts.js',
+    name: 'VueECharts',
+    format: 'umd',
+    globals: {
+      vue: 'Vue',
+      'echarts/lib/echarts': 'echarts'
+    }
   },
-  format: 'umd',
-  moduleName: 'VueECharts',
-  dest: 'dist/vue-echarts.js',
+  external: [
+    'vue',
+    'echarts/lib/echarts'
+  ],
   plugins: [
     resolve(),
     commonjs(),
@@ -23,7 +27,7 @@ export default {
       css: true
     }),
     buble(),
-    uglify({
+    terser({
       compress: {
         global_defs: {
           __DEV__: process.env.NODE_ENV !== 'production'

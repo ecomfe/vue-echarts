@@ -4,14 +4,14 @@
 
 > [🇨🇳 中文版](./README.zh_CN.md)
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v4.0.1`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
+Built upon [ECharts](http://echarts.baidu.com/index.html) `v4.1.0`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
 
 ## Installation
 
 ### npm (Recommended)
 
 ```bash
-$ npm install vue-echarts
+$ npm install vue-echarts echarts
 ```
 
 ### Manual
@@ -24,11 +24,11 @@ Just download `dist/vue-echarts.js` and include it in your HTML file:
 
 ## Usage
 
-### ES Modules with npm & vue-loader (Recommended)
+### ES Modules with npm & Vue Loader (Recommended)
 
 ```js
 import Vue from 'vue'
-import ECharts from 'vue-echarts/components/ECharts'
+import ECharts from 'vue-echarts' // refers to components/ECharts.vue in webpack
 
 // import ECharts modules manually to reduce bundle size
 import 'echarts/lib/chart/bar'
@@ -47,7 +47,7 @@ Vue.component('v-chart', ECharts)
 
 ##### Importing the source version
 
-If you are using official Vue CLI to create your project and you want to use the untranspiled component (import `vue-echarts/components/ECharts` rather than import `vue-echarts` directly, to optimize bundle size, which is recommended), you'll encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel.
+Vue-ECharts offers an untranspiled version for webpack by default. If you are using official Vue CLI to create your project, you may encounter the problem that the default configuration will exclude `node_modules` from files to be transpiled by Babel. You need to modify the configuration as follows:
 
 For **Vue CLI 3+**, add `vue-echarts` and `resize-detector` into `transpileDependencies` in `vue.config.js` like this:
 
@@ -55,8 +55,8 @@ For **Vue CLI 3+**, add `vue-echarts` and `resize-detector` into `transpileDepen
 // vue.config.js
 module.exports = {
   transpileDependencies: [
-    /\/node_modules\/vue-echarts\//,
-    /\/node_modules\/resize-detector\//
+    'vue-echarts',
+    'resize-detector'
   ]
 }
 ```
@@ -81,7 +81,19 @@ If you are using bare webpack config, just do similar modifications make it work
 
 #### Using with Nuxt.js
 
-When using Vue-ECharts on the server side with Nuxt.js, it may be not properly transpiled because Nuxt.js has configured an `external` option by default, which prevent files under `node_modules` from being bundled into the server bundle with only a few exceptions. We need to add `vue-echarts` into the `whitelist` as follows:
+When using Vue-ECharts on the server side with Nuxt.js, it may be not properly transpiled because Nuxt.js prevents files under `node_modules` from being bundled into the server bundle with only a few exceptions by default. We need to whitelist `vue-echarts` manually.
+
+For **Nuxt.js v2**, modify `nuxt.config.js` as follows:
+
+```js
+module.exports = {
+  build: {
+    transpile: ['vue-echarts', 'resize-detector']
+  }
+}
+```
+
+For **Nuxt.js v1**, modify `nuxt.config.js` as follows:
 
 ```js
 // Don't forget to
@@ -117,7 +129,7 @@ var ECharts = require('vue-echarts')
 
 // or with vue-loader you can require the src directly
 // and import ECharts modules manually to reduce bundle size
-var ECharts = require('vue-echarts/components/ECharts')
+var ECharts = require('vue-echarts)
 require('echarts/lib/chart/bar')
 require('echarts/lib/component/tooltip')
 
@@ -130,6 +142,7 @@ require('echarts/lib/component/tooltip')
 require.config({
   paths: {
     'vue': 'path/to/vue',
+    'echarts': 'path/to/echarts',
     'vue-echarts': 'path/to/vue-ehcarts'
   }
 })
@@ -142,7 +155,7 @@ require(['vue', 'vue-echarts'], function (Vue, ECharts) {
 
 ### Global variable
 
-The component is exposed as `window.VueECharts`.
+Without any module system, the component is exposed as `window.VueECharts`.
 
 ```js
 // register component to use
@@ -164,7 +177,7 @@ Vue.component('v-chart', VueECharts)
 </style>
 
 <script>
-import ECharts from 'vue-echarts/components/ECharts'
+import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/line'
 import 'echarts/lib/component/polar'
 
@@ -172,7 +185,7 @@ export default {
   components: {
     'v-chart': ECharts
   },
-  data: function () {
+  data () {
     let data = []
 
     for (let i = 0; i <= 360; i++) {
@@ -257,7 +270,7 @@ See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/dem
 
   This prop is automatically bound to the same prop of the ECharts instance.
 
-* `auto-resize` (default: `false`)
+* `autoresize` (default: `false`)
 
   This prop indicates ECharts instance should be resized automatically whenever its root is resized.
 

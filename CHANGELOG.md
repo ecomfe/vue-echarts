@@ -1,3 +1,9 @@
+4.0.0
+* Move `echarts` into `peerDependencies`. **BREAKING**
+* Rename `auto-resize` to `autoresize`. **BREAKING**
+* Point `module` entry to the source version. **BREAKING**
+* Swith to Vue CLI 3 for demo.
+
 3.1.2
 * Fix the problem that `setOption` is always called with `notMerge: true`.
 

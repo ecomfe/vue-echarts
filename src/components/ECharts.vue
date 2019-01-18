@@ -60,7 +60,7 @@ export default {
     theme: [String, Object],
     initOptions: Object,
     group: String,
-    autoResize: Boolean,
+    autoresize: Boolean,
     watchShallow: Boolean,
     manualUpdate: Boolean
   },
