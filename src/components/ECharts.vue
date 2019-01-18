@@ -160,7 +160,7 @@ export default {
         })
       })
 
-      if (this.autoResize) {
+      if (this.autoresize) {
         this.lastArea = this.getArea()
         this.__resizeHandler = debounce(() => {
           if (this.lastArea === 0) {
@@ -209,7 +209,7 @@ export default {
       this.chart = chart
     },
     destroy () {
-      if (this.autoResize) {
+      if (this.autoresize) {
         removeListener(this.$el, this.__resizeHandler)
       }
       this.dispose()
@@ -240,7 +240,7 @@ export default {
       }, { deep: !this.watchShallow })
     }
 
-    let watched = ['theme', 'initOptions', 'autoResize', 'manualUpdate', 'watchShallow']
+    let watched = ['theme', 'initOptions', 'autoresize', 'manualUpdate', 'watchShallow']
     watched.forEach(prop => {
       this.$watch(prop, () => {
         this.refresh()
@@ -254,7 +254,7 @@ export default {
     }
   },
   activated () {
-    if (this.autoResize) {
+    if (this.autoresize) {
       this.chart && this.chart.resize()
     }
   },

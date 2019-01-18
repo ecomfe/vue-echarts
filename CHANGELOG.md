@@ -1,4 +1,7 @@
-4.0.0
+4.0.0-beta.1
+* Fix autoresize.
+
+4.0.0-beta.0
 * Move `echarts` into `peerDependencies`. **BREAKING**
 * Rename `auto-resize` to `autoresize`. **BREAKING**
 * Point `module` entry to the source version. **BREAKING**
