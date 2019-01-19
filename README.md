@@ -11,15 +11,16 @@ Built upon [ECharts](http://echarts.baidu.com/index.html) `v4.1.0`+ and depends 
 ### npm (Recommended)
 
 ```bash
-$ npm install vue-echarts echarts
+$ npm install echarts vue-echarts
 ```
 
-### Manual
+### CDN
 
-Just download `dist/vue-echarts.js` and include it in your HTML file:
+Include `echarts` and `vue-echarts` in your HTML file like this:
 
 ```html
-<script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.0"></script>
 ```
 
 ## Usage
@@ -79,7 +80,7 @@ For **Vue CLI 2** with the `webpack` template, modify `build/webpack.base.conf.j
 
 If you are using bare webpack config, just do similar modifications make it work.
 
-#### Using with Nuxt.js
+##### Using with Nuxt.js
 
 When using Vue-ECharts on the server side with Nuxt.js, it may be not properly transpiled because Nuxt.js prevents files under `node_modules` from being bundled into the server bundle with only a few exceptions by default. We need to whitelist `vue-echarts` manually.
 
@@ -117,23 +118,6 @@ module.exports = {
     }
   }
 }
-```
-
-### CommonJS with npm
-
-```js
-var Vue = require('vue')
-
-// requiring the UMD module
-var ECharts = require('vue-echarts')
-
-// or with vue-loader you can require the src directly
-// and import ECharts modules manually to reduce bundle size
-var ECharts = require('vue-echarts)
-require('echarts/lib/chart/bar')
-require('echarts/lib/component/tooltip')
-
-// register component to use
 ```
 
 ### AMD

@@ -1,3 +1,6 @@
+4.0.0
+* Release 4.0.0.
+
 4.0.0-beta.1
 * Fix autoresize.
 

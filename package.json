@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "4.0.0-beta.1",
+  "version": "4.0.0",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "module": "components/ECharts.vue",

@@ -9,15 +9,16 @@
 ### npm（推荐方式）
 
 ```bash
-$ npm install vue-echarts echarts
+$ npm install echarts vue-echarts
 ```
 
-### 手动引入
+### CDN
 
-直接下载 `dist/vue-echarts.js` 并在 HTML 文件中引入：
+在 HTML 文件按如下方式依次引入 `echarts` 和 `vue-echarts`：
 
 ```html
-<script src="path/to/vue-echarts/dist/vue-echarts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.0"></script>
 ```
 
 ## 使用方法
@@ -77,7 +78,7 @@ module.exports = {
 
 如果你正直接配置使用 webpack，那么也请做类似的修改使其能够正常工作。
 
-#### 在 Nuxt.js 中使用
+##### 在 Nuxt.js 中使用
 
 在 Nuxt.js 的服务端中使用 Vue-ECharts 时，可能没有正常转译。这是因为 Nuxt.js 默认会将 `node_modules` 目录下的绝大多数文件被排除在服务端打包代码以外。需要手动将 `vue-echarts` 加入白名单。
 
@@ -116,24 +117,6 @@ module.exports = {
     }
   }
 }
-```
-
-### 在没有 ES Next 支持环境下用 npm 以 CommonJS 方式引入
-
-```js
-var Vue = require('vue')
-
-// 引入 UMD 模块
-var ECharts = require('vue-echarts')
-
-// 或者在使用 vue-loader 时可以直接引入源码版本，并且手动
-// 引入 ECharts 各个模块来减小打包尺寸
-var ECharts = require('vue-echarts/components/ECharts')
-require('echarts/lib/chart/bar')
-require('echarts/lib/component/tooltip')
-
-// 注册组件后即可使用
-Vue.component('v-chart', ECharts)
 ```
 
 ### AMD
