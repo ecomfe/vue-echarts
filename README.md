@@ -311,7 +311,7 @@ Vue-ECharts support the following events:
 * `legendselectchanged`
 * `legendselected`
 * `legendunselected`
-* `legendunscroll`
+* `legendscroll`
 * `datazoom`
 * `datarangeselected`
 * `timelinechanged`
