@@ -310,7 +310,7 @@ Vue-ECharts 支持如下事件：
 * `legendselectchanged`
 * `legendselected`
 * `legendunselected`
-* `legendunscroll`
+* `legendscroll`
 * `datazoom`
 * `datarangeselected`
 * `timelinechanged`
