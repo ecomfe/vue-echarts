@@ -1,3 +1,6 @@
+4.0.1
+* Fix `legendscroll` event.
+
 4.0.0
 * Release 4.0.0.
 
