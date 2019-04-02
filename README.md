@@ -224,7 +224,7 @@ export default {
 </script>
 ```
 
-See more examples [here](https://github.com/Justineo/vue-echarts/tree/master/demo).
+See more examples [here](https://github.com/ecomfe/vue-echarts/tree/master/src/demo).
 
 ### Props *(all reactive)*
 
