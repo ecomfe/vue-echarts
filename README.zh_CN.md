@@ -222,7 +222,7 @@ export default {
 </script>
 ```
 
-查看[这里](https://github.com/Justineo/vue-echarts/tree/master/demo)了解更多例子。
+查看[这里](https://github.com/ecomfe/vue-echarts/tree/master/src/demo)了解更多例子。
 
 ### Props *（均为响应式）*
 
