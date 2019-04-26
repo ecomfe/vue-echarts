@@ -54,6 +54,9 @@ const EVENTS = [
   'contextmenu'
 ]
 
+const INIT_TRIGGERS = ['theme', 'initOptions', 'autoresize']
+const REWATCH_TRIGGERS = ['manualUpdate', 'watchShallow']
+
 export default {
   props: {
     options: Object,
@@ -131,11 +134,11 @@ export default {
       }
       return this.chart[name](...args)
     },
-    delegateGet (name, method) {
+    delegateGet (methodName) {
       if (!this.chart) {
         this.init()
       }
-      return this.chart[method]()
+      return this.chart[methodName]()
     },
     getArea () {
       return this.$el.offsetWidth * this.$el.offsetHeight
@@ -183,30 +186,53 @@ export default {
         width: {
           configurable: true,
           get: () => {
-            return this.delegateGet('width', 'getWidth')
+            return this.delegateGet('getWidth')
           }
         },
         height: {
           configurable: true,
           get: () => {
-            return this.delegateGet('height', 'getHeight')
+            return this.delegateGet('getHeight')
           }
         },
         isDisposed: {
           configurable: true,
           get: () => {
-            return !!this.delegateGet('isDisposed', 'isDisposed')
+            return !!this.delegateGet('isDisposed')
           }
         },
         computedOptions: {
           configurable: true,
           get: () => {
-            return this.delegateGet('computedOptions', 'getOption')
+            return this.delegateGet('getOption')
           }
         }
       })
 
       this.chart = chart
+    },
+    initOptionsWatcher () {
+      if (this.__unwatchOptions) {
+        this.__unwatchOptions()
+        this.__unwatchOptions = null
+      }
+
+      if (!this.manualUpdate) {
+        this.__unwatchOptions = this.$watch('options', (val, oldVal) => {
+          if (!this.chart && val) {
+            this.init()
+          } else {
+            // mutating `options` will lead to merging
+            // replacing it with new reference will lead to not merging
+            // eg.
+            // `this.options = Object.assign({}, this.options, { ... })`
+            // will trigger `this.chart.setOption(val, true)
+            // `this.options.title.text = 'Trends'`
+            // will trigger `this.chart.setOption(val, false)`
+            this.chart.setOption(val, val !== oldVal)
+          }
+        }, { deep: !this.watchShallow })
+      }
     },
     destroy () {
       if (this.autoresize) {
@@ -223,28 +249,19 @@ export default {
     }
   },
   created () {
-    if (!this.manualUpdate) {
-      this.$watch('options', (val, oldVal) => {
-        if (!this.chart && val) {
-          this.init()
-        } else {
-          // mutating `options` will lead to merging
-          // replacing it with new reference will lead to not merging
-          // eg.
-          // `this.options = Object.assign({}, this.options, { ... })`
-          // will trigger `this.chart.setOption(val, true)
-          // `this.options.title.text = 'Trends'`
-          // will trigger `this.chart.setOption(val, false)`
-          this.chart.setOption(val, val !== oldVal)
-        }
-      }, { deep: !this.watchShallow })
-    }
+    this.initOptionsWatcher()
 
-    let watched = ['theme', 'initOptions', 'autoresize', 'manualUpdate', 'watchShallow']
-    watched.forEach(prop => {
+    INIT_TRIGGERS.forEach(prop => {
       this.$watch(prop, () => {
         this.refresh()
       }, { deep: true })
+    })
+
+    REWATCH_TRIGGERS.forEach(prop => {
+      this.$watch(prop, () => {
+        this.initOptionsWatcher()
+        this.refresh()
+      })
     })
   },
   mounted () {
