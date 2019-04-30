@@ -20,7 +20,7 @@ Include `echarts` and `vue-echarts` in your HTML file like this:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.2"></script>
 ```
 
 ## Usage
