@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "module": "components/ECharts.vue",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.3.0",
     "@vue/cli-plugin-eslint": "^3.3.0",
-    "@vue/cli-service": "^3.3.0",
+    "@vue/cli-service": "^3.7.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "echarts": "^4.2.0-rc.2",

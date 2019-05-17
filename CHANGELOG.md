@@ -1,3 +1,9 @@
+4.0.3
+* Update to `resize-detector@0.1.10`.
+
+4.0.2
+* Make `manual-update` truely responsive.
+
 4.0.1
 * Fix `legendscroll` event.
 
@@ -11,7 +17,7 @@
 * Move `echarts` into `peerDependencies`. **BREAKING**
 * Rename `auto-resize` to `autoresize`. **BREAKING**
 * Point `module` entry to the source version. **BREAKING**
-* Swith to Vue CLI 3 for demo.
+* Switch to Vue CLI 3 for demo.
 
 3.1.2
 * Fix the problem that `setOption` is always called with `notMerge: true`.
