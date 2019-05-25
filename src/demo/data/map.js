@@ -471,6 +471,16 @@ export default {
           return val.name + ': ' + val.value[2]
         }
       },
+      label: {
+        normal: {
+          formatter: '{b}',
+          position: 'right',
+          show: true
+        },
+        emphasis: {
+          show: true
+        }
+      },
       itemStyle: {
         normal: {
           color: '#f4e925',
