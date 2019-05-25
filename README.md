@@ -357,7 +357,7 @@ For further details, see [ECharts' API documentation](https://ecomfe.github.io/e
 
 ```bash
 $ npm i
-$ npm run dev
+$ npm run serve 
 ```
 
 Open `http://localhost:8080/demo` to see the demo.
