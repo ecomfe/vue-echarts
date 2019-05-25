@@ -476,9 +476,6 @@ export default {
           formatter: '{b}',
           position: 'right',
           show: true
-        },
-        emphasis: {
-          show: true
         }
       },
       itemStyle: {
