@@ -349,7 +349,7 @@ Vue-ECharts 支持如下事件：
   * `globalout`
   * `contextmenu`
 
-更多详细信息请参考 [ECharts 的 API 文档](https://ecomfe.github.io/echarts-doc/public/cn/api.html)。
+更多详细信息请参考 [ECharts 的 API 文档](https://echarts.apache.org/zh/api.html)。
 
 ## 本地开发
 

@@ -351,7 +351,7 @@ Vue-ECharts support the following events:
   * `globalout`
   * `contextmenu`
 
-For further details, see [ECharts' API documentation](https://ecomfe.github.io/echarts-doc/public/en/api.html).
+For further details, see [ECharts' API documentation](https://echarts.apache.org/en/api.html).
 
 ## Local development
 
