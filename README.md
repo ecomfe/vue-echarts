@@ -259,7 +259,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/master/src/d
 
   This prop is automatically bound to the same prop of the ECharts instance.
 
-* `autoresize` (default: `false`)
+* `auto-resize` (default: `false`)
 
   This prop indicates ECharts instance should be resized automatically whenever its root is resized.
 
