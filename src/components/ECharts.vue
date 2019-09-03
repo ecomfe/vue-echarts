@@ -11,7 +11,7 @@
 
 <script>
 import echarts from 'echarts/lib/echarts'
-import debounce from 'lodash/debounce'
+import _ from 'lodash'
 import { addListener, removeListener } from 'resize-detector'
 
 // enumerating ECharts events for now
@@ -165,7 +165,7 @@ export default {
 
       if (this.autoresize) {
         this.lastArea = this.getArea()
-        this.__resizeHandler = debounce(() => {
+        this.__resizeHandler = _.debounce(() => {
           if (this.lastArea === 0) {
             // emulate initial render for initially hidden charts
             this.mergeOptions({}, true)
