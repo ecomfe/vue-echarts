@@ -1,3 +1,6 @@
+4.0.4
+* Update to `echarts@4.3.0`.
+
 4.0.3
 * Update to `resize-detector@0.1.10`.
 

@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "ECharts component for Vue.js.",
   "main": "dist/vue-echarts.js",
   "module": "components/ECharts.vue",
@@ -18,7 +18,7 @@
   "author": "Justineo (justice360@gmail.com)",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "resize-detector": "^0.1.10"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@vue/cli-service": "^3.8.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
-    "echarts": "^4.2.1",
+    "echarts": "^4.3.0",
     "echarts-liquidfill": "^2.0.5",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.2.2",

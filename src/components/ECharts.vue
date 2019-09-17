@@ -275,11 +275,10 @@ export default {
       this.chart && this.chart.resize()
     }
   },
-  beforeDestroy () {
-    if (!this.chart) {
-      return
+  destroyed () {
+    if (this.chart) {
+      this.destroy()
     }
-    this.destroy()
   },
   connect (group) {
     if (typeof group !== 'string') {
