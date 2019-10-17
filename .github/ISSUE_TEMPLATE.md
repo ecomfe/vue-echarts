@@ -13,8 +13,8 @@ Problems about ECharts itself are not handled in this repo. / 本 repo 不负责
 
 ### How are you importing Vue-ECharts? / 你是如何引入 Vue-ECharts 的？
 
-- [ ] Bundled version/打包版本 (`import ECharts from 'vue-echarts'`)
-- [ ] The `.vue` component/`.vue` 组件 (`import ECharts from 'vue-echarts/components/ECharts'`)
+- [ ] Bundled version/打包版本 (`import ECharts from 'vue-echarts/dist/vue-echarts'`)
+- [ ] The `.vue` component/`.vue` 组件 (`import ECharts from 'vue-echarts'`)
 
 ### The version of Vue-ECharts you are using / Vue-ECharts 的版本
 
