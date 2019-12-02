@@ -1,5 +1,15 @@
 <template>
-<div class="echarts"/>
+<div
+  class="echarts"
+  @click="$emit('click', $event)"
+  @dblclick="$emit('dblclick', $event)"
+  @mouseover="$emit('mouseover', $event)"
+  @mouseout="$emit('mouseout', $event)"
+  @mousemove="$emit('mousemove', $event)"
+  @mousedown="$emit('mousedown', $event)"
+  @mouseup="$emit('mouseup', $event)"
+  @contextmenu="$emit('contextmenu', $event)"
+/>
 </template>
 
 <style>
@@ -50,8 +60,7 @@ const EVENTS = [
   'mousemove',
   'mousedown',
   'mouseup',
-  'globalout',
-  'contextmenu'
+  'globalout'
 ]
 
 const INIT_TRIGGERS = ['theme', 'initOptions', 'autoresize']
