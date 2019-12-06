@@ -1,5 +1,10 @@
+4.1.0
+* Fix the problem that `mergeOptions` didn't use the correct options if the instance is inited on-the-fly.
+* Expose ZRender events via `zr:` prefixed events.
+* Update to `echarts@4.5.0` (only affects the bundled version).
+
 4.0.4
-* Update to `echarts@4.3.0`.
+* Update to `echarts@4.3.0` (only affects the bundled version).
 
 4.0.3
 * Update to `resize-detector@0.1.10`.

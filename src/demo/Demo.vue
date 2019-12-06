@@ -24,6 +24,8 @@
           ref="bar"
           theme="ovilia-green"
           autoresize
+          @zr:click="handleZrClick"
+          @click="handleClick"
         />
       </figure>
       <p v-if="seconds <= 0"><small>Loaded.</small></p>
@@ -339,6 +341,12 @@ export default {
     }
   },
   methods: {
+    handleClick () {
+      console.log('click from echars')
+    },
+    handleZrClick () {
+      console.log('click from zrender')
+    },
     refresh () {
       // simulating async data from server
       this.seconds = 3

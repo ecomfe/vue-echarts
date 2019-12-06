@@ -54,6 +54,15 @@ const EVENTS = [
   'contextmenu'
 ]
 
+const ZR_EVENTS = [
+  'click',
+  'mousedown',
+  'mouseup',
+  'mousewheel',
+  'dblclick',
+  'contextmenu'
+]
+
 const INIT_TRIGGERS = ['theme', 'initOptions', 'autoresize']
 const REWATCH_TRIGGERS = ['manualUpdate', 'watchShallow']
 
@@ -78,14 +87,14 @@ export default {
     }
   },
   methods: {
-    // provide a explicit merge option method
+    // provide an explicit merge option method
     mergeOptions (options, notMerge, lazyUpdate) {
       if (this.manualUpdate) {
         this.manualOptions = options
       }
 
       if (!this.chart) {
-        this.init()
+        this.init(options)
       } else {
         this.delegateMethod('setOption', options, notMerge, lazyUpdate)
       }
@@ -143,7 +152,7 @@ export default {
     getArea () {
       return this.$el.offsetWidth * this.$el.offsetHeight
     },
-    init () {
+    init (options) {
       if (this.chart) {
         return
       }
@@ -154,12 +163,18 @@ export default {
         chart.group = this.group
       }
 
-      chart.setOption(this.manualOptions || this.options || {}, true)
+      chart.setOption(options || this.manualOptions || this.options || {}, true)
 
       // expose ECharts events as custom events
       EVENTS.forEach(event => {
         chart.on(event, params => {
           this.$emit(event, params)
+        })
+      })
+
+      ZR_EVENTS.forEach(event => {
+        chart.getZr().on(event, params => {
+          this.$emit(`zr:${event}`, params)
         })
       })
 
