@@ -1,8 +1,8 @@
 const vue = require('rollup-plugin-vue')
-const buble = require('rollup-plugin-buble')
+const buble = require('@rollup/plugin-buble')
 const { terser } = require('rollup-plugin-terser')
-const resolve = require('rollup-plugin-node-resolve')
-const commonjs = require('rollup-plugin-commonjs')
+const resolve = require('@rollup/plugin-node-resolve')
+const commonjs = require('@rollup/plugin-commonjs')
 
 export default {
   input: 'src/components/ECharts.vue',

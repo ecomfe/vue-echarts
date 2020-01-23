@@ -362,7 +362,7 @@ Vue-ECharts 支持如下事件：
 
 ```bash
 $ npm i
-$ npm run dev
+$ npm run serve
 ```
 
 打开 `http://localhost:8080/demo` 来查看 demo。

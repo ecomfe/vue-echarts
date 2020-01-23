@@ -1,4 +1,3 @@
-import 'promise-polyfill'
 import Vue from 'vue'
 import Demo from './Demo.vue'
 
