@@ -1,5 +1,5 @@
 <template>
-<div class="echarts"/>
+  <div class="echarts" />
 </template>
 
 <style>
@@ -13,55 +13,6 @@
 import echarts from 'echarts/lib/echarts'
 import debounce from 'lodash/debounce'
 import { addListener, removeListener } from 'resize-detector'
-
-// enumerating ECharts events for now
-const EVENTS = [
-  'legendselectchanged',
-  'legendselected',
-  'legendunselected',
-  'legendscroll',
-  'datazoom',
-  'datarangeselected',
-  'timelinechanged',
-  'timelineplaychanged',
-  'restore',
-  'dataviewchanged',
-  'magictypechanged',
-  'geoselectchanged',
-  'geoselected',
-  'geounselected',
-  'pieselectchanged',
-  'pieselected',
-  'pieunselected',
-  'mapselectchanged',
-  'mapselected',
-  'mapunselected',
-  'axisareaselected',
-  'focusnodeadjacency',
-  'unfocusnodeadjacency',
-  'brush',
-  'brushselected',
-  'rendered',
-  'finished',
-  'click',
-  'dblclick',
-  'mouseover',
-  'mouseout',
-  'mousemove',
-  'mousedown',
-  'mouseup',
-  'globalout',
-  'contextmenu'
-]
-
-const ZR_EVENTS = [
-  'click',
-  'mousedown',
-  'mouseup',
-  'mousewheel',
-  'dblclick',
-  'contextmenu'
-]
 
 const INIT_TRIGGERS = ['theme', 'initOptions', 'autoresize']
 const REWATCH_TRIGGERS = ['manualUpdate', 'watchShallow']
@@ -157,7 +108,7 @@ export default {
         return
       }
 
-      let chart = echarts.init(this.$el, this.theme, this.initOptions)
+      const chart = echarts.init(this.$el, this.theme, this.initOptions)
 
       if (this.group) {
         chart.group = this.group
@@ -165,32 +116,33 @@ export default {
 
       chart.setOption(options || this.manualOptions || this.options || {}, true)
 
-      // expose ECharts events as custom events
-      EVENTS.forEach(event => {
-        chart.on(event, params => {
-          this.$emit(event, params)
-        })
-      })
+      Object.keys(this.$listeners).forEach(event => {
+        const handler = this.$listeners[event]
 
-      ZR_EVENTS.forEach(event => {
-        chart.getZr().on(event, params => {
-          this.$emit(`zr:${event}`, params)
-        })
+        if (event.indexOf('zr:') === 0) {
+          chart.getZr().on(event.slice(3), handler)
+        } else {
+          chart.on(event, handler)
+        }
       })
 
       if (this.autoresize) {
         this.lastArea = this.getArea()
-        this.__resizeHandler = debounce(() => {
-          if (this.lastArea === 0) {
-            // emulate initial render for initially hidden charts
-            this.mergeOptions({}, true)
-            this.resize()
-            this.mergeOptions(this.options || this.manualOptions || {}, true)
-          } else {
-            this.resize()
-          }
-          this.lastArea = this.getArea()
-        }, 100, { leading: true })
+        this.__resizeHandler = debounce(
+          () => {
+            if (this.lastArea === 0) {
+              // emulate initial render for initially hidden charts
+              this.mergeOptions({}, true)
+              this.resize()
+              this.mergeOptions(this.options || this.manualOptions || {}, true)
+            } else {
+              this.resize()
+            }
+            this.lastArea = this.getArea()
+          },
+          100,
+          { leading: true }
+        )
         addListener(this.$el, this.__resizeHandler)
       }
 
@@ -233,20 +185,24 @@ export default {
       }
 
       if (!this.manualUpdate) {
-        this.__unwatchOptions = this.$watch('options', (val, oldVal) => {
-          if (!this.chart && val) {
-            this.init()
-          } else {
-            // mutating `options` will lead to merging
-            // replacing it with new reference will lead to not merging
-            // eg.
-            // `this.options = Object.assign({}, this.options, { ... })`
-            // will trigger `this.chart.setOption(val, true)
-            // `this.options.title.text = 'Trends'`
-            // will trigger `this.chart.setOption(val, false)`
-            this.chart.setOption(val, val !== oldVal)
-          }
-        }, { deep: !this.watchShallow })
+        this.__unwatchOptions = this.$watch(
+          'options',
+          (val, oldVal) => {
+            if (!this.chart && val) {
+              this.init()
+            } else {
+              // mutating `options` will lead to merging
+              // replacing it with new reference will lead to not merging
+              // eg.
+              // `this.options = Object.assign({}, this.options, { ... })`
+              // will trigger `this.chart.setOption(val, true)
+              // `this.options.title.text = 'Trends'`
+              // will trigger `this.chart.setOption(val, false)`
+              this.chart.setOption(val, val !== oldVal)
+            }
+          },
+          { deep: !this.watchShallow }
+        )
       }
     },
     destroy () {
@@ -267,9 +223,13 @@ export default {
     this.initOptionsWatcher()
 
     INIT_TRIGGERS.forEach(prop => {
-      this.$watch(prop, () => {
-        this.refresh()
-      }, { deep: true })
+      this.$watch(
+        prop,
+        () => {
+          this.refresh()
+        },
+        { deep: true }
+      )
     })
 
     REWATCH_TRIGGERS.forEach(prop => {

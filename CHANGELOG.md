@@ -1,3 +1,6 @@
+5.0.0-beta.0
+* Update peer dependency for `vue` to `^2.4.0`. **BREAKING**
+
 4.1.0
 * Fix the problem that `mergeOptions` didn't use the correct options if the instance is inited on-the-fly.
 * Expose ZRender events via `zr:` prefixed events.

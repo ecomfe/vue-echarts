@@ -1,5 +1,5 @@
-let data1 = []
-let symbolCount = 6
+const data1 = []
+const symbolCount = 6
 for (let i = 0; i < 16; i++) {
   data1.push([
     Math.random() * 5,
@@ -9,7 +9,7 @@ for (let i = 0; i < 16; i++) {
   ])
 }
 
-export let c1 = {
+export const c1 = {
   legend: {
     top: 20,
     data: ['scatter']
@@ -57,7 +57,7 @@ export let c1 = {
   ]
 }
 
-export let c2 = {
+export const c2 = {
   legend: {
     top: 20,
     data: ['scatter']

@@ -2,7 +2,7 @@
 import logo from '../assets/Vue-ECharts.svg'
 /* eslint-enable */
 
-let d = logo.match(/\bd="([^"]+)"/)[1]
+const d = logo.match(/\bd="([^"]+)"/)[1]
 
 export default {
   series: [

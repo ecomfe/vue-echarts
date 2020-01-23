@@ -1,4 +1,4 @@
-let data = [
+const data = [
   { name: '海门', value: 9 },
   { name: '鄂尔多斯', value: 12 },
   { name: '招远', value: 12 },
@@ -384,9 +384,9 @@ const geoCoordMap = {
 }
 
 function convertData (data) {
-  let res = []
+  const res = []
   for (let i = 0; i < data.length; i++) {
-    let geoCoord = geoCoordMap[data[i].name]
+    const geoCoord = geoCoordMap[data[i].name]
     if (geoCoord) {
       res.push({
         name: data[i].name,

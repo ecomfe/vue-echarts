@@ -1,20 +1,21 @@
 <template>
   <main>
-    <chart
-      id="logo"
-      :options="logo"
-      :init-options="initOptions"
-      autoresize
-    />
+    <chart id="logo" :options="logo" :init-options="initOptions" autoresize />
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
 
     <h2 id="bar">
-      <a href="#bar">Bar chart <small>(with async data &amp; custom theme)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.bar
-      }" @click="expand.bar = !expand.bar" aria-label="toggle"></button>
+      <a href="#bar"
+        >Bar chart <small>(with async data &amp; custom theme)</small></a
+      >
+      <button
+        :class="{
+          round: true,
+          expand: expand.bar
+        }"
+        @click="expand.bar = !expand.bar"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.bar">
       <figure>
@@ -29,16 +30,26 @@
         />
       </figure>
       <p v-if="seconds <= 0"><small>Loaded.</small></p>
-      <p v-else><small>Data coming in <b>{{ seconds }}</b> second{{ seconds > 1 ? 's' : '' }}...</small></p>
+      <p v-else>
+        <small
+          >Data coming in <b>{{ seconds }}</b> second{{
+            seconds > 1 ? 's' : ''
+          }}...</small
+        >
+      </p>
       <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
     </section>
 
     <h2 id="pie">
       <a href="#pie">Pie chart <small>(with action dispatch)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.pie
-      }" @click="expand.pie = !expand.pie" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.pie
+        }"
+        @click="expand.pie = !expand.pie"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.pie">
       <figure>
@@ -53,10 +64,14 @@
 
     <h2 id="polar">
       <a href="#polar">Polar plot <small>(with built-in theme)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.polar
-      }" @click="expand.polar = !expand.polar" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.polar
+        }"
+        @click="expand.polar = !expand.polar"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.polar">
       <figure :style="polarTheme === 'dark' ? 'background-color: #333' : ''">
@@ -78,27 +93,31 @@
 
     <h2 id="scatter">
       <a href="#scatter">Scatter plot <small>(with gradient)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.scatter
-      }" @click="expand.scatter = !expand.scatter" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.scatter
+        }"
+        @click="expand.scatter = !expand.scatter"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.scatter">
       <figure>
-        <chart
-          :options="scatter"
-          :init-options="initOptions"
-          autoresize
-        />
+        <chart :options="scatter" :init-options="initOptions" autoresize />
       </figure>
     </section>
 
     <h2 id="map">
       <a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.map
-      }" @click="expand.map = !expand.map" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.map
+        }"
+        @click="expand.map = !expand.map"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.map">
       <figure style="background-color: #404a59;">
@@ -114,50 +133,42 @@
 
     <h2 id="radar">
       <a href="#radar">Radar chart <small>(with Vuex integration)</small></a>
-      <button :class="{
-        round: true,
-        expand: expand.radar
-      }" @click="expand.radar = !expand.radar" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.radar
+        }"
+        @click="expand.radar = !expand.radar"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.radar">
       <figure>
-        <chart
-          :options="scoreRadar"
-          :init-options="initOptions"
-          autoresize
-        />
+        <chart :options="scoreRadar" :init-options="initOptions" autoresize />
       </figure>
       <p>
         <select v-model="metricIndex">
-          <option
-            v-for="(metric, index) in metrics"
-            :value="index"
-            :key="index">{{ metric }}
+          <option v-for="(metric, index) in metrics" :value="index" :key="index"
+            >{{ metric }}
           </option>
         </select>
-        <button
-          @click="increase(1)"
-          :disabled="isMax"
-        >Increase</button>
-        <button
-          @click="increase(-1)"
-          :disabled="isMin"
-        >Decrease</button>
-        <input
-          id="async"
-          type="checkbox"
-          v-model="asyncCount"
-        >
+        <button @click="increase(1)" :disabled="isMax">Increase</button>
+        <button @click="increase(-1)" :disabled="isMin">Decrease</button>
+        <input id="async" type="checkbox" v-model="asyncCount" />
         <label for="async">Async</label>
       </p>
     </section>
 
     <h2 id="connect">
       <a href="#connect">Connectable charts</a>
-      <button :class="{
-        round: true,
-        expand: expand.connect
-      }" @click="expand.connect = !expand.connect" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.connect
+        }"
+        @click="expand.connect = !expand.connect"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.connect">
       <figure class="half">
@@ -180,10 +191,7 @@
       </figure>
       <p>
         <label>
-          <input
-            type="checkbox"
-            v-model="connected"
-          >
+          <input type="checkbox" v-model="connected" />
           Connected
         </label>
       </p>
@@ -191,13 +199,22 @@
 
     <h2 id="flight">
       <a href="#flight">Manual updates</a>
-      <button :class="{
-        round: true,
-        expand: expand.flight
-      }" @click="expand.flight = !expand.flight" aria-label="toggle"></button>
+      <button
+        :class="{
+          round: true,
+          expand: expand.flight
+        }"
+        @click="expand.flight = !expand.flight"
+        aria-label="toggle"
+      ></button>
     </h2>
     <section v-if="expand.flight">
-      <p><small>You may use <code>manual-update</code> prop for performance critical use cases.</small></p>
+      <p>
+        <small
+          >You may use <code>manual-update</code> prop for performance critical
+          use cases.</small
+        >
+      </p>
       <p><button :disabled="flightLoaded" @click="loadFlights">Load</button></p>
       <figure style="background-color: #003;">
         <chart
@@ -210,31 +227,33 @@
     </section>
 
     <footer>
-      <a href="//github.com/Justineo">@Justineo</a>|<a href="//github.com/Justineo/vue-echarts/blob/master/LICENSE">MIT License</a>|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
+      <a href="//github.com/Justineo">@Justineo</a>|<a
+        href="//github.com/Justineo/vue-echarts/blob/master/LICENSE"
+        >MIT License</a
+      >|<a href="//github.com/Justineo/vue-echarts">View on GitHub</a>
     </footer>
 
-    <aside
-      :class="{ modal: true, open }"
-      @click="open = false"
-    >
-      <img
-        v-if="img.src"
-        :src="img.src"
-        :width="img.width"
-      >
+    <aside :class="{ modal: true, open }" @click="open = false">
+      <img v-if="img.src" :src="img.src" :width="img.width" />
     </aside>
 
     <aside class="renderer">
-      <button :class="{
+      <button
+        :class="{
           active: initOptions.renderer === 'canvas'
         }"
         @click="initOptions.renderer = 'canvas'"
-      >Canvas</button>
-      <button :class="{
+      >
+        Canvas
+      </button>
+      <button
+        :class="{
           active: initOptions.renderer === 'svg'
         }"
         @click="initOptions.renderer = 'svg'"
-      >SVG</button>
+      >
+        SVG
+      </button>
     </aside>
   </main>
 </template>
@@ -290,7 +309,7 @@ export default {
   },
   store,
   data () {
-    let options = qs.parse(location.search, { ignoreQueryPrefix: true })
+    const options = qs.parse(location.search, { ignoreQueryPrefix: true })
     return {
       options,
       logo,
@@ -333,7 +352,7 @@ export default {
       return this.$store.state.scores.map(({ name }) => name)
     },
     isMax () {
-      let { value, max } = this.$store.state.scores[this.metricIndex]
+      const { value, max } = this.$store.state.scores[this.metricIndex]
       return value === max
     },
     isMin () {
@@ -342,7 +361,7 @@ export default {
   },
   methods: {
     handleClick () {
-      console.log('click from echars')
+      console.log('click from echarts')
     },
     handleZrClick () {
       console.log('click from zrender')
@@ -350,13 +369,13 @@ export default {
     refresh () {
       // simulating async data from server
       this.seconds = 3
-      let bar = this.$refs.bar
+      const bar = this.$refs.bar
       bar.showLoading({
         text: 'Loading…',
         color: '#4ea397',
         maskColor: 'rgba(255, 255, 255, 0.4)'
       })
-      let timer = setInterval(() => {
+      const timer = setInterval(() => {
         this.seconds--
         if (this.seconds === 0) {
           clearTimeout(timer)
@@ -373,8 +392,8 @@ export default {
       }
     },
     convert () {
-      let map = this.$refs.map
-      let { width, height } = map
+      const map = this.$refs.map
+      const { width, height } = map
       this.img = {
         src: map.getDataURL({
           pixelRatio: window.devicePixelRatio || 1
@@ -388,13 +407,17 @@ export default {
       if (!this.asyncCount) {
         this.$store.commit('increment', { amount, index: this.metricIndex })
       } else {
-        this.$store.dispatch('asyncIncrement', { amount, index: this.metricIndex, delay: 500 })
+        this.$store.dispatch('asyncIncrement', {
+          amount,
+          index: this.metricIndex,
+          delay: 500
+        })
       }
     },
     loadFlights () {
       this.flightLoaded = true
 
-      let { flight } = this.$refs
+      const { flight } = this.$refs
       flight.showLoading({
         text: '',
         color: '#c23531',
@@ -408,14 +431,11 @@ export default {
         function getAirportCoord (idx) {
           return [data.airports[idx][3], data.airports[idx][4]]
         }
-        let routes = data.routes.map(function (airline) {
-          return [
-            getAirportCoord(airline[1]),
-            getAirportCoord(airline[2])
-          ]
+        const routes = data.routes.map(function (airline) {
+          return [getAirportCoord(airline[1]), getAirportCoord(airline[2])]
         })
 
-        this.flightOptions = ({
+        this.flightOptions = {
           title: {
             text: 'World Flights',
             left: 'center',
@@ -426,8 +446,10 @@ export default {
           backgroundColor: '#003',
           tooltip: {
             formatter (param) {
-              let route = data.routes[param.dataIndex]
-              return data.airports[route[1]][1] + ' > ' + data.airports[route[2]][1]
+              const route = data.routes[param.dataIndex]
+              return (
+                data.airports[route[1]][1] + ' > ' + data.airports[route[2]][1]
+              )
             }
           },
           geo: {
@@ -460,7 +482,7 @@ export default {
               blendMode: 'lighter'
             }
           ]
-        })
+        }
       })
     }
   },
@@ -474,14 +496,18 @@ export default {
     'initOptions.renderer' (value) {
       this.options.renderer = value === 'svg' ? value : undefined
       let query = qs.stringify(this.options)
-      query = query ? ('?' + query) : ''
-      history.pushState({}, document.title, `${location.origin}${location.pathname}${query}${location.hash}`)
+      query = query ? '?' + query : ''
+      history.pushState(
+        {},
+        document.title,
+        `${location.origin}${location.pathname}${query}${location.hash}`
+      )
     }
   },
   mounted () {
     let dataIndex = -1
-    let pie = this.$refs.pie
-    let dataLen = pie.options.series[0].data.length
+    const pie = this.$refs.pie
+    const dataLen = pie.options.series[0].data.length
 
     setInterval(() => {
       pie.dispatchAction({
