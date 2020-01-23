@@ -444,14 +444,9 @@ export default {
       coordinateSystem: 'geo',
       data: convertData(data),
       symbolSize: val => val[2] / 10,
-      label: {
-        normal: {
-          formatter: '{b}',
-          position: 'right',
-          show: false
-        },
-        emphasis: {
-          show: true
+      tooltip: {
+        formatter: function (val) {
+          return val.name + ': ' + val.value[2]
         }
       },
       itemStyle: {
@@ -471,6 +466,11 @@ export default {
         brushType: 'stroke'
       },
       hoverAnimation: true,
+      tooltip: {
+        formatter: function (val) {
+          return val.name + ': ' + val.value[2]
+        }
+      },
       label: {
         normal: {
           formatter: '{b}',

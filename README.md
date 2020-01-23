@@ -364,7 +364,7 @@ For further details, see [ECharts' API documentation](https://echarts.apache.org
 
 ```bash
 $ npm i
-$ npm run dev
+$ npm run serve 
 ```
 
 Open `http://localhost:8080/demo` to see the demo.
