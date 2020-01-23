@@ -259,6 +259,7 @@
 </template>
 
 <script>
+/* eslint-disable no-console */
 import qs from 'qs'
 import ECharts from '../components/ECharts.vue'
 import 'echarts/lib/chart/bar'
