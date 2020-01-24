@@ -248,7 +248,7 @@ export default {
 
   那么：
 
-  ```
+  ```js
   this.data = newObject // setOption(this.options, true)
   this.data.title.text = 'Trends' // setOption(this.options, false)
   ```

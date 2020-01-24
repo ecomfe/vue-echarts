@@ -250,7 +250,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/master/src/d
 
   Then:
 
-  ```
+  ```js
   this.data = newObject // setOption(this.options, true)
   this.data.title.text = 'Trends' // setOption(this.options, false)
   ```
