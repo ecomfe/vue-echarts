@@ -264,6 +264,9 @@ export default {
   disconnect (group) {
     echarts.disConnect(group)
   },
+  getMap (mapName) {
+    return echarts.getMap(mapName)
+  },
   registerMap (mapName, geoJSON, specialAreas) {
     echarts.registerMap(mapName, geoJSON, specialAreas)
   },
