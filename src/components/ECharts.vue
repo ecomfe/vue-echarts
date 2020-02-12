@@ -24,6 +24,10 @@ export default {
     initOptions: Object,
     group: String,
     autoresize: Boolean,
+    debounce: {
+      type: Number,
+      default: 100
+    },
     watchShallow: Boolean,
     manualUpdate: Boolean
   },
@@ -140,7 +144,7 @@ export default {
             }
             this.lastArea = this.getArea()
           },
-          100,
+          this.debounce,
           { leading: true }
         )
         addListener(this.$el, this.__resizeHandler)
