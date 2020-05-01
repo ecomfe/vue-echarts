@@ -127,7 +127,7 @@ require.config({
   paths: {
     'vue': 'path/to/vue',
     'echarts': 'path/to/echarts',
-    'vue-echarts': 'path/to/vue-ehcarts'
+    'vue-echarts': 'path/to/vue-echarts'
   }
 })
 
