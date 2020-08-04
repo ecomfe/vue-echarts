@@ -35,7 +35,7 @@ import ECharts from 'vue-echarts' // refers to components/ECharts.vue in webpack
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
-// If you want to use ECharts extensions, just import the extension package and it will work
+// If you want to use ECharts extensions, just import the extension package, and it will work
 // Taking ECharts-GL as an example:
 // You only need to install the package with `npm install --save echarts-gl` and import it as follows
 import 'echarts-gl'
@@ -78,11 +78,11 @@ For **Vue CLI 2** with the `webpack` template, modify `build/webpack.base.conf.j
       }
 ```
 
-If you are using bare webpack config, just do similar modifications make it work.
+If you are using bare webpack config, just do similar modifications to make it work.
 
 ##### Using with Nuxt.js
 
-When using Vue-ECharts on the server side with Nuxt.js, it may be not properly transpiled because Nuxt.js prevents files under `node_modules` from being bundled into the server bundle with only a few exceptions by default. We need to whitelist `vue-echarts` manually.
+When using Vue-ECharts on the server-side with Nuxt.js, it may not be properly transpiled because Nuxt.js prevents files under `node_modules` from being bundled into the server bundle with only a few exceptions by default. We need to whitelist `vue-echarts` manually.
 
 For **Nuxt.js v2**, modify `nuxt.config.js` as follows:
 
@@ -265,7 +265,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/master/src/d
 
 * `manual-update` (default: `false`)
 
-  For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `options` prop. By specifying `manual-update` prop with `true` and not providing `options` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `mergeOptions` method to update the chart.
+  For critical performance scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `options` prop. By specifying `manual-update` prop with `true` and not providing `options` prop, the dataset won't be watched anymore. After doing so, you need to retrieve the component instance with `ref` and manually call `mergeOptions` method to update the chart.
 
 ### Computed
 
@@ -279,7 +279,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/master/src/d
 
 * `computedOptions` **[readonly]**
 
-  Used to retrive the actual options calculated by ECharts after updating `options`.
+  Used to retrieve the actual options calculated by ECharts after updating `options`.
 
 ### Methods
 
