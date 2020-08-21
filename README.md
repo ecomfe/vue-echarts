@@ -1,10 +1,10 @@
 # Vue-ECharts
 
-> ECharts component for Vue.js.
+> Apache ECharts (incubating) component for Vue.js.
 
 > [🇨🇳 中文版](./README.zh_CN.md)
 
-Built upon [ECharts](http://echarts.baidu.com/index.html) `v4.1.0`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
+Built upon [Apache ECharts (incubating)](https://echarts.apache.org) `v4.1.0`+ and depends on [Vue.js](https://vuejs.org/) `v2.2.6`+.
 
 ## Installation
 

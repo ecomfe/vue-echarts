@@ -1,8 +1,8 @@
 # Vue-ECharts
 
-> ECharts 的 Vue.js 组件。
+> Apache ECharts (incubating) 的 Vue.js 组件。
 
-基于 [ECharts](http://echarts.baidu.com/index.html) `v4.1.0`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
+基于 [Apache ECharts (incubating)](https://echarts.apache.org) `v4.1.0`+ 开发，依赖 [Vue.js](https://vuejs.org/) `v2.2.6`+。
 
 ## 安装
 
