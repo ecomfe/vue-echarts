@@ -115,17 +115,17 @@ export default {
       }
 
       chart.setOption(options || this.manualOptions || this.options || {}, true)
+      if (this.$listeners != null){
+        Object.keys(this.$listeners).forEach(event => {
+          const handler = this.$listeners[event]
 
-      Object.keys(this.$listeners).forEach(event => {
-        const handler = this.$listeners[event]
-
-        if (event.indexOf('zr:') === 0) {
-          chart.getZr().on(event.slice(3), handler)
-        } else {
-          chart.on(event, handler)
-        }
-      })
-
+          if (event.indexOf('zr:') === 0) {
+            chart.getZr().on(event.slice(3), handler)
+          } else {
+            chart.on(event, handler)
+          }
+        })
+      }
       if (this.autoresize) {
         this.lastArea = this.getArea()
         this.__resizeHandler = debounce(
