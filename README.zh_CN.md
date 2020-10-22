@@ -257,7 +257,7 @@ export default {
 
   实例的分组，会自动绑定到 ECharts 组件的同名属性上。
 
-* `autoresize` （默认值：`false`）
+* `autoResize` （默认值：`false`）
 
   这个 prop 用来指定 ECharts 实例在组件根元素尺寸变化时是否需要自动进行重绘。
 
