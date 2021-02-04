@@ -10,12 +10,15 @@
 </style>
 
 <script>
-import echarts from 'echarts/lib/echarts'
+import echart4 from 'echarts/lib/echarts'
+import * as echart5 from 'echarts'
 import debounce from 'lodash/debounce'
 import { addListener, removeListener } from 'resize-detector'
 
 const INIT_TRIGGERS = ['theme', 'initOptions', 'autoresize']
 const REWATCH_TRIGGERS = ['manualUpdate', 'watchShallow']
+
+const echarts = echart4 || echart5
 
 export default {
   props: {
