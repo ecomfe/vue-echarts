@@ -186,9 +186,6 @@ export default defineComponent({
     };
   },
   render() {
-    return h("div", {
-      ref: "root",
-      class: "echarts"
-    });
+    return h("div", { ref: "root" });
   }
 });

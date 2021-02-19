@@ -5,6 +5,7 @@ import { EChartsType, OptionType } from "../types";
 const METHOD_NAMES = [
   "getWidth",
   "getHeight",
+  "getDom",
   "getOption",
   "resize",
   "dispatchAction",
