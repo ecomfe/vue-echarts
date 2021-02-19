@@ -11,9 +11,9 @@ import {
   onUnmounted,
   h,
   PropType
-} from "vue";
+} from "vue-demi";
 import { init as initChart } from "echarts/core";
-import { EChartsType, OptionType } from "@/types";
+import { EChartsType, OptionType } from "./types";
 import {
   usePublicAPI,
   useAutoresize,
@@ -21,7 +21,6 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import "./style.css";
 
 type InitParameters = Parameters<typeof initChart>;
 type ThemeParameter = InitParameters[1];
@@ -30,7 +29,7 @@ type InitOptsParameter = InitParameters[2];
 export default defineComponent({
   name: "echarts",
   props: {
-    options: Object as PropType<OptionType>,
+    option: Object as PropType<OptionType>,
     theme: {
       type: [Object, String] as PropType<ThemeParameter>
     },
@@ -47,12 +46,12 @@ export default defineComponent({
     ) as InitOptsParameter;
     const root = ref<HTMLElement>();
     const chart = shallowRef<EChartsType>();
-    const manualOptions = shallowRef<OptionType>();
-    const realOptions = computed(
-      () => manualOptions.value || props.options || Object.create(null)
+    const manualOption = shallowRef<OptionType>();
+    const realOption = computed(
+      () => manualOption.value || props.option || Object.create(null)
     );
 
-    function init(options?: OptionType) {
+    function init(option?: OptionType) {
       if (chart.value || !root.value) {
         return;
       }
@@ -83,18 +82,18 @@ export default defineComponent({
           }
         });
 
-      instance.setOption(options || realOptions.value, true);
+      instance.setOption(option || realOption.value, true);
     }
 
-    function mergeOptions(options: OptionType, ...rest: any[]) {
+    function setOption(option: OptionType, ...rest: any[]) {
       if (props.manualUpdate) {
-        manualOptions.value = options;
+        manualOption.value = option;
       }
 
       if (!chart.value) {
-        init(options);
+        init(option);
       } else {
-        chart.value.setOption(options, ...rest);
+        chart.value.setOption(option, ...rest);
       }
     }
 
@@ -114,18 +113,18 @@ export default defineComponent({
       loading,
       loadingOptions
     } = toRefs(props);
-    let unwatchOptions: (() => void) | null = null;
+    let unwatchOption: (() => void) | null = null;
     watch(
       manualUpdate,
       manualUpdate => {
-        if (typeof unwatchOptions === "function") {
-          unwatchOptions();
-          unwatchOptions = null;
+        if (typeof unwatchOption === "function") {
+          unwatchOption();
+          unwatchOption = null;
         }
 
         if (!manualUpdate) {
-          unwatchOptions = watch(
-            () => props.options,
+          unwatchOption = watch(
+            () => props.option,
             (val, oldVal) => {
               if (!val) {
                 return;
@@ -133,12 +132,12 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
-                // mutating `options` will lead to merging
+                // mutating `option` will lead to merging
                 // replacing it with new reference will lead to not merging
                 // eg.
-                // `this.options = Object.assign({}, this.options, { ... })`
+                // `this.option = Object.assign({}, this.option, { ... })`
                 // will trigger `this.chart.setOption(val, true)
-                // `this.options.title.text = 'Trends'`
+                // `this.option.title.text = 'Trends'`
                 // will trigger `this.chart.setOption(val, false)`
                 chart.value.setOption(val, val !== oldVal);
               }
@@ -170,10 +169,10 @@ export default defineComponent({
 
     useLoading(chart, loading, loadingOptions);
 
-    useAutoresize(chart, autoresize, root, realOptions);
+    useAutoresize(chart, autoresize, root, realOption);
 
     onMounted(() => {
-      if (props.options) {
+      if (props.option) {
         init();
       }
     });
@@ -182,7 +181,7 @@ export default defineComponent({
 
     return {
       root,
-      mergeOptions,
+      setOption,
       ...publicApi
     };
   },

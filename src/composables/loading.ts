@@ -1,25 +1,10 @@
-import { Ref, PropType, watchEffect } from "vue";
-import { EChartsType } from "@/types";
-
-export interface LoadingOptions {
-  text?: string;
-  color?: string;
-  textColor?: string;
-  maskColor?: string;
-  zlevel?: number;
-  fontSize?: number;
-  showSpinner?: boolean;
-  spinnerRadius?: number;
-  lineWidth?: number;
-  fontWeight?: string | number;
-  fontStyle?: string;
-  fontFamily?: string;
-}
+import { Ref, watchEffect } from "vue-demi";
+import { EChartsType } from "../types";
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
-  loadingOptions?: Ref<LoadingOptions | undefined>
+  loadingOptions?: Ref<object | undefined>
 ): void {
   watchEffect(() => {
     const instance = chart.value;
@@ -37,5 +22,5 @@ export function useLoading(
 
 export const loadingProps = {
   loading: Boolean,
-  loadingOptions: Object as PropType<LoadingOptions>
+  loadingOptions: Object
 };

@@ -1,12 +1,13 @@
-import { Ref, watch } from "vue";
+import { Ref, watch } from "vue-demi";
+import { throttle } from "echarts/core";
 import { addListener, removeListener, ResizeCallback } from "resize-detector";
-import { EChartsType, OptionsType } from "@/types";
+import { EChartsType, OptionType } from "../types";
 
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<boolean>,
   root: Ref<HTMLElement | undefined>,
-  options: Ref<OptionsType>
+  option: Ref<OptionType>
 ): void {
   let resizeListener: ResizeCallback | null = null;
   let lastArea = 0;
@@ -22,16 +23,16 @@ export function useAutoresize(
   watch([root, chart, autoresize], ([root, chart, autoresize], _, cleanup) => {
     if (root && chart && autoresize) {
       lastArea = getArea();
-      resizeListener = () => {
+      resizeListener = throttle(() => {
         if (lastArea === 0) {
           chart.setOption(Object.create(null), true);
           chart.resize();
-          chart.setOption(options.value, true);
+          chart.setOption(option.value, true);
         } else {
           chart.resize();
         }
         lastArea = getArea();
-      };
+      }, 100);
 
       addListener(root, resizeListener);
     }

@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Ref } from "vue";
-import { EChartsType, OptionType } from "@/types";
+import { Ref } from "vue-demi";
+import { EChartsType, OptionType } from "../types";
 
 const METHOD_NAMES = [
   "getWidth",
   "getHeight",
-  "getDom",
   "getOption",
   "resize",
   "dispatchAction",
@@ -24,7 +23,7 @@ type PublicMethods = Pick<EChartsType, MethodName>;
 
 export function usePublicAPI(
   chart: Ref<EChartsType | undefined>,
-  init: (options?: OptionType) => void
+  init: (option?: OptionType) => void
 ) {
   function makePublicMethod<T extends MethodName>(
     name: T
@@ -41,6 +40,12 @@ export function usePublicAPI(
     };
   }
 
+  function makeAnyMethod<T extends MethodName>(
+    name: T
+  ): (...args: any[]) => ReturnType<EChartsType[T]> {
+    return makePublicMethod(name) as any;
+  }
+
   function makePublicMethods(): PublicMethods {
     const methods = Object.create(null);
     METHOD_NAMES.forEach(name => {
@@ -50,5 +55,10 @@ export function usePublicAPI(
     return methods as PublicMethods;
   }
 
-  return makePublicMethods();
+  return {
+    ...makePublicMethods(),
+    dispatchAction: makeAnyMethod("dispatchAction"),
+    getDataURL: makeAnyMethod("getDataURL"),
+    getConnectedDataURL: makeAnyMethod("getConnectedDataURL")
+  };
 }

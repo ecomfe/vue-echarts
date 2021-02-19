@@ -1,19 +1,14 @@
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
-import postcss from "rollup-plugin-postcss";
 import resolve from "@rollup/plugin-node-resolve";
+import dts from "rollup-plugin-dts";
 
 /** @type {import('rollup').RollupOptions} */
 const options = [
   {
-    plugins: [
-      typescript({
-        useTsconfigDeclarationDir: true
-      }),
-      postcss()
-    ],
-    external: ["vue", "echarts/core", "resize-detector"],
     input: "src/index.ts",
+    plugins: [typescript()],
+    external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
         file: "dist/index.esm.js",
@@ -54,15 +49,9 @@ const options = [
     ]
   },
   {
-    plugins: [
-      resolve(),
-      typescript({
-        useTsconfigDeclarationDir: true
-      }),
-      postcss()
-    ],
-    external: ["vue", "echarts/core"],
     input: "src/all.ts",
+    plugins: [resolve(), typescript()],
+    external: ["vue-demi", "echarts/core"],
     output: [
       {
         file: "dist/index.umd.js",
@@ -70,7 +59,7 @@ const options = [
         name: "VueECharts",
         sourcemap: true,
         globals: {
-          vue: "Vue",
+          "vue-demi": "VueDemi",
           "echarts/core": "echarts"
         }
       },
@@ -80,7 +69,7 @@ const options = [
         name: "VueECharts",
         sourcemap: true,
         globals: {
-          vue: "Vue",
+          "vue-demi": "VueDemi",
           "echarts/core": "echarts"
         },
         plugins: [
@@ -92,6 +81,14 @@ const options = [
         ]
       }
     ]
+  },
+  {
+    input: "src/index.ts",
+    plugins: [dts()],
+    output: {
+      file: "dist/index.d.ts",
+      format: "es"
+    }
   }
 ];
 

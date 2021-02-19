@@ -11,14 +11,14 @@
       <button @click="mutate" :disabled="useRef">Mutate data</button>
       <button @click="set" :disabled="!useRef">Set data</button>
       <button @click="mutateLoadingOptions" :disabled="!loading">
-        Mutate loading options
+        Mutate loading option
       </button>
     </div>
     <v-chart
       style="width: 100%; height: 400px"
       ref="foo"
       :autoresize="autoresize"
-      :options="realOptions"
+      :option="realOption"
       :loading="loading"
       :loading-options="loadingOptions"
       :theme="defaultTheme ? null : 'dark'"
@@ -36,49 +36,48 @@ import * as echarts from "echarts/core";
 import { GridComponent } from "echarts/components";
 import { LineChart } from "echarts/charts";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
-
 echarts.use([GridComponent, LineChart, CanvasRenderer, SVGRenderer]);
 
 export default defineComponent({
   name: "App",
   components: {
-    VChart
+    VChart,
   },
   setup() {
     const foo = ref();
-    const options = reactive({
+    const option = reactive({
       xAxis: {
         type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       },
       yAxis: {
-        type: "value"
+        type: "value",
       },
       series: [
         {
           data: [150, 230, 224, 218, 135, 147, 260],
-          type: "line"
-        }
-      ]
+          type: "line",
+        },
+      ],
     });
-    const optionsRef = ref({
+    const optionRef = ref({
       xAxis: {
         type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       },
       yAxis: {
-        type: "value"
+        type: "value",
       },
       series: [
         {
           data: [233, 128, 184, 302, 208, 287, 212],
-          type: "line"
-        }
-      ]
+          type: "line",
+        },
+      ],
     });
 
     const loadingOptions = reactive({
-      text: "正在加载..."
+      text: "正在加载...",
     });
 
     const autoresize = ref<boolean>(true);
@@ -87,26 +86,26 @@ export default defineComponent({
     const useRef = ref<boolean>(false);
     const loading = ref<boolean>(false);
     const initOptions = computed(() => ({
-      renderer: useSvg.value ? "svg" : "canvas"
+      renderer: useSvg.value ? "svg" : "canvas",
     }));
-    const realOptions = computed(() =>
-      useRef.value ? optionsRef.value : options
+    const realOption = computed(() =>
+      useRef.value ? optionRef.value : option
     );
 
     function mutate() {
-      options.series[0].data = [150, 230, 224, 218, 135, 147, 260].map(
-        val => val + Math.round(50 * Math.random())
+      option.series[0].data = [150, 230, 224, 218, 135, 147, 260].map(
+        (val) => val + Math.round(50 * Math.random())
       );
     }
 
     function set() {
-      optionsRef.value = {
+      optionRef.value = {
         xAxis: {
           type: "category",
-          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         },
         yAxis: {
-          type: "value"
+          type: "value",
         },
         series: [
           {
@@ -117,11 +116,11 @@ export default defineComponent({
               302 + Math.round(50 * Math.random()),
               208 + Math.round(50 * Math.random()),
               287 + Math.round(50 * Math.random()),
-              212 + Math.round(50 * Math.random())
+              212 + Math.round(50 * Math.random()),
             ],
-            type: "line"
-          }
-        ]
+            type: "line",
+          },
+        ],
       };
     }
 
@@ -135,7 +134,7 @@ export default defineComponent({
     }
 
     return {
-      realOptions,
+      realOption,
       autoresize,
       defaultTheme,
       useSvg,
@@ -147,8 +146,8 @@ export default defineComponent({
       loadingOptions,
       mutateLoadingOptions,
       foo,
-      log
+      log,
     };
-  }
+  },
 });
 </script>
