@@ -33,6 +33,8 @@
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-vue": "^7.0.0-0",
     "postcss": "^8.2.5",
+    "postcss-loader": "^5.0.0",
+    "postcss-nested": "^4.2.3",
     "prettier": "^1.19.1",
     "rollup": "^2.38.5",
     "rollup-plugin-dts": "^2.0.1",
