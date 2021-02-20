@@ -104,15 +104,7 @@ export default defineComponent({
       }
     }
 
-    const {
-      theme,
-      initOptions,
-      group,
-      autoresize,
-      manualUpdate,
-      loading,
-      loadingOptions
-    } = toRefs(props);
+    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
     let unwatchOption: (() => void) | null = null;
     watch(
       manualUpdate,
@@ -151,16 +143,22 @@ export default defineComponent({
       }
     );
 
-    watch([theme, initOptions], () => {
-      cleanup();
-      init();
-    });
+    watch(
+      [() => props.theme, () => props.initOptions],
+      () => {
+        cleanup();
+        init();
+      },
+      {
+        deep: true
+      }
+    );
 
     watch(
-      () => group,
+      () => props.group,
       group => {
-        if (group && group.value && chart.value) {
-          chart.value.group = group.value;
+        if (group && chart.value) {
+          chart.value.group = group;
         }
       }
     );
