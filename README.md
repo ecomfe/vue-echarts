@@ -80,6 +80,14 @@ new Vue(...)
 
 </details>
 
+We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here  →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+
+But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
+
+```js
+import "echarts";
+```
+
 ### CDN & Global variable
 
 Drop `<script>` inside your HTML file as follows:
@@ -141,6 +149,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/dem
 
   Optional chart init configurations. See `echarts.init`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echarts.init)
 
+  Injection key: `INIT_OPTIONS_KEY`.
+
 - `theme: string | object`
 
   Theme to be applied. See `echarts.init`'s `theme` parameter [here →](https://echarts.apache.org/en/api.html#echarts.init)
@@ -152,6 +162,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/dem
 - `update-options: object`
 
   Options for updating chart option. See `echartsInstance.setOption`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
+
+  Injection key: `UPDATE_OPTIONS_KEY`.
 
 - `group: string`
 
@@ -169,9 +181,51 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/dem
 
   Configuration item of loading animation. See `echartsInstance.showLoading`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
 
+  Injection key: `LOADING_OPTIONS_KEY`.
+
 - `manual-update: boolean` (default: `false`)
 
   For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `option` prop. By specifying `manual-update` prop with `true` and not providing `option` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `setOption` method to update the chart.
+
+### Provide / Inject
+
+Vue-ECharts provides provide/inject API for `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
+
+<details open>
+<summary>Vue 3</summary>
+
+```js
+import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { provide } from 'vue'
+
+// composition API
+provide(INIT_OPTIONS_KEY, ...)
+
+// options API
+{
+  provide: {
+    [INIT_OPTIONS_KEY]: { ... }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```js
+import { INIT_OPTIONS_KEY } from 'vue-echarts'
+
+// in component options
+{
+  provide: {
+    [INIT_OPTIONS_KEY]: { ... }
+  }
+}
+```
+
+</details>
 
 ### Methods
 

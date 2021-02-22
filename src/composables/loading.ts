@@ -1,4 +1,4 @@
-import { inject, computed, Ref, watchEffect } from "vue-demi";
+import { inject, unref, computed, Ref, watchEffect } from "vue-demi";
 import { EChartsType } from "../types";
 
 export const LOADING_OPTIONS_KEY = "ecLoadingOptions";
@@ -8,9 +8,11 @@ export function useLoading(
   loading: Ref<boolean>,
   loadingOptions?: Ref<object | undefined>
 ): void {
-  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {}) as object;
+  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {}) as
+    | object
+    | Ref<object>;
   const realLoadingOptions = computed(() => ({
-    ...defaultLoadingOptions,
+    ...unref(defaultLoadingOptions),
     ...loadingOptions?.value
   }));
 

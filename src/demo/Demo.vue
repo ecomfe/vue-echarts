@@ -4,6 +4,9 @@
     class="echarts" id="logo" :option="logo" :init-options="initOptions" autoresize /> -->
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
     <p class="desc">ECharts component for Vue.js.</p>
+    <p>
+      <a href="https://github.com/ecomfe/vue-echarts#readme">Docs &rarr;</a>
+    </p>
 
     <h2 id="bar">
       <a href="#bar"

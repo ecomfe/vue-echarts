@@ -18,8 +18,10 @@ import { init as initChart } from "echarts/core";
 import {
   EChartsType,
   InitOptions,
+  InitOptionsInjection,
   Option,
   UpdateOptions,
+  UpdateOptionsInjection,
   Theme
 } from "./types";
 import {
@@ -50,11 +52,14 @@ export default defineComponent({
     ...loadingProps
   },
   setup(props, { attrs }) {
-    const defaultInitOptions = inject(INIT_OPTIONS_KEY, {}) as InitOptions;
+    const defaultInitOptions = inject(
+      INIT_OPTIONS_KEY,
+      {}
+    ) as InitOptionsInjection;
     const defaultUpdateOptions = inject(
       UPDATE_OPTIONS_KEY,
       {}
-    ) as UpdateOptions;
+    ) as UpdateOptionsInjection;
     const root = ref<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -62,11 +67,11 @@ export default defineComponent({
       () => manualOption.value || props.option || Object.create(null)
     );
     const realInitOptions = computed(() => ({
-      ...defaultInitOptions,
+      ...unref(defaultInitOptions),
       ...props.initOptions
     }));
     const realUpdateOptions = computed(() => ({
-      ...defaultUpdateOptions,
+      ...unref(defaultUpdateOptions),
       ...props.updateOptions
     }));
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);

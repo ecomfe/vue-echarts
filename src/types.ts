@@ -1,9 +1,11 @@
 import { init } from "echarts/core";
+import { Ref } from "vue";
 
 type InitType = typeof init;
 export type InitParameters = Parameters<InitType>;
 export type Theme = NonNullable<InitParameters[1]>;
 export type InitOptions = NonNullable<InitParameters[2]>;
+export type InitOptionsInjection = InitOptions | Ref<InitOptions>;
 
 export type EChartsType = ReturnType<InitType>;
 type SetOptionType = EChartsType["setOption"];
@@ -18,3 +20,4 @@ export interface UpdateOptions {
   replaceMerge?: any;
   transition?: any;
 }
+export type UpdateOptionsInjection = UpdateOptions | Ref<UpdateOptions>;

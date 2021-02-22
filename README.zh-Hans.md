@@ -78,6 +78,14 @@ new Vue(...)
 
 </details>
 
+为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往  →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+
+但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
+
+```js
+import "echarts";
+```
+
 ### CDN & 全局变量
 
 用如下方式在 HTML 中插入 `<script>` 标签：
@@ -139,6 +147,8 @@ Vue.component("v-chart", VueECharts);
 
   初始化附加参数。请参考 `echarts.init` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
 
+  Inject 键名：`INIT_OPTIONS_KEY`。
+
 - `theme: string | object`
 
   要应用的主题。请参考 `echarts.init` 的 `theme` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
@@ -150,6 +160,8 @@ Vue.component("v-chart", VueECharts);
 - `update-options: object`
 
   图表更新的配置项。请参考 `echartsInstance.setOption` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
+
+  Inject 键名：`UPDATE_OPTIONS_KEY`。
 
 - `group: string`
 
@@ -167,9 +179,51 @@ Vue.component("v-chart", VueECharts);
 
   加载动画配置项。请参考 `echartsInstance.showLoading` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
 
+  Inject 键名：`LOADING_OPTIONS_KEY`。
+
 - `manual-update: boolean`（默认值`false`）
 
   在性能敏感（数据量很大）的场景下，我们最好对于 `option` prop 绕过 Vue 的响应式系统。当将 `manual-update` prop 指定为 `true` 且不传入 `option` prop 时，数据将不会被监听。然后，需要用 `ref` 获取组件实例以后手动调用 `setOption` 方法来更新图表。
+
+### Provide / Inject
+
+Vue-ECharts 为 `init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
+
+<details open>
+<summary>Vue 3</summary>
+
+```js
+import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { provide } from 'vue'
+
+// composition API
+provide(INIT_OPTIONS_KEY, ...)
+
+// options API
+{
+  provide: {
+    [INIT_OPTIONS_KEY]: { ... }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```js
+import { INIT_OPTIONS_KEY } from 'vue-echarts'
+
+// in component options
+{
+  provide: {
+    [INIT_OPTIONS_KEY]: { ... }
+  }
+}
+```
+
+</details>
 
 ### 方法
 
