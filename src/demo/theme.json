@@ -15,9 +15,7 @@
       "borderWidth": "2"
     },
     "lineStyle": {
-      "normal": {
-        "width": "3"
-      }
+      "width": "3"
     },
     "symbolSize": "10",
     "symbol": "emptyCircle",
@@ -28,9 +26,7 @@
       "borderWidth": "2"
     },
     "lineStyle": {
-      "normal": {
-        "width": "3"
-      }
+      "width": "3"
     },
     "symbolSize": "10",
     "symbol": "emptyCircle",
@@ -147,10 +143,8 @@
       "borderColor": "#444444"
     },
     "lineStyle": {
-      "normal": {
-        "width": 1,
-        "color": "#aaa"
-      }
+      "width": 1,
+      "color": "#aaa"
     },
     "symbolSize": "10",
     "symbol": "emptyCircle",
@@ -329,7 +323,7 @@
         "borderColor": "#666"
       }
     }
-},
+  },
   "legend": {
     "textStyle": {
       "color": "#999999"
