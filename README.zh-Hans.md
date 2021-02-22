@@ -93,14 +93,15 @@ import "echarts";
 <details open>
 <summary>Vue 3</summary>
 
-```html
 <!-- vue3Scripts:start -->
+```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
-<!-- vue3Scripts:end -->
 ```
+
+<!-- vue3Scripts:end -->
 
 ```js
 const app = Vue.createApp(...)
@@ -116,15 +117,16 @@ app.component('v-chart', ECharts)
 <details>
 <summary>Vue 2</summary>
 
-```html
 <!-- vue2Scripts:start -->
+```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
-<!-- vue2Scripts:end -->
 ```
+
+<!-- vue2Scripts:end -->
 
 ```js
 // 全局注册组件（也可以使用局部注册）

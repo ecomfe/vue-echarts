@@ -16,13 +16,14 @@ const DEP_VERSIONS = {
   [name]: version
 };
 
-function getScripts(deps) {
-  return deps
+function getScriptsMd(deps) {
+  const code = deps
     .map(dep => {
       const [, name] = dep.match(/^(.+?)(?:@.+)?$/) || [];
       return `<script src="${CDN_PREFIX}${name}@${DEP_VERSIONS[dep]}"></script>`;
     })
     .join("\n");
+  return "```html\n" + code + "\n```\n";
 }
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
@@ -42,8 +43,8 @@ function exec() {
       writeFile(
         file,
         commentMark(content, {
-          vue2Scripts: getScripts(markConfig["vue2Scripts"]),
-          vue3Scripts: getScripts(markConfig["vue3Scripts"])
+          vue2Scripts: getScriptsMd(markConfig["vue2Scripts"]),
+          vue3Scripts: getScriptsMd(markConfig["vue3Scripts"])
         }),
         "utf-8"
       );
