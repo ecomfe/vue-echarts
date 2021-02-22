@@ -1,3 +1,7 @@
+## 6.0.0-alpha.3
+
+* Add missing dependencies for `vue-demi` and `resize-detector`.
+
 ## 6.0.0-alpha.2
 
 * Fix bundling for UMD build.
