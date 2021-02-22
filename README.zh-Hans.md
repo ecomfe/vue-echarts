@@ -107,7 +107,7 @@ import "echarts";
 const app = Vue.createApp(...)
 
 // 全局注册组件（也可以使用局部注册）
-app.component('v-chart', ECharts)
+app.component('v-chart', VueECharts)
 ```
 
 [Demo →](https://codepen.io/Justineo/pen/Jjbryzo)
