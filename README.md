@@ -1,6 +1,6 @@
 # Vue-ECharts
 
-> ECharts component for Vue.js.
+> Vue.js component for Apache ECharts.
 
 > [🇨🇳 中文版](./README.zh-Hans.md)
 

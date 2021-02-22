@@ -3,9 +3,11 @@
     <!-- <v-chart
     class="echarts" id="logo" :option="logo" :init-options="initOptions" autoresize /> -->
     <h1><a href="https://github.com/Justineo/vue-echarts">Vue-ECharts</a></h1>
-    <p class="desc">ECharts component for Vue.js.</p>
-    <p>
-      <a href="https://github.com/ecomfe/vue-echarts#readme">Docs &rarr;</a>
+    <p class="desc">
+      Vue.js component for Apache ECharts. (<a
+        href="https://github.com/ecomfe/vue-echarts#readme"
+        >docs</a
+      >)
     </p>
 
     <h2 id="bar">
@@ -555,8 +557,6 @@ export default {
   },
   mounted() {
     this.startActions();
-
-    console.log(this.$refs.bar.chart);
   }
 };
 </script>
@@ -610,6 +610,10 @@ h2 {
 .desc {
   margin-bottom: 3em;
   color: #7f8c8d;
+
+  a {
+    color: #42b983;
+  }
 }
 
 h2 small {
@@ -879,16 +883,17 @@ figure {
   position: fixed;
   top: 10px;
   left: 10px;
-  font-size: 12px;
+  font-size: 16px;
   text-align: center;
 
   button {
     float: left;
     position: relative;
-    width: 48px;
-    border-radius: 4px;
+    width: 64px;
+    border-radius: 6px;
     border-color: #36485e;
     color: rgba(54, 72, 94, 0.8);
+    font-weight: 500;
 
     &:focus-visible {
       box-shadow: 0 0 1px #36485e;
@@ -902,7 +907,6 @@ figure {
       z-index: 1;
       background-color: #36485e;
       color: #fff;
-      font-weight: 500;
     }
 
     &:first-child {

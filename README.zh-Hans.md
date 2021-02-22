@@ -1,6 +1,6 @@
 # Vue-ECharts
 
-> ECharts component for Vue.js.
+> Apache ECharts 的 Vue.js 组件。
 
 使用 [ECharts](http://echarts.baidu.com/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
 
