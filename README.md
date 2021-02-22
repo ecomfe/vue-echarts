@@ -90,7 +90,7 @@ import "echarts";
 
 ### CDN & Global variable
 
-Drop `<script>` inside your HTML file as follows:
+Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details open>
 <summary>Vue 3</summary>
@@ -104,7 +104,15 @@ Drop `<script>` inside your HTML file as follows:
 <!-- vue3Scripts:end -->
 ```
 
+```js
+const app = Vue.createApp(...)
+
+// register globally (or you can do it locally)
+app.component('v-chart', VueECharts)
+```
+
 [Demo →](https://codepen.io/Justineo/pen/Jjbryzo)
+
 </details>
 
 <details>
@@ -120,30 +128,12 @@ Drop `<script>` inside your HTML file as follows:
 <!-- vue2Scripts:end -->
 ```
 
-[Demo →](https://codepen.io/Justineo/pen/gOLGxJR)
-</details>
-
-Vue-ECharts is exposed as `window.VueECharts` in this mode.
-
-<details open>
-<summary>Vue 3</summary>
-
-```js
-const app = Vue.createApp(...)
-
-// register globally (or you can do it locally)
-app.component('v-chart', VueECharts)
-```
-
-</details>
-
-<details>
-<summary>Vue 2</summary>
-
 ```js
 // register globally (or you can do it locally)
 Vue.component("v-chart", VueECharts);
 ```
+
+[Demo →](https://codepen.io/Justineo/pen/gOLGxJR)
 
 </details>
 

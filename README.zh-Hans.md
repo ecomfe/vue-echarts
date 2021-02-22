@@ -6,7 +6,7 @@
 
 ## 💡 注意 💡
 
-若您的项目正在使用 `vue-echarts` ≤ 5 的版本，请在升级 v6 前阅读 *[迁移到 v6](#迁移到-v6)* 部分文档。
+若您的项目正在使用 `vue-echarts` ≤ 5 的版本，请在升级 v6 前阅读 _[迁移到 v6](#迁移到-v6)_ 部分文档。
 
 ## 安装 & 使用
 
@@ -88,7 +88,7 @@ import "echarts";
 
 ### CDN & 全局变量
 
-用如下方式在 HTML 中插入 `<script>` 标签：
+用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
 <details open>
 <summary>Vue 3</summary>
@@ -101,6 +101,15 @@ import "echarts";
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
 <!-- vue3Scripts:end -->
 ```
+
+```js
+const app = Vue.createApp(...)
+
+// 全局注册组件（也可以使用局部注册）
+app.component('v-chart', ECharts)
+```
+
+[Demo →](https://codepen.io/Justineo/pen/Jjbryzo)
 
 </details>
 
@@ -117,29 +126,12 @@ import "echarts";
 <!-- vue2Scripts:end -->
 ```
 
-</details>
-
-在此模式下 Vue-ECharts 将暴露为 `window.VueECharts`。
-
-<details open>
-<summary>Vue 3</summary>
-
-```js
-const app = Vue.createApp(...)
-
-// 全局注册组件（也可以使用局部注册）
-app.component('v-chart', ECharts)
-```
-
-</details>
-
-<details>
-<summary>Vue 2</summary>
-
 ```js
 // 全局注册组件（也可以使用局部注册）
 Vue.component("v-chart", VueECharts);
 ```
+
+[Demo →](https://codepen.io/Justineo/pen/gOLGxJR)
 
 </details>
 
