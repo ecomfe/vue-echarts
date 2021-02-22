@@ -5,7 +5,8 @@
     "serve": "vue-cli-service serve",
     "build:demo": "vue-cli-service build",
     "build": "rimraf dist && rollup -c rollup.config.js",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "prepare": "npm run build"
   },
   "main": "dist/index.cjs.min.js",
   "module": "dist/index.esm.min.js",
