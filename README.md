@@ -4,11 +4,11 @@
 
 > [🇨🇳 中文版](./README.zh-Hans.md)
 
-Uses [ECharts](http://echarts.baidu.com/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
+Uses [Apache ECharts](http://echarts.baidu.com/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
 
 ## 💡 Heads up 💡
 
-If your project is using `vue-echarts` <= 5, you should read the _[Migration to v6](#Migration%20to%20v6)_ section before you update to v6.
+If your project is using `vue-echarts` <= 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
 
 ## Installation & Usage
 

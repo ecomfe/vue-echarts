@@ -2,11 +2,11 @@
 
 > Apache ECharts 的 Vue.js 组件。
 
-使用 [ECharts](http://echarts.baidu.com/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
+使用 [Apache ECharts](http://echarts.baidu.com/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
 
 ## 💡 注意 💡
 
-若您的项目正在使用 `vue-echarts` <= 5 的版本，请在升级 v6 前阅读*[迁移到 v6](#迁移到%20v6)*部分文档。
+若您的项目正在使用 `vue-echarts` <= 5 的版本，请在升级 v6 前阅读*[迁移到 v6](#迁移到-v6)*部分文档。
 
 ## 安装 & 使用
 
@@ -300,7 +300,7 @@ Vue-ECharts 支持如下事件：
 
 请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events).
 
-## Migration to v6
+## 迁移到 v6
 
 `vue-echarts@6` 引入了如下破坏性变更：
 
