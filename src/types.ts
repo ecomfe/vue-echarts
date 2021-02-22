@@ -21,4 +21,4 @@ export interface UpdateOptions {
   replaceMerge?: any;
   transition?: any;
 }
-export type UpdateOptionsInjection = UpdateOptions | null | Ref<UpdateOptions null>;
+export type UpdateOptionsInjection = UpdateOptions | null | Ref<UpdateOptions | null>;
