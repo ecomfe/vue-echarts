@@ -8,7 +8,7 @@ Uses [Apache ECharts](http://echarts.baidu.com/index.html) 5 and works for both 
 
 ## 💡 Heads up 💡
 
-If your project is using `vue-echarts` <= 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
+If your project is using `vue-echarts` ≤ 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
 
 ## Installation & Usage
 
@@ -300,7 +300,7 @@ Vue-ECharts support the following events:
   - `zr:dblclick`
   - `zr:contextmenu`
 
-See supported events [here →](https://echarts.apache.org/en/api.html#events).
+See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
 ## Migration to v6
 
