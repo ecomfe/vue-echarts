@@ -12,6 +12,9 @@
   "unpkg": "dist/index.umd.min.js",
   "jsdelivr": "dist/index.umd.min.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "core-js": "^3.6.5"
   },
