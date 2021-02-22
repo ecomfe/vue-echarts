@@ -21,7 +21,6 @@
     <section v-if="expand.bar">
       <figure>
         <v-chart
-          class="echarts"
           :option="bar"
           :init-options="initOptions"
           ref="bar"
@@ -58,7 +57,6 @@
     <section v-if="expand.pie">
       <figure>
         <v-chart
-          class="echarts"
           :option="pie"
           :init-options="initOptions"
           ref="pie"
@@ -81,7 +79,6 @@
     <section v-if="expand.polar">
       <figure :style="polarTheme === 'dark' ? 'background-color: #100c2a' : ''">
         <v-chart
-          class="echarts"
           :option="polar"
           :init-options="initOptions"
           :theme="polarTheme"
@@ -110,12 +107,7 @@
     </h2>
     <section v-if="expand.scatter">
       <figure>
-        <v-chart
-          class="echarts"
-          :option="scatter"
-          :init-options="initOptions"
-          autoresize
-        />
+        <v-chart :option="scatter" :init-options="initOptions" autoresize />
       </figure>
     </section>
 
@@ -133,7 +125,6 @@
     <section v-if="expand.map">
       <figure style="background-color: #404a59;">
         <v-chart
-          class="echarts"
           :option="map"
           :init-options="initOptions"
           ref="map"
@@ -186,7 +177,6 @@
     <section v-if="expand.connect">
       <figure class="half">
         <v-chart
-          class="echarts"
           :option="c1"
           :init-options="initOptions"
           group="radiance"
@@ -196,7 +186,6 @@
       </figure>
       <figure class="half">
         <v-chart
-          class="echarts"
           :option="c2"
           :init-options="initOptions"
           group="radiance"
@@ -233,10 +222,9 @@
       <p><button :disabled="flightLoaded" @click="loadFlights">Load</button></p>
       <figure style="background-color: #003;">
         <v-chart
-          class="echarts"
           ref="flight"
           :init-options="initOptions"
-          :option="flightOptions"
+          :option="flight"
           autoresize
           :loading="flightLoading"
           :loading-options="flightLoadingOptions"
@@ -385,14 +373,14 @@ export default {
       metricIndex: 0,
       open: false,
       img: {},
-      flightLoaded: false,
-      flightOptions: null,
       barLoading: false,
       barLoadingOptions: {
         text: "Loading…",
         color: "#4ea397",
         maskColor: "rgba(255, 255, 255, 0.4)"
       },
+      flight: null,
+      flightLoaded: false,
       flightLoading: false,
       flightLoadingOptions: {
         text: "",
@@ -455,7 +443,7 @@ export default {
           return [getAirportCoord(airline[1]), getAirportCoord(airline[2])];
         });
 
-        this.flightOptions = {
+        this.flight = {
           textStyle: {
             fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif'
           },
@@ -481,10 +469,8 @@ export default {
             right: 0,
             silent: true,
             itemStyle: {
-              normal: {
-                borderColor: "#003",
-                color: "#005"
-              }
+              borderColor: "#003",
+              color: "#005"
             }
           },
           series: [
@@ -495,13 +481,10 @@ export default {
               large: true,
               largeThreshold: 100,
               lineStyle: {
-                normal: {
-                  opacity: 0.05,
-                  width: 0.5,
-                  curveness: 0.3
-                }
+                opacity: 0.05,
+                width: 0.5,
+                curveness: 0.3
               },
-              // 设置混合模式为叠加
               blendMode: "lighter"
             }
           ]
@@ -569,6 +552,8 @@ export default {
   },
   mounted() {
     this.startActions();
+
+    console.log(this.$refs.bar.chart);
   }
 };
 </script>

@@ -1,0 +1,283 @@
+# Vue-ECharts
+
+> ECharts component for Vue.js.
+
+使用 [ECharts](http://echarts.baidu.com/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
+
+## 💡 Heads up 💡
+
+若您的项目正在使用 `vue-echarts` <= 5 的版本，请在升级 v6 前阅读*[迁移到 v6](#迁移到%20v6)*部分文档。
+
+## 安装 & 使用
+
+### npm & ESM
+
+```bash
+$ npm install echarts vue-echarts
+```
+
+要在 Vue 2 下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
+
+```sh
+npm i -D @vue/composition-api
+```
+
+<details open>
+<summary>Vue 3</summary>
+
+```js
+import { createApp } from 'vue'
+import ECharts from 'vue-echarts'
+
+// 手动引入 ECharts 各模块来减小打包体积
+import {
+  CanvasRenderer
+} from 'echarts/renderers'
+import {
+  BarChart
+} from 'echarts/chart'
+import {
+  GridComponent,
+  TooltipComponent
+} from 'echarts/components'
+
+const app = createApp(...)
+
+// 全局注册组件（也可以使用局部注册）
+app.component('v-chart', ECharts)
+
+app.mount(...)
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```js
+import Vue from 'vue'
+import ECharts from 'vue-echarts'
+
+// 手动引入 ECharts 各模块来减小打包体积
+import {
+  CanvasRenderer
+} from 'echarts/renderers'
+import {
+  BarChart
+} from 'echarts/chart'
+import {
+  GridComponent,
+  TooltipComponent
+} from 'echarts/components'
+
+// 全局注册组件（也可以使用局部注册）
+Vue.component('v-chart', ECharts)
+
+new Vue(...)
+```
+
+</details>
+
+### CDN & 全局变量
+
+用如下方式在 HTML 中插入 `<script>` 标签：
+
+<details open>
+<summary>Vue 3</summary>
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+```
+
+</details>
+
+在此模式下 Vue-ECharts 将暴露为 `window.VueECharts`。
+
+<details open>
+<summary>Vue 3</summary>
+
+```js
+const app = Vue.createApp(...)
+
+// 全局注册组件（也可以使用局部注册）
+app.component('v-chart', ECharts)
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```js
+// 全局注册组件（也可以使用局部注册）
+Vue.component("v-chart", VueECharts);
+```
+
+</details>
+
+可以在[这里](https://github.com/ecomfe/vue-echarts/tree/next/src/demo)查看更多例子。
+
+### Prop
+
+- `init-options: object`
+
+  初始化附加参数。请参考 `echarts.init` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
+
+- `theme: string | object`
+
+  要应用的主题。请参考 `echarts.init` 的 `theme` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
+
+- `option: object`
+
+  ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
+
+- `update-options: object`
+
+  图表更新的配置项。请参考 `echartsInstance.setOption` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
+
+- `group: string`
+
+  图表的分组，用于[联动](https://echarts.apache.org/zh/api.html#echarts.connect)。请参考 `echartsInstance.group`。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.group)
+
+- `autoresize: boolean`（默认值`false`）
+
+  图表在组件根元素尺寸变化时是否需要自动进行重绘。
+
+- `loading: boolean`（默认值：`false`）
+
+  图表是否处于加载状态。
+
+- `loading-options: object`
+
+  加载动画配置项。请参考 `echartsInstance.showLoading` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
+
+- `manual-update: boolean`（默认值`false`）
+
+  在性能敏感（数据量很大）的场景下，我们最好对于 `option` prop 绕过 Vue 的响应式系统。当将 `manual-update` prop 指定为 `true` 且不传入 `option` prop 时，数据将不会被监听。然后，需要用 `ref` 获取组件实例以后手动调用 `setOption` 方法来更新图表。
+
+### 方法
+
+- `setOption` [→](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
+- `getWidth` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getWidth)
+- `getHeight` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getHeight)
+- `getDom` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDom)
+- `getOption` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getOption)
+- `resize` [→](https://echarts.apache.org/zh/api.html#echartsInstance.resize)
+- `dispatchAction` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispatchAction)
+- `convertToPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.convertToPixel)
+- `convertFromPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.convertFromPixel)
+- `showLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
+- `hideLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)
+- `containPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.containPixel)
+- `getDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDataURL)
+- `getConnectedDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getConnectedDataURL)
+- `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
+- `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
+
+### 静态方法
+
+静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
+
+### 事件
+
+Vue-ECharts 支持如下事件：
+
+- `highlight` [→](https://echarts.apache.org/zh/api.html#events.highlight)
+- `downplay` [→](https://echarts.apache.org/zh/api.html#events.downplay)
+- `selectchanged` [→](https://echarts.apache.org/zh/api.html#events.selectchanged)
+- `legendselectchanged` [→](https://echarts.apache.org/zh/api.html#events.legendselectchanged)
+- `legendselected` [→](https://echarts.apache.org/zh/api.html#events.legendselected)
+- `legendunselected` [→](https://echarts.apache.org/zh/api.html#events.legendunselected)
+- `legendselectall` [→](https://echarts.apache.org/zh/api.html#events.legendselectall)
+- `legendinverseselect` [→](https://echarts.apache.org/zh/api.html#events.legendinverseselect)
+- `legendscroll` [→](https://echarts.apache.org/zh/api.html#events.legendscroll)
+- `datazoom` [→](https://echarts.apache.org/zh/api.html#events.datazoom)
+- `datarangeselected` [→](https://echarts.apache.org/zh/api.html#events.datarangeselected)
+- `timelinechanged` [→](https://echarts.apache.org/zh/api.html#events.timelinechanged)
+- `timelineplaychanged` [→](https://echarts.apache.org/zh/api.html#events.timelineplaychanged)
+- `restore` [→](https://echarts.apache.org/zh/api.html#events.restore)
+- `dataviewchanged` [→](https://echarts.apache.org/zh/api.html#events.dataviewchanged)
+- `magictypechanged` [→](https://echarts.apache.org/zh/api.html#events.magictypechanged)
+- `geoselectchanged` [→](https://echarts.apache.org/zh/api.html#events.geoselectchanged)
+- `geoselected` [→](https://echarts.apache.org/zh/api.html#events.geoselected)
+- `geounselected` [→](https://echarts.apache.org/zh/api.html#events.geounselected)
+- `axisareaselected` [→](https://echarts.apache.org/zh/api.html#events.axisareaselected)
+- `brush` [→](https://echarts.apache.org/zh/api.html#events.brush)
+- `brushEnd` [→](https://echarts.apache.org/zh/api.html#events.brushEnd)
+- `brushselected` [→](https://echarts.apache.org/zh/api.html#events.brushselected)
+- `globalcursortaken` [→](https://echarts.apache.org/zh/api.html#events.globalcursortaken)
+- `rendered` [→](https://echarts.apache.org/zh/api.html#events.rendered)
+- `finished` [→](https://echarts.apache.org/zh/api.html#events.finished)
+- 鼠标事件
+  - `click` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.click)
+  - `dblclick` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.dblclick)
+  - `mouseover` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseover)
+  - `mouseout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseout)
+  - `mousemove` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousemove)
+  - `mousedown` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousedown)
+  - `mouseup` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseup)
+  - `globalout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.globalout)
+  - `contextmenu` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.contextmenu)
+- ZRender 事件
+  - `zr:click`
+  - `zr:mousedown`
+  - `zr:mouseup`
+  - `zr:mousewheel`
+  - `zr:dblclick`
+  - `zr:contextmenu`
+
+请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events).
+
+## Migration to v6
+
+`vue-echarts@6` 引入了如下破坏性变更：
+
+### Vue 2 支持
+
+- 要在 Vue 2 中使用 Vue-ECharts，现在必须安装 `@vue/composition-api`。
+
+### Prop
+
+- `options` 重命名为 **`option`**，以和 ECharts 本身保持一致。
+- 更新 `option` 将采用 **`update-options`** 中的配置，不再检查是否发生引用变化。
+- `watch-shallow` 被移除。在性能关键场景请使用 **`manual-update`**。
+
+### 方法
+
+- `mergeOptions` 重命名为 **`setOption`**，以和 ECharts 本身保持一致。
+- `showLoading` 与 `hideLoading` 被移除。请使用 **`loading` 与 `loading-options`** prop。
+- `appendData` 被移除。（由于 ECharts 5 引入的破坏性变更。）
+- 所有静态方法被从 `vue-echarts` 移除。可以直接使用 `echarts` 本身的这些方法。
+
+### 计算 Getter
+
+- 计算 getter（`width`、`height`、`isDisposed` 和 `computedOptions`）被移除。请分别使用 **`getWidth`、`getHeight`、`isDisposed` 和 `getOption`** 方法代替。
+
+### 样式
+
+- 现在组件根元素尺寸默认为 **`100%×100%`**，而非原来的 `600×400`。
+
+## 本地开发
+
+```bash
+$ npm i
+$ npm run serve
+```
+
+打开 `http://localhost:8080` 来查看 demo。
