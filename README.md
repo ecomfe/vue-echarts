@@ -80,7 +80,7 @@ new Vue(...)
 
 </details>
 
-We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here  →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
 
 But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
 
@@ -96,25 +96,31 @@ Drop `<script>` inside your HTML file as follows:
 <summary>Vue 3</summary>
 
 ```html
+<!-- vue3Scripts:start -->
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
+<!-- vue3Scripts:end -->
 ```
 
+[Demo →](https://codepen.io/Justineo/pen/Jjbryzo)
 </details>
 
 <details>
 <summary>Vue 2</summary>
 
 ```html
+<!-- vue2Scripts:start -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
+<!-- vue2Scripts:end -->
 ```
 
+[Demo →](https://codepen.io/Justineo/pen/gOLGxJR)
 </details>
 
 Vue-ECharts is exposed as `window.VueECharts` in this mode.
@@ -126,7 +132,7 @@ Vue-ECharts is exposed as `window.VueECharts` in this mode.
 const app = Vue.createApp(...)
 
 // register globally (or you can do it locally)
-app.component('v-chart', ECharts)
+app.component('v-chart', VueECharts)
 ```
 
 </details>

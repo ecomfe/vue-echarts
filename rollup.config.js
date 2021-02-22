@@ -52,7 +52,7 @@ const options = [
   {
     input: "src/all.ts",
     plugins: [resolve(), typescript(), postcss()],
-    external: ["vue", "echarts", "echarts/core"],
+    external: ["vue-demi", "echarts", "echarts/core"],
     output: [
       {
         file: "dist/index.umd.js",
@@ -60,7 +60,7 @@ const options = [
         name: "VueECharts",
         sourcemap: true,
         globals: {
-          vue: "Vue",
+          "vue-demi": "VueDemi",
           echarts: "echarts",
           "echarts/core": "echarts"
         }
@@ -71,7 +71,7 @@ const options = [
         name: "VueECharts",
         sourcemap: true,
         globals: {
-          vue: "Vue",
+          "vue-demi": "VueDemi",
           echarts: "echarts",
           "echarts/core": "echarts"
         },

@@ -78,7 +78,7 @@ new Vue(...)
 
 </details>
 
-为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往  →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往 →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
 
 但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
 
@@ -94,10 +94,12 @@ import "echarts";
 <summary>Vue 3</summary>
 
 ```html
+<!-- vue3Scripts:start -->
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
+<!-- vue3Scripts:end -->
 ```
 
 </details>
@@ -106,11 +108,13 @@ import "echarts";
 <summary>Vue 2</summary>
 
 ```html
+<!-- vue2Scripts:start -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.2"></script>
+<!-- vue2Scripts:end -->
 ```
 
 </details>

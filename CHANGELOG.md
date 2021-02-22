@@ -1,3 +1,7 @@
+## 6.0.0-alpha.2
+
+* Fix bundling for UMD build.
+
 ## 6.0.0-alpha.1
 
 ### Breaking changes
