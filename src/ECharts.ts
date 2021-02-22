@@ -2,6 +2,7 @@
 import {
   defineComponent,
   ref,
+  unref,
   shallowRef,
   toRefs,
   watch,
@@ -10,10 +11,17 @@ import {
   onMounted,
   onUnmounted,
   h,
-  PropType
+  PropType,
+  watchEffect
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
-import { EChartsType, OptionType } from "./types";
+import {
+  EChartsType,
+  InitOptions,
+  Option,
+  UpdateOptions,
+  Theme
+} from "./types";
 import {
   usePublicAPI,
   useAutoresize,
@@ -21,37 +29,49 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
+import "./style.css";
 
-type InitParameters = Parameters<typeof initChart>;
-type ThemeParameter = InitParameters[1];
-type InitOptsParameter = InitParameters[2];
+export const INIT_OPTIONS_KEY = "ecInitOptions";
+export const UPDATE_OPTIONS_KEY = "ecUpdateOptions";
+export { LOADING_OPTIONS_KEY } from "./composables";
 
 export default defineComponent({
   name: "echarts",
   props: {
-    option: Object as PropType<OptionType>,
+    option: Object as PropType<Option>,
     theme: {
-      type: [Object, String] as PropType<ThemeParameter>
+      type: [Object, String] as PropType<Theme>
     },
-    initOptions: Object as PropType<InitOptsParameter>,
+    initOptions: Object as PropType<InitOptions>,
+    updateOptions: Object as PropType<UpdateOptions>,
     group: String,
     manualUpdate: Boolean,
     ...autoresizeProps,
     ...loadingProps
   },
   setup(props, { attrs }) {
-    const defaultInitOptions = inject(
-      "echartsInitOptions",
+    const defaultInitOptions = inject(INIT_OPTIONS_KEY, {}) as InitOptions;
+    const defaultUpdateOptions = inject(
+      UPDATE_OPTIONS_KEY,
       {}
-    ) as InitOptsParameter;
+    ) as UpdateOptions;
     const root = ref<HTMLElement>();
     const chart = shallowRef<EChartsType>();
-    const manualOption = shallowRef<OptionType>();
+    const manualOption = shallowRef<Option>();
     const realOption = computed(
       () => manualOption.value || props.option || Object.create(null)
     );
+    const realInitOptions = computed(() => ({
+      ...defaultInitOptions,
+      ...props.initOptions
+    }));
+    const realUpdateOptions = computed(() => ({
+      ...defaultUpdateOptions,
+      ...props.updateOptions
+    }));
+    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
-    function init(option?: OptionType) {
+    function init(option?: Option) {
       if (chart.value || !root.value) {
         return;
       }
@@ -59,7 +79,7 @@ export default defineComponent({
       const instance = (chart.value = initChart(
         root.value,
         props.theme,
-        props.initOptions || defaultInitOptions
+        realInitOptions.value
       ));
 
       if (props.group) {
@@ -67,7 +87,7 @@ export default defineComponent({
       }
 
       Object.keys(attrs)
-        .filter(key => key.indexOf(`on`) === 0)
+        .filter(key => key.indexOf("on") === 0)
         .forEach(key => {
           const handler = attrs[key] as any;
 
@@ -82,10 +102,10 @@ export default defineComponent({
           }
         });
 
-      instance.setOption(option || realOption.value, true);
+      instance.setOption(option || realOption.value, realUpdateOptions.value);
     }
 
-    function setOption(option: OptionType, ...rest: any[]) {
+    function setOption(option: Option, updateOptions?: UpdateOptions) {
       if (props.manualUpdate) {
         manualOption.value = option;
       }
@@ -93,7 +113,10 @@ export default defineComponent({
       if (!chart.value) {
         init(option);
       } else {
-        chart.value.setOption(option, ...rest);
+        chart.value.setOption(option, {
+          ...realUpdateOptions.value,
+          ...updateOptions
+        });
       }
     }
 
@@ -104,7 +127,6 @@ export default defineComponent({
       }
     }
 
-    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
     let unwatchOption: (() => void) | null = null;
     watch(
       manualUpdate,
@@ -117,21 +139,14 @@ export default defineComponent({
         if (!manualUpdate) {
           unwatchOption = watch(
             () => props.option,
-            (val, oldVal) => {
-              if (!val) {
+            option => {
+              if (!option) {
                 return;
               }
               if (!chart.value) {
                 init();
               } else {
-                // mutating `option` will lead to merging
-                // replacing it with new reference will lead to not merging
-                // eg.
-                // `this.option = Object.assign({}, this.option, { ... })`
-                // will trigger `this.chart.setOption(val, true)
-                // `this.option.title.text = 'Trends'`
-                // will trigger `this.chart.setOption(val, false)`
-                chart.value.setOption(val, val !== oldVal);
+                chart.value.setOption(option, props.updateOptions);
               }
             },
             { deep: true }
@@ -154,14 +169,11 @@ export default defineComponent({
       }
     );
 
-    watch(
-      () => props.group,
-      group => {
-        if (group && chart.value) {
-          chart.value.group = group;
-        }
+    watchEffect(() => {
+      if (props.group && chart.value) {
+        chart.value.group = props.group;
       }
-    );
+    });
 
     const publicApi = usePublicAPI(chart, init);
 
@@ -177,13 +189,20 @@ export default defineComponent({
 
     onUnmounted(cleanup);
 
-    return {
+    const exposed = {
       root,
       setOption,
       ...publicApi
     };
+    Object.defineProperty(exposed, "chart", {
+      get() {
+        return unref(chart);
+      }
+    });
+
+    return exposed;
   },
   render() {
-    return h("div", { ref: "root" });
+    return h("div", { class: "echarts", ref: "root" });
   }
 });

@@ -1,11 +1,19 @@
-import { Ref, watchEffect } from "vue-demi";
+import { inject, computed, Ref, watchEffect } from "vue-demi";
 import { EChartsType } from "../types";
+
+export const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
   loadingOptions?: Ref<object | undefined>
 ): void {
+  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {}) as object;
+  const realLoadingOptions = computed(() => ({
+    ...defaultLoadingOptions,
+    ...loadingOptions?.value
+  }));
+
   watchEffect(() => {
     const instance = chart.value;
     if (!instance) {
@@ -13,7 +21,7 @@ export function useLoading(
     }
 
     if (loading.value) {
-      instance.showLoading(loadingOptions?.value);
+      instance.showLoading(realLoadingOptions.value);
     } else {
       instance.hideLoading();
     }

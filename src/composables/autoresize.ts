@@ -1,13 +1,13 @@
 import { Ref, watch } from "vue-demi";
 import { throttle } from "echarts/core";
 import { addListener, removeListener, ResizeCallback } from "resize-detector";
-import { EChartsType, OptionType } from "../types";
+import { EChartsType, Option } from "../types";
 
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<boolean>,
   root: Ref<HTMLElement | undefined>,
-  option: Ref<OptionType>
+  option: Ref<Option>
 ): void {
   let resizeListener: ResizeCallback | null = null;
   let lastArea = 0;
