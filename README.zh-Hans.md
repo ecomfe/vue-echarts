@@ -153,6 +153,8 @@ Vue.component("v-chart", VueECharts);
 
   要应用的主题。请参考 `echarts.init` 的 `theme` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
 
+  Inject 键名：`THEME_KEY`。
+
 - `option: object`
 
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
@@ -187,7 +189,7 @@ Vue.component("v-chart", VueECharts);
 
 ### Provide / Inject
 
-Vue-ECharts 为 `init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
+Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
 
 <details open>
 <summary>Vue 3</summary>

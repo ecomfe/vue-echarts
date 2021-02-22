@@ -17,12 +17,13 @@ import {
 import { init as initChart } from "echarts/core";
 import {
   EChartsType,
+  Option,
+  Theme,
+  ThemeInjection,
   InitOptions,
   InitOptionsInjection,
-  Option,
   UpdateOptions,
-  UpdateOptionsInjection,
-  Theme
+  UpdateOptionsInjection
 } from "./types";
 import {
   usePublicAPI,
@@ -33,6 +34,7 @@ import {
 } from "./composables";
 import "./style.css";
 
+export const THEME_KEY = "ecTheme";
 export const INIT_OPTIONS_KEY = "ecInitOptions";
 export const UPDATE_OPTIONS_KEY = "ecUpdateOptions";
 export { LOADING_OPTIONS_KEY } from "./composables";
@@ -52,28 +54,29 @@ export default defineComponent({
     ...loadingProps
   },
   setup(props, { attrs }) {
-    const defaultInitOptions = inject(
-      INIT_OPTIONS_KEY,
-      {}
-    ) as InitOptionsInjection;
-    const defaultUpdateOptions = inject(
-      UPDATE_OPTIONS_KEY,
-      {}
-    ) as UpdateOptionsInjection;
     const root = ref<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
+    const defaultTheme = inject(THEME_KEY, null) as ThemeInjection;
+    const defaultInitOptions = inject(
+      INIT_OPTIONS_KEY,
+      null
+    ) as InitOptionsInjection;
+    const defaultUpdateOptions = inject(
+      UPDATE_OPTIONS_KEY,
+      null
+    ) as UpdateOptionsInjection;
     const realOption = computed(
       () => manualOption.value || props.option || Object.create(null)
     );
-    const realInitOptions = computed(() => ({
-      ...unref(defaultInitOptions),
-      ...props.initOptions
-    }));
-    const realUpdateOptions = computed(() => ({
-      ...unref(defaultUpdateOptions),
-      ...props.updateOptions
-    }));
+    const realTheme = computed(() => props.theme || unref(defaultTheme) || {});
+    const realInitOptions = computed(
+      () => props.initOptions || unref(defaultInitOptions) || {}
+    );
+    const realUpdateOptions = computed(
+      () => props.updateOptions || unref(defaultUpdateOptions) || {}
+    );
+
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
     function init(option?: Option) {
@@ -83,7 +86,7 @@ export default defineComponent({
 
       const instance = (chart.value = initChart(
         root.value,
-        props.theme,
+        realTheme.value,
         realInitOptions.value
       ));
 

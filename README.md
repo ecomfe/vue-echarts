@@ -155,6 +155,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/dem
 
   Theme to be applied. See `echarts.init`'s `theme` parameter [here →](https://echarts.apache.org/en/api.html#echarts.init)
 
+  Injection key: `THEME_KEY`.
+
 - `option: object`
 
   ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
@@ -189,7 +191,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/dem
 
 ### Provide / Inject
 
-Vue-ECharts provides provide/inject API for `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
+Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
 
 <details open>
 <summary>Vue 3</summary>
