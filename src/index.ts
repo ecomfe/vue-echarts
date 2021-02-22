@@ -1,1 +1,1 @@
-export { default } from "./ECharts";
+export * from "./ECharts";

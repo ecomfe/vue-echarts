@@ -1,3 +1,3 @@
 import "echarts";
 
-export { default } from "./ECharts";
+export * from "./ECharts";

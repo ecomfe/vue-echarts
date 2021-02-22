@@ -100,7 +100,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.4"></script>
 ```
 
 <!-- vue3Scripts:end -->
@@ -125,7 +125,7 @@ app.component('v-chart', VueECharts)
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.4"></script>
 ```
 
 <!-- vue2Scripts:end -->
