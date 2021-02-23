@@ -272,7 +272,7 @@
 <script>
 /* eslint-disable no-console */
 import qs from "qs";
-import VChart from "../../dist/index.esm";
+import VChart from "../ECharts";
 
 import * as echarts from "echarts/core";
 import {
@@ -397,11 +397,11 @@ export default {
     };
   },
   methods: {
-    handleClick() {
-      console.log("click from echarts");
+    handleClick(...args) {
+      console.log("click from echarts", ...args);
     },
-    handleZrClick() {
-      console.log("click from zrender");
+    handleZrClick(...args) {
+      console.log("click from zrender", ...args);
     },
     refresh() {
       // simulating async data from server

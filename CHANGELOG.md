@@ -1,3 +1,7 @@
+## 6.0.0-alpha.5
+
+* Fix event support for Vue 2.
+
 ## 6.0.0-alpha.4
 
 * Add missing injection key exports.

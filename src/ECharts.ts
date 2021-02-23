@@ -54,7 +54,9 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps
   },
-  setup(props, { attrs }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // @ts-expect-error
+  setup(props, { attrs, listeners }) {
     const root = ref<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -98,21 +100,33 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      Object.keys(attrs)
-        .filter(key => key.indexOf("on") === 0)
-        .forEach(key => {
-          const handler = attrs[key] as any;
+      let realListeners = listeners;
+      if (!realListeners) {
+        realListeners = {};
 
-          if (!handler) {
-            return;
-          }
+        Object.keys(attrs)
+          .filter(key => key.indexOf("on") === 0 && key.length > 2)
+          .forEach(key => {
+            // onClick    -> c + lick
+            // onZr:click -> z + r:click
+            const event = key.charAt(2).toLowerCase() + key.slice(3);
+            realListeners[event] = attrs[key];
+          });
+      }
 
-          if (key.indexOf("onZr:") === 0) {
-            instance.getZr().on(key.slice(5).toLowerCase(), handler);
-          } else {
-            instance.on(key.slice(2).toLowerCase(), handler);
-          }
-        });
+      Object.keys(realListeners).forEach(key => {
+        const handler = realListeners[key] as any;
+
+        if (!handler) {
+          return;
+        }
+
+        if (key.indexOf("zr:") === 0) {
+          instance.getZr().on(key.slice(3).toLowerCase(), handler);
+        } else {
+          instance.on(key.toLowerCase(), handler);
+        }
+      });
 
       instance.setOption(option || realOption.value, realUpdateOptions.value);
     }

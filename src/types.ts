@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { init } from "echarts/core";
 import { Ref } from "vue";
 
@@ -21,4 +22,7 @@ export interface UpdateOptions {
   replaceMerge?: any;
   transition?: any;
 }
-export type UpdateOptionsInjection = UpdateOptions | null | Ref<UpdateOptions | null>;
+export type UpdateOptionsInjection =
+  | UpdateOptions
+  | null
+  | Ref<UpdateOptions | null>;

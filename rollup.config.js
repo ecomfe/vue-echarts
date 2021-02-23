@@ -58,6 +58,7 @@ const options = [
         file: "dist/index.umd.js",
         format: "umd",
         name: "VueECharts",
+        exports: "named",
         sourcemap: true,
         globals: {
           "vue-demi": "VueDemi",
@@ -69,6 +70,7 @@ const options = [
         file: "dist/index.umd.min.js",
         format: "umd",
         name: "VueECharts",
+        exports: "named",
         sourcemap: true,
         globals: {
           "vue-demi": "VueDemi",
