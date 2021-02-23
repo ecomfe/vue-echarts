@@ -272,7 +272,7 @@
 <script>
 /* eslint-disable no-console */
 import qs from "qs";
-import VChart from "../ECharts";
+import VChart from "../../dist/index.esm";
 
 import * as echarts from "echarts/core";
 import {

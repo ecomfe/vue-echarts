@@ -1,3 +1,5 @@
 import "echarts";
+import ECharts from "./index";
 
-export * from "./ECharts";
+export default ECharts;
+export * from "./index";

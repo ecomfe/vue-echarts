@@ -31,13 +31,11 @@ const options = [
       {
         file: "dist/index.cjs.js",
         format: "cjs",
-        exports: "default",
         sourcemap: true
       },
       {
         file: "dist/index.cjs.min.js",
         format: "cjs",
-        exports: "default",
         sourcemap: true,
         plugins: [
           terser({
