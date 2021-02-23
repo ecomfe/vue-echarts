@@ -4,6 +4,7 @@ import {
   ref,
   unref,
   shallowRef,
+  toRef,
   toRefs,
   watch,
   computed,
@@ -77,7 +78,9 @@ export default defineComponent({
       () => props.updateOptions || unref(defaultUpdateOptions) || {}
     );
 
-    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
+    const { autoresize, manualUpdate, loading } = toRefs(props);
+    const loadingOptions = toRef(props, "loadingOptions");
+    const a = toRef(props, "autoresize");
 
     function init(option?: Option) {
       if (chart.value || !root.value) {

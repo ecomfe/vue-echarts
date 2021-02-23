@@ -6,7 +6,7 @@ export const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
-  loadingOptions?: Ref<object | undefined>
+  loadingOptions: Ref<object | undefined>
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {}) as
     | object

@@ -37,7 +37,7 @@ import {
 } from 'echarts/renderers'
 import {
   BarChart
-} from 'echarts/chart'
+} from 'echarts/charts'
 import {
   GridComponent,
   TooltipComponent
