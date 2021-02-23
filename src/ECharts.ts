@@ -79,8 +79,9 @@ export default defineComponent({
     );
 
     const { autoresize, manualUpdate, loading } = toRefs(props);
+    const theme = toRef(props, "theme");
+    const initOptions = toRef(props, "initOptions");
     const loadingOptions = toRef(props, "loadingOptions");
-    const a = toRef(props, "autoresize");
 
     function init(option?: Option) {
       if (chart.value || !root.value) {
@@ -170,7 +171,7 @@ export default defineComponent({
     );
 
     watch(
-      [() => props.theme, () => props.initOptions],
+      [theme, initOptions],
       () => {
         cleanup();
         init();
