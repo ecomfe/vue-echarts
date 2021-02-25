@@ -86,6 +86,191 @@ new Vue(...)
 import "echarts";
 ```
 
+#### 单文件组件示例
+
+<details open>
+<summary>Vue 3</summary>
+
+```vue
+<template>
+  <v-chart class="chart" :option="option" />
+</template>
+
+<script>
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { PieChart } from "echarts/charts";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from "echarts/components";
+import { default as VChart, THEME_KEY } from "vue-echarts";
+import { ref, defineComponent } from "vue";
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+]);
+
+export default defineComponent({
+  name: "HelloWorld",
+  components: {
+    VChart
+  },
+  provide: {
+    [THEME_KEY]: "dark"
+  },
+  setup: () => {
+    const option = ref({
+      title: {
+        text: "Traffic Sources",
+        left: "center"
+      },
+      tooltip: {
+        trigger: "item",
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+      },
+      legend: {
+        orient: "vertical",
+        left: "left",
+        data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
+      },
+      series: [
+        {
+          name: "Traffic Sources",
+          type: "pie",
+          radius: "55%",
+          center: ["50%", "60%"],
+          data: [
+            { value: 335, name: "Direct" },
+            { value: 310, name: "Email" },
+            { value: 234, name: "Ad Networks" },
+            { value: 135, name: "Video Ads" },
+            { value: 1548, name: "Search Engines" }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)"
+            }
+          }
+        }
+      ]
+    });
+
+    return { option };
+  }
+});
+</script>
+
+<style scoped>
+.chart {
+  height: 400px;
+}
+</style>
+```
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```vue
+<template>
+  <v-chart class="chart" :option="option" />
+</template>
+
+<script>
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { PieChart } from "echarts/charts";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from "echarts/components";
+import { default as VChart, THEME_KEY } from "vue-echarts";
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+]);
+
+export default {
+  name: "HelloWorld",
+  components: {
+    VChart
+  },
+  provide: {
+    [THEME_KEY]: "dark"
+  },
+  data() {
+    return {
+      option: {
+        title: {
+          text: "Traffic Sources",
+          left: "center"
+        },
+        tooltip: {
+          trigger: "item",
+          formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+          data: [
+            "Direct",
+            "Email",
+            "Ad Networks",
+            "Video Ads",
+            "Search Engines"
+          ]
+        },
+        series: [
+          {
+            name: "Traffic Sources",
+            type: "pie",
+            radius: "55%",
+            center: ["50%", "60%"],
+            data: [
+              { value: 335, name: "Direct" },
+              { value: 310, name: "Email" },
+              { value: 234, name: "Ad Networks" },
+              { value: 135, name: "Video Ads" },
+              { value: 1548, name: "Search Engines" }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
+          }
+        ]
+      }
+    };
+  }
+};
+</script>
+
+<style scoped>
+.chart {
+  height: 400px;
+}
+</style>
+```
+
+</details>
+
 ### CDN & 全局变量
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
@@ -94,6 +279,7 @@ import "echarts";
 <summary>Vue 3</summary>
 
 <!-- vue3Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
@@ -118,6 +304,7 @@ app.component('v-chart', VueECharts)
 <summary>Vue 2</summary>
 
 <!-- vue2Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>

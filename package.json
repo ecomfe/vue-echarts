@@ -1,5 +1,6 @@
 {
   "name": "vue-echarts",
+  "description": "Vue.js component for Apache ECharts.",
   "version": "6.0.0-alpha.5",
   "scripts": {
     "serve": "vue-cli-service serve",
