@@ -11,6 +11,7 @@ const METHOD_NAMES = [
   "dispatchAction",
   "convertToPixel",
   "convertFromPixel",
+  "containPixel",
   "getDataURL",
   "getConnectedDataURL",
   "appendData",
