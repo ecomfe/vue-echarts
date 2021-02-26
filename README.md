@@ -281,10 +281,9 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <summary>Vue 3</summary>
 
 <!-- vue3Scripts:start -->
-
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.5"></script>
 ```
@@ -306,11 +305,10 @@ app.component('v-chart', VueECharts)
 <summary>Vue 2</summary>
 
 <!-- vue2Scripts:start -->
-
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.6.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-alpha.5"></script>
 ```
@@ -425,6 +423,7 @@ import { INIT_OPTIONS_KEY } from 'vue-echarts'
 - `dispatchAction` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispatchAction)
 - `convertToPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.convertToPixel)
 - `convertFromPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.convertFromPixel)
+- `containPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.containPixel)
 - `showLoading` [→](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
 - `hideLoading` [→](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading)
 - `containPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.containPixel)
@@ -488,6 +487,8 @@ Vue-ECharts support the following events:
 See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
 ## Migration to v6
+
+> 💡 Please make sure to read the [migration guide](https://echarts.apache.org/en/tutorial.html#ECharts%205%20Upgrade%20Guide) for ECharts 5 as well.
 
 The following breaking changes are introduced in `vue-echarts@6`:
 
