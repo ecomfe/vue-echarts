@@ -10,7 +10,7 @@ const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 const DEP_VERSIONS = {
   "vue@3": "3.0.5",
   "vue@2": "2.6.12",
-  "vue-demi": "0.6.1",
+  "vue-demi": "0.7.0",
   "@vue/composition-api": "1.0.0-rc.2",
   echarts: "5.0.2",
   [name]: version
@@ -23,7 +23,7 @@ function getScriptsMd(deps) {
       return `<script src="${CDN_PREFIX}${name}@${DEP_VERSIONS[dep]}"></script>`;
     })
     .join("\n");
-  return "```html\n" + code + "\n```\n";
+  return "```html\n" + code + "\n```";
 }
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>

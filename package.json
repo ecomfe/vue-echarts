@@ -1,7 +1,10 @@
 {
   "name": "vue-echarts",
   "description": "Vue.js component for Apache ECharts.",
-  "version": "6.0.0-alpha.5",
+  "version": "6.0.0-beta.1",
+  "repository": "https://github.com/ecomfe/vue-echarts.git",
+  "license": "MIT",
+  "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build:demo": "vue-cli-service build",
@@ -20,7 +23,7 @@
   ],
   "dependencies": {
     "resize-detector": "^0.3.0",
-    "vue-demi": "^0.6.1"
+    "vue-demi": "^0.7.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.1.1",
@@ -57,7 +60,7 @@
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-rc.2",
     "echarts": "^5.0.2",
-    "vue": "^2.6.11 || ^3.0.0"
+    "vue": "^2.6.12 || ^3.0.0"
   },
   "peerDependenciesMeta": {
     "@vue/composition-api": {

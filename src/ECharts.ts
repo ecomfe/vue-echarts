@@ -13,7 +13,8 @@ import {
   onUnmounted,
   h,
   PropType,
-  watchEffect
+  watchEffect,
+  Vue2
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
 import {
@@ -34,6 +35,12 @@ import {
   loadingProps
 } from "./composables";
 import "./style.css";
+
+const TAG_NAME = "x-vue-echarts";
+
+if (Vue2) {
+  Vue2.config.ignoredElements.push(TAG_NAME);
+}
 
 export const THEME_KEY = "ecTheme";
 export const INIT_OPTIONS_KEY = "ecInitOptions";
@@ -229,6 +236,6 @@ export default defineComponent({
     return exposed;
   },
   render() {
-    return h("div", { class: "echarts", ref: "root" });
+    return h(TAG_NAME, { class: "echarts", ref: "root" });
   }
 });
