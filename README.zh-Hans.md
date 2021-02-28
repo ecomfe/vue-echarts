@@ -281,9 +281,8 @@ export default {
 <!-- vue3Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.7.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-beta.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-beta.2"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -305,9 +304,8 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-demi@0.7.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-beta.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-beta.2"></script>
 ```
 <!-- vue2Scripts:end -->
 
