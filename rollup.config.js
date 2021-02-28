@@ -1,8 +1,22 @@
+import { readFileSync } from "fs";
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
+
+const VUE_DEMI_IIFE = readFileSync(
+  require.resolve("vue-demi/lib/index.iife.js"),
+  "utf-8"
+);
+
+/** @type {import('rollup').Plugin} */
+const injectVueDemi = {
+  name: "inject-vue-demi",
+  banner() {
+    return `${VUE_DEMI_IIFE};\n;`;
+  }
+};
 
 /** @type {import('rollup').RollupOptions} */
 const options = [
@@ -50,7 +64,7 @@ const options = [
     ]
   },
   {
-    input: "src/all.ts",
+    input: "src/global.ts",
     plugins: [resolve(), typescript(), postcss()],
     external: ["vue-demi", "echarts", "echarts/core"],
     output: [
@@ -58,19 +72,20 @@ const options = [
         file: "dist/index.umd.js",
         format: "umd",
         name: "VueECharts",
-        exports: "named",
+        exports: "default",
         sourcemap: true,
         globals: {
           "vue-demi": "VueDemi",
           echarts: "echarts",
           "echarts/core": "echarts"
-        }
+        },
+        plugins: [injectVueDemi]
       },
       {
         file: "dist/index.umd.min.js",
         format: "umd",
         name: "VueECharts",
-        exports: "named",
+        exports: "default",
         sourcemap: true,
         globals: {
           "vue-demi": "VueDemi",
@@ -78,6 +93,7 @@ const options = [
           "echarts/core": "echarts"
         },
         plugins: [
+          injectVueDemi,
           terser({
             format: {
               comments: false
