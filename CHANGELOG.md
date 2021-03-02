@@ -1,3 +1,15 @@
+## 6.0.0-beta.3
+
+* Update `vue-demi` version to fix type error.
+
+## 6.0.0-beta.2
+
+* Fix injection keys for UMD bundle.
+* Add `vue-demi` to UMD bundle.
+
+## 6.0.0-beta.1
+
+* Use a custom element for the root element to make default style less specific.
 ## 6.0.0-alpha.5
 
 * Fix event support for Vue 2.
