@@ -107,7 +107,7 @@ import {
   TooltipComponent,
   LegendComponent
 } from "echarts/components";
-import { default as VChart, THEME_KEY } from "vue-echarts";
+import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, defineComponent } from "vue";
 
 use([
@@ -196,7 +196,7 @@ import {
   TooltipComponent,
   LegendComponent
 } from "echarts/components";
-import { default as VChart, THEME_KEY } from "vue-echarts";
+import VChart, { THEME_KEY } from "vue-echarts";
 
 use([
   CanvasRenderer,
