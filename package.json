@@ -37,6 +37,7 @@
     "@vue/composition-api": "^1.0.0-rc.1",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
+    "codesandbox": "^2.2.1",
     "comment-mark": "^1.0.0",
     "echarts": "^5.0.2",
     "eslint": "^6.7.2",

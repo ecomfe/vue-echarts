@@ -1,6 +1,7 @@
 import fs from "fs";
 import { resolve } from "path";
 import commentMark from "comment-mark";
+import { getParameters } from "codesandbox/lib/api/define";
 import { name, version } from "../package.json";
 
 const { readFile, writeFile } = fs.promises;
@@ -15,35 +16,84 @@ const DEP_VERSIONS = {
   [name]: version
 };
 
-function getScriptsMd(deps) {
-  const code = deps
+const markConfig = {
+  vue3Scripts: ["vue@3", "echarts", name],
+  vue2Scripts: ["vue@2", "@vue/composition-api", "echarts", name]
+};
+
+function getScripts(version) {
+  const deps = markConfig[`vue${version}Scripts`];
+  return deps
     .map(dep => {
       const [, name] = dep.match(/^(.+?)(?:@.+)?$/) || [];
       return `<script src="${CDN_PREFIX}${name}@${DEP_VERSIONS[dep]}"></script>`;
     })
     .join("\n");
+}
+
+function getCodeBlock(code) {
   return "```html\n" + code + "\n```";
+}
+
+const scripts = {
+  2: getScripts(2),
+  3: getScripts(3)
+};
+
+async function getSandboxParams(version) {
+  const [html, js, css] = await Promise.all(
+    ["index.html", `v${version}.js`, "index.css"].map(async name => {
+      const file = resolve(__dirname, `./sandbox/${name}`);
+      return readFile(file, "utf-8");
+    })
+  );
+  return {
+    files: {
+      "index.html": {
+        content: `<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+${html}${scripts[version]}
+<script src="./index.js"></script>
+</body>
+</html>`
+      },
+      "index.js": {
+        content: js
+      },
+      "index.css": {
+        content: css
+      }
+    }
+  };
+}
+
+async function getDemoLink(version) {
+  const parameters = getParameters(await getSandboxParams(version));
+  return `[Demo →](${`https://codesandbox.io/api/v1/sandboxes/define?parameters=${parameters}`})`;
 }
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
   resolve(__dirname, "..", name)
 );
 
-const markConfig = {
-  vue3Scripts: ["vue@3", "echarts", name],
-  vue2Scripts: ["vue@2", "@vue/composition-api", "echarts", name]
-};
-
 function exec() {
   return Promise.all(
     README_FILES.map(async file => {
       const content = await readFile(file, "utf-8");
 
-      writeFile(
+      const [link2, link3] = await Promise.all([2, 3].map(getDemoLink));
+
+      return writeFile(
         file,
         commentMark(content, {
-          vue2Scripts: getScriptsMd(markConfig["vue2Scripts"]),
-          vue3Scripts: getScriptsMd(markConfig["vue3Scripts"])
+          vue2Scripts: getCodeBlock(scripts[2]),
+          vue3Scripts: getCodeBlock(scripts[3]),
+          vue2Demo: link2,
+          vue3Demo: link3
         }),
         "utf-8"
       );
