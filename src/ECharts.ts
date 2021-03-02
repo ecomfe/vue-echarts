@@ -12,6 +12,7 @@ import {
   onMounted,
   onUnmounted,
   h,
+  mergeProps,
   PropType,
   watchEffect,
   Vue2
@@ -35,6 +36,7 @@ import {
   loadingProps
 } from "./composables";
 import "./style.css";
+import { filterObjectValue } from "./utils";
 
 const TAG_NAME = "x-vue-echarts";
 
@@ -61,6 +63,7 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps
   },
+  inheritAttrs: false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // @ts-expect-error
   setup(props, { attrs, listeners }) {
@@ -91,6 +94,10 @@ export default defineComponent({
     const theme = toRef(props, "theme");
     const initOptions = toRef(props, "initOptions");
     const loadingOptions = toRef(props, "loadingOptions");
+
+    const nonEventAttrs = computed(() =>
+      filterObjectValue(attrs, value => typeof value !== "function")
+    );
 
     function init(option?: Option) {
       if (chart.value || !root.value) {
@@ -225,6 +232,7 @@ export default defineComponent({
     const exposed = {
       root,
       setOption,
+      nonEventAttrs,
       ...publicApi
     };
     Object.defineProperty(exposed, "chart", {
@@ -236,6 +244,9 @@ export default defineComponent({
     return exposed;
   },
   render() {
-    return h(TAG_NAME, { class: "echarts", ref: "root" });
+    return h(
+      TAG_NAME,
+      mergeProps({ class: "echarts", ref: "root" }, this.nonEventAttrs)
+    );
   }
 });
