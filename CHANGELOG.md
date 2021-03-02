@@ -1,3 +1,7 @@
+## 6.0.0-beta.4
+
+* Suppress native events and only handles chart events.
+
 ## 6.0.0-beta.3
 
 * Update `vue-demi` version to fix type error.
