@@ -53,19 +53,15 @@ async function getSandboxParams(version) {
         content: `<!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="./index.css">
+<style>
+${css}</style>
 </head>
 <body>
 ${html}${scripts[version]}
-<script src="./index.js"></script>
+<script>
+${js}</script>
 </body>
 </html>`
-      },
-      "index.js": {
-        content: js
-      },
-      "index.css": {
-        content: css
       }
     }
   };
