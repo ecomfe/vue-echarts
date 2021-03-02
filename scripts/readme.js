@@ -92,8 +92,8 @@ function exec() {
         commentMark(content, {
           vue2Scripts: getCodeBlock(scripts[2]),
           vue3Scripts: getCodeBlock(scripts[3]),
-          vue2Demo: link2,
-          vue3Demo: link3
+          vue2Demo: `\n${link2}\n`,
+          vue3Demo: `\n${link3}\n`
         }),
         "utf-8"
       );
