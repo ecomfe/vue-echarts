@@ -12,7 +12,6 @@ import {
   onMounted,
   onUnmounted,
   h,
-  mergeProps,
   PropType,
   watchEffect,
   Vue2
@@ -36,7 +35,7 @@ import {
   loadingProps
 } from "./composables";
 import "./style.css";
-import { filterObjectValue } from "./utils";
+import { omitOn } from "./utils";
 
 const TAG_NAME = "x-vue-echarts";
 
@@ -95,9 +94,7 @@ export default defineComponent({
     const initOptions = toRef(props, "initOptions");
     const loadingOptions = toRef(props, "loadingOptions");
 
-    const nonEventAttrs = computed(() =>
-      filterObjectValue(attrs, value => typeof value !== "function")
-    );
+    const nonEventAttrs = computed(() => omitOn(attrs));
 
     function init(option?: Option) {
       if (chart.value || !root.value) {
@@ -244,9 +241,9 @@ export default defineComponent({
     return exposed;
   },
   render() {
-    return h(
-      TAG_NAME,
-      mergeProps({ class: "echarts", ref: "root" }, this.nonEventAttrs)
-    );
+    const attrs = { ...this.nonEventAttrs };
+    attrs.ref = "root";
+    attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
+    return h(TAG_NAME, attrs);
   }
 });

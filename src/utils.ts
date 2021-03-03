@@ -1,16 +1,20 @@
 type Attrs = {
-  [key: string]: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 };
 
-export function filterObjectValue(
-  source: Attrs,
-  predicate: (key: unknown) => boolean
-) {
-  const target: Attrs = {};
-  for (const key in source) {
-    if (predicate(source[key])) {
-      target[key] = source[key];
+// Copied from
+// https://github.com/vuejs/vue-next/blob/5a7a1b8293822219283d6e267496bec02234b0bc/packages/shared/src/index.ts#L40-L41
+const onRE = /^on[^a-z]/;
+export const isOn = (key: string) => onRE.test(key);
+
+export function omitOn(attrs: Attrs) {
+  const result: Attrs = {};
+  for (const key in attrs) {
+    if (!isOn(key)) {
+      result[key] = attrs[key];
     }
   }
-  return target;
+
+  return result;
 }
