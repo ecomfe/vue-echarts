@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  install,
   defineComponent,
   ref,
   unref,
@@ -36,6 +37,8 @@ import {
 } from "./composables";
 import "./style.css";
 import { omitOn } from "./utils";
+
+install();
 
 const TAG_NAME = "x-vue-echarts";
 
