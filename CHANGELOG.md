@@ -1,6 +1,10 @@
+## 6.0.0-beta.5
+
+* Remove deps for `mergeProps` as it's not yet implemented in `@vue/composition-api`. (#519)
+
 ## 6.0.0-beta.4
 
-* Suppress native events and only handles chart events.
+* Suppress native events and only handles chart events. (#516)
 
 ## 6.0.0-beta.3
 
