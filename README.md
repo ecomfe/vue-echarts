@@ -177,6 +177,8 @@ export default defineComponent({
 </style>
 ```
 
+[Demo →](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue)
+
 </details>
 
 <details>
@@ -271,6 +273,8 @@ export default {
 </style>
 ```
 
+[Demo →](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)
+
 </details>
 
 ### CDN & Global variable
@@ -309,7 +313,7 @@ app.component('v-chart', VueECharts)
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-beta.6"></script>
 ```
@@ -322,7 +326,7 @@ Vue.component("v-chart", VueECharts);
 
 <!-- vue2Demo:start -->
 
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgec_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N44JxkgpzHCfEDib4Av6-H6AmZzBYEJYrNYbLa7faHY6nc6XPwwYplAhwO4AVjJ1K-AQZBH-vyBbNBHPB3KhfNhAsRwquaIKYpK5Slr3JTgKEVOyheCuZjJkTuV0gAarccFQsdQ6AQABQZQri8oZAA0wk9MEEnDNkoAlJ5UNITgB3KO3ANmVAWWH2DIGYwR8zCdDKAjKAMJ0yliz1AhVUq5nMWNvCPpdVD2Vvttu0LAEADK2lgPbrfYsYGoBAAYsoiNAtPYAOQASRoMFKkYyAAlYQlThByMphAA5GC3CPCACCk2UUEjcGUqDgBTgW4gYBXE_bXnDv79niY61rmk79tgBAFiA3ClMoYCQOQwhDpQTbkPAJZgeBwiwGAUHCBk6GbqUGSARY_5kcItSUFAnSGOOWHgQQkzWNYW7QXiMBEJh2FTnURAVrQpTQcAyheMIjARKUQzABE4k9uQ4nZugXgAKQJqRjF_gBWltrAbEYAxvEdpM_rQYe5THg-PG8bh-EZHZNnYeWlb2AA2pR7YZKwED1OQBBObxGSCAJ0CBdhGQ3ug56nGmdQANZwOF4EZO6KQwJQt7oElIA6cZFgZEOKhzHgwiCKg1hoBhICecIAC6lEUbpFgfqZKzCB5zVtr2xmoAuMDQbB8GIchqFzNVeX5dohgDQRICGBAMDJZOcHxFU7UZNK0qqctfZEUJ7mbU4O25XNzzHRkdWTcZLnKIdXWTsAwgJA-tz2AAzO90qRn1RCzd5vligFIDCE1-Xdc9r2ze9bxOD9_XQSFyhhSDYPg6YkNQG9wgPO9Djw390FRTFBBxaUiUZKD135U9L1Y7NbxfQT_0gGlmCZVFOVU7V7a01D9hvNKDgABzM9BRVlMUZUVVVXM-A9bZXTzwhcYYJS4u1PX5ZxRAjkERnoy1JToJQaYAEJY8Jwiw9T4NwMbpvsAhH4EAAGvYcPK-29uqKbnA0XU0GlNYERVnDwjh5HODShpNUK3-yvy8ZSfgQ1ukp-Rybkd4Sa-IqqohFEMQhHI4ggF4FdAA)
+[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgec_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N44JxkgpzHAAZi-AQBf18P0BMzmCwISxWaw2W12-0Ox1O50ufhgxTKBDgdwArGScJ8QOJvgyCP9fkC2aCOeDuVC-bCBYjhVc0QUxSVylLXuSnAUIqdlC86czGTIXarpAA1W44KhY6h0AgACgyhXF5QyABphN6YIJOBbJQBKTyoaQnADuMduQbMqAssPsGQMxij5mE6GUBGUQaTpnLFnqBCqpXzeYsHeEfS6qHs7c7HdoWAIAGVtLA-w2BxYwNQCAAxZREaBaewAcgAkjQYKVoxkABKwhKnCDkZTCAByMFuUeEAEFJsooNG4MpUHACnAdxAwGup52vEjf9BzxCd63zadB2wAgixAbhSmUMBIHIYQR0oFtyHgMsIMg4RYDAGDhAyTDt1KDJgIsQCKOEWpKCgTpDEnHDIIISZrGsHdYLxGAiGw3CZzqIgq1oUpYOAZQvGERgIlKIZgAiSS-3ISTc3QLwAFIk3I5iAKAnSO1gDiMCY_iu0mQNYOPcpTyfPj-PwwiMgcuzcMrat7AAbWozsMlYCB6nIAgXP4jJBCE6BgtwjI73QS9TgzOoAGs4EiyCMk9FIYEoe90BSkA9NMiwMhHFQ5jwYRBFQaw0CwkBvOEABdaiqP0iwv3MlZhC81qO37UzUCXGBYPgxDkNQ9C5lqgrCu0QwhqIkBDAgGBUunBD4iqTqMmlaV1NWgcSJEzztqcPb8oW55ToyBrptMtzlGOnrp2AYQEifW57GpalpWjAaiHm3z_LFIKQGEFrCt6173vm6k3icX7BtgsLlAi0HwYh0woagD7hAeakHAR_7YJiuKCAS0pkoyMHbsKl63ux-a3m-wmAZADLMGymK8up-rOzp6H7DeaUHAADhZ2CSrKYoKqqmruZ8J6Oxu3nhB4wwSlxTq-sK7iiDHIITIxtqSnQSgMwAIWx0ThDhmmIbgE2zfYJCvwIAANex4ZVzsHdUM3ODoupYNKawIhreHhAjqOcGlLS6sVgCVYV0zk8gpr9NTyjU0o7wU18el1RCKIYhCORxBALxK6AA)
 
 <!-- vue2Demo:end -->
 
