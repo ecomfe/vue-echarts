@@ -13,6 +13,7 @@ import {
   onMounted,
   onUnmounted,
   h,
+  nextTick,
   PropType,
   watchEffect,
   Vue2
@@ -143,6 +144,11 @@ export default defineComponent({
       });
 
       instance.setOption(option || realOption.value, realUpdateOptions.value);
+
+      // Make sure the chart fits the container in next UI render (after current task)
+      setTimeout(() => {
+        instance.resize();
+      });
     }
 
     function setOption(option: Option, updateOptions?: UpdateOptions) {

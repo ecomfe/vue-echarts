@@ -1,3 +1,7 @@
+## 6.0.0-beta.7
+
+* Ensure charts fit to container after the next UI render. (#518)
+
 ## 6.0.0-beta.6
 
 * Ensure VCA is always installed.
