@@ -18,6 +18,22 @@ const injectVueDemi = {
   }
 };
 
+const EMPTY_FILE_ID = "__rollup_empty__";
+
+/** @type {import('rollup').Plugin} */
+const ingoreCss = {
+  name: "ignore-css",
+  resolveId(source) {
+    if (source.endsWith(".css")) {
+      return EMPTY_FILE_ID;
+    }
+    return null;
+  },
+  load(id) {
+    return id === EMPTY_FILE_ID ? "" : null;
+  }
+};
+
 /** @type {import('rollup').RollupOptions} */
 const options = [
   {
@@ -105,7 +121,7 @@ const options = [
   },
   {
     input: "src/index.ts",
-    plugins: [postcss(), dts()],
+    plugins: [ingoreCss, dts()],
     output: {
       file: "dist/index.d.ts",
       format: "es"
