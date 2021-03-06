@@ -1,38 +1,9 @@
-import { readFileSync } from "fs";
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
-
-const VUE_DEMI_IIFE = readFileSync(
-  require.resolve("vue-demi/lib/index.iife.js"),
-  "utf-8"
-);
-
-/** @type {import('rollup').Plugin} */
-const injectVueDemi = {
-  name: "inject-vue-demi",
-  banner() {
-    return `${VUE_DEMI_IIFE};\n;`;
-  }
-};
-
-const EMPTY_FILE_ID = "__rollup_empty__";
-
-/** @type {import('rollup').Plugin} */
-const ingoreCss = {
-  name: "ignore-css",
-  resolveId(source) {
-    if (source.endsWith(".css")) {
-      return EMPTY_FILE_ID;
-    }
-    return null;
-  },
-  load(id) {
-    return id === EMPTY_FILE_ID ? "" : null;
-  }
-};
+import { injectVueDemi, ingoreCss } from "./scripts/rollup";
 
 /** @type {import('rollup').RollupOptions} */
 const options = [

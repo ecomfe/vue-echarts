@@ -42,7 +42,7 @@ const scripts = {
 
 async function getSandboxParams(version) {
   const [html, js, css] = await Promise.all(
-    ["index.html", `v${version}.js`, "index.css"].map(async name => {
+    ["index.html", `vue${version}.js`, "index.css"].map(async name => {
       const file = resolve(__dirname, `./sandbox/${name}`);
       return readFile(file, "utf-8");
     })

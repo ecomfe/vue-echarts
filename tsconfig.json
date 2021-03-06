@@ -7,7 +7,7 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "removeComments": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
