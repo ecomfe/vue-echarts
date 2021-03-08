@@ -11,7 +11,8 @@
     "build": "npm run readme && rimraf dist && rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
     "prepare": "npm run build",
-    "readme": "node -r esm scripts/readme.js"
+    "postinstall": "node ./scripts/postinstall.js",
+    "readme": "node -r esm ./scripts/readme.js"
   },
   "main": "dist/index.cjs.min.js",
   "module": "dist/index.esm.min.js",
@@ -19,7 +20,8 @@
   "jsdelivr": "dist/index.umd.min.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "scripts/postinstall.js"
   ],
   "dependencies": {
     "resize-detector": "^0.3.0",
