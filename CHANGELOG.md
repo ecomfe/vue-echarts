@@ -1,3 +1,8 @@
+## 6.0.0-rc.1
+
+* Move inital resize timing earlier into microtasks so that minimize visual layout shift.
+* Add a postinstall script to bail out type check for Vue 2 environment.
+
 ## 6.0.0-beta.7
 
 * Ensure charts fit to container after the next UI render. (#518)

@@ -8,7 +8,9 @@ Uses [Apache ECharts](http://echarts.baidu.com/index.html) 5 and works for both 
 
 ## 💡 Heads up 💡
 
-If your project is using `vue-echarts` ≤ 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
+If you are migrating from `vue-echarts` ≤ 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
+
+Not ready yet? Read documentation for older versions [here →](https://github.com/ecomfe/vue-echarts/tree/5.x)
 
 ## Installation & Usage
 
@@ -332,7 +334,7 @@ Vue.component("v-chart", VueECharts);
 
 </details>
 
-See more examples [here](https://github.com/ecomfe/vue-echarts/tree/next/src/demo).
+See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/demo).
 
 ### Props
 
