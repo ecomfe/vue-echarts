@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  install,
   defineComponent,
   ref,
   unref,
@@ -38,8 +37,6 @@ import {
 } from "./composables";
 import "./style.css";
 import { omitOn } from "./utils";
-
-install();
 
 const TAG_NAME = "x-vue-echarts";
 
@@ -145,10 +142,14 @@ export default defineComponent({
 
       instance.setOption(option || realOption.value, realUpdateOptions.value);
 
+      function resize() {
+        if (instance && !instance.isDisposed()) {
+          instance.resize();
+        }
+      }
       // Make sure the chart fits the container in next UI render (after current task)
-      setTimeout(() => {
-        instance.resize();
-      });
+      nextTick(resize);
+      setTimeout(resize);
     }
 
     function setOption(option: Option, updateOptions?: UpdateOptions) {
