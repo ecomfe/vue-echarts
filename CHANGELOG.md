@@ -1,3 +1,7 @@
+## 6.0.0-rc.3
+
+* Add missing types file for Vue 2.
+
 ## 6.0.0-rc.2
 
 * Fix postinstall script.

@@ -1,18 +1,18 @@
 {
   "name": "vue-echarts",
   "description": "Vue.js component for Apache ECharts.",
-  "version": "6.0.0-rc.2",
+  "version": "6.0.0-rc.3",
   "repository": "https://github.com/ecomfe/vue-echarts.git",
   "license": "MIT",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build:demo": "vue-cli-service build",
-    "build": "npm run readme && rimraf dist && rollup -c rollup.config.js",
+    "build": "npm run docs && rimraf dist && rollup -c rollup.config.js && cp src/index.vue2.d.ts dist",
     "lint": "vue-cli-service lint",
     "prepare": "npm run build",
     "postinstall": "node ./scripts/postinstall.js",
-    "readme": "node -r esm ./scripts/readme.js"
+    "docs": "node -r esm ./scripts/docs.js"
   },
   "main": "dist/index.cjs.min.js",
   "module": "dist/index.esm.min.js",

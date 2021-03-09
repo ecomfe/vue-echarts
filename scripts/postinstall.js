@@ -12,8 +12,8 @@ const typesPaths = {
 function switchVersion(version) {
   const typesPath = typesPaths[version];
   const package = JSON.parse(fs.readFileSync(packageFile, "utf8"));
-  const current = package.types || package.typings;
-  if (typesPath !== current) {
+  if (typesPath !== package.types) {
+    package.types = typesPath;
     fs.writeFileSync(packageFile, JSON.stringify(package, null, "  "), "utf8");
   }
   console.log(`[vue-echarts] Switched to Vue ${version} environment.`);
