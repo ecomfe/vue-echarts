@@ -284,7 +284,7 @@ export default {
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.0.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.2"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -297,7 +297,7 @@ app.component('v-chart', VueECharts)
 
 <!-- vue3Demo:start -->
 
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwnHAB2HP9xyY6xiamK2bzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACszxwACYPgE_j9fF9_jM5gsCEsVmsNltdvtDsdTudLtdbgVkSVyuiAGzYpwFOY4ACM-JJRJk4oICgAarccBMVLQAILGAAUZlQFnQygIyjVAEpTOYLMJ6gQqqUtZrTaa-l1UPYbbbTbQsAQAMraWBOk0u01gagEABiyiI0C09gA5ABJGgwUoAGmEGQAEtCEqcIORlMIAHIwW4ZZPKybKKDJuDKVBwApwBMQMBRv0uryJlu2zoEH3GrX-13YAj2DLcUrKMCQcjCD2US3keDFjsu2BgIcpkDz-OlDJLixt3fCWqUKCdQy-vv9w-TazWBPDkAQWhERcX_uB0pEXW0Ur34DKLzCIwESlEMwARABTrkABGroF4ACkBo7q-tr7shpqwLeGDnpeFh1BAdBrhkmblNm5YvjhwgroRIBUeROE6nq9gANoHraGSsBA9TkAQdEURkgiftAvE4RkyroPmpwAO51AA1nAwmXhkMopDAlDCGJ8kgO2aH-hkHoqHMeDCIIqDWGgC4gKxwgALoHqhl71pM8DMVZzoUagYYwPeo7jpO06znMFnaRRFjaIYXnroY-EKf2Y7xFUKzrhiGJwTF_qbt-LkgBiTipVp648rlGTWcFIUMcoLk6f2wDCAk5a3PYDwPBiyYeUQEXsZxyI8SAwj2SFFg1XVUANcIDzCk4rWefeAnKEJvX9QNQ31RFOIPA4U3tfeYkSQQ0mlHJGR9aVS21St9jCs1m0dSAymYGpGlHYtIXLSNEXChiDgABzXfe-llMUxmmeZml9VZFgleDwgwEQhglHAECJW5IWPjDXpBNhA2mnAJToJQkkAEIjT-wgTSdWM46o-PsBO9YEAAGvYk1Q7alN45JnDHnU96lNYET6pNwiC8LOAYohllVf6PiS6a0sUXL_a2WhCt7p4fbS14iF9gqlCw9QBFqkRRRcj1yZyjAgicCbcBaxYOBELONCGyABjGBkBpq58hLSr4fhRDEIRyOIIBeKHQA)
+[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwnHAB2HP9xyY6xiamK2bzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACszxwACYPgE_j9fF9_jM5gsCEsVmsNltdvtDsdTudLtdbgVkSVyuiAGzYpwFOa4_EkokyUUEBQANVuOAmKloAEFjAAKMyoCzoZQEZQqgCUpnMFmE9QIVVKGvVxuNfS6qHsVutxtoWAIAGVtLAHUancawNQCAAxZREaBaewAcgAkjQYKUADTCDIACWhCVOEHIymEADkYLcMonFZNlFBE3BlKg4AU4HGIGAIz6nV5403rZ0CF7DRrfc7sAR7BluKVlGBIORhG7KObyPBC22nbAwAOkyBZ7HShkFxYW9vhLVKFBOoZvT3e_vJtZrHHByAILQiPOz73_aUiNraKVb8BlF5hIwIlKIZgAiP8HXIP81XQLwAFI9S3Z9rV3RDjVga8MFPc8LDqCA6BXDJ03KTNSyfLDhCXfCQAo0isK1HV7AAbT3a0MlYCB6nIAgaLIjJBHfaBuKwjJFXQXNTgAdzqABrOBBPPDIpRSGBKGEETZJAVsUN9DI3RUOY8GEQRUGsNA5xAZjhAAXT3ZDz1rSZ4EYizHTI1AQxgW9h1HcdJ2nOYzM0siLG0QwPNXQxcLk3sR3iKoVlXDEMRgqLfXXT8nJADEnGSjTVx5bKMkswKgro5QnK03tgGEBJS1uewHgeDFEzcogwtY9jkS4kBhFsoKLCqmqoDq4QHgARicZr3NvPjlAE7rer6gbarCnEHgcSbWtvESxIISTShkjIeuKxbquW-xRsaja2pARTMBUtTDoWoKlqGsLRoxBwAA4rtvXSymKQzjNM9SeosiwirB4QYCIQwSjgCB4pcoL72hj0gkwvrjTgEp0EocSACEhq_YRxuOzHsdUPH2DHWsCAADXsCbIetCncfEzhDzqW9SmsCJdQm4QBaFnAMXg8yKt9HwJeNKWyNl3trJQ-Wd08Hspa8eCezlSgYeoPCVQIoouS6xMZRgQROGNuBNYsHAiGnGgDZAAxjAyPVVc-QlJV8PwohiEI5HEEAvBDoA)
 
 <!-- vue3Demo:end -->
 
@@ -311,7 +311,7 @@ app.component('v-chart', VueECharts)
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.0-rc.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.2"></script>
 ```
 <!-- vue2Scripts:end -->
 

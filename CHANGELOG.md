@@ -1,3 +1,7 @@
+## 6.0.0-rc.2
+
+* Fix postinstall script.
+
 ## 6.0.0-rc.1
 
 * Move inital resize timing earlier into microtasks so that minimize visual layout shift.

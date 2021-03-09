@@ -44,7 +44,7 @@ async function getSandboxParams(version) {
   const [html, js, css] = await Promise.all(
     ["index.html", `vue${version}.js`, "index.css"].map(async name => {
       const file = resolve(__dirname, `./sandbox/${name}`);
-      return readFile(file, "utf-8");
+      return readFile(file, "utf8");
     })
   );
   return {
@@ -79,7 +79,7 @@ const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
 function exec() {
   return Promise.all(
     README_FILES.map(async file => {
-      const content = await readFile(file, "utf-8");
+      const content = await readFile(file, "utf8");
 
       const [link2, link3] = await Promise.all([2, 3].map(getDemoLink));
 
@@ -91,7 +91,7 @@ function exec() {
           vue2Demo: `\n${link2}\n`,
           vue3Demo: `\n${link3}\n`
         }),
-        "utf-8"
+        "utf8"
       );
     })
   );

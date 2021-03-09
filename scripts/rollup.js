@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 
 const VUE_DEMI_IIFE = readFileSync(
   require.resolve("vue-demi/lib/index.iife.js"),
-  "utf-8"
+  "utf8"
 );
 
 /** @type {import('rollup').Plugin} */
