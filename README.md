@@ -32,6 +32,7 @@ npm i -D @vue/composition-api
 ```js
 import { createApp } from 'vue'
 import ECharts from 'vue-echarts'
+import { use } from "echarts/core"
 
 // import ECharts modules manually to reduce bundle size
 import {
@@ -44,6 +45,13 @@ import {
   GridComponent,
   TooltipComponent
 } from 'echarts/components'
+
+use([
+  CanvasRenderer,
+  BarChart,
+  GridComponent,
+  TooltipComponent
+])
 
 const app = createApp(...)
 
