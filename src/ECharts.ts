@@ -160,10 +160,7 @@ export default defineComponent({
       if (!chart.value) {
         init(option);
       } else {
-        chart.value.setOption(option, {
-          ...realUpdateOptions.value,
-          ...updateOptions
-        });
+        chart.value.setOption(option, updateOptions || {});
       }
     }
 
@@ -193,7 +190,7 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
-                chart.value.setOption(option, props.updateOptions);
+                chart.value.setOption(option, realUpdateOptions.value);
               }
             },
             { deep: true }
