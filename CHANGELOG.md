@@ -1,3 +1,7 @@
+## 6.0.0-rc.4
+
+* Fix type error for `Vue2` reference.
+
 ## 6.0.0-rc.3
 
 * Add missing types file for Vue 2.
