@@ -21,7 +21,12 @@ $ npm install echarts vue-echarts
 要在 Vue 2 下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
 
 ```sh
-npm i -D @vue/composition-api
+npm i @vue/composition-api
+```
+
+```javascript
+import VueCompositionAPI from '@vue/composition-api'
+Vue.use(VueCompositionAPI)
 ```
 
 <details open>
