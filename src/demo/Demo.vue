@@ -557,6 +557,8 @@ export default {
   },
   mounted() {
     this.startActions();
+
+    console.log(this.$refs.pie.chart);
   }
 };
 </script>

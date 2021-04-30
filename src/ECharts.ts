@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   defineComponent,
-  ref,
   unref,
   shallowRef,
   toRef,
@@ -15,7 +14,8 @@ import {
   nextTick,
   PropType,
   watchEffect,
-  Vue2
+  Vue2,
+  getCurrentInstance
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
 import {
@@ -67,7 +67,8 @@ export default defineComponent({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // @ts-expect-error
   setup(props, { attrs, listeners }) {
-    const root = ref<HTMLElement>();
+    type T = Required<typeof props>;
+    const root = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null) as ThemeInjection;
@@ -75,10 +76,9 @@ export default defineComponent({
       INIT_OPTIONS_KEY,
       null
     ) as InitOptionsInjection;
-    const defaultUpdateOptions = inject(
-      UPDATE_OPTIONS_KEY,
-      null
-    ) as UpdateOptionsInjection;
+    const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, {
+      lazyUpdate: true
+    }) as UpdateOptionsInjection;
     const realOption = computed(
       () => manualOption.value || props.option || Object.create(null)
     );
@@ -91,6 +91,7 @@ export default defineComponent({
     );
 
     const { autoresize, manualUpdate, loading } = toRefs(props);
+
     const theme = toRef(props, "theme");
     const initOptions = toRef(props, "initOptions");
     const loadingOptions = toRef(props, "loadingOptions");
@@ -147,9 +148,12 @@ export default defineComponent({
           instance.resize();
         }
       }
-      // Make sure the chart fits the container in next UI render (after current task)
-      nextTick(resize);
-      setTimeout(resize);
+
+      if (autoresize.value) {
+        // Try to make chart fit to container in case container size
+        // is changed synchronously or in already queued microtasks
+        nextTick(resize);
+      }
     }
 
     function setOption(option: Option, updateOptions?: UpdateOptions) {
@@ -233,17 +237,21 @@ export default defineComponent({
 
     onUnmounted(cleanup);
 
+    const chartGetter = {
+      get() {
+        return unref(chart);
+      }
+    };
+
     const exposed = {
       root,
       setOption,
       nonEventAttrs,
       ...publicApi
     };
-    Object.defineProperty(exposed, "chart", {
-      get() {
-        return unref(chart);
-      }
-    });
+
+    Object.defineProperty(getCurrentInstance(), "chart", chartGetter);
+    Object.defineProperty(exposed, "chart", chartGetter);
 
     return exposed;
   },

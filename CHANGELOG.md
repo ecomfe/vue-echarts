@@ -1,3 +1,8 @@
+## 6.0.0-rc.5
+
+* Changed `updateOptions.lazyUpdate` to `true` by default. ([#533](https://github.com/ecomfe/vue-echarts/issues/533#issuecomment-809883909))
+* Only perform an additional `resize` call after init within a task. ([#533](https://github.com/ecomfe/vue-echarts/issues/533#issuecomment-809883909))
+
 ## 6.0.0-rc.4
 
 * Fix type error for `Vue2` reference.
