@@ -94,7 +94,6 @@ export default defineComponent({
 
     const { autoresize, manualUpdate, loading } = toRefs(props);
 
-    const theme = toRef(props, "theme");
     const initOptions = toRef(props, "initOptions");
     const loadingOptions = toRef(props, "loadingOptions");
 
@@ -218,7 +217,7 @@ export default defineComponent({
     );
 
     watch(
-      [theme, initOptions],
+      [realTheme, initOptions],
       () => {
         cleanup();
         init();
