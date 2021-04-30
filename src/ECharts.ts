@@ -14,8 +14,7 @@ import {
   nextTick,
   PropType,
   watchEffect,
-  Vue2,
-  getCurrentInstance
+  Vue2
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
 import {
@@ -64,6 +63,9 @@ export default defineComponent({
     ...loadingProps
   },
   inheritAttrs: false,
+  created() {
+    console.log(this);
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // @ts-expect-error
   setup(props, { attrs, listeners }) {
@@ -145,7 +147,16 @@ export default defineComponent({
 
       function resize() {
         if (instance && !instance.isDisposed()) {
-          instance.resize();
+          // temporarily suppress errors caused by https://github.com/apache/echarts/issues/14846
+          try {
+            instance.resize();
+          } catch (e) {
+            if (e.message === "Cannot read property 'get' of undefined") {
+              return;
+            }
+
+            throw e;
+          }
         }
       }
 
@@ -237,23 +248,13 @@ export default defineComponent({
 
     onUnmounted(cleanup);
 
-    const chartGetter = {
-      get() {
-        return unref(chart);
-      }
-    };
-
-    const exposed = {
+    return {
+      chart,
       root,
       setOption,
       nonEventAttrs,
       ...publicApi
     };
-
-    Object.defineProperty(getCurrentInstance(), "chart", chartGetter);
-    Object.defineProperty(exposed, "chart", chartGetter);
-
-    return exposed;
   },
   render() {
     const attrs = { ...this.nonEventAttrs };

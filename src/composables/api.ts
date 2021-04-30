@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Ref } from "vue-demi";
+import { Ref, unref } from "vue-demi";
 import { EChartsType, Option } from "../types";
 
 const METHOD_NAMES = [
