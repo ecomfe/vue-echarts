@@ -12,27 +12,27 @@ export default function getData() {
       source: [
         {
           Product: "Matcha Latte",
-          "2015": random(),
-          "2016": random(),
-          "2017": random()
+          2015: random(),
+          2016: random(),
+          2017: random()
         },
         {
           Product: "Milk Tea",
-          "2015": random(),
-          "2016": random(),
-          "2017": random()
+          2015: random(),
+          2016: random(),
+          2017: random()
         },
         {
           Product: "Cheese Cocoa",
-          "2015": random(),
-          "2016": random(),
-          "2017": random()
+          2015: random(),
+          2016: random(),
+          2017: random()
         },
         {
           Product: "Walnut Brownie",
-          "2015": random(),
-          "2016": random(),
-          "2017": random()
+          2015: random(),
+          2016: random(),
+          2017: random()
         }
       ]
     },

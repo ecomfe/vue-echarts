@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 declare const THEME_KEY = "ecTheme";
 declare const INIT_OPTIONS_KEY = "ecInitOptions";

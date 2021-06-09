@@ -3,7 +3,6 @@ import {
   defineComponent,
   unref,
   shallowRef,
-  toRef,
   toRefs,
   watch,
   computed,
@@ -63,13 +62,8 @@ export default defineComponent({
     ...loadingProps
   },
   inheritAttrs: false,
-  created() {
-    console.log(this);
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  // @ts-expect-error
+  // @ts-expect-error listeners for Vue 2 compatibility
   setup(props, { attrs, listeners }) {
-    type T = Required<typeof props>;
     const root = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -78,9 +72,13 @@ export default defineComponent({
       INIT_OPTIONS_KEY,
       null
     ) as InitOptionsInjection;
-    const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, {
-      lazyUpdate: true
-    }) as UpdateOptionsInjection;
+    const defaultUpdateOptions = inject(
+      UPDATE_OPTIONS_KEY,
+      null
+    ) as UpdateOptionsInjection;
+
+    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
+
     const realOption = computed(
       () => manualOption.value || props.option || Object.create(null)
     );
@@ -91,12 +89,6 @@ export default defineComponent({
     const realUpdateOptions = computed(
       () => props.updateOptions || unref(defaultUpdateOptions) || {}
     );
-
-    const { autoresize, manualUpdate, loading } = toRefs(props);
-
-    const initOptions = toRef(props, "initOptions");
-    const loadingOptions = toRef(props, "loadingOptions");
-
     const nonEventAttrs = computed(() => omitOn(attrs));
 
     function init(option?: Option) {
@@ -142,8 +134,6 @@ export default defineComponent({
         }
       });
 
-      instance.setOption(option || realOption.value, realUpdateOptions.value);
-
       function resize() {
         if (instance && !instance.isDisposed()) {
           // temporarily suppress errors caused by https://github.com/apache/echarts/issues/14846
@@ -159,10 +149,19 @@ export default defineComponent({
         }
       }
 
+      function commit() {
+        instance.setOption(option || realOption.value, realUpdateOptions.value);
+      }
+
       if (autoresize.value) {
         // Try to make chart fit to container in case container size
         // is changed synchronously or in already queued microtasks
-        nextTick(resize);
+        nextTick(() => {
+          resize();
+          commit();
+        });
+      } else {
+        commit();
       }
     }
 
@@ -217,7 +216,7 @@ export default defineComponent({
     );
 
     watch(
-      [realTheme, initOptions],
+      [realTheme, realInitOptions],
       () => {
         cleanup();
         init();
@@ -237,7 +236,7 @@ export default defineComponent({
 
     useLoading(chart, loading, loadingOptions);
 
-    useAutoresize(chart, autoresize, root, realOption);
+    useAutoresize(chart, autoresize, root);
 
     onMounted(() => {
       if (props.option) {

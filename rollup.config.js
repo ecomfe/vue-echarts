@@ -1,7 +1,7 @@
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
-import postcss from "rollup-plugin-postcss";
+import styles from "rollup-plugin-styles";
 import dts from "rollup-plugin-dts";
 import { injectVueDemi, ingoreCss } from "./scripts/rollup";
 
@@ -9,7 +9,7 @@ import { injectVueDemi, ingoreCss } from "./scripts/rollup";
 const options = [
   {
     input: "src/index.ts",
-    plugins: [typescript(), postcss()],
+    plugins: [typescript(), styles()],
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
@@ -52,7 +52,7 @@ const options = [
   },
   {
     input: "src/global.ts",
-    plugins: [resolve(), typescript(), postcss()],
+    plugins: [resolve(), typescript(), styles()],
     external: ["vue-demi", "echarts", "echarts/core"],
     output: [
       {

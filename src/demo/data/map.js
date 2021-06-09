@@ -446,7 +446,7 @@ export default {
       data: convertData(data),
       symbolSize: val => val[2] / 10,
       tooltip: {
-        formatter: function(val) {
+        formatter: function (val) {
           return val.name + ": " + val.value[2];
         }
       },
@@ -468,7 +468,7 @@ export default {
         scale: true
       },
       tooltip: {
-        formatter: function(val) {
+        formatter: function (val) {
           return val.name + ": " + val.value[2];
         }
       },

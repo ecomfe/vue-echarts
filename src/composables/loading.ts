@@ -3,14 +3,16 @@ import { EChartsType } from "../types";
 
 export const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 
+type UnknownRecord = Record<string, unknown>;
+
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
-  loadingOptions: Ref<object | undefined>
+  loadingOptions: Ref<UnknownRecord | undefined>
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {}) as
-    | object
-    | Ref<object>;
+    | UnknownRecord
+    | Ref<UnknownRecord>;
   const realLoadingOptions = computed(() => ({
     ...unref(defaultLoadingOptions),
     ...loadingOptions?.value

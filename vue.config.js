@@ -6,14 +6,13 @@ module.exports = {
   css: {
     loaderOptions: {
       postcss: {
-        plugins: [nested()]
+        postcssOptions: {
+          plugins: [nested()]
+        }
       }
     }
   },
   chainWebpack: config => {
-    config
-      .entry("app")
-      .clear()
-      .add("./src/demo/main.ts");
+    config.entry("app").clear().add("./src/demo/main.ts");
   }
 };

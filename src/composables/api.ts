@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Ref, unref } from "vue-demi";
+import { Ref } from "vue-demi";
 import { EChartsType, Option } from "../types";
 
 const METHOD_NAMES = [
@@ -26,7 +26,7 @@ type PublicMethods = Pick<EChartsType, MethodName>;
 export function usePublicAPI(
   chart: Ref<EChartsType | undefined>,
   init: (option?: Option) => void
-) {
+): PublicMethods {
   function makePublicMethod<T extends MethodName>(
     name: T
   ): (...args: Parameters<EChartsType[T]>) => ReturnType<EChartsType[T]> {
@@ -42,12 +42,6 @@ export function usePublicAPI(
     };
   }
 
-  function makeAnyMethod<T extends MethodName>(
-    name: T
-  ): (...args: any[]) => ReturnType<EChartsType[T]> {
-    return makePublicMethod(name) as any;
-  }
-
   function makePublicMethods(): PublicMethods {
     const methods = Object.create(null);
     METHOD_NAMES.forEach(name => {
@@ -57,10 +51,5 @@ export function usePublicAPI(
     return methods as PublicMethods;
   }
 
-  return {
-    ...makePublicMethods(),
-    dispatchAction: makeAnyMethod("dispatchAction"),
-    getDataURL: makeAnyMethod("getDataURL"),
-    getConnectedDataURL: makeAnyMethod("getConnectedDataURL")
-  };
+  return makePublicMethods();
 }

@@ -1,3 +1,9 @@
+## 6.0.0-rc.6
+
+* Revert the change of `updateOptions.lazyUpdate`. It defaults to `false` again.
+* Fixed the occasional error caused by the internal implementation of ECharts.
+* Removed unexpected `console.log` call.
+
 ## 6.0.0-rc.5
 
 * Changed `updateOptions.lazyUpdate` to `true` by default. ([#533](https://github.com/ecomfe/vue-echarts/issues/533#issuecomment-809883909))

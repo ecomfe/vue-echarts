@@ -128,7 +128,7 @@
       ></button>
     </h2>
     <section v-if="expand.map">
-      <figure style="background-color: #404a59;">
+      <figure style="background-color: #404a59">
         <v-chart
           :option="map"
           :init-options="initOptions"
@@ -225,7 +225,7 @@
         >
       </p>
       <p><button :disabled="flightLoaded" @click="loadFlights">Load</button></p>
-      <figure style="background-color: #003;">
+      <figure style="background-color: #003">
         <v-chart
           ref="flight"
           :init-options="initOptions"
@@ -274,7 +274,13 @@
 import qs from "qs";
 import VChart from "../ECharts";
 
-import * as echarts from "echarts/core";
+import {
+  use,
+  registerMap,
+  registerTheme,
+  connect,
+  disconnect
+} from "echarts/core";
 import {
   BarChart,
   LineChart,
@@ -293,11 +299,26 @@ import {
   LegendComponent,
   TitleComponent,
   VisualMapComponent,
-  DatasetComponent
+  DatasetComponent,
+  ToolboxComponent,
+  DataZoomComponent
 } from "echarts/components";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
+// import "echarts-liquidfill";
+// import logo from "./data/logo";
+import getBar from "./data/bar";
+import pie from "./data/pie";
+import polar from "./data/polar";
+import scatter from "./data/scatter";
+import map from "./data/map";
+import { c1, c2 } from "./data/connect";
 
-const { use, registerMap, registerTheme } = echarts;
+// custom theme
+import theme from "./theme.json";
+
+// Map of China
+import chinaMap from "./china.json";
+import worldMap from "./world.json";
 
 use([
   BarChart,
@@ -317,24 +338,10 @@ use([
   VisualMapComponent,
   DatasetComponent,
   CanvasRenderer,
-  SVGRenderer
+  SVGRenderer,
+  ToolboxComponent,
+  DataZoomComponent
 ]);
-
-// import "echarts-liquidfill";
-// import logo from "./data/logo";
-import getBar from "./data/bar";
-import pie from "./data/pie";
-import polar from "./data/polar";
-import scatter from "./data/scatter";
-import map from "./data/map";
-import { c1, c2 } from "./data/connect";
-
-// custom theme
-import theme from "./theme.json";
-
-// Map of China
-import chinaMap from "./china.json";
-import worldMap from "./world.json";
 
 // registering map data
 registerMap("china", chinaMap);
@@ -444,7 +451,7 @@ export default {
         function getAirportCoord(idx) {
           return [data.airports[idx][3], data.airports[idx][4]];
         }
-        const routes = data.routes.map(function(airline) {
+        const routes = data.routes.map(airline => {
           return [getAirportCoord(airline[1]), getAirportCoord(airline[2])];
         });
 
@@ -533,7 +540,11 @@ export default {
   watch: {
     connected: {
       handler(value) {
-        echarts[value ? "connect" : "disconnect"]("radiance");
+        if (value) {
+          connect("radiance");
+        } else {
+          disconnect("radiance");
+        }
       },
       immediate: true
     },
