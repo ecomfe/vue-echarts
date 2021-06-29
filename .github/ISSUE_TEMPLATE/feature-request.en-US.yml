@@ -1,0 +1,22 @@
+name: "✨ Feature Request"
+description: Create a feature request for Vue-ECharts
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report this issue!
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Before submitting the issue, please make sure you did the following check.
+      options:
+        - label: I can confirm this is a feature request for the Vue component instead of ECharts itself.
+          required: true
+  - type: textarea
+    id: desc
+    attributes:
+      label: Details
+      description: A clear description about the use case of the new feature and its potential API.
+    validations:
+      required: true

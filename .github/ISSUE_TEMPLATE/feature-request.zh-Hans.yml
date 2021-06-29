@@ -1,0 +1,22 @@
+name: "✨ 新功能建议"
+description: 给 Vue-ECharts 提交新功能建议
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间报告这个问题！
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 提前确认
+      description: 在提交此建议前，请确认下述情况。
+      options:
+        - label: 我可以确认这个新功能建议是提交给此 Vue 组件的，而不应该提交到 ECharts 项目本身。
+          required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: 新功能详情
+      description: 请清晰地描述此功能的适用场景，以及可能的相关 API 的设想。
+    validations:
+      required: true

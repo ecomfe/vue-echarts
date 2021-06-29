@@ -1,0 +1,45 @@
+name: "🐞 Bug Report"
+description: Create a bug report for Vue-ECharts
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report this issue!
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      description: Before submitting the issue, please make sure you did the following check.
+      options:
+        - label: I can confirm this problem is not reproducible with ECharts itself.
+          required: true
+  - type: dropdown
+    id: integration
+    attributes:
+      label: How are you introducing Vue-ECharts into your project?
+      options:
+        - label: ES Module imports
+        - label: "<script> tag"
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: The output of `npm ls vue echarts vue-echarts`.
+      render: sh
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: A clear description about the bug.
+    validations:
+      required: true
+  - type: input
+    id: repro
+    attributes:
+      label: Reproduction
+      description: "A link to a boiled-down reproduction (a minimal but runnable demo with unnecessary dependencies pruned). Please paste the link to your CodeSandbox demo below: ([Vue 3 template](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue) / [Vue 2 template](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue))"
+    validations:
+      required: true
