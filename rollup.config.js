@@ -5,7 +5,7 @@ import styles from "rollup-plugin-styles";
 import dts from "rollup-plugin-dts";
 import { injectVueDemi, ingoreCss } from "./scripts/rollup";
 
-/** @type {import('rollup').RollupOptions} */
+/** @type {import('rollup').RollupOptions[]} */
 const options = [
   {
     input: "src/index.ts",
