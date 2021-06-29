@@ -17,8 +17,8 @@ body:
     attributes:
       label: How are you introducing Vue-ECharts into your project?
       options:
-        - label: ES Module imports
-        - label: "<script> tag"
+        - ES Module imports
+        - "<script> tag"
     validations:
       required: true
   - type: textarea

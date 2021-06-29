@@ -17,8 +17,8 @@ body:
     attributes:
       label: 您是如何将 Vue-ECharts 引入项目的？
       options:
-        - label: 通过 ES 模块 import
-        - label: "<script> 标签"
+        - 通过 ES 模块 import
+        - "<script> 标签"
     validations:
       required: true
   - type: textarea
