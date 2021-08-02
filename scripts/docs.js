@@ -11,7 +11,7 @@ const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 const DEP_VERSIONS = {
   "vue@3": "3.1.1",
   "vue@2": "2.6.12",
-  "@vue/composition-api": "1.0.0-rc.3",
+  "@vue/composition-api": "1.0.5",
   echarts: "5.1.2",
   [name]: version
 };

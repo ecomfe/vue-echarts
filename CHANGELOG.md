@@ -1,3 +1,7 @@
+## 6.0.0
+
+* Update dependency versions.
+
 ## 6.0.0-rc.6
 
 * Revert the change of `updateOptions.lazyUpdate`. It defaults to `false` again.
