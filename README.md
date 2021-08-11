@@ -20,13 +20,21 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 $ npm install echarts vue-echarts
 ```
 
-To make `vue-echarts` work for Vue 2, you need to have `@vue/composition-api` installed:
+To make `vue-echarts` work for *Vue 2*, you need to have `@vue/composition-api` installed:
 
 ```sh
 npm i -D @vue/composition-api
 ```
 
-<details open>
+If you are using *NuxtJS* on top of *Vue 2*, you'll also need `@nuxtjs/composition-api`:
+
+```sh
+npm i -D @nuxtjs/composition-api
+```
+
+And then add `'@nuxtjs/composition-api/module'` in the `buildModules` option in your `nuxt.config.js`.
+
+<details>
 <summary>Vue 3</summary>
 
 ```js
@@ -108,7 +116,7 @@ import "echarts";
 
 #### SFC example
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 ```vue
@@ -299,7 +307,7 @@ export default {
 
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 <!-- vue3Scripts:start -->
@@ -402,7 +410,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/dem
 
 Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 ```js

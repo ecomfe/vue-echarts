@@ -40,6 +40,6 @@ body:
     id: repro
     attributes:
       label: 问题复现
-      description: "请提供一个精炼的问题复现（去除无关依赖的最小化可运行 demo）。 Plea请在下方贴入在 CodeSandbox 上 demo 的链接：（[Vue 3 模板](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue) / [Vue 2 模板](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)）"
+      description: "请提供一个精炼的问题复现（去除无关依赖的最小化可运行 demo）。如果在线环境无法复现，可以创建对应的 GitHub repo 来提供复现环境。请在下方贴入在 CodeSandbox 上 demo 的链接或 GitHub repo 链接：（[Vue 3 模板](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue) / [Vue 2 模板](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)）"
     validations:
       required: true

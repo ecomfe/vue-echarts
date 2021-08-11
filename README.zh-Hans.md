@@ -18,13 +18,21 @@
 $ npm install echarts vue-echarts
 ```
 
-要在 Vue 2 下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
+要在 *Vue 2* 下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
 
 ```sh
 npm i -D @vue/composition-api
 ```
 
-<details open>
+如果你在使用基于 *Vue 2* 的 *NuxtJS*，那么还需要安装 `@nuxtjs/composition-api`：
+
+```sh
+npm i -D @nuxtjs/composition-api
+```
+
+然后在 `nuxt.config.js` 的 `buildModules` 选项中添加 `'@nuxtjs/composition-api/module'`。
+
+<details>
 <summary>Vue 3</summary>
 
 ```js
@@ -106,7 +114,7 @@ import "echarts";
 
 #### 单文件组件示例
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 ```vue
@@ -293,7 +301,7 @@ export default {
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 <!-- vue3Scripts:start -->
@@ -392,7 +400,7 @@ Vue.component("v-chart", VueECharts);
 
 Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
 
-<details open>
+<details>
 <summary>Vue 3</summary>
 
 ```js
