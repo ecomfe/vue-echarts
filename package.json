@@ -37,7 +37,7 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "codesandbox": "^2.2.1",
     "comment-mark": "^1.0.0",
-    "echarts": "^5.1.2",
+    "echarts": "^5.2.1",
     "eslint": "^7.20.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.6.0",
@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.0.5",
-    "echarts": "^5.1.2",
+    "echarts": "^5.2.1",
     "vue": "^2.6.12 || ^3.1.1"
   },
   "jsdelivr": "dist/index.umd.min.js",
