@@ -2,7 +2,7 @@
 
 > Apache ECharts 的 Vue.js 组件。
 
-使用 [Apache ECharts](http://echarts.baidu.com/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
+使用 [Apache ECharts](https://echarts.apache.org/zh/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
 
 ## 💡 注意 💡
 

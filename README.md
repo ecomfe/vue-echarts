@@ -4,7 +4,7 @@
 
 > [🇨🇳 中文版](./README.zh-Hans.md)
 
-Uses [Apache ECharts](http://echarts.baidu.com/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
+Uses [Apache ECharts](https://echarts.apache.org/en/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
 
 ## 💡 Heads up 💡
 
