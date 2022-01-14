@@ -86,9 +86,10 @@ export default defineComponent({
     const realInitOptions = computed(
       () => props.initOptions || unref(defaultInitOptions) || {}
     );
-    const realUpdateOptions = computed(
-      () => props.updateOptions || unref(defaultUpdateOptions) || {}
-    );
+    const realUpdateOptions = computed(() => ({
+      ...(props.updateOptions || unref(defaultUpdateOptions) || {}),
+      notMerge: true
+    }));
     const nonEventAttrs = computed(() => omitOn(attrs));
 
     function init(option?: Option) {
