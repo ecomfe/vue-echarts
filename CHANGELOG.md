@@ -1,3 +1,8 @@
+## 6.0.1
+
+* Update should always be `notMerge: true`.
+* Update dependency version for vue-demi.
+
 ## 6.0.0
 
 * Update dependency versions.

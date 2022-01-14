@@ -306,9 +306,9 @@ export default {
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.1.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.1.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.26"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.1"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -321,7 +321,7 @@ app.component('v-chart', VueECharts)
 
 <!-- vue3Demo:start -->
 
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwARhec_3HJjrGJqYrZ-YZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVheOAATO8Ar9vr5Pn8ZnMFgQlis1hstrt9odjqdzpdrrcCkiSuU0QA2HBOPl44mEmRCggKABqtxwExUtAAgsYABRmVAWdDKAjKRUASlM5gswnqBCqpVVKoNBr6XVQ9nNFoNtCwBAAytpYLb9faDWBqAQAGLKIjQLT2ADkAEkaDBSgAaYQZAASUISpwg5GUwgAcjBbhk43LJsooHG4MpUHACnBoxAwKHPfavDH6xbOgR3XrVV6HdgCPYMtxSsowJByMJnZQTeR4Hnm_bYGBe_GQFOo6UMrOLI2N8JapQoJ1DB7O12d5NrNZo32QBBaEQZ8euz7SkQNbRSlfgMovMJGBFSkNgAib9bXIb9lXQLwAFJtXXB8LS3OCDVgC8MCPE8LDqCA6EXDIU3KNMi3vdDhHnHCQFIoj0PVTV7AAbW3C0MlYCB6nIAhKOIjJBBfaAOPQjI5XQLNTgAdzqABrOA-JPDJxRSGBKGEQSpJAJtEK9DJnRUOY8GEQRUGsNBpxABjhAAXW3BCTyrSZ4Do0y7WI1BAxgK8ByHEcxwnOZjLU4iLG0QxXKXQwsOkrtB3iKoViXdF0Ug8KvRXN97JAdEnAS1Sl25DKMjMvz_Oo5R7PUrtgGEBIi1uewHgedE42cohgqYlikXYkBhCs_yLHKyqoGq4QHmeJwGpcq9uOUXiOq67reqq4LsQeBxRqaq9BOEggxNKSSMk6grZoq-b7GeOqVuakA5MwRTlN2mb_Lm_rguedEHAADjOq8tLKYo9IMoyVM60yLHyoHhBgIhDBKOAIBixz_JvcHXSCNDuoNOASnQSgRIAIX699hGG_bUfR1QsfYYcqwIAANewRtBi0ScxkTOD3Oor1KawIi1EbhB5vmcHRGCTNKr0fBFg0xeIyWuwsxDpc3TxOzFrwYM7aVKAh6hsMVXCik5dq40lGBBE4fW4FViwcCICcaB1kADGMDJtUVj4CTFXw_CiGIQjkcQQC8AOgA)
+[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJheANhz_ccmOsYmpiqzeYZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVheL0-AX-v183wBMzmCwISxWaw2W12-0Ox1O50u11uBRRJXKGLeOCcOAAjHjiYSZMKCAoAGq3HATFS0ACCxgAFGZUBZ0MoCMolQBKUzmCzCeoEKqlNWqw2GvpdVD2C2Ww20LAEADK2lgdoNDsNYGoBAAYsoiNAtPYAOQASRoMFKABphBkABIwhKnCDkZTCAByMFuGXj8smyig8bgylQcAKcBjEDAYa9Dq8sYbls6BA9-rV3sd2AI9gy3FKyjAkHIwhdlFN5Hg-ZbDtgYD7CZA0-jpQyc4sTc3wlqlCgnUMnq73d3k2s1hj_ZAEFoRFnJ-7vtKRE1tFK1-Ayi8wkYEVKQzABEP52uQP4qugXgAKQ6huj6Wtu8GGrAl4YMep4WHUEB0EuGSpuU6bFg-GHCAuuEgGRxEYRqWr2AA2juloZKwED1OQBBUSRGSCK-0CcRhGTyug2anAA7nUADWcD8aeGQSikMCUMIQnSSAzZId6GQuiocx4MIgioNYaAziAjHCAAujuiGntWkzwPRZn2iRqBBjA16DsOo7jpOcwmepJEWNohhucuhjYTJ3ZDvEVQrMumKYlBEXequ74OSAmJOIlanLm8mUZOZ_kBTRygORp3bAMICTFrc9gPA8mLxi5RAhcxrEohxIDCNZAUWBVVVQDVwgPPyTiNa5148cofGdd1PV9dVIXPA8Dhjc115CSJBDiaUUkZF1hVzZVC32Py9WrS1IDyZgSkqXts0BfNA0hfymIOAAHOd17aWUxT6YZxmqV1ZkWAVwPCDARCGCUcAQLFTkBbeENukE6E9YacAlOglCiQAQgNH7CCNB1oxjqjY-wI7VgQAAa9ijWDlqk1jomcPudTXqU1gRNqo3CLz_M4JisGmWV3o-KLhriyRUvdpZSEy1unhduLXiwV2MqUJD1A4UqeFFJyHXxlKMCCJwBtwGrFg4EQk40LrIAGMYGQ6krXwEuKvh-FEMQhHI4ggF4gdAA)
 
 <!-- vue3Demo:end -->
 
@@ -332,10 +332,10 @@ app.component('v-chart', VueECharts)
 
 <!-- vue2Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.5"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.1.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.4.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.1"></script>
 ```
 <!-- vue2Scripts:end -->
 
