@@ -1,4 +1,5 @@
 {
+  "allowJs": true,
   "compilerOptions": {
     "target": "ES5",
     "module": "ESNext",

@@ -1,19 +1,20 @@
 <template>
   <main>
     <!-- <v-chart
-    class="echarts" id="logo" :option="logo" :init-options="initOptions" autoresize /> -->
-    <h1><a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a></h1>
+    class="echarts" id="logo" :option="logo" :init-options="initOptions" autoresize />-->
+    <h1>
+      <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
+    </h1>
     <p class="desc">
-      Vue.js component for Apache ECharts. (<a
-        href="https://github.com/ecomfe/vue-echarts#readme"
-        >docs</a
-      >)
+      Vue.js component for Apache ECharts. (
+      <a href="https://github.com/ecomfe/vue-echarts#readme">docs</a>)
     </p>
 
     <h2 id="bar">
-      <a href="#bar"
-        >Bar chart <small>(with async data &amp; custom theme)</small></a
-      >
+      <a href="#bar">
+        Bar chart
+        <small>(with async data &amp; custom theme)</small>
+      </a>
       <button
         :class="{
           round: true,
@@ -37,19 +38,26 @@
           @click="handleClick"
         />
       </figure>
-      <p v-if="seconds <= 0"><small>Loaded.</small></p>
-      <p v-else>
-        <small
-          >Data coming in <b>{{ seconds }}</b> second{{
-            seconds > 1 ? "s" : ""
-          }}...</small
-        >
+      <p v-if="seconds <= 0">
+        <small>Loaded.</small>
       </p>
-      <p><button @click="refresh" :disabled="seconds > 0">Refresh</button></p>
+      <p v-else>
+        <small>
+          Data coming in
+          <b>{{ seconds }}</b>
+          second{{ seconds > 1 ? "s" : "" }}...
+        </small>
+      </p>
+      <p>
+        <button @click="refresh" :disabled="seconds > 0">Refresh</button>
+      </p>
     </section>
 
     <h2 id="pie">
-      <a href="#pie">Pie chart <small>(with action dispatch)</small></a>
+      <a href="#pie">
+        Pie chart
+        <small>(with action dispatch)</small>
+      </a>
       <button
         :class="{
           round: true,
@@ -71,7 +79,10 @@
     </section>
 
     <h2 id="polar">
-      <a href="#polar">Polar plot <small>(with built-in theme)</small></a>
+      <a href="#polar">
+        Polar plot
+        <small>(with built-in theme)</small>
+      </a>
       <button
         :class="{
           round: true,
@@ -100,7 +111,10 @@
     </section>
 
     <h2 id="scatter">
-      <a href="#scatter">Scatter plot <small>(with gradient)</small></a>
+      <a href="#scatter">
+        Scatter plot
+        <small>(with gradient)</small>
+      </a>
       <button
         :class="{
           round: true,
@@ -117,7 +131,10 @@
     </section>
 
     <h2 id="map">
-      <a href="#map">Map <small>(with GeoJSON &amp; image converter)</small></a>
+      <a href="#map">
+        Map
+        <small>(with GeoJSON &amp; image converter)</small>
+      </a>
       <button
         :class="{
           round: true,
@@ -136,7 +153,9 @@
           autoresize
         />
       </figure>
-      <p><button @click="convert">Convert to image</button></p>
+      <p>
+        <button @click="convert">Convert to image</button>
+      </p>
     </section>
 
     <!-- <h2 id="radar">
@@ -166,7 +185,7 @@
         <input id="async" type="checkbox" v-model="asyncCount" />
         <label for="async">Async</label>
       </p>
-    </section> -->
+    </section>-->
 
     <h2 id="connect">
       <a href="#connect">Connectable charts</a>
@@ -219,12 +238,14 @@
     </h2>
     <section v-if="expand.flight">
       <p>
-        <small
-          >You may use <code>manual-update</code> prop for performance critical
-          use cases.</small
-        >
+        <small>
+          You may use
+          <code>manual-update</code> prop for performance critical use cases.
+        </small>
       </p>
-      <p><button :disabled="flightLoaded" @click="loadFlights">Load</button></p>
+      <p>
+        <button :disabled="flightLoaded" @click="loadFlights">Load</button>
+      </p>
       <figure style="background-color: #003">
         <v-chart
           ref="flight"
@@ -238,10 +259,11 @@
     </section>
 
     <footer>
-      <a href="//github.com/Justineo">@Justineo</a>|<a
-        href="//github.com/ecomfe/vue-echarts/blob/master/LICENSE"
+      <a href="//github.com/Justineo">@Justineo</a>|
+      <a href="//github.com/ecomfe/vue-echarts/blob/master/LICENSE"
         >MIT License</a
-      >|<a href="//github.com/ecomfe/vue-echarts">View on GitHub</a>
+      >|
+      <a href="//github.com/ecomfe/vue-echarts">View on GitHub</a>
     </footer>
 
     <aside :class="{ modal: true, open }" @click="open = false">
