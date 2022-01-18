@@ -195,8 +195,8 @@ export default defineComponent({
                 init();
               } else {
                 chart.value.setOption(option, {
-                  ...realUpdateOptions.value,
-                  notMerge: option.value !== oldOption?.value
+                  notMerge: option.value !== oldOption?.value,
+                  ...realUpdateOptions.value
                 });
               }
             },
