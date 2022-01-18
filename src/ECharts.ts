@@ -80,7 +80,7 @@ export default defineComponent({
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
     const realOption = computed(
-      () => manualOption.value || props.option || Object.create(null)
+      () => manualOption.value || props.option || null
     );
     const realTheme = computed(() => props.theme || unref(defaultTheme) || {});
     const realInitOptions = computed(
@@ -92,7 +92,7 @@ export default defineComponent({
     const nonEventAttrs = computed(() => omitOn(attrs));
 
     function init(option?: Option) {
-      if (chart.value || !root.value) {
+      if (!root.value) {
         return;
       }
 
@@ -141,7 +141,10 @@ export default defineComponent({
       }
 
       function commit() {
-        instance.setOption(option || realOption.value, realUpdateOptions.value);
+        const opt = option || realOption.value;
+        if (opt) {
+          instance.setOption(opt, realUpdateOptions.value);
+        }
       }
 
       if (autoresize.value) {
@@ -226,16 +229,14 @@ export default defineComponent({
       }
     });
 
-    const publicApi = usePublicAPI(chart, init);
+    const publicApi = usePublicAPI(chart);
 
     useLoading(chart, loading, loadingOptions);
 
     useAutoresize(chart, autoresize, root);
 
     onMounted(() => {
-      if (props.option) {
-        init();
-      }
+      init();
     });
 
     onUnmounted(cleanup);

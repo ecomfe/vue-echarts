@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Ref } from "vue-demi";
-import { EChartsType, Option } from "../types";
+import { EChartsType } from "../types";
 
 const METHOD_NAMES = [
   "getWidth",
@@ -24,17 +24,12 @@ type MethodName = typeof METHOD_NAMES[number];
 type PublicMethods = Pick<EChartsType, MethodName>;
 
 export function usePublicAPI(
-  chart: Ref<EChartsType | undefined>,
-  init: (option?: Option) => void
+  chart: Ref<EChartsType | undefined>
 ): PublicMethods {
   function makePublicMethod<T extends MethodName>(
     name: T
   ): (...args: Parameters<EChartsType[T]>) => ReturnType<EChartsType[T]> {
     return (...args) => {
-      if (!chart.value) {
-        init();
-      }
-
       if (!chart.value) {
         throw new Error("ECharts is not initialized yet.");
       }

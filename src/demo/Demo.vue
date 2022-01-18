@@ -590,6 +590,9 @@ export default {
   },
   mounted() {
     this.startActions();
+  },
+  beforeUnmount() {
+    this.stopActions();
   }
 };
 </script>

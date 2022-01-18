@@ -1,3 +1,8 @@
+## 6.0.2
+
+* Make `notMerge` option still respect `update-options`.
+* The default behavior of `notMerge` now revert to checking if there is a reference change for the `option` prop.
+
 ## 6.0.1
 
 * Update should always be `notMerge: true`.
