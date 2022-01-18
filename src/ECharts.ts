@@ -86,10 +86,9 @@ export default defineComponent({
     const realInitOptions = computed(
       () => props.initOptions || unref(defaultInitOptions) || {}
     );
-    const realUpdateOptions = computed(() => ({
-      ...(props.updateOptions || unref(defaultUpdateOptions) || {}),
-      notMerge: true
-    }));
+    const realUpdateOptions = computed(
+      () => props.updateOptions || unref(defaultUpdateOptions) || {}
+    );
     const nonEventAttrs = computed(() => omitOn(attrs));
 
     function init(option?: Option) {
@@ -137,16 +136,7 @@ export default defineComponent({
 
       function resize() {
         if (instance && !instance.isDisposed()) {
-          // temporarily suppress errors caused by https://github.com/apache/echarts/issues/14846
-          try {
-            instance.resize();
-          } catch (e) {
-            if (e.message === "Cannot read property 'get' of undefined") {
-              return;
-            }
-
-            throw e;
-          }
+          instance.resize();
         }
       }
 
@@ -197,14 +187,17 @@ export default defineComponent({
         if (!manualUpdate) {
           unwatchOption = watch(
             () => props.option,
-            option => {
+            (option, oldOption) => {
               if (!option) {
                 return;
               }
               if (!chart.value) {
                 init();
               } else {
-                chart.value.setOption(option, realUpdateOptions.value);
+                chart.value.setOption(option, {
+                  ...realUpdateOptions.value,
+                  notMerge: option.value !== oldOption?.value
+                });
               }
             },
             { deep: true }
