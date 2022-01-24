@@ -8,7 +8,8 @@ body:
   - type: checkboxes
     id: confirmation
     attributes:
-      description: 在提交此问题前，请确认下述情况。
+      label: 请确认
+      description: 在提交此问题前，请确认问题仅在 Vue-ECharts 中发生，而与 ECharts 本身无关。
       options:
         - label: 我可以确认这个问题无法在 ECharts 项目本身中复现。
           required: true

@@ -8,7 +8,8 @@ body:
   - type: checkboxes
     id: confirmation
     attributes:
-      description: Before submitting the issue, please make sure you did the following check.
+      label: Confirmation
+      description: Before submitting this issue, please make sure that the problem only occurs in Vue-ECharts and is not related to ECharts itself.
       options:
         - label: I can confirm this problem is not reproducible with ECharts itself.
           required: true
