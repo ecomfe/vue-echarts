@@ -12,8 +12,8 @@
     "postinstall": "node ./scripts/postinstall.js",
     "prepare": "npm run build"
   },
-  "main": "dist/index.cjs.min.js",
-  "module": "dist/index.esm.min.js",
+  "main": "dist/index.min.cjs",
+  "module": "dist/index.min.mjs",
   "unpkg": "dist/index.umd.min.js",
   "files": [
     "dist",
