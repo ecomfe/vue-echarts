@@ -13,12 +13,12 @@ const options = [
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
-        file: "dist/index.esm.js",
+        file: "dist/index.mjs",
         format: "es",
         sourcemap: true
       },
       {
-        file: "dist/index.esm.min.js",
+        file: "dist/index.min.mjs",
         format: "es",
         sourcemap: true,
         plugins: [
@@ -30,13 +30,13 @@ const options = [
         ]
       },
       {
-        file: "dist/index.cjs.js",
+        file: "dist/index.cjs",
         format: "cjs",
         exports: "named",
         sourcemap: true
       },
       {
-        file: "dist/index.cjs.min.js",
+        file: "dist/index.min.cjs",
         format: "cjs",
         exports: "named",
         sourcemap: true,
