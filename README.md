@@ -522,6 +522,255 @@ Vue-ECharts support the following events:
 
 See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
+#### Methods/Events example
+
+<details>
+<summary>Vue 3</summary>
+
+```vue
+<template>
+  <v-chart ref="vchart" class="chart" :option="option" />
+</template>
+
+<script>
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { PieChart } from "echarts/charts";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from "echarts/components";
+import VChart, { THEME_KEY } from "vue-echarts";
+import { ref, defineComponent, watch, onMounted } from "vue";
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+]);
+
+export default defineComponent({
+  name: "HelloWorld",
+  components: {
+    VChart
+  },
+  provide: {
+    [THEME_KEY]: "dark"
+  },
+  setup () {
+    const vchart = ref({})
+    const legends = ref([
+      "Direct",
+      "Email",
+      "Ad Networks",
+      "Video Ads",
+      "Search Engines"
+    ])
+    const isAllLegendsUnselected = ref(false)
+    const option = ref({
+      title: {
+        text: "Traffic Sources",
+        left: "center"
+      },
+      tooltip: {
+        trigger: "item",
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+      },
+      legend: {
+        orient: "vertical",
+        left: "left",
+        data: legends.value
+      },
+      series: [
+        {
+          name: "Traffic Sources",
+          type: "pie",
+          radius: "55%",
+          center: ["50%", "60%"],
+          data: [
+            { value: 335, name: "Direct" },
+            { value: 310, name: "Email" },
+            { value: 234, name: "Ad Networks" },
+            { value: 135, name: "Video Ads" },
+            { value: 1548, name: "Search Engines" }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)"
+            }
+          }
+        }
+      ]
+    });
+
+    watch(
+      () => isAllLegendsUnselected.value,
+      () => {
+        if (isAllLegendsUnselected.value) {
+          for (const legend of legends.value) {
+            vchart.value.chart.dispatchAction({
+              type: 'legendSelect',
+              name: legend
+            })
+          }
+        }
+      }
+    )
+
+    onMounted(() => {
+      vchart.value.chart.on(
+        'legendselectchanged',
+        params => {
+          isAllLegendsUnselected.value = Object.keys(params.selected).every(
+            (legend) => { return !params.selected[legend] }
+          )
+        }
+      )
+    })
+
+    return { vchart, option };
+  }
+});
+</script>
+
+<style scoped>
+.chart {
+  height: 400px;
+}
+</style>
+```
+
+[Demo →](https://codesandbox.io/s/pedantic-galois-tgjed8?file=/src/App.vue)
+
+</details>
+
+<details>
+<summary>Vue 2</summary>
+
+```vue
+<template>
+  <v-chart ref="vchart" class="chart" :option="option" />
+</template>
+
+<script>
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { PieChart } from "echarts/charts";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from "echarts/components";
+import VChart, { THEME_KEY } from "vue-echarts";
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+]);
+
+export default {
+  name: "HelloWorld",
+  components: {
+    VChart
+  },
+  provide: {
+    [THEME_KEY]: "dark"
+  },
+  data() {
+    return {
+      legends: [
+        "Direct",
+        "Email",
+        "Ad Networks",
+        "Video Ads",
+        "Search Engines"
+      ],
+      isAllLegendsUnselected: false,
+      option: {
+        title: {
+          text: "Traffic Sources",
+          left: "center"
+        },
+        tooltip: {
+          trigger: "item",
+          formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+          data: this.legends
+        },
+        series: [
+          {
+            name: "Traffic Sources",
+            type: "pie",
+            radius: "55%",
+            center: ["50%", "60%"],
+            data: [
+              { value: 335, name: "Direct" },
+              { value: 310, name: "Email" },
+              { value: 234, name: "Ad Networks" },
+              { value: 135, name: "Video Ads" },
+              { value: 1548, name: "Search Engines" }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
+          }
+        ]
+      }
+    };
+  },
+  watch: {
+    isAllLegendsUnselected: function (value) {
+      if (value) {
+        for (const legend of this.legends) {
+          this.$refs.vchart.chart.dispatchAction({
+            type: "legendSelect",
+            name: legend
+          });
+        }
+      }
+    }
+  },
+  mounted() {
+    this.$refs.vchart.chart.on(
+      "legendselectchanged",
+      (params) => {
+        this.isAllLegendsUnselected = Object.keys(params.selected).every(
+          (legend) => {
+            return !params.selected[legend];
+          }
+        );
+      }
+    );
+  }
+};
+</script>
+
+<style scoped>
+.chart {
+  height: 400px;
+}
+</style>
+```
+
+[Demo →](https://codesandbox.io/s/quirky-bouman-jm92fe?file=/src/App.vue)
+
+</details>
+
 ## Migration to v6
 
 > 💡 Please make sure to read the [migration guide](https://echarts.apache.org/en/tutorial.html#ECharts%205%20Upgrade%20Guide) for ECharts 5 as well.
