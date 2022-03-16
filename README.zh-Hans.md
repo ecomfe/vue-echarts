@@ -452,7 +452,6 @@ import { INIT_OPTIONS_KEY } from 'vue-echarts'
 - `containPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.containPixel)
 - `showLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
 - `hideLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)
-- `containPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.containPixel)
 - `getDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDataURL)
 - `getConnectedDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getConnectedDataURL)
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
