@@ -97,6 +97,14 @@ const options = [
       file: "dist/index.d.ts",
       format: "es"
     }
+  },
+  {
+    input: "src/index.vue2.d.ts",
+    plugins: [dts()],
+    output: {
+      file: "dist/index.vue2.d.ts",
+      format: "es"
+    }
   }
 ];
 

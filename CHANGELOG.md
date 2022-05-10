@@ -1,3 +1,7 @@
+## 6.0.3
+
+* Improved typings for Vue 2 version.
+
 ## 6.0.2
 
 * Make `notMerge` option still respect `update-options`.

@@ -1,11 +1,11 @@
 {
   "name": "vue-echarts",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "description": "Vue.js component for Apache ECharts.",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "npm run docs && rimraf dist && rollup -c rollup.config.js && cp src/index.vue2.d.ts dist",
+    "build": "npm run docs && rimraf dist && rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
     "build:demo": "vue-cli-service build",
     "docs": "node -r esm ./scripts/docs.js",

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { init, SetOptionOpts } from "echarts/core";
 import { Ref } from "vue";
 
