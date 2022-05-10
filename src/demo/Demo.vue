@@ -6,8 +6,10 @@
       <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
     </h1>
     <p class="desc">
-      Vue.js component for Apache ECharts. (
-      <a href="https://github.com/ecomfe/vue-echarts#readme">docs</a>)
+      Vue.js component for Apache ECharts. (<a
+        href="https://github.com/ecomfe/vue-echarts#readme"
+        >docs</a
+      >)
     </p>
 
     <h2 id="bar">
