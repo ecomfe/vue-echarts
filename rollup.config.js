@@ -1,25 +1,38 @@
-import typescript from "rollup-plugin-typescript2";
+import typescript from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
 import styles from "rollup-plugin-styles";
-import dts from "rollup-plugin-dts";
-import { injectVueDemi, ingoreCss } from "./scripts/rollup";
+import { injectVueDemi } from "./scripts/rollup";
 
 /** @type {import('rollup').RollupOptions[]} */
 const options = [
+  {
+    input: "src/index.ts",
+    plugins: [
+      typescript({
+        tsconfig: resolvedConfig => ({ ...resolvedConfig, declaration: true }),
+        hook: {
+          outputPath: (path, kind) =>
+            kind === "declaration" ? "dist/index.d.ts" : path
+        }
+      }),
+      styles()
+    ],
+    external: ["vue-demi", "echarts/core", "resize-detector"],
+    output: {
+      file: "dist/index.esm.js",
+      format: "esm",
+      sourcemap: true
+    }
+  },
   {
     input: "src/index.ts",
     plugins: [typescript(), styles()],
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
-        file: "dist/index.esm.js",
-        format: "es",
-        sourcemap: true
-      },
-      {
         file: "dist/index.esm.min.js",
-        format: "es",
+        format: "esm",
         sourcemap: true,
         plugins: [
           terser({
@@ -89,22 +102,6 @@ const options = [
         ]
       }
     ]
-  },
-  {
-    input: "src/index.ts",
-    plugins: [ingoreCss, dts()],
-    output: {
-      file: "dist/index.d.ts",
-      format: "es"
-    }
-  },
-  {
-    input: "src/index.vue2.d.ts",
-    plugins: [dts()],
-    output: {
-      file: "dist/index.vue2.d.ts",
-      format: "es"
-    }
   }
 ];
 

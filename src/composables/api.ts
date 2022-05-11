@@ -19,6 +19,7 @@ const METHOD_NAMES = [
   "isDisposed",
   "dispose"
 ] as const;
+
 type MethodName = typeof METHOD_NAMES[number];
 
 type PublicMethods = Pick<EChartsType, MethodName>;

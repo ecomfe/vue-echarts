@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DefineComponent } from "@vue/runtime-dom";
-import { Ref } from "@vue/composition-api";
+import { Ref, DefineComponent } from "vue-demi";
 import { Option, InitOptions, UpdateOptions, EChartsType } from "./types";
 
 declare const LOADING_OPTIONS_KEY = "ecLoadingOptions";

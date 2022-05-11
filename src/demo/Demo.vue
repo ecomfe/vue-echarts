@@ -375,6 +375,7 @@ registerMap("world", worldMap);
 registerTheme("ovilia-green", theme);
 
 export default {
+  name: "vue-echarts-demo",
   components: {
     VChart
   },
