@@ -9,6 +9,8 @@ export type InitOptions = NonNullable<InitParameters[2]>;
 export type InitOptionsInjection = InitOptions | null | Ref<InitOptions | null>;
 
 export type EChartsType = ReturnType<InitType>;
+type ZRenderType = ReturnType<EChartsType["getZr"]>;
+export type EventTarget = EChartsType | ZRenderType;
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
 
