@@ -19,6 +19,7 @@ import {
 import { init as initChart } from "echarts/core";
 import {
   EChartsType,
+  EventTarget,
   Option,
   Theme,
   ThemeInjection,
@@ -116,23 +117,52 @@ export default defineComponent({
           .forEach(key => {
             // onClick    -> c + lick
             // onZr:click -> z + r:click
-            const event = key.charAt(2).toLowerCase() + key.slice(3);
+            let event = key.charAt(2).toLowerCase() + key.slice(3);
+
+            // clickOnce    -> ~click
+            // zr:clickOnce -> ~zr:click
+            if (event.substring(event.length - 4) === "Once") {
+              event = `~${event.substring(0, event.length - 4)}`;
+            }
+
             realListeners[event] = attrs[key];
           });
       }
 
       Object.keys(realListeners).forEach(key => {
-        const handler = realListeners[key] as any;
+        let handler = realListeners[key];
 
         if (!handler) {
           return;
         }
 
-        if (key.indexOf("zr:") === 0) {
-          instance.getZr().on(key.slice(3).toLowerCase(), handler);
-        } else {
-          instance.on(key.toLowerCase(), handler);
+        let event = key.toLowerCase();
+        if (event.charAt(0) === "~") {
+          event = event.substring(1);
+          handler.__once__ = true;
         }
+
+        let target: EventTarget = instance;
+        if (event.indexOf("zr:") === 0) {
+          target = instance.getZr();
+          event = event.substring(3);
+        }
+
+        if (handler.__once__) {
+          delete handler.__once__;
+
+          const raw = handler;
+
+          handler = (...args: any[]) => {
+            raw(...args);
+            target.off(event, handler);
+          };
+        }
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore EChartsType["on"] is not compatible with ZRenderType["on"]
+        // but it's okay here
+        target.on(event, handler);
       });
 
       function resize() {
