@@ -15,6 +15,7 @@ specifiers:
   '@vue/eslint-config-typescript': ^10.0.0
   codesandbox: ^2.2.3
   comment-mark: ^1.0.0
+  core-js: ^3.23.0
   echarts: ^5.3.2
   eslint: ^7.20.0
   eslint-plugin-prettier: ^3.3.1
@@ -24,6 +25,7 @@ specifiers:
   postcss-loader: ^5.0.0
   postcss-nested: ^5.0.5
   prettier: ^2.6.2
+  qs: ^6.10.5
   resize-detector: ^0.3.0
   rimraf: ^3.0.2
   rollup: ^2.72.1
@@ -57,6 +59,7 @@ devDependencies:
   '@vue/eslint-config-typescript': 10.0.0_c6495e4708d51d68ee79321664ed1a23
   codesandbox: 2.2.3
   comment-mark: 1.1.1
+  core-js: 3.23.0
   echarts: 5.3.2
   eslint: 7.32.0
   eslint-plugin-prettier: 3.4.1_eslint@7.32.0+prettier@2.6.2
@@ -66,6 +69,7 @@ devDependencies:
   postcss-loader: 5.3.0_postcss@8.4.13+webpack@5.72.1
   postcss-nested: 5.0.6_postcss@8.4.13
   prettier: 2.6.2
+  qs: 6.10.5
   rimraf: 3.0.2
   rollup: 2.72.1
   rollup-plugin-dts: 4.2.1_rollup@2.72.1+typescript@4.6.4
@@ -1942,7 +1946,7 @@ packages:
       '@vue/babel-plugin-jsx': 1.1.1_@babel+core@7.17.10
       '@vue/babel-preset-jsx': 1.2.4_@babel+core@7.17.10
       babel-plugin-dynamic-import-node: 2.3.3
-      core-js: 3.22.5
+      core-js: 3.23.0
       core-js-compat: 3.22.5
       semver: 7.3.7
       vue: 3.2.33
@@ -3734,8 +3738,8 @@ packages:
       semver: 7.0.0
     dev: true
 
-  /core-js/3.22.5:
-    resolution: {integrity: sha512-VP/xYuvJ0MJWRAobcmQ8F2H6Bsn+s7zqAAjFaHGBMc5AQm7zaelhD1LGduFn2EehEcQcU+br6t+fwbpQ5d1ZWA==}
+  /core-js/3.23.0:
+    resolution: {integrity: sha512-v2/hZoRcRrvQiBoGsHwmRdr+S4oICKcjA6xb2qjVurin6TpcDC1X2CIDa8rdu/d5n8RT/Sdoos2IlnpQ1rXs5A==}
     requiresBuild: true
     dev: true
 
@@ -7229,6 +7233,13 @@ packages:
 
   /qs/6.10.3:
     resolution: {integrity: sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==}
+    engines: {node: '>=0.6'}
+    dependencies:
+      side-channel: 1.0.4
+    dev: true
+
+  /qs/6.10.5:
+    resolution: {integrity: sha512-O5RlPh0VFtR78y79rgcgKK4wbAI0C5zGVLztOIdpWX6ep368q5Hv6XRxDvXuZ9q3C6v+e3n8UfZZJw7IIG27eQ==}
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
