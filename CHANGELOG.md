@@ -1,3 +1,7 @@
+## 6.1.0
+
+* Added support for `.once` event modifier.
+
 ## 6.0.3
 
 * Improved typings for Vue 2 version.

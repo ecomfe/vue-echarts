@@ -115,7 +115,7 @@ import "echarts";
 #### 单文件组件示例
 
 <details>
-<summary>Vue 3</summary>
+<summary>Vue 3 [Demo →](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue)</summary>
 
 ```vue
 <template>
@@ -204,7 +204,7 @@ export default defineComponent({
 </details>
 
 <details>
-<summary>Vue 2</summary>
+<summary>Vue 2 [Demo →](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)</summary>
 
 ```vue
 <template>
@@ -302,13 +302,13 @@ export default {
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
 <details>
-<summary>Vue 3</summary>
+<summary>Vue 3 <!-- vue3Demo:start -->[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHgHYc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACsbzeXwCAL-vh-gJmcwWBCWKzWGy2u32h2Op3Ol2utwKqJK5UxADYcABGHBOfEkokyUUEBQANVuOAmKloAEFjAAKMyoCzoZQEZQqgCUpnMFmE9QIVVKGvVxuNfS6qHsVutxtoWAIAGVtLAHUancawNQCAAxZREaBaewAcgAkjQYKUADTCDIACVhCVOEHIymEADkYLcMonFZNlFBE3BlKg4AU4HGIGAIz6nV5403rZ0CF7DRrfc7sAR7BluKVlGBIORhG7KObyPBC22nbAwAOkyBZ7HShkFxYW9vhLVKFBOoZvT3e_vJtZrHHByAILQiPOz73_aUiNraKVb8BlF5hIwIlKIZgAiP8HXIP81XQLwAFI9S3Z9rV3RDjVga8MFPc8LDqCA6BXDJ03KTNSyfLDhCXfCQAo0isK1HV7AAbT3a0MlYCB6nIAgaLIjJBHfaBuKwjJFXQXNTgAdzqABrOBBPPDIpRSGBKGEETZJAVsUN9DI3RUOY8GEQRUGsNA5xAZjhAAXT3ZDz1rSZ4EYizHTI1AQxgW9h1HcdJ2nOYzM0siLG0QwPNXQxcLk3sR3iKoVlXLEsRgqLfXXT8nJALEnGSjTVx5bKMkswKgro5QnK03tgGEBJS1uewHgeLFEzcogwtY9jUS4kBhFsoKLCqmqoDq4QHn5Jxmvc28-OUATut6vqBtqsLngeBwJta28RLEghJNKGSMh64qFuqpb7H5Rr1rakBFMwFS1IO-agsWoawv5LEHAADku29dLKYpDOM0z1J6iyLCK0HhBgIhDBKOAIHilygvvKGPSCTC-uNOASnQShxIAISGr9hDGo6Max1RcfYMdawIAANexxoh61yZx8TOEPOpb1KawIl1cbhH5wWcCxeDzIq30fHF41JbImXe2slC5Z3Twe0lrx4J7OVKGh6g8JVAiii5LrExlGBBE4I24A1iwcCIacaH1kADGMDI9RV75CUlXw_CiGIQjkcQQC8YOgA)<!-- vue3Demo:end --></summary>
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.33"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.37"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -319,23 +319,17 @@ const app = Vue.createApp(...)
 app.component('v-chart', VueECharts)
 ```
 
-<!-- vue3Demo:start -->
-
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHh5z_ccmOsYmpiqzeYZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVjeL0-AX-v183wBMzmCwISxWaw2W12-0Ox1O50u11uBRRJXKGIAbDgnG88cTCTIhQQFAA1W44CYqWgAQWMAAozKgLOhlARlIqAJSmcwWYT1AhVUqqlUGg19Lqoezmi0G2hYAgAZW0sFt-vtBrA1AIADFlERoFp7AByACSNBgpQANMIMgAJGEJU4QcjKYQAORgtwycblk2UUDjcGUqDgBTg0YgYFDnvtXhj9YtnQI7r1qq9DuwBHsGW4pWUYEg5GEzsoJvI8DzzftsDAvfjICnUdKGVnFkbG-EtUoUE6hg9na7O8m1ms0b7IAgtCIM-PXZ9pSIGtopSvwGUXmEjAipSGwARN-trkN-yroF4ACk2rrg-FpbnBBqwBeGBHieFh1BAdCLhkKblGmRb3uhwjzjhICkUR6Hqpq9gANrbhaGSsBA9TkAQlHERkggvtAHHoRkcroFmpwAO51AA1nAfEnhk4opDAlDCIJUkgE2iFehkzoqHMeDCIIqDWGg04gAxwgALrbghJ5VpM8B0aZdrEaggYwFeA5DiOY4TnMxlqcRFjaIYrlLoYWHSV2g7xFUKxLpimKQeFXorm-9kgJiTgJapS7chlGRmX5_nUco9nqV2wDCAkRa3PY7yYnGzlEMFTEsSi7EgMIVn-RY5WVVA1XCA8ACMTj1S5V7ccovHtZ1XU9VVwXPA8DijY1V6CcJBBiaUkkZB1BWzRV832INDx1cIDVNSAcmYIpym7TN_lzX1wWDZiDgABwrZdWllMUekGUZKkdaZFj5SDwgwEQhglHAEAxY5_k3pDrpBGhXUGnAJToJQIkAEJ9e-wjDft6OY6oOPsMOVYEAAGvYI3gxaZPYyJnB7nUV6lNYERaiNwh8wLOCYjBJmlV6PhiwaEvEdLXYWYhsubp4nYS14MGdtKlBQ9Q2GKrhRScm1caSjAgicIbcDqxYOBEBONB6yABjGBk2rK18BJir4fhRDEIRyOIIBeEHQA)
-
-<!-- vue3Demo:end -->
-
 </details>
 
 <details>
-<summary>Vue 2</summary>
+<summary>Vue 2 <!-- vue2Demo:start -->[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgcc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N4vHAPL4BAF_Xw_QEzOYLAhLFZrDZbXb7Q7HU7nS5-GDFMoEOB3ACsOAAzFLKXSaTI5UDGaDmeC2VDObDuYi-Vc0QVBSVyqLXqSnLLqQR_r8rdIAGq3HBULHUOgEAAUGUKQvKGQANMIHTBBJwjSKAJSeVDSE4Ad0Dt3dZlQFlh9gyBmM_vMwnQygIynd4dMOYs9QIVVKKeTFlrwj6XVQ9hrddrtCwBAAytpYM3S62LGBqAQAGLKIjQLT2ADkAEkaDBSgGMgAJWEJU4QcjKYQAORgt39wgAgpNlFAA3BlKg4AU4IuIGBp_2614_S-23jeyWUwO29gCHTEBuFKZQwEgchhE7ShK3IeBs1_P9hFgMBAOEDI4IXUoMg_Cw31w4RakoKBOkMPtEL_AhJmsaxFyAvEYCIBCkMHOoiHzWhSiA4BlC8YRGAiUohmACI-Obcg-KTdAvAAUnDHCKNfd9FNrWBaIwciWPrSY3SAjdyi3c9mJYlC0IyUzjKQvMC3sABtAi6wyVgIHqcgCEsliMkEdjoA8pCMmPdA91OWM6gAazgPy_wyO0UhgSgT3QSKQGUrSLAyTsVDmPBhEEVBrDQeCQAc4QAF0CPwlSLHvHSVmEeyqtrFstNQccYCAkCwIgqCYLmIrUrS7RDHa9CQEMCAYCigdQPiKo6oyMUxRkqbW0wzi7IWpxlpS0bni2jJSoGrTrOUDbGoHYBhASc9bnsSVJTFANWqIEanJcwV3JAYRKrSpqrpukbJTeJwnraoDvOUXyvp-37TH-qBbuEB5JQcUGXqAwLgoIULSgijJvqOtLLuuhGRreB60dekBYswBLAuSgmSrrYmAfsN4xQcAAOSmgMyspily_LCoZnxztrQ6meERjDBKXE6uatKGKIbsgk02HqpKdBKFjAAhBGuOEYHCd-uBNe19hwPvAgAA17BByW61N1Rtc4Yi6iA0prAiQsQeEX3_ZwMV5OKsXX0l0WtIjv9ypUqO8KjPDvEjXwqRtEIohiEI5HEEAvDzoA)<!-- vue2Demo:end --></summary>
 
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.6.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.6.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -343,8 +337,6 @@ app.component('v-chart', VueECharts)
 // 全局注册组件（也可以使用局部注册）
 Vue.component("v-chart", VueECharts);
 ```
-
-[Demo →](https://codepen.io/Justineo/pen/gOLGxJR)
 
 </details>
 
@@ -397,6 +389,66 @@ Vue.component("v-chart", VueECharts);
 - `manual-update: boolean`（默认值`false`）
 
   在性能敏感（数据量很大）的场景下，我们最好对于 `option` prop 绕过 Vue 的响应式系统。当将 `manual-update` prop 指定为 `true` 且不传入 `option` prop 时，数据将不会被监听。然后，需要用 `ref` 获取组件实例以后手动调用 `setOption` 方法来更新图表。
+
+### 事件
+
+可以使用 Vue 的 `v-on` 指令绑定事件。
+
+```vue
+<template>
+  <v-chart :option="option" @highlight="handleHighlight"/>
+</template>
+```
+
+> 仅支持 `.once` 修饰符，因为其它修饰符都与 DOM 事件机制强耦合。
+
+Vue-ECharts 支持如下事件：
+
+- `highlight` [→](https://echarts.apache.org/zh/api.html#events.highlight)
+- `downplay` [→](https://echarts.apache.org/zh/api.html#events.downplay)
+- `selectchanged` [→](https://echarts.apache.org/zh/api.html#events.selectchanged)
+- `legendselectchanged` [→](https://echarts.apache.org/zh/api.html#events.legendselectchanged)
+- `legendselected` [→](https://echarts.apache.org/zh/api.html#events.legendselected)
+- `legendunselected` [→](https://echarts.apache.org/zh/api.html#events.legendunselected)
+- `legendselectall` [→](https://echarts.apache.org/zh/api.html#events.legendselectall)
+- `legendinverseselect` [→](https://echarts.apache.org/zh/api.html#events.legendinverseselect)
+- `legendscroll` [→](https://echarts.apache.org/zh/api.html#events.legendscroll)
+- `datazoom` [→](https://echarts.apache.org/zh/api.html#events.datazoom)
+- `datarangeselected` [→](https://echarts.apache.org/zh/api.html#events.datarangeselected)
+- `timelinechanged` [→](https://echarts.apache.org/zh/api.html#events.timelinechanged)
+- `timelineplaychanged` [→](https://echarts.apache.org/zh/api.html#events.timelineplaychanged)
+- `restore` [→](https://echarts.apache.org/zh/api.html#events.restore)
+- `dataviewchanged` [→](https://echarts.apache.org/zh/api.html#events.dataviewchanged)
+- `magictypechanged` [→](https://echarts.apache.org/zh/api.html#events.magictypechanged)
+- `geoselectchanged` [→](https://echarts.apache.org/zh/api.html#events.geoselectchanged)
+- `geoselected` [→](https://echarts.apache.org/zh/api.html#events.geoselected)
+- `geounselected` [→](https://echarts.apache.org/zh/api.html#events.geounselected)
+- `axisareaselected` [→](https://echarts.apache.org/zh/api.html#events.axisareaselected)
+- `brush` [→](https://echarts.apache.org/zh/api.html#events.brush)
+- `brushEnd` [→](https://echarts.apache.org/zh/api.html#events.brushEnd)
+- `brushselected` [→](https://echarts.apache.org/zh/api.html#events.brushselected)
+- `globalcursortaken` [→](https://echarts.apache.org/zh/api.html#events.globalcursortaken)
+- `rendered` [→](https://echarts.apache.org/zh/api.html#events.rendered)
+- `finished` [→](https://echarts.apache.org/zh/api.html#events.finished)
+- 鼠标事件
+  - `click` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.click)
+  - `dblclick` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.dblclick)
+  - `mouseover` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseover)
+  - `mouseout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseout)
+  - `mousemove` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousemove)
+  - `mousedown` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousedown)
+  - `mouseup` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseup)
+  - `globalout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.globalout)
+  - `contextmenu` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.contextmenu)
+- ZRender 事件
+  - `zr:click`
+  - `zr:mousedown`
+  - `zr:mouseup`
+  - `zr:mousewheel`
+  - `zr:dblclick`
+  - `zr:contextmenu`
+
+请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events)
 
 ### Provide / Inject
 
@@ -460,56 +512,6 @@ import { INIT_OPTIONS_KEY } from 'vue-echarts'
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
-
-### 事件
-
-Vue-ECharts 支持如下事件：
-
-- `highlight` [→](https://echarts.apache.org/zh/api.html#events.highlight)
-- `downplay` [→](https://echarts.apache.org/zh/api.html#events.downplay)
-- `selectchanged` [→](https://echarts.apache.org/zh/api.html#events.selectchanged)
-- `legendselectchanged` [→](https://echarts.apache.org/zh/api.html#events.legendselectchanged)
-- `legendselected` [→](https://echarts.apache.org/zh/api.html#events.legendselected)
-- `legendunselected` [→](https://echarts.apache.org/zh/api.html#events.legendunselected)
-- `legendselectall` [→](https://echarts.apache.org/zh/api.html#events.legendselectall)
-- `legendinverseselect` [→](https://echarts.apache.org/zh/api.html#events.legendinverseselect)
-- `legendscroll` [→](https://echarts.apache.org/zh/api.html#events.legendscroll)
-- `datazoom` [→](https://echarts.apache.org/zh/api.html#events.datazoom)
-- `datarangeselected` [→](https://echarts.apache.org/zh/api.html#events.datarangeselected)
-- `timelinechanged` [→](https://echarts.apache.org/zh/api.html#events.timelinechanged)
-- `timelineplaychanged` [→](https://echarts.apache.org/zh/api.html#events.timelineplaychanged)
-- `restore` [→](https://echarts.apache.org/zh/api.html#events.restore)
-- `dataviewchanged` [→](https://echarts.apache.org/zh/api.html#events.dataviewchanged)
-- `magictypechanged` [→](https://echarts.apache.org/zh/api.html#events.magictypechanged)
-- `geoselectchanged` [→](https://echarts.apache.org/zh/api.html#events.geoselectchanged)
-- `geoselected` [→](https://echarts.apache.org/zh/api.html#events.geoselected)
-- `geounselected` [→](https://echarts.apache.org/zh/api.html#events.geounselected)
-- `axisareaselected` [→](https://echarts.apache.org/zh/api.html#events.axisareaselected)
-- `brush` [→](https://echarts.apache.org/zh/api.html#events.brush)
-- `brushEnd` [→](https://echarts.apache.org/zh/api.html#events.brushEnd)
-- `brushselected` [→](https://echarts.apache.org/zh/api.html#events.brushselected)
-- `globalcursortaken` [→](https://echarts.apache.org/zh/api.html#events.globalcursortaken)
-- `rendered` [→](https://echarts.apache.org/zh/api.html#events.rendered)
-- `finished` [→](https://echarts.apache.org/zh/api.html#events.finished)
-- 鼠标事件
-  - `click` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.click)
-  - `dblclick` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.dblclick)
-  - `mouseover` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseover)
-  - `mouseout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseout)
-  - `mousemove` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousemove)
-  - `mousedown` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mousedown)
-  - `mouseup` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.mouseup)
-  - `globalout` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.globalout)
-  - `contextmenu` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.contextmenu)
-- ZRender 事件
-  - `zr:click`
-  - `zr:mousedown`
-  - `zr:mouseup`
-  - `zr:mousewheel`
-  - `zr:dblclick`
-  - `zr:contextmenu`
-
-请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events)
 
 ## 迁移到 v6
 

@@ -9,10 +9,10 @@ const { readFile, writeFile } = fs.promises;
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  "vue@3": "3.2.33",
+  "vue@3": "3.2.37",
   "vue@2": "2.6.14",
-  "@vue/composition-api": "1.6.1",
-  echarts: "5.3.2",
+  "@vue/composition-api": "1.6.2",
+  echarts: "5.3.3",
   [name]: version
 };
 
@@ -88,8 +88,8 @@ function exec() {
         commentMark(content, {
           vue2Scripts: getCodeBlock(scripts[2]),
           vue3Scripts: getCodeBlock(scripts[3]),
-          vue2Demo: `\n${link2}\n`,
-          vue3Demo: `\n${link3}\n`
+          vue2Demo: link2,
+          vue3Demo: link3
         }),
         "utf8"
       );

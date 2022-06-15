@@ -117,7 +117,7 @@ import "echarts";
 #### SFC example
 
 <details>
-<summary>Vue 3</summary>
+<summary>Vue 3 [Demo →](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue)</summary>
 
 ```vue
 <template>
@@ -203,12 +203,10 @@ export default defineComponent({
 </style>
 ```
 
-[Demo →](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue)
-
 </details>
 
 <details>
-<summary>Vue 2</summary>
+<summary>Vue 2 [Demo →](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)</summary>
 
 ```vue
 <template>
@@ -299,8 +297,6 @@ export default {
 </style>
 ```
 
-[Demo →](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue)
-
 </details>
 
 ### CDN & Global variable
@@ -308,13 +304,13 @@ export default {
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details>
-<summary>Vue 3</summary>
+<summary>Vue 3 <!-- vue3Demo:start -->[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHgHYc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACsbzeXwCAL-vh-gJmcwWBCWKzWGy2u32h2Op3Ol2utwKqJK5UxADYcABGHBOfEkokyUUEBQANVuOAmKloAEFjAAKMyoCzoZQEZQqgCUpnMFmE9QIVVKGvVxuNfS6qHsVutxtoWAIAGVtLAHUancawNQCAAxZREaBaewAcgAkjQYKUADTCDIACVhCVOEHIymEADkYLcMonFZNlFBE3BlKg4AU4HGIGAIz6nV5403rZ0CF7DRrfc7sAR7BluKVlGBIORhG7KObyPBC22nbAwAOkyBZ7HShkFxYW9vhLVKFBOoZvT3e_vJtZrHHByAILQiPOz73_aUiNraKVb8BlF5hIwIlKIZgAiP8HXIP81XQLwAFI9S3Z9rV3RDjVga8MFPc8LDqCA6BXDJ03KTNSyfLDhCXfCQAo0isK1HV7AAbT3a0MlYCB6nIAgaLIjJBHfaBuKwjJFXQXNTgAdzqABrOBBPPDIpRSGBKGEETZJAVsUN9DI3RUOY8GEQRUGsNA5xAZjhAAXT3ZDz1rSZ4EYizHTI1AQxgW9h1HcdJ2nOYzM0siLG0QwPNXQxcLk3sR3iKoVlXLEsRgqLfXXT8nJALEnGSjTVx5bKMkswKgro5QnK03tgGEBJS1uewHgeLFEzcogwtY9jUS4kBhFsoKLCqmqoDq4QHn5Jxmvc28-OUATut6vqBtqsLngeBwJta28RLEghJNKGSMh64qFuqpb7H5Rr1rakBFMwFS1IO-agsWoawv5LEHAADku29dLKYpDOM0z1J6iyLCK0HhBgIhDBKOAIHilygvvKGPSCTC-uNOASnQShxIAISGr9hDGo6Max1RcfYMdawIAANexxoh61yZx8TOEPOpb1KawIl1cbhH5wWcCxeDzIq30fHF41JbImXe2slC5Z3Twe0lrx4J7OVKGh6g8JVAiii5LrExlGBBE4I24A1iwcCIacaH1kADGMDI9RV75CUlXw_CiGIQjkcQQC8YOgA)<!-- vue3Demo:end --></summary>
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.33"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.37"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -325,23 +321,17 @@ const app = Vue.createApp(...)
 app.component('v-chart', VueECharts)
 ```
 
-<!-- vue3Demo:start -->
-
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHh5z_ccmOsYmpiqzeYZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVjeL0-AX-v183wBMzmCwISxWaw2W12-0Ox1O50u11uBRRJXKGIAbDgnG88cTCTIhQQFAA1W44CYqWgAQWMAAozKgLOhlARlIqAJSmcwWYT1AhVUqqlUGg19Lqoezmi0G2hYAgAZW0sFt-vtBrA1AIADFlERoFp7AByACSNBgpQANMIMgAJGEJU4QcjKYQAORgtwycblk2UUDjcGUqDgBTg0YgYFDnvtXhj9YtnQI7r1qq9DuwBHsGW4pWUYEg5GEzsoJvI8DzzftsDAvfjICnUdKGVnFkbG-EtUoUE6hg9na7O8m1ms0b7IAgtCIM-PXZ9pSIGtopSvwGUXmEjAipSGwARN-trkN-yroF4ACk2rrg-FpbnBBqwBeGBHieFh1BAdCLhkKblGmRb3uhwjzjhICkUR6Hqpq9gANrbhaGSsBA9TkAQlHERkggvtAHHoRkcroFmpwAO51AA1nAfEnhk4opDAlDCIJUkgE2iFehkzoqHMeDCIIqDWGg04gAxwgALrbghJ5VpM8B0aZdrEaggYwFeA5DiOY4TnMxlqcRFjaIYrlLoYWHSV2g7xFUKxLpimKQeFXorm-9kgJiTgJapS7chlGRmX5_nUco9nqV2wDCAkRa3PY7yYnGzlEMFTEsSi7EgMIVn-RY5WVVA1XCA8ACMTj1S5V7ccovHtZ1XU9VVwXPA8DijY1V6CcJBBiaUkkZB1BWzRV832INDx1cIDVNSAcmYIpym7TN_lzX1wWDZiDgABwrZdWllMUekGUZKkdaZFj5SDwgwEQhglHAEAxY5_k3pDrpBGhXUGnAJToJQIkAEJ9e-wjDft6OY6oOPsMOVYEAAGvYI3gxaZPYyJnB7nUV6lNYERaiNwh8wLOCYjBJmlV6PhiwaEvEdLXYWYhsubp4nYS14MGdtKlBQ9Q2GKrhRScm1caSjAgicIbcDqxYOBEBONB6yABjGBk2rK18BJir4fhRDEIRyOIIBeEHQA)
-
-<!-- vue3Demo:end -->
-
 </details>
 
 <details>
-<summary>Vue 2</summary>
+<summary>Vue 2 <!-- vue2Demo:start -->[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgcc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N4vHAPL4BAF_Xw_QEzOYLAhLFZrDZbXb7Q7HU7nS5-GDFMoEOB3ACsOAAzFLKXSaTI5UDGaDmeC2VDObDuYi-Vc0QVBSVyqLXqSnLLqQR_r8rdIAGq3HBULHUOgEAAUGUKQvKGQANMIHTBBJwjSKAJSeVDSE4Ad0Dt3dZlQFlh9gyBmM_vMwnQygIynd4dMOYs9QIVVKKeTFlrwj6XVQ9hrddrtCwBAAytpYM3S62LGBqAQAGLKIjQLT2ADkAEkaDBSgGMgAJWEJU4QcjKYQAORgt39wgAgpNlFAA3BlKg4AU4IuIGBp_2614_S-23jeyWUwO29gCHTEBuFKZQwEgchhE7ShK3IeBs1_P9hFgMBAOEDI4IXUoMg_Cw31w4RakoKBOkMPtEL_AhJmsaxFyAvEYCIBCkMHOoiHzWhSiA4BlC8YRGAiUohmACI-Obcg-KTdAvAAUnDHCKNfd9FNrWBaIwciWPrSY3SAjdyi3c9mJYlC0IyUzjKQvMC3sABtAi6wyVgIHqcgCEsliMkEdjoA8pCMmPdA91OWM6gAazgPy_wyO0UhgSgT3QSKQGUrSLAyTsVDmPBhEEVBrDQeCQAc4QAF0CPwlSLHvHSVmEeyqtrFstNQccYCAkCwIgqCYLmIrUrS7RDHa9CQEMCAYCigdQPiKo6oyMUxRkqbW0wzi7IWpxlpS0bni2jJSoGrTrOUDbGoHYBhASc9bnsSVJTFANWqIEanJcwV3JAYRKrSpqrpukbJTeJwnraoDvOUXyvp-37TH-qBbuEB5JQcUGXqAwLgoIULSgijJvqOtLLuuhGRreB60dekBYswBLAuSgmSrrYmAfsN4xQcAAOSmgMyspily_LCoZnxztrQ6meERjDBKXE6uatKGKIbsgk02HqpKdBKFjAAhBGuOEYHCd-uBNe19hwPvAgAA17BByW61N1Rtc4Yi6iA0prAiQsQeEX3_ZwMV5OKsXX0l0WtIjv9ypUqO8KjPDvEjXwqRtEIohiEI5HEEAvDzoA)<!-- vue2Demo:end --></summary>
 
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.6.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.6.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -349,12 +339,6 @@ app.component('v-chart', VueECharts)
 // register globally (or you can do it locally)
 Vue.component("v-chart", VueECharts);
 ```
-
-<!-- vue2Demo:start -->
-
-[Demo →](https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgcc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N4vd5fAIAv6-H6AmZzBYEJYrNYbLa7faHY6nc6XPwwYplAhwO4AVhwAGYcA8KbTqTI5UCGaCmeDWVCObCuYjeVc0QUBSVyiLXk5JbKqQR_r8rdIAGq3HBULHUOgEAAUGUKgvKGQANMIHTBBJwjcKAJSeVDSE4Ad0Dt3dZlQFlh9gyBmM_vMwnQygIynd4dMOYs9QIVVKKeTFlrwj6XVQ9hrddrtCwBAAytpYM3S62LGBqAQAGLKIjQLT2ADkAEkaDBSgGMgAJWEJU4QcjKYQAORgt39wgAgpNlFAA3BlKg4AU4IuIGBp_2614_S-23jeyWUwO29gCHTEBuFKZQwEgchhE7ShK3IeBs1_P9hFgMBAOEDI4IXUoMg_Cw31w4RakoKBOkMPtEL_AhJmsaxFyAvEYCIBCkMHOoiHzWhSiA4BlC8YRGAiUohmACI-Obcg-KTdAvAAUnDHCKNfd9FNrWBaIwciWPrSY3SAjdyi3c9mJYlC0IyUzjKQvMC3sABtAi6wyVgIHqcgCEsliMkEdjoA8pCMmPdA91OWM6gAazgPy_wyO0UhgSgT3QSKQGUrSLAyTsVDmPBhEEVBrDQeCQAc4QAF0CPwlSLHvHSVmEeyqtrFstNQccYCAkCwIgqCYLmIrUrS7RDHa9CQEMCAYCigdQPiKo6oyUVRRkqbW0wzi7IWpxlpS0bni2jJSoGrTrOUDbGoHYBhASc9bnsCUJVFANWqIEanJcgV3JAYRKrSpqrpukaJTeJwnraoDvOUXyvp-37TH-qBbuEB4JQcUGXqAwLgoIULSgijJvqOtLLuuhGRreB60dekBYswBLAuSgmSrrYmAfsN5RQcAAOSmgMyspily_LCoZnxztrQ6meERjDBKXE6uatKGKIbsgk02HqpKdBKFjAAhBGuOEYHCd-uBNe19hwPvAgAA17BByW61N1Rtc4Yi6iA0prAiQsQeEX3_ZwUV5OKsXX0l0WtIjv9ypUqO8KjPDvEjXxKRtEIohiEI5HEEAvDzoA)
-
-<!-- vue2Demo:end -->
 
 </details>
 
@@ -472,6 +456,16 @@ import { INIT_OPTIONS_KEY } from 'vue-echarts'
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
 
 ### Events
+
+You can bind events with Vue's `v-on` directive.
+
+```vue
+<template>
+  <v-chart :option="option" @highlight="handleHighlight"/>
+</template>
+```
+
+> Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
 Vue-ECharts support the following events:
 
