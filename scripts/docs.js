@@ -69,7 +69,7 @@ ${js}</script>
 
 async function getDemoLink(version) {
   const parameters = getParameters(await getSandboxParams(version));
-  return `[Demo →](${`https://codesandbox.io/api/v1/sandboxes/define?parameters=${parameters}`})`;
+  return `<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=${parameters}">Demo →</a>`;
 }
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
@@ -88,8 +88,8 @@ function exec() {
         commentMark(content, {
           vue2Scripts: getCodeBlock(scripts[2]),
           vue3Scripts: getCodeBlock(scripts[3]),
-          vue2Demo: link2,
-          vue3Demo: link3
+          vue2DemoLink: link2,
+          vue3DemoLink: link3
         }),
         "utf8"
       );
