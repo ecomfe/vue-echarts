@@ -14,7 +14,8 @@ import {
   nextTick,
   PropType,
   watchEffect,
-  Vue2
+  Vue2,
+  InjectionKey
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
 import {
@@ -44,9 +45,9 @@ if (Vue2) {
   Vue2.config.ignoredElements.push(TAG_NAME);
 }
 
-export const THEME_KEY = "ecTheme";
-export const INIT_OPTIONS_KEY = "ecInitOptions";
-export const UPDATE_OPTIONS_KEY = "ecUpdateOptions";
+export const THEME_KEY = "ecTheme" as unknown as InjectionKey<ThemeInjection>;
+export const INIT_OPTIONS_KEY = "ecInitOptions" as unknown as InjectionKey<InitOptionsInjection>;
+export const UPDATE_OPTIONS_KEY = "ecUpdateOptions" as unknown as InjectionKey<UpdateOptionsInjection>;
 export { LOADING_OPTIONS_KEY } from "./composables";
 
 export default defineComponent({
@@ -69,15 +70,15 @@ export default defineComponent({
     const root = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
-    const defaultTheme = inject(THEME_KEY, null) as ThemeInjection;
+    const defaultTheme = inject(THEME_KEY, null);
     const defaultInitOptions = inject(
       INIT_OPTIONS_KEY,
       null
-    ) as InitOptionsInjection;
+    );
     const defaultUpdateOptions = inject(
       UPDATE_OPTIONS_KEY,
       null
-    ) as UpdateOptionsInjection;
+    );
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
