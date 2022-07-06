@@ -1,3 +1,7 @@
+## 6.2.1
+
+* Improved types for provide/inject API.
+
 ## 6.2.0
 
 * Added support for Vue 2.7+.
