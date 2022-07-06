@@ -1,3 +1,7 @@
+## 6.2.0
+
+* Added support for Vue 2.7+.
+
 ## 6.1.0
 
 * Added support for `.once` event modifier.

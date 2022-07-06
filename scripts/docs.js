@@ -10,15 +10,14 @@ const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
   "vue@3": "3.2.37",
-  "vue@2": "2.6.14",
-  "@vue/composition-api": "1.6.2",
+  "vue@2": "2.7.3",
   echarts: "5.3.3",
   [name]: version
 };
 
 const markConfig = {
   vue3Scripts: ["vue@3", "echarts", name],
-  vue2Scripts: ["vue@2", "@vue/composition-api", "echarts", name]
+  vue2Scripts: ["vue@2", "echarts", name]
 };
 
 function getScripts(version) {

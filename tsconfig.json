@@ -13,7 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["webpack-env"],
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"]
   },
   "include": [

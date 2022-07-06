@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "Vue.js component for Apache ECharts.",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "resize-detector": "^0.3.0",
-    "vue-demi": "^0.12.5"
+    "vue-demi": "^0.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
@@ -35,7 +35,7 @@
     "@vue/cli-plugin-typescript": "^5.0.4",
     "@vue/cli-service": "^5.0.4",
     "@vue/compiler-sfc": "^3.2.33",
-    "@vue/composition-api": "^1.6.1",
+    "@vue/composition-api": "^1.7.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^10.0.0",
     "codesandbox": "^2.2.3",

@@ -20,13 +20,13 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 $ npm install echarts vue-echarts
 ```
 
-To make `vue-echarts` work for *Vue 2*, you need to have `@vue/composition-api` installed:
+To make `vue-echarts` work for *Vue 2* (<2.7.0), you need to have `@vue/composition-api` installed:
 
 ```sh
 npm i -D @vue/composition-api
 ```
 
-If you are using *NuxtJS* on top of *Vue 2*, you'll also need `@nuxtjs/composition-api`:
+If you are using *NuxtJS* on top of *Vue 2* (<2.7.0), you'll also need `@nuxtjs/composition-api`:
 
 ```sh
 npm i -D @nuxtjs/composition-api
@@ -304,13 +304,13 @@ export default {
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details>
-<summary>Vue 3 <!-- vue3DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHgHYc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACsbzeXwCAL-vh-gJmcwWBCWKzWGy2u32h2Op3Ol2utwKqJK5UxADYcABGHBOfEkokyUUEBQANVuOAmKloAEFjAAKMyoCzoZQEZQqgCUpnMFmE9QIVVKGvVxuNfS6qHsVutxtoWAIAGVtLAHUancawNQCAAxZREaBaewAcgAkjQYKUADTCDIACVhCVOEHIymEADkYLcMonFZNlFBE3BlKg4AU4HGIGAIz6nV5403rZ0CF7DRrfc7sAR7BluKVlGBIORhG7KObyPBC22nbAwAOkyBZ7HShkFxYW9vhLVKFBOoZvT3e_vJtZrHHByAILQiPOz73_aUiNraKVb8BlF5hIwIlKIZgAiP8HXIP81XQLwAFI9S3Z9rV3RDjVga8MFPc8LDqCA6BXDJ03KTNSyfLDhCXfCQAo0isK1HV7AAbT3a0MlYCB6nIAgaLIjJBHfaBuKwjJFXQXNTgAdzqABrOBBPPDIpRSGBKGEETZJAVsUN9DI3RUOY8GEQRUGsNA5xAZjhAAXT3ZDz1rSZ4EYizHTI1AQxgW9h1HcdJ2nOYzM0siLG0QwPNXQxcLk3sR3iKoVlXLEsRgqLfXXT8nJALEnGSjTVx5bKMkswKgro5QnK03tgGEBJS1uewHgeLFEzcogwtY9jUS4kBhFsoKLCqmqoDq4QHn5Jxmvc28-OUATut6vqBtqsLngeBwJta28RLEghJNKGSMh64qFuqpb7H5Rr1rakBFMwFS1IO-agsWoawv5LEHAADku29dLKYpDOM0z1J6iyLCK0HhBgIhDBKOAIHilygvvKGPSCTC-uNOASnQShxIAISGr9hDGo6Max1RcfYMdawIAANexxoh61yZx8TOEPOpb1KawIl1cbhH5wWcCxeDzIq30fHF41JbImXe2slC5Z3Twe0lrx4J7OVKGh6g8JVAiii5LrExlGBBE4I24A1iwcCIacaH1kADGMDI9RV75CUlXw_CiGIQjkcQQC8YOgA">Demo →</a><!-- vue3DemoLink:end --></summary>
+<summary>Vue 3 <!-- vue3DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHgHYc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACsbzeXwCAL-vh-gJmcwWBCWKzWGy2u32h2Op3Ol2utwKqJK5UxADYXjgnPiSUSZMKCAoAGq3HATFS0ACCxgAFGZUBZ0MoCMolQBKUzmCzCeoEKqlNWqw2GvpdVD2C2Ww20LAEADK2lgdoNDsNYGoBAAYsoiNAtPYAOQASRoMFKABphBkABKwhKnCDkZTCAByMFuGXj8smyig8bgylQcAKcBjEDAYa9Dq8sYbls6BA9-rV3sd2AI9gy3FKyjAkHIwhdlFN5Hg-ZbDtgYD7CZA0-jpQyc4sTc3wlqlCgnUMnq73d3k2s1hj_ZAEFoRFnJ-7vtKRE1tFK1-Ayi8wkYEVKQzABEP52uQP4qugXgAKQ6huj6Wtu8GGrAl4YMep4WHUEB0EuGSpuU6bFg-GHCAuuEgGRxEYRqWr2AA2juloZKwED1OQBBUSRGSCK-0CcRhGTyug2anAA7nUADWcD8aeGQSikMCUMIQnSSAzZId6GQuiocx4MIgioNYaAziAjHCAAujuiGntWkzwPRZn2iRqBBjA16DsOo7jpOcwmepJEWNohhucuhjYTJ3ZDvEVQrMuWJYlBEXequ74OSAWJOIlanLjymUZOZ_kBTRygORp3bAMICTFrc9gPA8WLxi5RAhcxrGohxIDCNZAUWBVVVQDVwgPAAjE4jWudePHKHxnXdT1fXVSFzwPA443NdeQkiQQ4mlFJGRdYV82VYt9jDfVa0tSA8mYEpKn7XNAULQNIXDViDgABwXde2llMU-mGcZqldWZFgFSDwgwEQhglHAECxU5AW3pDbpBOhPWGnAJToJQokAEIDR-wijYd6OY6oOPsCO1YEAAGvYY3g5aZPY6JnD7nU16lNYETamNwh8wLOBYrBplld6Phi4aEskdL3aWUhstbp4XYS14sFdjKlBQ9QOFKnhRRch18ZSjAgicIbcDqxYOBEJONB6yABjGBkOrK98hLir4fhRDEIRyOIIBeEHQA">Demo →</a><!-- vue3DemoLink:end --></summary>
 
 <!-- vue3Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.37"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.2.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -324,14 +324,13 @@ app.component('v-chart', VueECharts)
 </details>
 
 <details>
-<summary>Vue 2 <!-- vue2DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwANhwARgcc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XO43GDrShEQyUOAQfqoApGCB3N4vHAPL4BAF_Xw_QEzOYLAhLFZrDZbXb7Q7HU7nS5-GDFMoEOB3ACsOAAzFLKXSaTI5UDGaDmeC2VDObDuYi-Vc0QVBSVyqLXqSnLLqQR_r8rdIAGq3HBULHUOgEAAUGUKQvKGQANMIHTBBJwjSKAJSeVDSE4Ad0Dt3dZlQFlh9gyBmM_vMwnQygIynd4dMOYs9QIVVKKeTFlrwj6XVQ9hrddrtCwBAAytpYM3S62LGBqAQAGLKIjQLT2ADkAEkaDBSgGMgAJWEJU4QcjKYQAORgt39wgAgpNlFAA3BlKg4AU4IuIGBp_2614_S-23jeyWUwO29gCHTEBuFKZQwEgchhE7ShK3IeBs1_P9hFgMBAOEDI4IXUoMg_Cw31w4RakoKBOkMPtEL_AhJmsaxFyAvEYCIBCkMHOoiHzWhSiA4BlC8YRGAiUohmACI-Obcg-KTdAvAAUnDHCKNfd9FNrWBaIwciWPrSY3SAjdyi3c9mJYlC0IyUzjKQvMC3sABtAi6wyVgIHqcgCEsliMkEdjoA8pCMmPdA91OWM6gAazgPy_wyO0UhgSgT3QSKQGUrSLAyTsVDmPBhEEVBrDQeCQAc4QAF0CPwlSLHvHSVmEeyqtrFstNQccYCAkCwIgqCYLmIrUrS7RDHa9CQEMCAYCigdQPiKo6oyMUxRkqbW0wzi7IWpxlpS0bni2jJSoGrTrOUDbGoHYBhASc9bnsSVJTFANWqIEanJcwV3JAYRKrSpqrpukbJTeJwnraoDvOUXyvp-37TH-qBbuEB5JQcUGXqAwLgoIULSgijJvqOtLLuuhGRreB60dekBYswBLAuSgmSrrYmAfsN4xQcAAOSmgMyspily_LCoZnxztrQ6meERjDBKXE6uatKGKIbsgk02HqpKdBKFjAAhBGuOEYHCd-uBNe19hwPvAgAA17BByW61N1Rtc4Yi6iA0prAiQsQeEX3_ZwMV5OKsXX0l0WtIjv9ypUqO8KjPDvEjXwqRtEIohiEI5HEEAvDzoA">Demo →</a><!-- vue2DemoLink:end --></summary>
+<summary>Vue 2 <!-- vue2DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwAdhwAZhz_ccmOsYmpiqzeYZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVne70-AX-v183wBMzmCwISxWaw2W12-0Ox1O50u11uBRRJXKGIAbDgnk48cTCTIhQQFAA1W44KhEQzUOgEAAUGUKqPKGQANMJJTBBJxOeiAJSeVDSE4Ad21t0VZlQFhh9gyBmMmvMwnQygIykVhtMbos9QIVVKdttFnDwj6XVQ9jDEfDtCwBAAytpYLH_fGLGBqAQAGLKIjQLT2ADkAEkaDBSlqMgAJGEJU4QcjKYQAORgt01wgAgpNlFAtXBlKg4AU4NWIGBS5mI14NXOExACOm_XaswnsARHSBuKVlGBIORhMnKMHyPBXRvN8JYGAd8IMpeq6UMkuLAuP8JapQoJ1DAzG9NwISZrGsatdxXGAiGvW9szqIhPVoUpd2AZQvGERgIlKIZgAiTDY3ITCbXQLwAFJDXfYD50XGjw1gCCMCA-DI0mBVdybcoW0HOD4PvR8MgEvjbw9L17AAbW_CMMlYCB6nIAgRPgjJBCQ6BlNvDJe3QDtTnNOoAGs4E0zcMnFFIYEoPt0BMkA6NYiwMmTFQ5jwYRBFQaw0CvEBpOEABdb8v3oixJ3YlZhCk0LwzjVjUELGBd33Q9j1Pc85l8hzHO0QwkqfEBDAgGBTKzA94iqSKMkxTFyNK-MXxQyTqqcOr7IK7lWoyALstYsTlGamKs2AYQEkHW57DeN5MS1BKiHy2T5JRJSQGEELHNi0bxvyt4AEYnFmxLdzU5QNNW9aNtMLaoAm4QHjeBxDvm3cdL0ggDNKYyMjW3rHJGsabvy3bpqehaQAszBrJ0uyfv8iN_u2-xdsxBwAA5Qd3FyymKDyvJ8mGfCG8Merh4QYMMEo4AgSK4sc6CiFTIIWMusKSnQShzQAIRu1DhH236NrgNmOfYI9JwIAANewDtJiMhdUDnOD_Opd1KawIm9A7hC1nWcExKi_KJ-dScJ1jTc3IL6PNz8TU_bxjV8fEfjFR2ohiEI5HEEAvB9oA">Demo →</a><!-- vue2DemoLink:end --></summary>
 
 <!-- vue2Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vue/composition-api@1.6.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.1.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.2.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -523,7 +522,7 @@ The following breaking changes are introduced in `vue-echarts@6`:
 
 ### Vue 2 support
 
-- Now `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2.
+- If you are using version prior to `vue@2.7.0`, `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2.
 
 ### Props
 
