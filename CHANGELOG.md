@@ -1,3 +1,7 @@
+## 6.2.2
+
+* Improve types for `update-options`.
+
 ## 6.2.1
 
 * Improved types for provide/inject API.
