@@ -14,7 +14,7 @@ export type EventTarget = EChartsType | ZRenderType;
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
 
-export type UpdateOptions = Omit<SetOptionOpts, "notMerge">;
+export type UpdateOptions = SetOptionOpts;
 export type UpdateOptionsInjection =
   | UpdateOptions
   | null
