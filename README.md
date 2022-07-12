@@ -117,7 +117,7 @@ import "echarts";
 #### SFC example
 
 <details>
-<summary>Vue 3 <a href="https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue">Demo →</a></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
@@ -206,7 +206,7 @@ export default defineComponent({
 </details>
 
 <details>
-<summary>Vue 2 <a href="https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue">Demo →</a></summary>
+<summary>Vue 2 <a href="https://stackblitz.com/edit/vue-echarts-vue-2?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
