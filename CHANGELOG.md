@@ -1,3 +1,7 @@
+## 6.2.3
+
+* Fixed the problem that `v-on` stops working after upgrading to `vue@2.7.x`.
+
 ## 6.2.2
 
 * Improve types for `update-options`.

@@ -12,13 +12,14 @@ import {
   onUnmounted,
   h,
   nextTick,
-  PropType,
   watchEffect,
+  getCurrentInstance,
   Vue2,
-  InjectionKey
+  type PropType,
+  type InjectionKey
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
-import {
+import type {
   EChartsType,
   EventTarget,
   Option,
@@ -36,8 +37,8 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import "./style.css";
 import { omitOn } from "./utils";
+import "./style.css";
 
 const TAG_NAME = "x-vue-echarts";
 
@@ -46,8 +47,10 @@ if (Vue2) {
 }
 
 export const THEME_KEY = "ecTheme" as unknown as InjectionKey<ThemeInjection>;
-export const INIT_OPTIONS_KEY = "ecInitOptions" as unknown as InjectionKey<InitOptionsInjection>;
-export const UPDATE_OPTIONS_KEY = "ecUpdateOptions" as unknown as InjectionKey<UpdateOptionsInjection>;
+export const INIT_OPTIONS_KEY =
+  "ecInitOptions" as unknown as InjectionKey<InitOptionsInjection>;
+export const UPDATE_OPTIONS_KEY =
+  "ecUpdateOptions" as unknown as InjectionKey<UpdateOptionsInjection>;
 export { LOADING_OPTIONS_KEY } from "./composables";
 
 export default defineComponent({
@@ -65,20 +68,13 @@ export default defineComponent({
     ...loadingProps
   },
   inheritAttrs: false,
-  // @ts-expect-error listeners for Vue 2 compatibility
-  setup(props, { attrs, listeners }) {
+  setup(props, { attrs }) {
     const root = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
-    const defaultInitOptions = inject(
-      INIT_OPTIONS_KEY,
-      null
-    );
-    const defaultUpdateOptions = inject(
-      UPDATE_OPTIONS_KEY,
-      null
-    );
+    const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
+    const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
@@ -93,6 +89,9 @@ export default defineComponent({
       () => props.updateOptions || unref(defaultUpdateOptions) || {}
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
+
+    // @ts-expect-error listeners for Vue 2 compatibility
+    const listeners = getCurrentInstance().proxy.$listeners;
 
     function init(option?: Option) {
       if (!root.value) {
