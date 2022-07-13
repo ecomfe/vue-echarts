@@ -1,7 +1,17 @@
-import { inject, unref, computed, Ref, watchEffect, InjectionKey } from "vue-demi";
+import {
+  inject,
+  unref,
+  computed,
+  Ref,
+  watchEffect,
+  InjectionKey
+} from "vue-demi";
 import { EChartsType } from "../types";
 
-export const LOADING_OPTIONS_KEY = "ecLoadingOptions" as unknown as InjectionKey<UnknownRecord | Ref<UnknownRecord>>;
+export const LOADING_OPTIONS_KEY =
+  "ecLoadingOptions" as unknown as InjectionKey<
+    UnknownRecord | Ref<UnknownRecord>
+  >;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -10,7 +20,7 @@ export function useLoading(
   loading: Ref<boolean>,
   loadingOptions: Ref<UnknownRecord | undefined>
 ): void {
-  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {})
+  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
     ...unref(defaultLoadingOptions),
     ...loadingOptions?.value

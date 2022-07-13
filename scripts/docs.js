@@ -1,7 +1,6 @@
 import fs from "fs";
 import { resolve } from "path";
 import commentMark from "comment-mark";
-import { getParameters } from "codesandbox/lib/api/define";
 import { name, version } from "../package.json";
 
 const { readFile, writeFile } = fs.promises;
@@ -10,7 +9,7 @@ const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
   "vue@3": "3.2.37",
-  "vue@2": "2.7.3",
+  "vue@2": "2.7.5",
   echarts: "5.3.3",
   [name]: version
 };
@@ -39,38 +38,6 @@ const scripts = {
   3: getScripts(3)
 };
 
-async function getSandboxParams(version) {
-  const [html, js, css] = await Promise.all(
-    ["index.html", `vue${version}.js`, "index.css"].map(async name => {
-      const file = resolve(__dirname, `./sandbox/${name}`);
-      return readFile(file, "utf8");
-    })
-  );
-  return {
-    files: {
-      "index.html": {
-        content: `<!DOCTYPE html>
-<html>
-<head>
-<style>
-${css}</style>
-</head>
-<body>
-${html}${scripts[version]}
-<script>
-${js}</script>
-</body>
-</html>`
-      }
-    }
-  };
-}
-
-async function getDemoLink(version) {
-  const parameters = getParameters(await getSandboxParams(version));
-  return `<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=${parameters}">Demo →</a>`;
-}
-
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
   resolve(__dirname, "..", name)
 );
@@ -80,15 +47,11 @@ function exec() {
     README_FILES.map(async file => {
       const content = await readFile(file, "utf8");
 
-      const [link2, link3] = await Promise.all([2, 3].map(getDemoLink));
-
       return writeFile(
         file,
         commentMark(content, {
           vue2Scripts: getCodeBlock(scripts[2]),
-          vue3Scripts: getCodeBlock(scripts[3]),
-          vue2DemoLink: link2,
-          vue3DemoLink: link3
+          vue3Scripts: getCodeBlock(scripts[3])
         }),
         "utf8"
       );

@@ -304,7 +304,7 @@ export default {
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details>
-<summary>Vue 3 <!-- vue3DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAZhwAJhwHgHYc_3HJjrGJqYVWbzDKLZardabHZ7GAHBJHE5nC5XGDFMoEOB3ACsbzeXwCAL-vh-gJmcwWBCWKzWGy2u32h2Op3Ol2utwKqJK5UxADYXniQOJvoSCP9fqLpAA1W44CYqWgAQWMAAozKgLOhlARlMqAJSmcwWYT1AhVUrqtVGo19LqoeyWq1G2hYAgAZW0sHthsdRrA1AIADFlERoFp7AByACSNBgpQANMIMgAJWEJU4QcjKYQAORgtwyCYVk2UUATcGUqDgBTgsYgYHD3sdXjjjatnQInoN6p9TuwBHsGW4pWUYEg5GErsoZvI8ALrcdsDA_cTIBnMdKGXnFmbW-EtUoUE6hi93Z7e8m1mssYHIAgtCIc9PPb9pSIWtopRvwGUXmEjAipRDMAES_va5C_qq6BeAApLqm5PlaO4IUasBXhgJ5nhYdQQHQy4ZGm5QZiWj6YcIi54SA5EkZhmravYADau5WhkrAQPU5AENRpEZIIb7QFxmEZAq6A5qcADudQANZwAJZ4ZJKKQwJQwjCTJIAtshPoZK6KhzHgwiCKg1hoLOIBMcIAC6u5IWeNaTPADHmQ6pGoMGMA3kOI5jhOU5zKZGmkRY2iGO5K6GDhsk9sO8RVCsK5Yli0GRT6a4fo5IBYk4SXqSuPJZRkFkBYFtHKI5mk9sAwgJCWtz2A8DxYgmrlEKFLFsainEgMINmBRYlXVVAtXCA8ACMThNW5N68co_FdT1vX9TVoXPA8DgTS1N7CaJBASaU0kZN1RULVVS32CNDXra1IAKZgymqQd82BYtg2hSNWIOAAHJdN46WUxQGUZJlqd15kWIVoPCDARCGCUcAQHFzmBXeUPukEGG9UacAlOglBiQAQoNn7CGNR0Y1jqi4-wo41gQAAa9jjRDVrkzjYmcAedQ3qU1gRDq43CPzgs4FicFmeVPo-OLRqS6RMs9lZyFy9unjdpLXhwd2sqUND1C4cq-FFFynUJtKMCCJwRtwBrFg4EQU40PrIAGMYGS6irwriiEUQxCEcjiCAXiB0AA">Demo →</a><!-- vue3DemoLink:end --></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
 ```html
@@ -324,11 +324,11 @@ app.component('v-chart', VueECharts)
 </details>
 
 <details>
-<summary>Vue 2 <!-- vue2DemoLink:start --><a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhSZeGAEN0CxnAIBPWAoDEygA6HhwacNEwIAc0KJhAFgAMTw1gDc0gL7TGAek0dGHU_JVV1ACNKdC11dAgAN2EIdABeSRAjQwyFC0YEgFpyPGUAJwJhZQBXAkpS-AgALxhhREpDAghqdJB2zuoMvxD4hPU4clKIDuE4UvIewgJDOEQ_P3J0VBwAKzhMKETSnFQYAj9UQyI_BKqYAAEAJhwAdhwAZhz_ccmOsYmpiqzeYZRbLVbrTY7PYwA4JI4nM4XK4wYplAhwO4AVne70-AX-v183wBMzmCwISxWaw2W12-0Ox1O50u11uBRRJXKGIAbDgnh8QOIvgSCH8fqLpAA1W44KhEQzUOgEAAUGUKqPKGQANMJpTBBJxOeiAJSeVDSE4Ad11t2VZlQFhh9gyBmM2vMwnQygIymVxtMHos9QIVVKDvtFkjwj6XVQ9gjUcjtCwBAAytpYPHA4mLGBqAQAGLKIjQLT2ADkAEkaDBSjqMgAJGEJU4QcjKYQAORgt21wgAgpNlFAdXBlKg4AU4LWIGBy9mo14tQukxACJmAw6c0nsARnSBuKVlGBIORhKnKKHyPB3Vvt8JYGA98IMtea6UMiuLEuv8JapQoE6QwszvbcCEmaxrFrfc1xgIhb3vXM6iIb1aFKfdgGULxhEYCJSiGYAImw-NyGwu10C8ABSY1P1AxdlzoyNYCgjAQMQ6NJiVfcW3KNthwQxDH2fDIhIE-8vR9ewAG1fyjDJWAgepyAIMTEIyQQUOgVT7wyft0C7U5LTqABrOBtO3DJJRSGBKAHdAzJABj2IsDJUxUOY8GEQRUGsNAbxAWThAAXV_H9GIsadOJWYQZPCyME3Y1BixgfdD2PU9z0vOZ_Kc5ztEMFKXxAQwIBgcycyPeIqmijJMUxSjysTN80Ok2qnAaxyiu5dqMiC3L2Ik5RWrinNgGEBJh1uew3jeTEdSSohCvkxSURUkBhDC5z4vGybCreABGJx5uS_cNOULT1s2rbTB2qApuEB43gcY7Fv3PSDIIIzSlMjINv65yxomu7Cv22aXqWkArMwWy9Icv7AqjQHdvsfbMQcAAOcH9zcspii8ny_LhnwRsjPqEeEODDBKOAIGihLnNgoh0yCNjroikp0EoS0ACE7vQ4RDv-ra4A5rn2BPacCAADXsI7yajEXVC5zgALqfdSmsCJfSO4Qdb1nBMRogKScXcnifY83txCxjLe_M1v28U1fHxcUQiiGIQjkcQQC8X2gA">Demo →</a><!-- vue2DemoLink:end --></summary>
+<summary>Vue 2 <a href="https://stackblitz.com/edit/vue-echarts-vue-2-global?file=index.html">Demo →</a></summary>
 
 <!-- vue2Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.7.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.2.3"></script>
 ```
