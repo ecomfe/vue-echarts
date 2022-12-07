@@ -1,3 +1,7 @@
+## 6.2.4
+
+* Fixed that attributes were not outputted onto the chart root element for Vue 2 (#670).
+
 ## 6.2.3
 
 * Fixed the problem that `v-on` stops working after upgrading to `vue@2.7.x`.

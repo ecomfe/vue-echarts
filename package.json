@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "6.2.3",
+  "version": "6.2.4",
   "description": "Vue.js component for Apache ECharts.",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
