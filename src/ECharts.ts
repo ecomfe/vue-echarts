@@ -281,7 +281,11 @@ export default defineComponent({
     };
   },
   render() {
-    const attrs = { ...this.nonEventAttrs };
+    // Vue 3 and Vue 2 have different vnode props format:
+    // See https://v3-migration.vuejs.org/breaking-changes/render-function-api.html#vnode-props-format
+    const attrs = (
+      Vue2 ? { attrs: this.nonEventAttrs } : { ...this.nonEventAttrs }
+    ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
     return h(TAG_NAME, attrs);
