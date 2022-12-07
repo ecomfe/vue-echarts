@@ -14,5 +14,12 @@ module.exports = {
   },
   chainWebpack: config => {
     config.entry("app").clear().add("./src/demo/main.ts");
+
+    config.module
+      .rule("svg")
+      .clear()
+      .test(/\.svg$/)
+      .use("raw-loader")
+      .loader("raw-loader");
   }
 };

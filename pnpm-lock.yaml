@@ -16,6 +16,7 @@ specifiers:
   comment-mark: ^1.0.0
   core-js: ^3.23.0
   echarts: ^5.3.2
+  echarts-liquidfill: ^3.1.0
   eslint: ^7.20.0
   eslint-plugin-prettier: ^3.3.1
   eslint-plugin-vue: ^8.7.1
@@ -25,6 +26,7 @@ specifiers:
   postcss-nested: ^5.0.5
   prettier: ^2.6.2
   qs: ^6.10.5
+  raw-loader: ^4.0.2
   resize-detector: ^0.3.0
   rimraf: ^3.0.2
   rollup: ^2.72.1
@@ -48,10 +50,10 @@ devDependencies:
   '@rollup/plugin-node-resolve': 11.2.1_rollup@2.75.7
   '@typescript-eslint/eslint-plugin': 4.33.0_lzzr7k3tjtqil7aczuhmzzwame
   '@typescript-eslint/parser': 4.33.0_e4zyhrvfnqudwdx5bevnvkluy4
-  '@vue/cli-plugin-babel': 5.0.7_szrn552deqanolg2xhvxv3f6si
+  '@vue/cli-plugin-babel': 5.0.7_bfbyvxbwdkbpzjdhlu2ghmbxte
   '@vue/cli-plugin-eslint': 5.0.7_sogf6mc3t6tnpddmelmhv5sy5y
   '@vue/cli-plugin-typescript': 5.0.7_fqel5ol4p36s622pmc3xeh5nmy
-  '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+  '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
   '@vue/compiler-sfc': 3.2.37
   '@vue/composition-api': 1.7.0_vue@3.2.37
   '@vue/eslint-config-prettier': 6.0.0_rklrwr6twxyl7u6a6qb67cswlu
@@ -59,6 +61,7 @@ devDependencies:
   comment-mark: 1.1.1
   core-js: 3.23.3
   echarts: 5.3.3
+  echarts-liquidfill: 3.1.0_echarts@5.3.3
   eslint: 7.32.0
   eslint-plugin-prettier: 3.4.1_fqyzhpusvewbsl54pqqbxqaegm
   eslint-plugin-vue: 8.7.1_eslint@7.32.0
@@ -68,6 +71,7 @@ devDependencies:
   postcss-nested: 5.0.6_postcss@8.4.14
   prettier: 2.7.1
   qs: 6.11.0
+  raw-loader: 4.0.2_webpack@5.73.0
   rimraf: 3.0.2
   rollup: 2.75.7
   rollup-plugin-dts: 4.2.2_tawkl7lyp7gxtk5srebtmqqvue
@@ -1934,9 +1938,11 @@ packages:
       svg-tags: 1.0.0
     dev: true
 
-  /@vue/babel-preset-app/5.0.7_vue@3.2.37:
+  /@vue/babel-preset-app/5.0.7_6aw556sdtr7wdbt7wby5rddhty:
     resolution: {integrity: sha512-oepDJNWbYxosfopP7SPDZTBQl0k7KN5xs/uGWT12K+ih6f54Qo/4gEEoIVI8p2yuCRLIIc46SIhZn3AugOgx1g==}
     peerDependencies:
+      '@babel/core': '*'
+      core-js: ^3
       vue: ^2 || ^3.2.13
     peerDependenciesMeta:
       core-js:
@@ -2046,20 +2052,21 @@ packages:
     resolution: {integrity: sha512-Fz0C0TnJI5ARYV7U9DtE9XnYb7OHGhtKv1Wh1fJ8Ugy97kFMnHnXHl+/MCISx/EKdCaKJf0zs7ylHoZGhRhhfg==}
     dev: true
 
-  /@vue/cli-plugin-babel/5.0.7_szrn552deqanolg2xhvxv3f6si:
+  /@vue/cli-plugin-babel/5.0.7_bfbyvxbwdkbpzjdhlu2ghmbxte:
     resolution: {integrity: sha512-qWrwhX7rZ8vQq6+niKG8OkBak0vDhIWzJsLXH5i+xzm04mcudPJwPZhQOBpN3XXkipsic1ZCkhS9d3+VjsWQYg==}
     peerDependencies:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@vue/babel-preset-app': 5.0.7_vue@3.2.37
-      '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+      '@vue/babel-preset-app': 5.0.7_6aw556sdtr7wdbt7wby5rddhty
+      '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
       '@vue/cli-shared-utils': 5.0.7
       babel-loader: 8.2.5_fswvdo7jykdwhfxrdcvghfn6pa
       thread-loader: 3.0.4_webpack@5.73.0
       webpack: 5.73.0
     transitivePeerDependencies:
       - '@swc/core'
+      - core-js
       - encoding
       - esbuild
       - supports-color
@@ -2074,7 +2081,7 @@ packages:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
       eslint: '>=7.5.0'
     dependencies:
-      '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+      '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
       '@vue/cli-shared-utils': 5.0.7
       eslint: 7.32.0
       eslint-webpack-plugin: 3.2.0_oxnz3ipaot6yjz2b7jqxkugcdm
@@ -2094,7 +2101,7 @@ packages:
     peerDependencies:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
     dependencies:
-      '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+      '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
       '@vue/cli-shared-utils': 5.0.7
     transitivePeerDependencies:
       - encoding
@@ -2116,7 +2123,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@types/webpack-env': 1.17.0
-      '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+      '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
       '@vue/cli-shared-utils': 5.0.7
       babel-loader: 8.2.5_fswvdo7jykdwhfxrdcvghfn6pa
       fork-ts-checker-webpack-plugin: 6.5.2_irit3cwhef6e6mopqxb7zqusqa
@@ -2141,10 +2148,10 @@ packages:
     peerDependencies:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
     dependencies:
-      '@vue/cli-service': 5.0.7_khqsjqtt6bg4xxifpcjoaqsude
+      '@vue/cli-service': 5.0.7_wh7dux2groxeldr2stfgzduwne
     dev: true
 
-  /@vue/cli-service/5.0.7_khqsjqtt6bg4xxifpcjoaqsude:
+  /@vue/cli-service/5.0.7_wh7dux2groxeldr2stfgzduwne:
     resolution: {integrity: sha512-ajYBY4CADbuUUwTxRFEx/Jrjalm2YM0ICP37yD4je/wyzcfsKj2iSJJPZpoigPqm/AxO4XN5lYWi5apJNSTpxA==}
     engines: {node: ^12.0.0 || >= 14.0.0}
     hasBin: true
@@ -2218,6 +2225,7 @@ packages:
       postcss: 8.4.14
       postcss-loader: 6.2.1_mepnsno3xmng6eyses4tepu7bu
       progress-webpack-plugin: 1.0.16_webpack@5.73.0
+      raw-loader: 4.0.2_webpack@5.73.0
       ssri: 8.0.1
       terser-webpack-plugin: 5.3.3_webpack@5.73.0
       thread-loader: 3.0.4_webpack@5.73.0
@@ -3328,7 +3336,7 @@ packages:
       lodash: ^4.17.20
       marko: ^3.14.4
       mote: ^0.2.0
-      mustache: ^4.0.1
+      mustache: ^3.0.0
       nunjucks: ^3.2.2
       plates: ~0.4.11
       pug: ^3.0.0
@@ -3915,6 +3923,14 @@ packages:
   /easy-stack/1.0.1:
     resolution: {integrity: sha512-wK2sCs4feiiJeFXn3zvY0p41mdU5VUgbgs1rNsc/y5ngFUijdWd+iIN8eoyuZHKB8xN6BL4PdWmzqFmxNg6V2w==}
     engines: {node: '>=6.0.0'}
+    dev: true
+
+  /echarts-liquidfill/3.1.0_echarts@5.3.3:
+    resolution: {integrity: sha512-5Dlqs/jTsdTUAsd+K5LPLLTgrbbNORUSBQyk8PSy1Mg2zgHDWm83FmvA4s0ooNepCJojFYRITTQ4GU1UUSKYLw==}
+    peerDependencies:
+      echarts: ^5.0.1
+    dependencies:
+      echarts: 5.3.3
     dev: true
 
   /echarts/5.3.3:
@@ -6309,6 +6325,17 @@ packages:
       http-errors: 2.0.0
       iconv-lite: 0.4.24
       unpipe: 1.0.0
+    dev: true
+
+  /raw-loader/4.0.2_webpack@5.73.0:
+    resolution: {integrity: sha512-ZnScIV3ag9A4wPX/ZayxL/jZH+euYb6FcUinPcgiQW0+UBtEv0O6Q3lGd3cqJ+GHH+rksEv3Pj99oxJ3u3VIKA==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      webpack: ^4.0.0 || ^5.0.0
+    dependencies:
+      loader-utils: 2.0.2
+      schema-utils: 3.1.1
+      webpack: 5.73.0
     dev: true
 
   /read-pkg-up/7.0.1:

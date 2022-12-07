@@ -1,7 +1,12 @@
 <template>
   <main>
-    <!-- <v-chart
-    class="echarts" id="logo" :option="logo" :init-options="initOptions" autoresize />-->
+    <v-chart
+      class="echarts"
+      id="logo"
+      :option="logo"
+      :init-options="initOptions"
+      autoresize
+    />
     <h1>
       <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
     </h1>
@@ -328,8 +333,8 @@ import {
   DataZoomComponent
 } from "echarts/components";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
-// import "echarts-liquidfill";
-// import logo from "./data/logo";
+import "echarts-liquidfill";
+import logo from "./data/logo";
 import getBar from "./data/bar";
 import pie from "./data/pie";
 import polar from "./data/polar";
@@ -383,6 +388,7 @@ export default {
     const options = qs.parse(location.search, { ignoreQueryPrefix: true });
     return {
       options,
+      logo,
       bar: getBar(),
       pie,
       polar,
@@ -719,7 +725,6 @@ select {
   font: inherit;
   padding: 0 0.5em;
   transition: opacity 0.3s;
-  -webkit-appearance: none;
   transition: all 0.2s;
 
   &:focus {
@@ -888,10 +893,6 @@ figure {
       max-width: 40vw;
       border-radius: 2px;
       font-size: 0.8em;
-    }
-
-    select {
-      -webkit-appearance: none;
     }
 
     input[type="checkbox"] {
