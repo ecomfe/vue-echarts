@@ -26,7 +26,7 @@ To make `vue-echarts` work for *Vue 2* (<2.7.0), you need to have `@vue/composit
 npm i -D @vue/composition-api
 ```
 
-If you are using *NuxtJS* on top of *Vue 2* (<2.7.0), you'll also need `@nuxtjs/composition-api`:
+If you are using *NuxtJS* on top of *Vue 2*, you'll also need `@nuxtjs/composition-api`:
 
 ```sh
 npm i -D @nuxtjs/composition-api
