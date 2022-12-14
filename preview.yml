@@ -1,0 +1,11 @@
+# preview.yml
+autoOpen: true # 打开工作空间时是否自动开启所有应用的预览
+apps:
+  - port: 3000 # 应用的端口
+    run: pnpm install && pnpm serve # 应用的启动命令
+    command: # 使用此命令启动服务，且不执行run
+    preview: # 预览文件(文件路径),且不执行run和command命令
+    root: ./ # 应用的启动目录
+    name: vue-echarts # 应用名称
+    description: Vue.js component for Apache ECharts. # 应用描述
+    autoOpen: true # 打开工作空间时是否自动开启预览（优先级高于根级 autoOpen)

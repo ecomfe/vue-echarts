@@ -12,6 +12,10 @@ If you are migrating from `vue-echarts` ≤ 5, you should read the _[Migration t
 
 Not ready yet? Read documentation for older versions [here →](https://github.com/ecomfe/vue-echarts/tree/5.x)
 
+## Start On Cloud IDE
+
+[https://idegithub.com/ecomfe/vue-echarts](https://idegithub.com/ecomfe/vue-echarts)
+
 ## Installation & Usage
 
 ### npm & ESM

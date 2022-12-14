@@ -10,6 +10,10 @@
 
 没准备好的话，可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/5.x/README.zh_CN.md)
 
+## 在 Cloud IDE 中预览
+
+[https://idegithub.com/ecomfe/vue-echarts](https://idegithub.com/ecomfe/vue-echarts)
+
 ## 安装 & 使用
 
 ### npm & ESM
