@@ -1,3 +1,7 @@
+## 6.3.1
+
+* Revert the style change to prevent tooltips from being clipped.
+
 ## 6.3.0
 
 * Injected values can now be wrapped in an object so that they can be reactive in Vue 2.
