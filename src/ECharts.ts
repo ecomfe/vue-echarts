@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   defineComponent,
-  unref,
   shallowRef,
   toRefs,
   watch,
@@ -37,7 +36,7 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import { omitOn } from "./utils";
+import { omitOn, unwrapInjected } from "./utils";
 import "./style.css";
 
 const TAG_NAME = "x-vue-echarts";
@@ -81,12 +80,14 @@ export default defineComponent({
     const realOption = computed(
       () => manualOption.value || props.option || null
     );
-    const realTheme = computed(() => props.theme || unref(defaultTheme) || {});
+    const realTheme = computed(
+      () => props.theme || unwrapInjected(defaultTheme, {})
+    );
     const realInitOptions = computed(
-      () => props.initOptions || unref(defaultInitOptions) || {}
+      () => props.initOptions || unwrapInjected(defaultInitOptions, {})
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || unref(defaultUpdateOptions) || {}
+      () => props.updateOptions || unwrapInjected(defaultUpdateOptions, {})
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
 

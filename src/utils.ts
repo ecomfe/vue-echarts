@@ -1,3 +1,6 @@
+import { unref } from "vue-demi";
+import type { Injection } from "./types";
+
 type Attrs = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
@@ -17,4 +20,17 @@ export function omitOn(attrs: Attrs): Attrs {
   }
 
   return result;
+}
+
+export function unwrapInjected<T, V>(
+  injection: Injection<T>,
+  defaultValue: V
+): T | V {
+  const value = unref(injection);
+
+  if (value && typeof value === "object" && "value" in value) {
+    return value.value || defaultValue;
+  }
+
+  return value || defaultValue;
 }

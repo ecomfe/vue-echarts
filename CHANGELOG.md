@@ -1,3 +1,7 @@
+## 6.3.0
+
+* Injected values can now be wrapped in an object so that they can be reactive in Vue 2.
+
 ## 6.2.4
 
 * Fixed that attributes were not outputted onto the chart root element for Vue 2 (#670).

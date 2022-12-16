@@ -399,16 +399,16 @@ Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-opt
 <summary>Vue 3</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 import { provide } from 'vue'
 
 // composition API
-provide(INIT_OPTIONS_KEY, ...)
+provide(THEME_KEY, 'dark')
 
 // options API
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
@@ -419,16 +419,35 @@ provide(INIT_OPTIONS_KEY, ...)
 <summary>Vue 2</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 
 // in component options
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
 
+> **Note**
+>
+> You need to provide an object for Vue 2 if you want to change it dynamically.
+>
+> ```js
+> // in component options
+> {
+>   data () {
+>     return {
+>       theme: { value: 'dark' }
+>     }
+>   },
+>   provide () {
+>     return {
+>       [THEME_KEY]: this.theme
+>     }
+>   }
+> }
+> ```
 </details>
 
 ### Methods
@@ -464,6 +483,8 @@ You can bind events with Vue's `v-on` directive.
 </template>
 ```
 
+> **Note**
+>
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
 Vue-ECharts support the following events:

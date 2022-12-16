@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Ref, DefineComponent } from "vue-demi";
-import { Option, InitOptions, UpdateOptions, EChartsType } from "./types";
+import type { Ref, DefineComponent } from "vue-demi";
+import type { Option, InitOptions, UpdateOptions, EChartsType } from "./types";
 
 declare const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 declare const THEME_KEY = "ecTheme";

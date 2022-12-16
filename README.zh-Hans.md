@@ -400,6 +400,8 @@ Vue.component("v-chart", VueECharts);
 </template>
 ```
 
+> **Note**
+>
 > 仅支持 `.once` 修饰符，因为其它修饰符都与 DOM 事件机制强耦合。
 
 Vue-ECharts 支持如下事件：
@@ -458,16 +460,16 @@ Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options
 <summary>Vue 3</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 import { provide } from 'vue'
 
-// composition API
-provide(INIT_OPTIONS_KEY, ...)
+// 组合式 API
+provide(THEME_KEY, 'dark')
 
-// options API
+// 选项式 API
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
@@ -478,16 +480,35 @@ provide(INIT_OPTIONS_KEY, ...)
 <summary>Vue 2</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 
-// in component options
+// 组件选项中
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
 
+> **Note**
+>
+> 在 Vue 2 中，如果你想动态地改变这些选项，那么你需要提供一个对象。
+>
+> ```js
+> // 组件选项中
+> {
+>   data () {
+>     return {
+>       theme: { value: 'dark' }
+>     }
+>   },
+>   provide () {
+>     return {
+>       [THEME_KEY]: this.theme
+>     }
+>   }
+> }
+> ```
 </details>
 
 ### 方法

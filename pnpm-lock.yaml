@@ -38,7 +38,7 @@ specifiers:
   typescript: 4.6.4
   vue: ^3.2.33
   vue-demi: ^0.13.2
-  vue2: npm:vue@^2.7.4
+  vue2: npm:vue@^2.7.14
   webpack: ^5.72.1
 
 dependencies:
@@ -81,7 +81,7 @@ devDependencies:
   tslib: 2.4.0
   typescript: 4.6.4
   vue: 3.2.37
-  vue2: /vue/2.7.4
+  vue2: /vue/2.7.14
   webpack: 5.73.0
 
 packages:
@@ -2340,8 +2340,8 @@ packages:
       '@vue/compiler-core': 3.2.37
       '@vue/shared': 3.2.37
 
-  /@vue/compiler-sfc/2.7.4:
-    resolution: {integrity: sha512-WCaF33mlKLSvHDKvOD6FzTa5CI2FlMTeJf3MxJsNP0KDgRoI6RdXhHo9dtvCqV4Sywf9Owm17wTLT1Ymu/WsOQ==}
+  /@vue/compiler-sfc/2.7.14:
+    resolution: {integrity: sha512-aNmNHyLPsw+sVvlQFQ2/8sjNuLtK54TC6cuKnVzAY93ks4ZBrvwQSnkkIh7bsbNhum5hJBS00wSDipQ937f5DA==}
     dependencies:
       '@babel/parser': 7.18.6
       postcss: 8.4.14
@@ -7502,10 +7502,10 @@ packages:
     resolution: {integrity: sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==}
     dev: true
 
-  /vue/2.7.4:
-    resolution: {integrity: sha512-8KGyyzFSj/FrKj1y7jyEpv8J4osgZx6Lk1lVzh1aP4BqsXZhATH1r0gdJNz00MMyBhK0/m2cNoPuOZ1NzeiUEw==}
+  /vue/2.7.14:
+    resolution: {integrity: sha512-b2qkFyOM0kwqWFuQmgd4o+uHGU7T+2z3T+WQp8UBjADfEv2n4FEMffzBmCKNP0IGzOEEfYjvtcC62xaSKeQDrQ==}
     dependencies:
-      '@vue/compiler-sfc': 2.7.4
+      '@vue/compiler-sfc': 2.7.14
       csstype: 3.1.0
     dev: true
 
