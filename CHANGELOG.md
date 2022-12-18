@@ -1,3 +1,7 @@
+## 6.3.2
+
+* Added basic types for events (only event names).
+
 ## 6.3.1
 
 * Revert the style change to prevent tooltips from being clipped.

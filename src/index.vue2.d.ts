@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { Ref, DefineComponent } from "vue-demi";
-import type { Option, InitOptions, UpdateOptions, EChartsType } from "./types";
+import type {
+  Option,
+  InitOptions,
+  UpdateOptions,
+  EChartsType,
+  Emits
+} from "./types";
 
 declare const LOADING_OPTIONS_KEY = "ecLoadingOptions";
 declare const THEME_KEY = "ecTheme";
@@ -47,7 +53,10 @@ declare const Chart: DefineComponent<
   },
   {},
   {},
-  ChartMethods
+  ChartMethods,
+  {},
+  {},
+  Emits
 >;
 
 export default Chart;

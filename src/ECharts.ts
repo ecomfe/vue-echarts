@@ -27,7 +27,8 @@ import type {
   InitOptions,
   InitOptionsInjection,
   UpdateOptions,
-  UpdateOptionsInjection
+  UpdateOptionsInjection,
+  Emits
 } from "./types";
 import {
   usePublicAPI,
@@ -66,6 +67,7 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps
   },
+  emits: [] as unknown as Emits,
   inheritAttrs: false,
   setup(props, { attrs }) {
     const root = shallowRef<HTMLElement>();
