@@ -18,13 +18,13 @@
 $ npm install echarts vue-echarts
 ```
 
-要在 *Vue 2*（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
+要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
 
 ```sh
 npm i -D @vue/composition-api
 ```
 
-如果你在使用基于 *Vue 2*（<2.7.0）的 *NuxtJS*，那么还需要安装 `@nuxtjs/composition-api`：
+如果你在使用基于 _Vue 2_（<2.7.0）的 _NuxtJS_，那么还需要安装 `@nuxtjs/composition-api`：
 
 ```sh
 npm i -D @nuxtjs/composition-api
@@ -32,87 +32,7 @@ npm i -D @nuxtjs/composition-api
 
 然后在 `nuxt.config.js` 的 `buildModules` 选项中添加 `'@nuxtjs/composition-api/module'`。
 
-<details>
-<summary>Vue 3</summary>
-
-```js
-import { createApp } from 'vue'
-import ECharts from 'vue-echarts'
-import { use } from "echarts/core";
-
-// 手动引入 ECharts 各模块来减小打包体积
-import {
-  CanvasRenderer
-} from 'echarts/renderers'
-import {
-  BarChart
-} from 'echarts/charts'
-import {
-  GridComponent,
-  TooltipComponent
-} from 'echarts/components'
-
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent
-]);
-
-const app = createApp(...)
-
-// 全局注册组件（也可以使用局部注册）
-app.component('v-chart', ECharts)
-
-app.mount(...)
-```
-
-</details>
-
-<details>
-<summary>Vue 2</summary>
-
-```js
-import Vue from 'vue'
-import ECharts from 'vue-echarts'
-import { use } from 'echarts/core'
-// 手动引入 ECharts 各模块来减小打包体积
-
-import {
-  CanvasRenderer
-} from 'echarts/renderers'
-import {
-  BarChart
-} from 'echarts/charts'
-import {
-  GridComponent,
-  TooltipComponent
-} from 'echarts/components'
-
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent
-]);
-
-// 全局注册组件（也可以使用局部注册）
-Vue.component('v-chart', ECharts)
-
-new Vue(...)
-```
-
-</details>
-
-为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往 →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
-
-但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
-
-```js
-import "echarts";
-```
-
-#### 单文件组件示例
+#### 示例
 
 <details>
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3?file=src%2FApp.vue">Demo →</a></summary>
@@ -122,7 +42,7 @@ import "echarts";
   <v-chart class="chart" :option="option" />
 </template>
 
-<script>
+<script setup>
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from "echarts/charts";
@@ -132,7 +52,7 @@ import {
   LegendComponent
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
+import { ref, provide } from "vue";
 
 use([
   CanvasRenderer,
@@ -142,55 +62,44 @@ use([
   LegendComponent
 ]);
 
-export default defineComponent({
-  name: "HelloWorld",
-  components: {
-    VChart
-  },
-  provide: {
-    [THEME_KEY]: "dark"
-  },
-  setup: () => {
-    const option = ref({
-      title: {
-        text: "Traffic Sources",
-        left: "center"
-      },
-      tooltip: {
-        trigger: "item",
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
-      },
-      legend: {
-        orient: "vertical",
-        left: "left",
-        data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
-      },
-      series: [
-        {
-          name: "Traffic Sources",
-          type: "pie",
-          radius: "55%",
-          center: ["50%", "60%"],
-          data: [
-            { value: 335, name: "Direct" },
-            { value: 310, name: "Email" },
-            { value: 234, name: "Ad Networks" },
-            { value: 135, name: "Video Ads" },
-            { value: 1548, name: "Search Engines" }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: "rgba(0, 0, 0, 0.5)"
-            }
-          }
-        }
-      ]
-    });
+provide(THEME_KEY, "dark");
 
-    return { option };
-  }
+const option = ref({
+  title: {
+    text: "Traffic Sources",
+    left: "center"
+  },
+  tooltip: {
+    trigger: "item",
+    formatter: "{a} <br/>{b} : {c} ({d}%)"
+  },
+  legend: {
+    orient: "vertical",
+    left: "left",
+    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
+  },
+  series: [
+    {
+      name: "Traffic Sources",
+      type: "pie",
+      radius: "55%",
+      center: ["50%", "60%"],
+      data: [
+        { value: 335, name: "Direct" },
+        { value: 310, name: "Email" },
+        { value: 234, name: "Ad Networks" },
+        { value: 135, name: "Video Ads" },
+        { value: 1548, name: "Search Engines" }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: "rgba(0, 0, 0, 0.5)"
+        }
+      }
+    }
+  ]
 });
 </script>
 
@@ -297,13 +206,20 @@ export default {
 
 </details>
 
+为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往 →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+
+但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
+
+```js
+import "echarts";
+```
+
 ### CDN & 全局变量
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
 <details>
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
-
 
 <!-- vue3Scripts:start -->
 ```html
@@ -396,7 +312,7 @@ Vue.component("v-chart", VueECharts);
 
 ```vue
 <template>
-  <v-chart :option="option" @highlight="handleHighlight"/>
+  <v-chart :option="option" @highlight="handleHighlight" />
 </template>
 ```
 
@@ -509,6 +425,7 @@ import { THEME_KEY } from 'vue-echarts'
 >   }
 > }
 > ```
+
 </details>
 
 ### 方法

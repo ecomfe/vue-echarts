@@ -1,3 +1,7 @@
+## 6.3.3
+
+* Make autoresize work for grid layout by default (#675).
+
 ## 6.3.2
 
 * Added basic types for events (only event names).
