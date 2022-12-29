@@ -8,7 +8,7 @@ import {
   computed,
   inject,
   onMounted,
-  onUnmounted,
+  onBeforeUnmount,
   h,
   nextTick,
   watchEffect,
@@ -38,9 +38,10 @@ import {
   loadingProps
 } from "./composables";
 import { omitOn, unwrapInjected } from "./utils";
+import { register, TAG_NAME, type EChartsElement } from "./wc";
 import "./style.css";
 
-const TAG_NAME = "x-vue-echarts";
+const wcRegistered = register();
 
 if (Vue2) {
   Vue2.config.ignoredElements.push(TAG_NAME);
@@ -70,7 +71,7 @@ export default defineComponent({
   emits: [] as unknown as Emits,
   inheritAttrs: false,
   setup(props, { attrs }) {
-    const root = shallowRef<HTMLElement>();
+    const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
@@ -273,7 +274,17 @@ export default defineComponent({
       init();
     });
 
-    onUnmounted(cleanup);
+    onBeforeUnmount(() => {
+      if (wcRegistered && root.value) {
+        // For registered web component, we can leverage the
+        // `disconnectedCallback` to dispose the chart instance
+        // so that we can delay the cleanup after exsiting leaving
+        // transition.
+        root.value.__dispose = cleanup;
+      } else {
+        cleanup();
+      }
+    });
 
     return {
       chart,
