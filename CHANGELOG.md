@@ -1,3 +1,7 @@
+## 6.4.1
+
+* Improve typings for mouse event params.
+
 ## 6.4.0
 
 * Delay the disposal of the ECharts instance to the moment the element is disconnected from the DOM if possible (#433).

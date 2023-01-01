@@ -20,7 +20,7 @@ export type EventTarget = EChartsType | ZRenderType;
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
 
-type EChartsEventName =
+type EChartsMouseEventName =
   | "click"
   | "dblclick"
   | "mousedown"
@@ -29,7 +29,8 @@ type EChartsEventName =
   | "mouseover"
   | "mouseout"
   | "globalout"
-  | "contextmenu"
+  | "contextmenu";
+type EChartsOtherEventName =
   | "highlight"
   | "downplay"
   | "selectchanged"
@@ -77,7 +78,25 @@ type ZRenderEventName =
   | "dragover"
   | "drop"
   | "globalout";
-type EventName = EChartsEventName | `zr:${ZRenderEventName}`;
-export type Emits = {
-  [key in EventName]: null;
+type OtherEventName = EChartsOtherEventName | `zr:${ZRenderEventName}`;
+
+// See https://echarts.apache.org/en/api.html#events.Mouse%20events
+interface MouseEventParams {
+  componentType: string;
+  seriesType: string;
+  seriesIndex: number;
+  seriesName: string;
+  name: string;
+  dataIndex: number;
+  color: string;
+}
+
+type MouseEmits = {
+  [k in EChartsMouseEventName]: (params: MouseEventParams) => boolean;
 };
+
+type OtherEmits = {
+  [key in OtherEventName]: null;
+};
+
+export type Emits = MouseEmits & OtherEmits;
