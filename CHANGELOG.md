@@ -1,3 +1,8 @@
+## 6.5.0
+
+* Use more precise typings for all event params.
+* Updated peer deps for `echarts` to `^5.4.1`.
+
 ## 6.4.1
 
 * Improve typings for mouse event params.

@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "6.4.1",
+  "version": "6.5.0",
   "description": "Vue.js component for Apache ECharts.",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
@@ -40,7 +40,7 @@
     "@vue/eslint-config-typescript": "^10.0.0",
     "comment-mark": "^1.0.0",
     "core-js": "^3.23.0",
-    "echarts": "^5.3.2",
+    "echarts": "^5.4.1",
     "echarts-liquidfill": "^3.1.0",
     "eslint": "^7.20.0",
     "eslint-plugin-prettier": "^3.3.1",
@@ -67,7 +67,7 @@
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.0.5",
-    "echarts": "^5.1.2",
+    "echarts": "^5.4.1",
     "vue": "^2.6.12 || ^3.1.1"
   },
   "jsdelivr": "dist/index.umd.min.js",

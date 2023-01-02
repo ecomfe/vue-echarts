@@ -15,7 +15,7 @@ specifiers:
   '@vue/eslint-config-typescript': ^10.0.0
   comment-mark: ^1.0.0
   core-js: ^3.23.0
-  echarts: ^5.3.2
+  echarts: ^5.4.1
   echarts-liquidfill: ^3.1.0
   eslint: ^7.20.0
   eslint-plugin-prettier: ^3.3.1
@@ -60,8 +60,8 @@ devDependencies:
   '@vue/eslint-config-typescript': 10.0.0_yzev4ryi2uowr3tzgilgj3i2em
   comment-mark: 1.1.1
   core-js: 3.23.3
-  echarts: 5.3.3
-  echarts-liquidfill: 3.1.0_echarts@5.3.3
+  echarts: 5.4.1
+  echarts-liquidfill: 3.1.0_echarts@5.4.1
   eslint: 7.32.0
   eslint-plugin-prettier: 3.4.1_fqyzhpusvewbsl54pqqbxqaegm
   eslint-plugin-vue: 8.7.1_eslint@7.32.0
@@ -3925,19 +3925,19 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: true
 
-  /echarts-liquidfill/3.1.0_echarts@5.3.3:
+  /echarts-liquidfill/3.1.0_echarts@5.4.1:
     resolution: {integrity: sha512-5Dlqs/jTsdTUAsd+K5LPLLTgrbbNORUSBQyk8PSy1Mg2zgHDWm83FmvA4s0ooNepCJojFYRITTQ4GU1UUSKYLw==}
     peerDependencies:
       echarts: ^5.0.1
     dependencies:
-      echarts: 5.3.3
+      echarts: 5.4.1
     dev: true
 
-  /echarts/5.3.3:
-    resolution: {integrity: sha512-BRw2serInRwO5SIwRviZ6Xgm5Lb7irgz+sLiFMmy/HOaf4SQ+7oYqxKzRHAKp4xHQ05AuHw1xvoQWJjDQq/FGw==}
+  /echarts/5.4.1:
+    resolution: {integrity: sha512-9ltS3M2JB0w2EhcYjCdmtrJ+6haZcW6acBolMGIuf01Hql1yrIV01L1aRj7jsaaIULJslEP9Z3vKlEmnJaWJVQ==}
     dependencies:
       tslib: 2.3.0
-      zrender: 5.3.2
+      zrender: 5.4.1
     dev: true
 
   /ee-first/1.1.1:
@@ -7831,8 +7831,8 @@ packages:
       strip-indent: 2.0.0
     dev: true
 
-  /zrender/5.3.2:
-    resolution: {integrity: sha512-8IiYdfwHj2rx0UeIGZGGU4WEVSDEdeVCaIg/fomejg1Xu6OifAL1GVzIPHg2D+MyUkbNgPWji90t0a8IDk+39w==}
+  /zrender/5.4.1:
+    resolution: {integrity: sha512-M4Z05BHWtajY2241EmMPHglDQAJ1UyHQcYsxDNzD9XLSkPDqMq4bB28v9Pb4mvHnVQ0GxyTklZ/69xCFP6RXBA==}
     dependencies:
       tslib: 2.3.0
     dev: true
