@@ -24,7 +24,7 @@ $ npm install echarts vue-echarts
 npm i -D @vue/composition-api
 ```
 
-如果你在使用基于 _Vue 2_（<2.7.0）的 _NuxtJS_，那么还需要安装 `@nuxtjs/composition-api`：
+如果你在使用基于 _Vue 2_ 的 _NuxtJS_，那么还需要安装 `@nuxtjs/composition-api`：
 
 ```sh
 npm i -D @nuxtjs/composition-api
