@@ -20,7 +20,7 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 $ npm install echarts vue-echarts
 ```
 
-To make `vue-echarts` work for *Vue 2* (<2.7.0), you need to have `@vue/composition-api` installed:
+To make `vue-echarts` work for _Vue 2_ (<2.7.0), you need to have `@vue/composition-api` installed:
 
 ```sh
 npm i -D @vue/composition-api
@@ -34,87 +34,7 @@ npm i -D @nuxtjs/composition-api
 
 And then add `'@nuxtjs/composition-api/module'` in the `buildModules` option in your `nuxt.config.js`.
 
-<details>
-<summary>Vue 3</summary>
-
-```js
-import { createApp } from 'vue'
-import ECharts from 'vue-echarts'
-import { use } from "echarts/core"
-
-// import ECharts modules manually to reduce bundle size
-import {
-  CanvasRenderer
-} from 'echarts/renderers'
-import {
-  BarChart
-} from 'echarts/charts'
-import {
-  GridComponent,
-  TooltipComponent
-} from 'echarts/components'
-
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent
-])
-
-const app = createApp(...)
-
-// register globally (or you can do it locally)
-app.component('v-chart', ECharts)
-
-app.mount(...)
-```
-
-</details>
-
-<details>
-<summary>Vue 2</summary>
-
-```js
-import Vue from 'vue'
-import ECharts from 'vue-echarts'
-import { use } from 'echarts/core'
-
-// import ECharts modules manually to reduce bundle size
-import {
-  CanvasRenderer
-} from 'echarts/renderers'
-import {
-  BarChart
-} from 'echarts/charts'
-import {
-  GridComponent,
-  TooltipComponent
-} from 'echarts/components'
-
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent
-]);
-
-// register globally (or you can do it locally)
-Vue.component('v-chart', ECharts)
-
-new Vue(...)
-```
-
-</details>
-
-We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
-
-But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
-
-```js
-import "echarts";
-```
-
-#### SFC example
+#### Example
 
 <details>
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3?file=src%2FApp.vue">Demo →</a></summary>
@@ -124,7 +44,7 @@ import "echarts";
   <v-chart class="chart" :option="option" />
 </template>
 
-<script>
+<script setup>
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from "echarts/charts";
@@ -134,7 +54,7 @@ import {
   LegendComponent
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
+import { ref, provide } from "vue";
 
 use([
   CanvasRenderer,
@@ -144,55 +64,44 @@ use([
   LegendComponent
 ]);
 
-export default defineComponent({
-  name: "HelloWorld",
-  components: {
-    VChart
-  },
-  provide: {
-    [THEME_KEY]: "dark"
-  },
-  setup () {
-    const option = ref({
-      title: {
-        text: "Traffic Sources",
-        left: "center"
-      },
-      tooltip: {
-        trigger: "item",
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
-      },
-      legend: {
-        orient: "vertical",
-        left: "left",
-        data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
-      },
-      series: [
-        {
-          name: "Traffic Sources",
-          type: "pie",
-          radius: "55%",
-          center: ["50%", "60%"],
-          data: [
-            { value: 335, name: "Direct" },
-            { value: 310, name: "Email" },
-            { value: 234, name: "Ad Networks" },
-            { value: 135, name: "Video Ads" },
-            { value: 1548, name: "Search Engines" }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: "rgba(0, 0, 0, 0.5)"
-            }
-          }
-        }
-      ]
-    });
+provide(THEME_KEY, "dark");
 
-    return { option };
-  }
+const option = ref({
+  title: {
+    text: "Traffic Sources",
+    left: "center"
+  },
+  tooltip: {
+    trigger: "item",
+    formatter: "{a} <br/>{b} : {c} ({d}%)"
+  },
+  legend: {
+    orient: "vertical",
+    left: "left",
+    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
+  },
+  series: [
+    {
+      name: "Traffic Sources",
+      type: "pie",
+      radius: "55%",
+      center: ["50%", "60%"],
+      data: [
+        { value: 335, name: "Direct" },
+        { value: 310, name: "Email" },
+        { value: 234, name: "Ad Networks" },
+        { value: 135, name: "Video Ads" },
+        { value: 1548, name: "Search Engines" }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: "rgba(0, 0, 0, 0.5)"
+        }
+      }
+    }
+  ]
 });
 </script>
 
@@ -299,6 +208,14 @@ export default {
 
 </details>
 
+We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+
+But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
+
+```js
+import "echarts";
+```
+
 ### CDN & Global variable
 
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
@@ -310,7 +227,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.37"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.2.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -330,7 +247,7 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.2.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -399,16 +316,16 @@ Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-opt
 <summary>Vue 3</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 import { provide } from 'vue'
 
 // composition API
-provide(INIT_OPTIONS_KEY, ...)
+provide(THEME_KEY, 'dark')
 
 // options API
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
@@ -419,15 +336,35 @@ provide(INIT_OPTIONS_KEY, ...)
 <summary>Vue 2</summary>
 
 ```js
-import { INIT_OPTIONS_KEY } from 'vue-echarts'
+import { THEME_KEY } from 'vue-echarts'
 
 // in component options
 {
   provide: {
-    [INIT_OPTIONS_KEY]: { ... }
+    [THEME_KEY]: 'dark'
   }
 }
 ```
+
+> **Note**
+>
+> You need to provide an object for Vue 2 if you want to change it dynamically.
+>
+> ```js
+> // in component options
+> {
+>   data () {
+>     return {
+>       theme: { value: 'dark' }
+>     }
+>   },
+>   provide () {
+>     return {
+>       [THEME_KEY]: this.theme
+>     }
+>   }
+> }
+> ```
 
 </details>
 
@@ -460,10 +397,12 @@ You can bind events with Vue's `v-on` directive.
 
 ```vue
 <template>
-  <v-chart :option="option" @highlight="handleHighlight"/>
+  <v-chart :option="option" @highlight="handleHighlight" />
 </template>
 ```
 
+> **Note**
+>
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
 Vue-ECharts support the following events:

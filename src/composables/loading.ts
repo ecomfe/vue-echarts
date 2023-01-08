@@ -1,10 +1,10 @@
+import { unwrapInjected } from "../utils";
 import {
   inject,
-  unref,
   computed,
-  Ref,
   watchEffect,
-  InjectionKey
+  type Ref,
+  type InjectionKey
 } from "vue-demi";
 import { EChartsType } from "../types";
 
@@ -22,7 +22,7 @@ export function useLoading(
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
-    ...unref(defaultLoadingOptions),
+    ...unwrapInjected(defaultLoadingOptions, {}),
     ...loadingOptions?.value
   }));
 

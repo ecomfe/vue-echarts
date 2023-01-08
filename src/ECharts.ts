@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   defineComponent,
-  unref,
   shallowRef,
   toRefs,
   watch,
   computed,
   inject,
   onMounted,
-  onUnmounted,
+  onBeforeUnmount,
   h,
   nextTick,
   watchEffect,
@@ -28,7 +27,8 @@ import type {
   InitOptions,
   InitOptionsInjection,
   UpdateOptions,
-  UpdateOptionsInjection
+  UpdateOptionsInjection,
+  Emits
 } from "./types";
 import {
   usePublicAPI,
@@ -37,10 +37,11 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import { omitOn } from "./utils";
+import { omitOn, unwrapInjected } from "./utils";
+import { register, TAG_NAME, type EChartsElement } from "./wc";
 import "./style.css";
 
-const TAG_NAME = "x-vue-echarts";
+const wcRegistered = register();
 
 if (Vue2) {
   Vue2.config.ignoredElements.push(TAG_NAME);
@@ -67,9 +68,10 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps
   },
+  emits: [] as unknown as Emits,
   inheritAttrs: false,
   setup(props, { attrs }) {
-    const root = shallowRef<HTMLElement>();
+    const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
@@ -81,12 +83,14 @@ export default defineComponent({
     const realOption = computed(
       () => manualOption.value || props.option || null
     );
-    const realTheme = computed(() => props.theme || unref(defaultTheme) || {});
+    const realTheme = computed(
+      () => props.theme || unwrapInjected(defaultTheme, {})
+    );
     const realInitOptions = computed(
-      () => props.initOptions || unref(defaultInitOptions) || {}
+      () => props.initOptions || unwrapInjected(defaultInitOptions, {})
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || unref(defaultUpdateOptions) || {}
+      () => props.updateOptions || unwrapInjected(defaultUpdateOptions, {})
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
 
@@ -270,7 +274,17 @@ export default defineComponent({
       init();
     });
 
-    onUnmounted(cleanup);
+    onBeforeUnmount(() => {
+      if (wcRegistered && root.value) {
+        // For registered web component, we can leverage the
+        // `disconnectedCallback` to dispose the chart instance
+        // so that we can delay the cleanup after exsiting leaving
+        // transition.
+        root.value.__dispose = cleanup;
+      } else {
+        cleanup();
+      }
+    });
 
     return {
       chart,

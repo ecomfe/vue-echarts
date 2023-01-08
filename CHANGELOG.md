@@ -1,3 +1,32 @@
+## 6.5.0
+
+* Use more precise typings for all event params.
+* Updated peer deps for `echarts` to `^5.4.1`.
+
+## 6.4.1
+
+* Improve typings for mouse event params.
+
+## 6.4.0
+
+* Delay the disposal of the ECharts instance to the moment the element is disconnected from the DOM if possible (#433).
+
+## 6.3.3
+
+* Make autoresize work for grid layout by default (#675).
+
+## 6.3.2
+
+* Added basic types for events (only event names).
+
+## 6.3.1
+
+* Revert the style change to prevent tooltips from being clipped.
+
+## 6.3.0
+
+* Injected values can now be wrapped in an object so that they can be reactive in Vue 2.
+
 ## 6.2.4
 
 * Fixed that attributes were not outputted onto the chart root element for Vue 2 (#670).
