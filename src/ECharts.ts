@@ -68,7 +68,7 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps
   },
-  emits: [] as unknown as Emits,
+  emits: {} as unknown as Emits,
   inheritAttrs: false,
   setup(props, { attrs }) {
     const root = shallowRef<EChartsElement>();
