@@ -25,24 +25,27 @@ export type EventTarget = EChartsType | ZRenderType;
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
 
-type ElementEventName =
+type MouseEventName =
   | "click"
   | "dblclick"
-  | "mousewheel"
   | "mouseout"
   | "mouseover"
   | "mouseup"
   | "mousedown"
   | "mousemove"
   | "contextmenu"
+  | "globalout";
+
+type ElementEventName =
+  | MouseEventName
+  | "mousewheel"
   | "drag"
   | "dragstart"
   | "dragend"
   | "dragenter"
   | "dragleave"
   | "dragover"
-  | "drop"
-  | "globalout";
+  | "drop";
 
 type ZRenderEventName = `zr:${ElementEventName}`;
 
@@ -75,8 +78,8 @@ type OtherEventName =
   | "brushselected"
   | "globalcursortaken";
 
-type ElementEmits = {
-  [key in ElementEventName]: (params: ECElementEvent) => boolean;
+type MouseEmits = {
+  [key in MouseEventName]: (params: ECElementEvent) => boolean;
 };
 
 type ZRenderEmits = {
@@ -87,7 +90,7 @@ type OtherEmits = {
   [key in OtherEventName]: null;
 };
 
-export type Emits = ElementEmits &
+export type Emits = MouseEmits &
   OtherEmits & {
     rendered: (params: { elapsedTime: number }) => boolean;
     finished: () => boolean;
