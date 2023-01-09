@@ -1,3 +1,7 @@
+## 6.5.1
+
+* Fixed types for mouse events.
+
 ## 6.5.0
 
 * Use more precise typings for all event params.
