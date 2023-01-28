@@ -225,7 +225,7 @@ import "echarts";
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.37"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.2"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -245,7 +245,7 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.5"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.2"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -450,6 +450,10 @@ import { THEME_KEY } from 'vue-echarts'
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
+
+## CSP: `style-src` 或 `style-src-elem`
+
+如果你正在应用 CSP 来防止内联 `<style>` 注入，则需要使用 `dist/csp` 目录中的文件，并手动引入 `dist/csp/style.css`。
 
 ## 迁移到 v6
 

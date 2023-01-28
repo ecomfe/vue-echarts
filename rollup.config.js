@@ -4,6 +4,34 @@ import resolve from "@rollup/plugin-node-resolve";
 import styles from "rollup-plugin-styles";
 import { injectVueDemi } from "./scripts/rollup";
 
+/**
+ * Convert Rollup option to a style extracted/injected version
+ * @param {import('rollup').RollupOptions} option
+ * @param {boolean} extract
+ * @returns {import('rollup').RollupOptions}
+ */
+function handleStyle(option, extract) {
+  // inject styles plugin
+  const result = { ...option };
+  const { plugins, output } = result;
+  result.plugins = (plugins || []).concat(
+    extract ? styles({ mode: ["extract", "style.css"] }) : styles()
+  );
+
+  // modify output file names
+  if (extract && output) {
+    result.output = (Array.isArray(output) ? output : [output]).map(output => {
+      return {
+        ...output,
+        file: output.file.replace(/^dist\//, "dist/csp/"),
+        assetFileNames: "[name][extname]"
+      };
+    });
+  }
+
+  return result;
+}
+
 /** @type {import('rollup').RollupOptions[]} */
 const options = [
   {
@@ -15,8 +43,7 @@ const options = [
           outputPath: (path, kind) =>
             kind === "declaration" ? "dist/index.d.ts" : path
         }
-      }),
-      styles()
+      })
     ],
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: {
@@ -27,7 +54,7 @@ const options = [
   },
   {
     input: "src/index.ts",
-    plugins: [typescript(), styles()],
+    plugins: [typescript()],
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
@@ -65,7 +92,7 @@ const options = [
   },
   {
     input: "src/global.ts",
-    plugins: [resolve(), typescript(), styles()],
+    plugins: [resolve(), typescript()],
     external: ["vue-demi", "echarts", "echarts/core"],
     output: [
       {
@@ -105,4 +132,7 @@ const options = [
   }
 ];
 
-export default options;
+export default [
+  ...options.map(option => handleStyle(option, false)),
+  ...options.map(option => handleStyle(option, true))
+];

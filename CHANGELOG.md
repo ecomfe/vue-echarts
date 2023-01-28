@@ -1,3 +1,7 @@
+## 6.5.2
+
+* Added `dist/csp/*` to support strict CSP with extracted CSS file.
+
 ## 6.5.1
 
 * Fixed types for mouse events.
