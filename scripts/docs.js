@@ -1,16 +1,16 @@
-import fs from "fs";
-import { resolve } from "path";
-import commentMark from "comment-mark";
-import { name, version } from "../package.json";
+const fs = require("fs");
+const { resolve } = require("path");
+const commentMark = require("comment-mark");
+const { name, version } = require("../package.json");
 
 const { readFile, writeFile } = fs.promises;
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  "vue@3": "3.2.37",
-  "vue@2": "2.7.5",
-  echarts: "5.3.3",
+  "vue@3": "3.2.45",
+  "vue@2": "2.7.14",
+  echarts: "5.4.1",
   [name]: version
 };
 

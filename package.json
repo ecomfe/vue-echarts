@@ -10,7 +10,7 @@
     "build:3": "vue-demi-switch 3 && rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
     "build:demo": "vue-cli-service build",
-    "docs": "node -r esm ./scripts/docs.js",
+    "docs": "node ./scripts/docs.js",
     "postinstall": "node ./scripts/postinstall.js",
     "prepare": "pnpm run build"
   },
