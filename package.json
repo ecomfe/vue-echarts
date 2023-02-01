@@ -12,7 +12,7 @@
     "build:demo": "vue-cli-service build",
     "docs": "node ./scripts/docs.js",
     "postinstall": "node ./scripts/postinstall.js",
-    "prepare": "pnpm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "main": "dist/index.cjs.min.js",
   "module": "dist/index.esm.min.js",
