@@ -1,8 +1,14 @@
-# Vue-ECharts
+<h1 align="center">Vue-ECharts</h1>
 
-> Apache ECharts 的 Vue.js 组件。
+<p align="center">Apache ECharts 的 Vue.js 组件。</p>
 
-使用 [Apache ECharts](https://echarts.apache.org/zh/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
+<p align="center"><a href="https://vue-echarts.dev/">在线 Demo</a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="在 Codeflow 中打开" src="https://developer.stackblitz.com/img/open_in_codeflow_small.svg"/></a></p>
+
+---
+
+> 使用 [Apache ECharts](https://echarts.apache.org/zh/index.html) 5，同时支持 [Vue.js](https://vuejs.org/) 2/3。
+
 
 ## 💡 注意 💡
 

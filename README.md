@@ -1,10 +1,13 @@
-# Vue-ECharts
+<h1 align="center">Vue-ECharts</h1>
 
-> Vue.js component for Apache ECharts.
+<p align="center">Vue.js component for Apache ECharts.</p>
 
-> [🇨🇳 中文版](./README.zh-Hans.md)
+<p align="center"><a href="https://vue-echarts.dev/">Live Demo</a> · <a href="./README.zh-Hans.md">🇨🇳 中文版</a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow_small.svg"/></a></p>
 
-Uses [Apache ECharts](https://echarts.apache.org/en/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
+---
+
+> Uses [Apache ECharts](https://echarts.apache.org/en/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
 
 ## 💡 Heads up 💡
 
@@ -224,11 +227,13 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.2"></script>
 ```
+
 <!-- vue3Scripts:end -->
 
 ```js
@@ -244,11 +249,13 @@ app.component('v-chart', VueECharts)
 <summary>Vue 2 <a href="https://stackblitz.com/edit/vue-echarts-vue-2-global?file=index.html">Demo →</a></summary>
 
 <!-- vue2Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.2"></script>
 ```
+
 <!-- vue2Scripts:end -->
 
 ```js
