@@ -1,15 +1,12 @@
 <h1 align="center">Vue-ECharts</h1>
 
-<p align="center">Vue.js component for Apache ECharts.</p>
-
-<p align="center"><a href="https://vue-echarts.dev/">Live Demo</a> · <a href="./README.zh-Hans.md">🇨🇳 中文版</a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow_small.svg"/></a></p>
+<p align="center">Vue.js <sup>(v2/v3)</sup> component for Apache ECharts <sup>(v5)</sup>.</p>
+<p align="center"><a href="https://vue-echarts.dev/">View Demo →</a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a><a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"> <img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
 ---
 
-> Uses [Apache ECharts](https://echarts.apache.org/en/index.html) 5 and works for both [Vue.js](https://vuejs.org/) 2/3.
-
-## 💡 Heads up 💡
+<h2>💡 Heads up 💡 <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%F0%9F%87%A8%F0%9F%87%B3-%E4%B8%AD%E6%96%87%E7%89%88-white?labelColor=white" alt="前往中文版" align="right" height="24"/></a></h2>
 
 If you are migrating from `vue-echarts` ≤ 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
 
