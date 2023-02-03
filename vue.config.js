@@ -21,5 +21,8 @@ module.exports = {
       .test(/\.svg$/)
       .use("raw-loader")
       .loader("raw-loader");
+  },
+  devServer: {
+    allowedHosts: "all"
   }
 };
