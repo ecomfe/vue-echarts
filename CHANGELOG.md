@@ -1,3 +1,7 @@
+## 6.5.4
+
+* Cleaned up the `console.log` call sneaked in by mistake.
+
 ## 6.5.3
 
 * Fixed default behavior for `notMerge` option (#691).
