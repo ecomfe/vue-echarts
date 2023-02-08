@@ -1,3 +1,7 @@
+## 6.5.3
+
+* Fixed default behavior for `notMerge` option (#691).
+
 ## 6.5.2
 
 * Added `dist/csp/*` to support strict CSP with extracted CSS file.

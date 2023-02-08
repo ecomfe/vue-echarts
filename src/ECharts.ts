@@ -232,8 +232,11 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
+                console.log(`notMerge: ${option !== oldOption}`);
                 chart.value.setOption(option, {
-                  notMerge: option.value !== oldOption?.value,
+                  // mutating `option` will lead to `notMerge: false` and
+                  // replacing it with new reference will lead to `notMerge: true`
+                  notMerge: option !== oldOption,
                   ...realUpdateOptions.value
                 });
               }
