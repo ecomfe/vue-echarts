@@ -225,9 +225,9 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.47"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -246,8 +246,8 @@ app.component('v-chart', VueECharts)
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
 ```
 <!-- vue2Scripts:end -->
 
