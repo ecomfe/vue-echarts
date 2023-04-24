@@ -41,7 +41,8 @@ import { omitOn, unwrapInjected } from "./utils";
 import { register, TAG_NAME, type EChartsElement } from "./wc";
 import "./style.css";
 
-const wcRegistered = register();
+const __CSP__ = false;
+const wcRegistered = __CSP__ ? false : register();
 
 if (Vue2) {
   Vue2.config.ignoredElements.push(TAG_NAME);

@@ -1,25 +1,28 @@
 import typescript from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import styles from "rollup-plugin-styles";
 import { injectVueDemi } from "./scripts/rollup";
 
 /**
- * Convert Rollup option to a style extracted/injected version
- * @param {import('rollup').RollupOptions} option
- * @param {boolean} extract
- * @returns {import('rollup').RollupOptions}
+ * Modifies the Rollup options for a build to support strict CSP
+ * @param {import('rollup').RollupOptions} options the original options
+ * @param {boolean} csp whether to support strict CSP
+ * @returns {import('rollup').RollupOptions} the modified options
  */
-function handleStyle(option, extract) {
-  // inject styles plugin
-  const result = { ...option };
+function configBuild(options, csp) {
+  const result = { ...options };
   const { plugins, output } = result;
-  result.plugins = (plugins || []).concat(
-    extract ? styles({ mode: ["extract", "style.css"] }) : styles()
-  );
+
+  result.plugins = [
+    ...(csp ? [replace({ __CSP__: `${csp}`, preventAssignment: true })] : []),
+    ...plugins,
+    csp ? styles({ mode: ["extract", "style.css"] }) : styles()
+  ];
 
   // modify output file names
-  if (extract && output) {
+  if (csp && output) {
     result.output = (Array.isArray(output) ? output : [output]).map(output => {
       return {
         ...output,
@@ -33,7 +36,7 @@ function handleStyle(option, extract) {
 }
 
 /** @type {import('rollup').RollupOptions[]} */
-const options = [
+const builds = [
   {
     input: "src/index.ts",
     plugins: [
@@ -133,6 +136,6 @@ const options = [
 ];
 
 export default [
-  ...options.map(option => handleStyle(option, false)),
-  ...options.map(option => handleStyle(option, true))
+  ...builds.map(options => configBuild(options, false)),
+  ...builds.map(options => configBuild(options, true))
 ];
