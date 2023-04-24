@@ -1,3 +1,7 @@
+## 6.5.5
+
+* Removed the custom element registration enhancement for strict CSP builds so that they won't contain `new Function`.
+
 ## 6.5.4
 
 * Cleaned up the `console.log` call sneaked in by mistake.

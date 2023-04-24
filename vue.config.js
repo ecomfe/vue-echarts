@@ -21,6 +21,13 @@ module.exports = {
       .test(/\.svg$/)
       .use("raw-loader")
       .loader("raw-loader");
+
+    config.plugin("define").tap(([options]) => [
+      {
+        ...options,
+        __CSP__: "false"
+      }
+    ]);
   },
   devServer: {
     allowedHosts: "all"
