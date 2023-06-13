@@ -1,3 +1,7 @@
+## 6.6.0
+
+* Added support for `autoresize` accepting an options object to specify custom throttle delay or resize callback.
+
 ## 6.5.5
 
 * Removed the custom element registration enhancement for strict CSP builds so that they won't contain `new Function`.
