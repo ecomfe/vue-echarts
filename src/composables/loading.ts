@@ -4,21 +4,20 @@ import {
   computed,
   watchEffect,
   type Ref,
-  type InjectionKey
+  type InjectionKey,
+  type PropType
 } from "vue-demi";
-import { EChartsType } from "../types";
+import type { EChartsType, LoadingOptions } from "../types";
 
 export const LOADING_OPTIONS_KEY =
   "ecLoadingOptions" as unknown as InjectionKey<
-    UnknownRecord | Ref<UnknownRecord>
+    LoadingOptions | Ref<LoadingOptions>
   >;
-
-type UnknownRecord = Record<string, unknown>;
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
-  loadingOptions: Ref<UnknownRecord | undefined>
+  loadingOptions: Ref<LoadingOptions | undefined>
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
@@ -42,5 +41,5 @@ export function useLoading(
 
 export const loadingProps = {
   loading: Boolean,
-  loadingOptions: Object
+  loadingOptions: Object as PropType<LoadingOptions>
 };

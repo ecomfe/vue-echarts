@@ -8,7 +8,7 @@ const { readFile, writeFile } = fs.promises;
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  "vue@3": "3.2.47",
+  "vue@3": "3.3.4",
   "vue@2": "2.7.14",
   echarts: "5.4.2",
   [name]: version

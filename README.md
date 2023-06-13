@@ -225,9 +225,9 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.47"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -247,7 +247,7 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -290,9 +290,9 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/dem
 
   Group name to be used in chart [connection](https://echarts.apache.org/en/api.html#echarts.connect). See `echartsInstance.group` [here →](https://echarts.apache.org/en/api.html#echartsInstance.group)
 
-- `autoresize: boolean` (default: `false`)
+- `autoresize: boolean | { throttle?: number, onResize?: () => void }` (default: `false`)
 
-  Whether the chart should be resized automatically whenever its root is resized.
+  Whether the chart should be resized automatically whenever its root is resized. Use the options object to specify a custom throttle delay (in milliseconds) and/or an extra resize callback function.
 
 - `loading: boolean` (default: `false`)
 

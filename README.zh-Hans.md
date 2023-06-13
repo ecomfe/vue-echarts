@@ -225,9 +225,9 @@ import "echarts";
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.47"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -247,7 +247,7 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.5.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
@@ -290,9 +290,9 @@ Vue.component("v-chart", VueECharts);
 
   图表的分组，用于[联动](https://echarts.apache.org/zh/api.html#echarts.connect)。请参考 `echartsInstance.group`。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.group)
 
-- `autoresize: boolean`（默认值`false`）
+- `autoresize: boolean | { throttle?: number, onResize?: () => void }`（默认值`false`）
 
-  图表在组件根元素尺寸变化时是否需要自动进行重绘。
+  图表在组件根元素尺寸变化时是否需要自动进行重绘。也可以传入一个选项对象来指定自定义的节流延迟和尺寸变化时的额外回调函数。
 
 - `loading: boolean`（默认值：`false`）
 
