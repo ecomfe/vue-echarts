@@ -165,8 +165,8 @@
       </p>
     </section>
 
-    <!-- <h2 id="radar">
-      <a href="#radar">Radar chart <small>(with Vuex integration)</small></a>
+    <h2 id="radar">
+      <a href="#radar">Radar chart <small>(with Pinia integration)</small></a>
       <button
         :class="{
           round: true,
@@ -179,20 +179,35 @@
     <section v-if="expand.radar">
       <figure>
         <v-chart
-        class="echarts" :option="scoreRadar" :init-options="initOptions" autoresize />
+          :option="getRadarData(metricIndex)"
+          :init-options="initOptions"
+          autoresize
+        />
       </figure>
       <p>
         <select v-model="metricIndex">
-          <option v-for="(metric, index) in metrics" :value="index" :key="index"
-            >{{ metric }}
+          <option
+            v-for="(metric, index) in metrics"
+            :value="index"
+            :key="index"
+          >
+            {{ metric }}
           </option>
         </select>
-        <button @click="increase(1)" :disabled="isMax">Increase</button>
-        <button @click="increase(-1)" :disabled="isMin">Decrease</button>
-        <input id="async" type="checkbox" v-model="asyncCount" />
-        <label for="async">Async</label>
+        <button
+          @click="increase(metricIndex, 1)"
+          :disabled="isMax(metricIndex)"
+        >
+          Increase
+        </button>
+        <button
+          @click="increase(metricIndex, -1)"
+          :disabled="isMin(metricIndex)"
+        >
+          Decrease
+        </button>
       </p>
-    </section>-->
+    </section>
 
     <h2 id="connect">
       <a href="#connect">Connectable charts</a>
@@ -334,6 +349,7 @@ import {
 } from "echarts/components";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
 import "echarts-liquidfill";
+import { mapState, mapActions } from "pinia";
 import logo from "./data/logo";
 import getBar from "./data/bar";
 import pie from "./data/pie";
@@ -341,6 +357,7 @@ import polar from "./data/polar";
 import scatter from "./data/scatter";
 import map from "./data/map";
 import { c1, c2 } from "./data/connect";
+import { useScoreStore } from "./store";
 
 // custom theme
 import theme from "./theme.json";
@@ -434,12 +451,24 @@ export default {
       }
     };
   },
+  computed: {
+    autoresize() {
+      return { throttle: 200, onResize: this.handleResize };
+    },
+    ...mapState(useScoreStore, ["scores"]),
+    metrics() {
+      return this.scores.map(({ name }) => name);
+    }
+  },
   methods: {
     handleClick(...args) {
       console.log("click from echarts", ...args);
     },
     handleZrClick(...args) {
       console.log("click from zrender", ...args);
+    },
+    handleResize() {
+      console.log("resize");
     },
     refresh() {
       // simulating async data from server
@@ -566,7 +595,8 @@ export default {
     },
     stopActions() {
       clearInterval(this.actionTimer);
-    }
+    },
+    ...mapActions(useScoreStore, ["getRadarData", "increase", "isMax", "isMin"])
   },
   watch: {
     connected: {
