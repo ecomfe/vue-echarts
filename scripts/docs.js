@@ -1,16 +1,18 @@
-const fs = require("fs");
+const { readFileSync, writeFileSync } = require("fs");
 const { resolve } = require("path");
 const commentMark = require("comment-mark");
 const { name, version } = require("../package.json");
 
-const { readFile, writeFile } = fs.promises;
+function resolvePath(...parts) {
+  return resolve(__dirname, ...parts);
+}
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
   "vue@3": "3.3.4",
   "vue@2": "2.7.14",
-  echarts: "5.4.2",
+  echarts: "5.4.3",
   [name]: version
 };
 
@@ -39,29 +41,20 @@ const scripts = {
 };
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
-  resolve(__dirname, "..", name)
+  resolvePath("..", name)
 );
 
-function exec() {
-  return Promise.all(
-    README_FILES.map(async file => {
-      const content = await readFile(file, "utf8");
+README_FILES.forEach(file => {
+  const content = readFileSync(file, "utf8");
 
-      return writeFile(
-        file,
-        commentMark(content, {
-          vue2Scripts: getCodeBlock(scripts[2]),
-          vue3Scripts: getCodeBlock(scripts[3])
-        }),
-        "utf8"
-      );
-    })
+  writeFileSync(
+    file,
+    commentMark(content, {
+      vue2Scripts: getCodeBlock(scripts[2]),
+      vue3Scripts: getCodeBlock(scripts[3])
+    }),
+    "utf8"
   );
-}
+});
 
-async function main() {
-  await exec();
-  console.log("README files updated.");
-}
-
-main();
+console.log("README files updated.");
