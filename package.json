@@ -31,6 +31,7 @@
     "@rollup/plugin-replace": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
+    "@vercel/analytics": "^1.0.1",
     "@vue/cli-plugin-babel": "^5.0.7",
     "@vue/cli-plugin-eslint": "^5.0.7",
     "@vue/cli-plugin-typescript": "^5.0.7",
