@@ -1,3 +1,7 @@
+## 6.6.1
+
+* Make `padding` work out-of-the-box.
+
 ## 6.6.0
 
 * Added support for `autoresize` accepting an options object to specify custom throttle delay or resize callback.

@@ -73,6 +73,7 @@ export default defineComponent({
   inheritAttrs: false,
   setup(props, { attrs }) {
     const root = shallowRef<EChartsElement>();
+    const inner = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
@@ -99,12 +100,12 @@ export default defineComponent({
     const listeners = getCurrentInstance().proxy.$listeners;
 
     function init(option?: Option) {
-      if (!root.value) {
+      if (!inner.value) {
         return;
       }
 
       const instance = (chart.value = initChart(
-        root.value,
+        inner.value,
         realTheme.value,
         realInitOptions.value
       ));
@@ -271,7 +272,7 @@ export default defineComponent({
 
     useLoading(chart, loading, loadingOptions);
 
-    useAutoresize(chart, autoresize, root);
+    useAutoresize(chart, autoresize, inner);
 
     onMounted(() => {
       init();
@@ -292,6 +293,7 @@ export default defineComponent({
     return {
       chart,
       root,
+      inner,
       setOption,
       nonEventAttrs,
       ...publicApi
@@ -305,6 +307,6 @@ export default defineComponent({
     ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
-    return h(TAG_NAME, attrs);
+    return h(TAG_NAME, attrs, [h("div", { ref: "inner" })]);
   }
 });
