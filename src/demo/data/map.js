@@ -397,92 +397,95 @@ function convertData(data) {
   return res;
 }
 
-export default {
-  textStyle: {
-    fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif'
-  },
-  backgroundColor: "#404a59",
-  title: {
-    text: "Air quality of major cities in China",
-    subtext: "data from PM25.in",
-    sublink: "http://www.pm25.in",
-    left: "center",
+export default function getData() {
+  return {
     textStyle: {
-      color: "#fff"
-    }
-  },
-  tooltip: {
-    trigger: "item"
-  },
-  legend: {
-    orient: "vertical",
-    y: "bottom",
-    x: "right",
-    data: ["pm2.5"],
-    textStyle: {
-      color: "#fff"
-    }
-  },
-  geo: {
-    map: "china",
-    emphasis: {
-      label: {
-        show: false
-      },
-      itemStyle: {
-        areaColor: "#2a333d"
+      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+      fontWeight: 300
+    },
+    backgroundColor: "#404a59",
+    title: {
+      text: "Air quality of major cities in China",
+      subtext: "data from PM25.in",
+      sublink: "http://www.pm25.in",
+      left: "center",
+      textStyle: {
+        color: "#fff"
       }
     },
-    itemStyle: {
-      areaColor: "#323c48",
-      borderColor: "#111"
-    }
-  },
-  series: [
-    {
-      name: "pm2.5",
-      type: "scatter",
-      coordinateSystem: "geo",
-      data: convertData(data),
-      symbolSize: val => val[2] / 10,
-      tooltip: {
-        formatter: function (val) {
-          return val.name + ": " + val.value[2];
-        }
-      },
-      itemStyle: {
-        color: "#ddb926"
+    tooltip: {
+      trigger: "item"
+    },
+    legend: {
+      orient: "vertical",
+      y: "bottom",
+      x: "right",
+      data: ["pm2.5"],
+      textStyle: {
+        color: "#fff"
       }
     },
-    {
-      name: "Top 5",
-      type: "effectScatter",
-      coordinateSystem: "geo",
-      data: convertData(data.sort((a, b) => b.value - a.value).slice(0, 6)),
-      symbolSize: val => val[2] / 10,
-      showEffectOn: "render",
-      rippleEffect: {
-        brushType: "stroke"
-      },
+    geo: {
+      map: "china",
       emphasis: {
-        scale: true
-      },
-      tooltip: {
-        formatter: function (val) {
-          return val.name + ": " + val.value[2];
+        label: {
+          show: false
+        },
+        itemStyle: {
+          areaColor: "#2a333d"
         }
       },
-      label: {
-        formatter: "{b}",
-        position: "right",
-        show: true
-      },
       itemStyle: {
-        color: "#f4e925",
-        shadowBlur: 10,
-        shadowColor: "#333"
+        areaColor: "#323c48",
+        borderColor: "#111"
+      }
+    },
+    series: [
+      {
+        name: "pm2.5",
+        type: "scatter",
+        coordinateSystem: "geo",
+        data: convertData(data),
+        symbolSize: val => val[2] / 10,
+        tooltip: {
+          formatter: function (val) {
+            return val.name + ": " + val.value[2];
+          }
+        },
+        itemStyle: {
+          color: "#ddb926"
+        }
       },
-      zlevel: 1
-    }
-  ]
-};
+      {
+        name: "Top 5",
+        type: "effectScatter",
+        coordinateSystem: "geo",
+        data: convertData(data.sort((a, b) => b.value - a.value).slice(0, 6)),
+        symbolSize: val => val[2] / 10,
+        showEffectOn: "render",
+        rippleEffect: {
+          brushType: "stroke"
+        },
+        emphasis: {
+          scale: true
+        },
+        tooltip: {
+          formatter: function (val) {
+            return val.name + ": " + val.value[2];
+          }
+        },
+        label: {
+          formatter: "{b}",
+          position: "right",
+          show: true
+        },
+        itemStyle: {
+          color: "#f4e925",
+          shadowBlur: 10,
+          shadowColor: "#333"
+        },
+        zlevel: 1
+      }
+    ]
+  };
+}

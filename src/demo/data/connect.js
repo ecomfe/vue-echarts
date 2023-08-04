@@ -9,7 +9,11 @@ for (let i = 0; i < 16; i++) {
   ]);
 }
 
-export const c1 = {
+const c1 = {
+  textStyle: {
+    fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+    fontWeight: 300
+  },
   legend: {
     top: 20,
     data: ["scatter"]
@@ -57,7 +61,11 @@ export const c1 = {
   ]
 };
 
-export const c2 = {
+const c2 = {
+  textStyle: {
+    fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+    fontWeight: 300
+  },
   legend: {
     top: 20,
     data: ["scatter"]
@@ -103,3 +111,7 @@ export const c2 = {
     }
   ]
 };
+
+export default function getData() {
+  return [c1, c2];
+}

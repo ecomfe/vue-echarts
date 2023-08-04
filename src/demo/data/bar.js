@@ -5,7 +5,8 @@ function random() {
 export default function getData() {
   return {
     textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif'
+      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+      fontWeight: 300
     },
     dataset: {
       dimensions: ["Product", "2015", "2016", "2017"],

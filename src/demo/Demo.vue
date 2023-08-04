@@ -1,12 +1,7 @@
 <template>
   <main>
-    <v-chart
-      class="echarts"
-      id="logo"
-      :option="logo"
-      :init-options="initOptions"
-      autoresize
-    />
+    <logo-chart />
+
     <h1>
       <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
     </h1>
@@ -17,268 +12,14 @@
       >)
     </p>
 
-    <h2 id="bar">
-      <a href="#bar">
-        Bar chart
-        <small>(with async data &amp; custom theme)</small>
-      </a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.bar
-        }"
-        @click="expand.bar = !expand.bar"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.bar">
-      <figure>
-        <v-chart
-          :option="bar"
-          :init-options="initOptions"
-          ref="bar"
-          theme="ovilia-green"
-          autoresize
-          :loading="barLoading"
-          :loadingOptions="barLoadingOptions"
-          @zr:click="handleZrClick"
-          @click="handleClick"
-        />
-      </figure>
-      <p v-if="seconds <= 0">
-        <small>Loaded.</small>
-      </p>
-      <p v-else>
-        <small>
-          Data coming in
-          <b>{{ seconds }}</b>
-          second{{ seconds > 1 ? "s" : "" }}...
-        </small>
-      </p>
-      <p>
-        <button @click="refresh" :disabled="seconds > 0">Refresh</button>
-      </p>
-    </section>
-
-    <h2 id="pie">
-      <a href="#pie">
-        Pie chart
-        <small>(with action dispatch)</small>
-      </a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.pie
-        }"
-        @click="expand.pie = !expand.pie"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.pie">
-      <figure>
-        <v-chart
-          :option="pie"
-          :init-options="initOptions"
-          ref="pie"
-          autoresize
-        />
-      </figure>
-    </section>
-
-    <h2 id="polar">
-      <a href="#polar">
-        Polar plot
-        <small>(with built-in theme)</small>
-      </a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.polar
-        }"
-        @click="expand.polar = !expand.polar"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.polar">
-      <figure :style="polarTheme === 'dark' ? 'background-color: #100c2a' : ''">
-        <v-chart
-          :option="polar"
-          :init-options="initOptions"
-          :theme="polarTheme"
-          autoresize
-        />
-      </figure>
-      <p>
-        Theme
-        <select v-model="polarTheme">
-          <option :value="null">Default</option>
-          <option value="dark">Dark</option>
-        </select>
-      </p>
-    </section>
-
-    <h2 id="scatter">
-      <a href="#scatter">
-        Scatter plot
-        <small>(with gradient)</small>
-      </a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.scatter
-        }"
-        @click="expand.scatter = !expand.scatter"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.scatter">
-      <figure>
-        <v-chart :option="scatter" :init-options="initOptions" autoresize />
-      </figure>
-    </section>
-
-    <h2 id="map">
-      <a href="#map">
-        Map
-        <small>(with GeoJSON &amp; image converter)</small>
-      </a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.map
-        }"
-        @click="expand.map = !expand.map"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.map">
-      <figure style="background-color: #404a59">
-        <v-chart
-          :option="map"
-          :init-options="initOptions"
-          ref="map"
-          autoresize
-        />
-      </figure>
-      <p>
-        <button @click="convert">Convert to image</button>
-      </p>
-    </section>
-
-    <h2 id="radar">
-      <a href="#radar">Radar chart <small>(with Pinia integration)</small></a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.radar
-        }"
-        @click="expand.radar = !expand.radar"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.radar">
-      <figure>
-        <v-chart
-          :option="getRadarData(metricIndex)"
-          :init-options="initOptions"
-          autoresize
-        />
-      </figure>
-      <p>
-        <select v-model="metricIndex">
-          <option
-            v-for="(metric, index) in metrics"
-            :value="index"
-            :key="index"
-          >
-            {{ metric }}
-          </option>
-        </select>
-        <button
-          @click="increase(metricIndex, 1)"
-          :disabled="isMax(metricIndex)"
-        >
-          Increase
-        </button>
-        <button
-          @click="increase(metricIndex, -1)"
-          :disabled="isMin(metricIndex)"
-        >
-          Decrease
-        </button>
-      </p>
-    </section>
-
-    <h2 id="connect">
-      <a href="#connect">Connectable charts</a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.connect
-        }"
-        @click="expand.connect = !expand.connect"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.connect">
-      <figure class="half">
-        <v-chart
-          :option="c1"
-          :init-options="initOptions"
-          group="radiance"
-          ref="c1"
-          autoresize
-        />
-      </figure>
-      <figure class="half">
-        <v-chart
-          :option="c2"
-          :init-options="initOptions"
-          group="radiance"
-          ref="c2"
-          autoresize
-        />
-      </figure>
-      <p>
-        <label>
-          <input type="checkbox" v-model="connected" />
-          Connected
-        </label>
-      </p>
-    </section>
-
-    <h2 id="flight">
-      <a href="#flight">Manual updates</a>
-      <button
-        :class="{
-          round: true,
-          expand: expand.flight
-        }"
-        @click="expand.flight = !expand.flight"
-        aria-label="toggle"
-      ></button>
-    </h2>
-    <section v-if="expand.flight">
-      <p>
-        <small>
-          You may use
-          <code>manual-update</code> prop for performance critical use cases.
-        </small>
-      </p>
-      <p>
-        <button :disabled="flightLoaded" @click="loadFlights">Load</button>
-      </p>
-      <figure style="background-color: #003">
-        <v-chart
-          ref="flight"
-          :init-options="initOptions"
-          :option="flight"
-          autoresize
-          :loading="flightLoading"
-          :loading-options="flightLoadingOptions"
-        />
-      </figure>
-    </section>
+    <bar-chart />
+    <pie-chart />
+    <polar-chart />
+    <scatter-chart />
+    <geo-chart />
+    <radar-chart />
+    <connect-chart />
+    <manual-chart />
 
     <footer>
       <a href="//github.com/Justineo">@Justineo</a>|
@@ -287,10 +28,6 @@
       >|
       <a href="//github.com/ecomfe/vue-echarts">View on GitHub</a>
     </footer>
-
-    <aside :class="{ modal: true, open }" @click="open = false">
-      <img v-if="img.src" :src="img.src" :width="img.width" />
-    </aside>
 
     <aside class="renderer">
       <button
@@ -313,327 +50,41 @@
   </main>
 </template>
 
-<script>
-/* eslint-disable no-console */
+<script setup>
+import { ref, watch, provide } from "vue";
 import qs from "qs";
-import VChart from "../ECharts";
-
-import {
-  use,
-  registerMap,
-  registerTheme,
-  connect,
-  disconnect
-} from "echarts/core";
-import {
-  BarChart,
-  LineChart,
-  PieChart,
-  MapChart,
-  RadarChart,
-  ScatterChart,
-  EffectScatterChart,
-  LinesChart
-} from "echarts/charts";
-import {
-  GridComponent,
-  PolarComponent,
-  GeoComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  VisualMapComponent,
-  DatasetComponent,
-  ToolboxComponent,
-  DataZoomComponent
-} from "echarts/components";
+import { use } from "echarts/core";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
-import "echarts-liquidfill";
-import { mapState, mapActions } from "pinia";
-import logo from "./data/logo";
-import getBar from "./data/bar";
-import pie from "./data/pie";
-import polar from "./data/polar";
-import scatter from "./data/scatter";
-import map from "./data/map";
-import { c1, c2 } from "./data/connect";
-import { useScoreStore } from "./store";
+import { INIT_OPTIONS_KEY } from "../ECharts";
 
-// custom theme
-import theme from "./theme.json";
+import LogoChart from "./examples/LogoChart";
+import BarChart from "./examples/BarChart";
+import PieChart from "./examples/PieChart";
+import PolarChart from "./examples/PolarChart";
+import ScatterChart from "./examples/ScatterChart";
+import GeoChart from "./examples/GeoChart";
+import RadarChart from "./examples/RadarChart";
+import ConnectChart from "./examples/ConnectChart";
+import ManualChart from "./examples/ManualChart";
 
-// Map of China
-import chinaMap from "./china.json";
-import worldMap from "./world.json";
+use([CanvasRenderer, SVGRenderer]);
 
-use([
-  BarChart,
-  LineChart,
-  PieChart,
-  MapChart,
-  RadarChart,
-  ScatterChart,
-  EffectScatterChart,
-  LinesChart,
-  GridComponent,
-  PolarComponent,
-  GeoComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  VisualMapComponent,
-  DatasetComponent,
-  CanvasRenderer,
-  SVGRenderer,
-  ToolboxComponent,
-  DataZoomComponent
-]);
+const options = qs.parse(location.search, { ignoreQueryPrefix: true });
+const initOptions = ref({
+  renderer: options.renderer || "canvas"
+});
 
-// registering map data
-registerMap("china", chinaMap);
-registerMap("world", worldMap);
+provide(INIT_OPTIONS_KEY, initOptions);
 
-// registering custom theme
-registerTheme("ovilia-green", theme);
-
-export default {
-  name: "vue-echarts-demo",
-  components: {
-    VChart
-  },
-  data() {
-    const options = qs.parse(location.search, { ignoreQueryPrefix: true });
-    return {
-      options,
-      logo,
-      bar: getBar(),
-      pie,
-      polar,
-      scatter,
-      map,
-      c1,
-      c2,
-      expand: {
-        bar: true,
-        pie: true,
-        polar: true,
-        scatter: true,
-        map: true,
-        radar: true,
-        connect: true,
-        flight: true
-      },
-      initOptions: {
-        renderer: options.renderer || "canvas"
-      },
-      polarTheme: "dark",
-      seconds: -1,
-      asyncCount: false,
-      connected: true,
-      metricIndex: 0,
-      open: false,
-      img: {},
-      barLoading: false,
-      barLoadingOptions: {
-        text: "Loading…",
-        color: "#4ea397",
-        maskColor: "rgba(255, 255, 255, 0.4)"
-      },
-      flight: null,
-      flightLoaded: false,
-      flightLoading: false,
-      flightLoadingOptions: {
-        text: "",
-        color: "#c23531",
-        textColor: "rgba(255, 255, 255, 0.5)",
-        maskColor: "#003",
-        zlevel: 0
-      }
-    };
-  },
-  computed: {
-    autoresize() {
-      return { throttle: 200, onResize: this.handleResize };
-    },
-    ...mapState(useScoreStore, ["scores"]),
-    metrics() {
-      return this.scores.map(({ name }) => name);
-    }
-  },
-  methods: {
-    handleClick(...args) {
-      console.log("click from echarts", ...args);
-    },
-    handleZrClick(...args) {
-      console.log("click from zrender", ...args);
-    },
-    handleResize() {
-      console.log("resize");
-    },
-    refresh() {
-      // simulating async data from server
-      this.seconds = 3;
-      this.barLoading = true;
-      const timer = setInterval(() => {
-        this.seconds--;
-        if (this.seconds === 0) {
-          clearTimeout(timer);
-          this.barLoading = false;
-          this.bar = getBar();
-        }
-      }, 1000);
-    },
-    toggleRenderer() {
-      if (this.initOptions.renderer === "canvas") {
-        this.initOptions.renderer = "svg";
-      } else {
-        this.initOptions.renderer = "canvas";
-      }
-    },
-    convert() {
-      const map = this.$refs.map;
-      this.img = {
-        src: map.getDataURL({
-          pixelRatio: window.devicePixelRatio || 1
-        }),
-        width: map.getWidth(),
-        height: map.getHeight()
-      };
-      this.open = true;
-    },
-    loadFlights() {
-      this.flightLoaded = true;
-      this.flightLoading = true;
-
-      import("./data/flight.json").then(({ default: data }) => {
-        this.flightLoading = false;
-
-        function getAirportCoord(idx) {
-          return [data.airports[idx][3], data.airports[idx][4]];
-        }
-        const routes = data.routes.map(airline => {
-          return [getAirportCoord(airline[1]), getAirportCoord(airline[2])];
-        });
-
-        this.flight = {
-          textStyle: {
-            fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif'
-          },
-          title: {
-            text: "World Flights",
-            left: "center",
-            textStyle: {
-              color: "#eee"
-            }
-          },
-          backgroundColor: "#003",
-          tooltip: {
-            formatter(param) {
-              const route = data.routes[param.dataIndex];
-              return (
-                data.airports[route[1]][1] + " > " + data.airports[route[2]][1]
-              );
-            }
-          },
-          geo: {
-            map: "world",
-            left: 0,
-            right: 0,
-            silent: true,
-            itemStyle: {
-              borderColor: "#003",
-              color: "#005"
-            }
-          },
-          series: [
-            {
-              type: "lines",
-              coordinateSystem: "geo",
-              data: routes,
-              large: true,
-              largeThreshold: 100,
-              lineStyle: {
-                opacity: 0.05,
-                width: 0.5,
-                curveness: 0.3
-              },
-              blendMode: "lighter"
-            }
-          ]
-        };
-      });
-    },
-    startActions() {
-      let dataIndex = -1;
-      const pie = this.$refs.pie;
-
-      if (!pie) {
-        return;
-      }
-
-      const dataLen = pie.option.series[0].data.length;
-
-      this.actionTimer = setInterval(() => {
-        pie.dispatchAction({
-          type: "downplay",
-          seriesIndex: 0,
-          dataIndex
-        });
-        dataIndex = (dataIndex + 1) % dataLen;
-        pie.dispatchAction({
-          type: "highlight",
-          seriesIndex: 0,
-          dataIndex
-        });
-        // 显示 tooltip
-        pie.dispatchAction({
-          type: "showTip",
-          seriesIndex: 0,
-          dataIndex
-        });
-      }, 1000);
-    },
-    stopActions() {
-      clearInterval(this.actionTimer);
-    },
-    ...mapActions(useScoreStore, ["getRadarData", "increase", "isMax", "isMin"])
-  },
-  watch: {
-    connected: {
-      handler(value) {
-        if (value) {
-          connect("radiance");
-        } else {
-          disconnect("radiance");
-        }
-      },
-      immediate: true
-    },
-    "initOptions.renderer"(value) {
-      this.options.renderer = value === "svg" ? value : undefined;
-      let query = qs.stringify(this.options);
-      query = query ? "?" + query : "";
-      history.pushState(
-        {},
-        document.title,
-        `${location.origin}${location.pathname}${query}${location.hash}`
-      );
-    },
-    "expand.pie"(value) {
-      if (value) {
-        this.$nextTick(this.startActions);
-      } else {
-        this.stopActions();
-      }
-    }
-  },
-  mounted() {
-    this.startActions();
-  },
-  beforeUnmount() {
-    this.stopActions();
-  }
-};
+watch(initOptions.value, value => {
+  let query = qs.stringify(value);
+  query = query ? "?" + query : "";
+  history.pushState(
+    {},
+    document.title,
+    `${location.origin}${location.pathname}${query}${location.hash}`
+  );
+});
 </script>
 
 <style lang="postcss">
@@ -676,6 +127,10 @@ h2 {
   margin-top: 2em;
   padding-top: 1em;
   font-size: 1.2em;
+
+  small {
+    font-weight: 300;
+  }
 
   button {
     margin-left: 1em;
@@ -828,17 +283,14 @@ figure {
   display: inline-block;
   position: relative;
   margin: 2em auto;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 0 45px rgba(0, 0, 0, 0.2);
-  padding: 1.5em 2em;
-  min-width: calc(40vw + 4em);
 
   .echarts {
-    width: 100%;
-    width: 40vw;
-    min-width: 400px;
-    height: 300px;
+    height: 360px;
+    min-width: calc(40vw + 4em);
+    padding: 1.5em 2em;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -878,17 +330,15 @@ figure {
 
 @media (min-width: 980px) {
   figure.half {
-    padding: 1em 1.5em;
-    min-width: calc(240px + 3em);
-
     .echarts {
       width: 28vw;
       min-width: 240px;
+      padding: 1em 1.5em;
       height: 180px;
     }
 
-    &:not(:last-child) {
-      margin-right: 15px;
+    & + & {
+      margin-left: 30px;
     }
   }
 }
@@ -937,15 +387,15 @@ figure {
   figure {
     width: 100vw;
     margin: 1em auto;
-    padding: 1em 0;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
 
     .echarts {
       width: 100%;
       min-width: 0;
       height: 75vw;
+      padding: 1em 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
     }
   }
 }
