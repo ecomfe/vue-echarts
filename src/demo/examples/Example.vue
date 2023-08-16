@@ -2,20 +2,10 @@
   <h2 :id="id">
     <a :href="`#${id}`">
       {{ title }}
-      <small v-if="desc"
-        ><slot v-if="$slots.desc" /><template v-else>{{
-          desc
-        }}</template></small
-      >
+      <small v-if="desc">{{ desc }}</small>
     </a>
-    <button
-      class="round"
-      :class="{ expand }"
-      @click="expand = !expand"
-      aria-label="toggle"
-    ></button>
   </h2>
-  <section v-if="expand">
+  <section>
     <figure v-if="!split">
       <slot />
     </figure>
@@ -31,25 +21,19 @@
   </section>
 </template>
 
-<script>
-export default {
-  name: "v-example",
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-    title: {
-      type: String,
-      required: true
-    },
-    desc: String,
-    split: Boolean
+<script setup>
+import { defineProps } from "vue";
+
+defineProps({
+  id: {
+    type: String,
+    required: true
   },
-  data() {
-    return {
-      expand: true
-    };
-  }
-};
+  title: {
+    type: String,
+    required: true
+  },
+  desc: String,
+  split: Boolean
+});
 </script>

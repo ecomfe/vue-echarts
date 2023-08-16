@@ -19,8 +19,7 @@ module.exports = {
       .rule("svg")
       .clear()
       .test(/\.svg$/)
-      .use("raw-loader")
-      .loader("raw-loader");
+      .type("asset/source");
 
     config.plugin("define").tap(([options]) => [
       {

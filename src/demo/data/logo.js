@@ -1,6 +1,4 @@
-/* eslint-disable */
-import logo from '../assets/Vue-ECharts.svg'
-/* eslint-enable */
+import logo from "../assets/Vue-ECharts.svg";
 
 const d = logo.match(/\bd="([^"]+)"/)[1];
 

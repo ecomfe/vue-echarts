@@ -19,6 +19,7 @@
     <geo-chart />
     <radar-chart />
     <connect-chart />
+    <gl-chart />
     <manual-chart />
 
     <footer>
@@ -65,6 +66,7 @@ import ScatterChart from "./examples/ScatterChart";
 import GeoChart from "./examples/GeoChart";
 import RadarChart from "./examples/RadarChart";
 import ConnectChart from "./examples/ConnectChart";
+import GlChart from "./examples/GlChart";
 import ManualChart from "./examples/ManualChart";
 
 use([CanvasRenderer, SVGRenderer]);
@@ -137,6 +139,7 @@ h2 {
     vertical-align: middle;
   }
 }
+
 .desc {
   margin-bottom: 3em;
   color: #7f8c8d;
@@ -158,6 +161,7 @@ p small {
 p {
   line-height: 1.5;
 }
+
 pre {
   display: inline-block;
   padding: 0.8em;
@@ -171,16 +175,6 @@ code {
   font-family: "Roboto Mono", Monaco, courier, monospace;
 }
 
-pre code {
-  font-size: 0.8em;
-}
-
-.attr {
-  color: #e96900;
-}
-.val {
-  color: #42b983;
-}
 footer {
   margin: 5em 0 3em;
   font-size: 0.5em;
@@ -200,16 +194,16 @@ footer {
     border-bottom: 3px solid #42b983;
   }
 }
+
 button,
 select {
   border: 1px solid #4fc08d;
-  border-radius: 2em;
+  border-radius: 0.5em;
   background-color: #fff;
   color: #42b983;
   cursor: pointer;
   font: inherit;
   padding: 0 0.5em;
-  transition: opacity 0.3s;
   transition: all 0.2s;
 
   &:focus {
@@ -227,33 +221,6 @@ select {
   &[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  &.round {
-    width: 1.6em;
-    height: 1.6em;
-    position: relative;
-
-    &::before,
-    &::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 9px;
-      height: 1px;
-      background-color: #42b983;
-    }
-
-    &::after {
-      width: 1px;
-      height: 9px;
-    }
-
-    &.expand::after {
-      display: none;
-    }
   }
 }
 
@@ -276,7 +243,7 @@ button,
 label,
 select {
   font-size: 0.75em;
-  height: 2.4em;
+  height: 2em;
 }
 
 figure {
@@ -369,9 +336,9 @@ figure {
       flex: 1 0;
       margin: 0 0.5em;
       padding: 0;
-      line-height: 2.4em;
+      line-height: 2em;
       max-width: 40vw;
-      border-radius: 2px;
+      border-radius: 0.5em;
       font-size: 0.8em;
     }
 
@@ -384,6 +351,7 @@ figure {
       }
     }
   }
+
   figure {
     width: 100vw;
     margin: 1em auto;
@@ -399,18 +367,16 @@ figure {
     }
   }
 }
+
 .renderer {
   position: fixed;
   top: 10px;
   left: 10px;
   font-size: 16px;
-  text-align: center;
 
   button {
-    float: left;
     position: relative;
     width: 64px;
-    border-radius: 6px;
     border-color: #36485e;
     color: rgba(54, 72, 94, 0.8);
     font-weight: 500;

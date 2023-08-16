@@ -37,7 +37,7 @@ watch(
 </script>
 
 <template>
-  <v-example id="connect" title="Connectable Charts" split>
+  <v-example id="connect" title="Connectable charts" split>
     <template #start>
       <v-chart :option="c1" group="radiance" autoresize />
     </template>

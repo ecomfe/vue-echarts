@@ -98,12 +98,13 @@ function load() {
       :loading="loading"
       :loading-options="loadingOptions"
       style="background-color: #003"
+      manual-update
     />
-    <template #desc
-      >You may use <code>manual-update</code> prop for performance critical use
-      cases.</template
-    >
     <template #extra>
+      <p>
+        You may use the <code>manual-update</code> prop for performance critical
+        use cases.
+      </p>
       <p>
         <button :disabled="loaded" @click="load">Load</button>
       </p>
