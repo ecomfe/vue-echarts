@@ -17,19 +17,19 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 ### npm & ESM
 
 ```bash
-$ npm install echarts vue-echarts
+$ npm install --save echarts vue-echarts
 ```
 
 To make `vue-echarts` work for _Vue 2_ (<2.7.0), you need to have `@vue/composition-api` installed:
 
 ```sh
-npm i -D @vue/composition-api
+npm i --save @vue/composition-api
 ```
 
 If you are using _NuxtJS_ on top of _Vue 2_, you'll also need `@nuxtjs/composition-api`:
 
 ```sh
-npm i -D @nuxtjs/composition-api
+npm i --save @nuxtjs/composition-api
 ```
 
 And then add `'@nuxtjs/composition-api/module'` in the `buildModules` option in your `nuxt.config.js`.

@@ -17,19 +17,19 @@
 ### npm & ESM
 
 ```bash
-$ npm install echarts vue-echarts
+$ npm install --save echarts vue-echarts
 ```
 
 要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
 
 ```sh
-npm i -D @vue/composition-api
+npm i --save @vue/composition-api
 ```
 
 如果你在使用基于 _Vue 2_ 的 _NuxtJS_，那么还需要安装 `@nuxtjs/composition-api`：
 
 ```sh
-npm i -D @nuxtjs/composition-api
+npm i --save @nuxtjs/composition-api
 ```
 
 然后在 `nuxt.config.js` 的 `buildModules` 选项中添加 `'@nuxtjs/composition-api/module'`。
