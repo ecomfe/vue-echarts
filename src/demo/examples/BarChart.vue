@@ -69,7 +69,7 @@ function refresh() {
           second{{ seconds > 1 ? "s" : "" }}...
         </small>
       </p>
-      <p>
+      <p class="actions">
         <button @click="refresh" :disabled="seconds > 0">Refresh</button>
       </p>
     </template>

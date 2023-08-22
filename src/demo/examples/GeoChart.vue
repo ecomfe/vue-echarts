@@ -51,7 +51,7 @@ function convert() {
       style="background-color: #404a59"
     />
     <template #extra>
-      <p>
+      <p class="actions">
         <button @click="convert">Convert to image</button>
       </p>
       <aside class="modal" :class="{ open }" @click="open = false">

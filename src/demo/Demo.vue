@@ -247,13 +247,15 @@ select {
 }
 
 figure {
-  display: inline-block;
-  position: relative;
+  display: flex;
+  justify-content: center;
+  width: fit-content;
   margin: 2em auto;
 
   .echarts {
+    width: calc(60vw + 4em);
     height: 360px;
-    min-width: calc(40vw + 4em);
+    max-width: 720px;
     padding: 1.5em 2em;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -312,9 +314,6 @@ figure {
 
 @media (max-width: 980px) {
   p {
-    display: flex;
-    justify-content: center;
-
     select {
       text-indent: calc(50% - 1em);
     }
@@ -352,6 +351,11 @@ figure {
     }
   }
 
+  .actions {
+    display: flex;
+    justify-content: center;
+  }
+
   figure {
     width: 100vw;
     margin: 1em auto;
@@ -359,7 +363,7 @@ figure {
     .echarts {
       width: 100%;
       min-width: 0;
-      height: 75vw;
+      height: 60vw;
       padding: 1em 0;
       border: none;
       border-radius: 0;

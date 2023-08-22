@@ -105,7 +105,7 @@ function load() {
         You may use the <code>manual-update</code> prop for performance critical
         use cases.
       </p>
-      <p>
+      <p class="actions">
         <button :disabled="loaded" @click="load">Load</button>
       </p>
     </template>

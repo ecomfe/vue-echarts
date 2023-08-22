@@ -45,7 +45,7 @@ watch(
       <v-chart :option="c2" group="radiance" autoresize />
     </template>
     <template #extra>
-      <p>
+      <p class="actions">
         <label>
           <input type="checkbox" v-model="connected" />
           Connected

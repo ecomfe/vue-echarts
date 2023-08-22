@@ -22,7 +22,7 @@ const metricIndex = shallowRef(0);
   <v-example id="radar" title="Radar chart" desc="(with Pinia integration)">
     <v-chart :option="getRadarData(metricIndex)" autoresize />
     <template #extra>
-      <p>
+      <p class="actions">
         <select v-model="metricIndex">
           <option
             v-for="(metric, index) in metrics"

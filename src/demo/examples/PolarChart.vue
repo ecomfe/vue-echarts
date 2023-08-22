@@ -33,7 +33,7 @@ const theme = shallowRef("dark");
       :style="theme === 'dark' ? 'background-color: #100c2a' : ''"
     />
     <template #extra>
-      <p>
+      <p class="actions">
         Theme
         <select v-model="theme">
           <option :value="null">Default</option>
