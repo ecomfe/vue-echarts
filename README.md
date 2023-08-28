@@ -491,8 +491,8 @@ The following breaking changes are introduced in `vue-echarts@6`:
 ## Local development
 
 ```bash
-$ npm i
-$ npm run serve
+$ pnpm i
+$ pnpm serve
 ```
 
 Open `http://localhost:8080` to see the demo.

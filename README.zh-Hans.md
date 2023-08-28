@@ -491,8 +491,8 @@ import { THEME_KEY } from 'vue-echarts'
 ## 本地开发
 
 ```bash
-$ npm i
-$ npm run serve
+$ pnpm i
+$ pnpm serve
 ```
 
 打开 `http://localhost:8080` 来查看 demo。
