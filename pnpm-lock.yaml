@@ -16,6 +16,9 @@ devDependencies:
   '@babel/core':
     specifier: ^7.22.9
     version: 7.22.9
+  '@highlightjs/vue-plugin':
+    specifier: ^2.1.0
+    version: 2.1.0(highlight.js@11.8.0)(vue@3.3.4)
   '@rollup/plugin-node-resolve':
     specifier: ^15.1.0
     version: 15.1.0(rollup@2.79.1)
@@ -58,6 +61,9 @@ devDependencies:
   '@vue/eslint-config-typescript':
     specifier: ^10.0.0
     version: 10.0.0(eslint-plugin-vue@8.7.1)(eslint@7.32.0)(typescript@4.6.4)
+  '@vueuse/core':
+    specifier: ^10.4.1
+    version: 10.4.1(@vue/composition-api@1.7.1)(vue@3.3.4)
   comment-mark:
     specifier: ^1.1.1
     version: 1.1.1
@@ -82,6 +88,9 @@ devDependencies:
   eslint-plugin-vue:
     specifier: ^8.7.1
     version: 8.7.1(eslint@7.32.0)
+  highlight.js:
+    specifier: ^11.8.0
+    version: 11.8.0
   pinia:
     specifier: ^2.1.6
     version: 2.1.6(@vue/composition-api@1.7.1)(typescript@4.6.4)(vue@3.3.4)
@@ -97,9 +106,6 @@ devDependencies:
   prettier:
     specifier: ^2.8.8
     version: 2.8.8
-  qs:
-    specifier: ^6.11.2
-    version: 6.11.2
   raw-loader:
     specifier: ^4.0.2
     version: 4.0.2(webpack@5.88.2)
@@ -1440,6 +1446,16 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: true
 
+  /@highlightjs/vue-plugin@2.1.0(highlight.js@11.8.0)(vue@3.3.4):
+    resolution: {integrity: sha512-E+bmk4ncca+hBEYRV2a+1aIzIV0VSY/e5ArjpuSN9IO7wBJrzUE2u4ESCwrbQD7sAy+jWQjkV5qCCWgc+pu7CQ==}
+    peerDependencies:
+      highlight.js: ^11.0.1
+      vue: ^3
+    dependencies:
+      highlight.js: 11.8.0
+      vue: 3.3.4
+    dev: true
+
   /@humanwhocodes/config-array@0.5.0:
     resolution: {integrity: sha512-FagtKFz74XrTl7y6HCzQpwDfXP0yhxe9lHLD1UZxjvZIcbyRz8zTFF/yYNfSfzU414eDwZ1SrO0Qvtyf+wFMQg==}
     engines: {node: '>=10.10.0'}
@@ -1811,6 +1827,10 @@ packages:
 
   /@types/ua-parser-js@0.7.36:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
+    dev: true
+
+  /@types/web-bluetooth@0.0.17:
+    resolution: {integrity: sha512-4p9vcSmxAayx72yn70joFoL44c9MO/0+iVEBIQXe3v2h2SiAsEIo/G5v6ObFWvNKRFjbrVadNf9LqEEZeQPzdA==}
     dev: true
 
   /@types/webpack-env@1.18.1:
@@ -2695,6 +2715,31 @@ packages:
 
   /@vue/web-component-wrapper@1.3.0:
     resolution: {integrity: sha512-Iu8Tbg3f+emIIMmI2ycSI8QcEuAUgPTgHwesDU1eKMLE4YC/c/sFbGc70QgMq31ijRftV0R7vCm9co6rldCeOA==}
+    dev: true
+
+  /@vueuse/core@10.4.1(@vue/composition-api@1.7.1)(vue@3.3.4):
+    resolution: {integrity: sha512-DkHIfMIoSIBjMgRRvdIvxsyboRZQmImofLyOHADqiVbQVilP8VVHDhBX2ZqoItOgu7dWa8oXiNnScOdPLhdEXg==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.17
+      '@vueuse/metadata': 10.4.1
+      '@vueuse/shared': 10.4.1(@vue/composition-api@1.7.1)(vue@3.3.4)
+      vue-demi: 0.14.5(@vue/composition-api@1.7.1)(vue@3.3.4)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: true
+
+  /@vueuse/metadata@10.4.1:
+    resolution: {integrity: sha512-2Sc8X+iVzeuMGHr6O2j4gv/zxvQGGOYETYXEc41h0iZXIRnRbJZGmY/QP8dvzqUelf8vg0p/yEA5VpCEu+WpZg==}
+    dev: true
+
+  /@vueuse/shared@10.4.1(@vue/composition-api@1.7.1)(vue@3.3.4):
+    resolution: {integrity: sha512-vz5hbAM4qA0lDKmcr2y3pPdU+2EVw/yzfRsBdu+6+USGa4PxqSQRYIUC9/NcT06y+ZgaTsyURw2I9qOFaaXHAg==}
+    dependencies:
+      vue-demi: 0.14.5(@vue/composition-api@1.7.1)(vue@3.3.4)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
     dev: true
 
   /@webassemblyjs/ast@1.11.6:
@@ -4899,6 +4944,11 @@ packages:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
     dev: true
 
+  /highlight.js@11.8.0:
+    resolution: {integrity: sha512-MedQhoqVdr0U6SSnWPzfiadUcDHfN/Wzq25AkXiQv9oiOO/sG0S7XkvpFIqWBl9Yq1UYyYOOVORs5UW2XlPyzg==}
+    engines: {node: '>=12.0.0'}
+    dev: true
+
   /hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
@@ -6503,13 +6553,6 @@ packages:
 
   /qs@6.11.0:
     resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.4
-    dev: true
-
-  /qs@6.11.2:
-    resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4

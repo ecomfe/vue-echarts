@@ -1,3 +1,42 @@
+<script setup>
+import { provide, computed, ref, watch } from "vue";
+import { useUrlSearchParams } from "@vueuse/core";
+import { use } from "echarts/core";
+import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
+import { INIT_OPTIONS_KEY } from "../ECharts";
+
+import LogoChart from "./examples/LogoChart";
+import BarChart from "./examples/BarChart";
+import PieChart from "./examples/PieChart";
+import PolarChart from "./examples/PolarChart";
+import ScatterChart from "./examples/ScatterChart";
+import GeoChart from "./examples/GeoChart";
+import RadarChart from "./examples/RadarChart";
+import ConnectChart from "./examples/ConnectChart";
+import GlChart from "./examples/GlChart";
+import ManualChart from "./examples/ManualChart";
+
+import CodeGen from "./CodeGen";
+
+use([CanvasRenderer, SVGRenderer]);
+
+const params = useUrlSearchParams();
+const initOptions = computed(() => ({
+  renderer: params.renderer || "canvas"
+}));
+
+provide(INIT_OPTIONS_KEY, initOptions);
+
+const codeOpen = ref(location.hash === "#codegen");
+watch(codeOpen, open => {
+  if (open) {
+    location.hash = "#codegen";
+  } else {
+    location.hash = "";
+  }
+});
+</script>
+
 <template>
   <main>
     <logo-chart />
@@ -35,7 +74,7 @@
         :class="{
           active: initOptions.renderer === 'canvas'
         }"
-        @click="initOptions.renderer = 'canvas'"
+        @click="params.renderer = 'canvas'"
       >
         Canvas
       </button>
@@ -43,53 +82,23 @@
         :class="{
           active: initOptions.renderer === 'svg'
         }"
-        @click="initOptions.renderer = 'svg'"
+        @click="params.renderer = 'svg'"
       >
         SVG
       </button>
     </aside>
+
+    <aside class="codegen">
+      <button @click="codeOpen = true">
+        ✨ <code>import</code> Codegen <span class="badge">beta</span>
+      </button>
+    </aside>
+
+    <code-gen v-model:open="codeOpen" :renderer="initOptions.renderer" />
   </main>
 </template>
 
-<script setup>
-import { ref, watch, provide } from "vue";
-import qs from "qs";
-import { use } from "echarts/core";
-import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
-import { INIT_OPTIONS_KEY } from "../ECharts";
-
-import LogoChart from "./examples/LogoChart";
-import BarChart from "./examples/BarChart";
-import PieChart from "./examples/PieChart";
-import PolarChart from "./examples/PolarChart";
-import ScatterChart from "./examples/ScatterChart";
-import GeoChart from "./examples/GeoChart";
-import RadarChart from "./examples/RadarChart";
-import ConnectChart from "./examples/ConnectChart";
-import GlChart from "./examples/GlChart";
-import ManualChart from "./examples/ManualChart";
-
-use([CanvasRenderer, SVGRenderer]);
-
-const options = qs.parse(location.search, { ignoreQueryPrefix: true });
-const initOptions = ref({
-  renderer: options.renderer || "canvas"
-});
-
-provide(INIT_OPTIONS_KEY, initOptions);
-
-watch(initOptions.value, value => {
-  let query = qs.stringify(value);
-  query = query ? "?" + query : "";
-  history.pushState(
-    {},
-    document.title,
-    `${location.origin}${location.pathname}${query}${location.hash}`
-  );
-});
-</script>
-
-<style lang="postcss">
+<style>
 *,
 *::before,
 *::after {
@@ -167,12 +176,14 @@ pre {
   padding: 0.8em;
   background-color: #f9f9f9;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.125);
-  line-height: 1.1;
-  color: #2973b7;
+  font-size: 0.8em;
+  text-align: left;
 }
 pre,
-code {
-  font-family: "Roboto Mono", Monaco, courier, monospace;
+code,
+textarea {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 }
 
 footer {
@@ -196,7 +207,8 @@ footer {
 }
 
 button,
-select {
+select,
+input {
   border: 1px solid #4fc08d;
   border-radius: 0.5em;
   background-color: #fff;
@@ -240,27 +252,11 @@ p {
 }
 
 button,
+input,
 label,
 select {
   font-size: 0.75em;
   height: 2em;
-}
-
-figure {
-  display: flex;
-  justify-content: center;
-  width: fit-content;
-  margin: 2em auto;
-
-  .echarts {
-    width: calc(60vw + 4em);
-    height: 360px;
-    max-width: 720px;
-    padding: 1.5em 2em;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    box-shadow: 0 0 45px rgba(0, 0, 0, 0.2);
-  }
 }
 
 #logo {
@@ -278,37 +274,21 @@ figure {
   bottom: 0;
   left: 0;
   background-color: rgba(0, 0, 0, 0.2);
-  z-index: 1;
+  z-index: 2147483646;
 
   &.open {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   img {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background-color: #404a59;
     max-width: 80vw;
     border: 2px solid #fff;
     border-radius: 3px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-  }
-}
-
-@media (min-width: 980px) {
-  figure.half {
-    .echarts {
-      width: 28vw;
-      min-width: 240px;
-      padding: 1em 1.5em;
-      height: 180px;
-    }
-
-    & + & {
-      margin-left: 30px;
-    }
   }
 }
 
@@ -355,32 +335,12 @@ figure {
     display: flex;
     justify-content: center;
   }
-
-  figure {
-    width: 100vw;
-    margin: 1em auto;
-
-    .echarts {
-      width: 100%;
-      min-width: 0;
-      height: 60vw;
-      padding: 1em 0;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-    }
-  }
 }
 
-.renderer {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  font-size: 16px;
-
+.renderer,
+.codegen {
   button {
     position: relative;
-    width: 64px;
     border-color: #36485e;
     color: rgba(54, 72, 94, 0.8);
     font-weight: 500;
@@ -392,6 +352,17 @@ figure {
     &:active {
       background: rgba(54, 72, 94, 0.2);
     }
+  }
+}
+
+.renderer {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  font-size: 16px;
+
+  button {
+    width: 64px;
 
     &.active {
       z-index: 1;
@@ -409,6 +380,35 @@ figure {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+  }
+}
+
+.codegen {
+  display: flex;
+  position: fixed;
+  top: 10px;
+  left: 146px;
+
+  button {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    gap: 4px;
+
+    .badge {
+      display: block;
+      padding: 2px 3px;
+      font-size: 10px;
+      background: #36485e54;
+      color: #fff;
+      border-radius: 4px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .codegen {
+    display: none;
   }
 }
 </style>
