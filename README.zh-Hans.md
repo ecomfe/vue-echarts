@@ -8,6 +8,8 @@
 > [!IMPORTANT]
 > 我们新发布了一个[导入代码生成器](https://vue-echarts.dev/#codegen)，只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
 >
+> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
+>
 > [试一试 →](https://vue-echarts.dev/#codegen)
 
 ---

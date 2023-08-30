@@ -7,6 +7,8 @@
 > [!IMPORTANT]
 > We have released an [import code generator](https://vue-echarts.dev/#codegen) that can generate precise import code by pasting the `option` code.
 >
+> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
+>
 > [Try it →](https://vue-echarts.dev/#codegen)
 
 ---
