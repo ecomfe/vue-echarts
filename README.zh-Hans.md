@@ -4,6 +4,12 @@
 <p align="center"><a href="https://vue-echarts.dev/">查看 Demo →</a></p>
 <p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a><a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"> <img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
+
+> [!IMPORTANT]
+> 我们新发布了一个[导入代码生成器](https://vue-echarts.dev/#codegen)，只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
+>
+> [试一试 →](https://vue-echarts.dev/#codegen)
+
 ---
 
 ## 💡 注意 💡
@@ -208,7 +214,10 @@ export default {
 
 </details>
 
-为了更小的打包体积，我们建议手动从 ECharts 引入单个图表和组件。请参考所有支持的渲染器/图表/组件。[前往 →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+> [!IMPORTANT]
+> 我们鼓励手动从 ECharts 中引入组件和图表，以减小打包体积。我们已经为此构建了一个[导入代码生成器](https://vue-echarts.dev/#codegen)。你只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
+>
+> [试一试 →](https://vue-echarts.dev/#codegen)
 
 但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
 

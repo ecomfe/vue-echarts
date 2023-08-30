@@ -4,6 +4,11 @@
 <p align="center"><a href="https://vue-echarts.dev/">View Demo →</a></p>
 <p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a><a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"> <img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
+> [!IMPORTANT]
+> We have released an [import code generator](https://vue-echarts.dev/#codegen) that can generate precise import code by pasting the `option` code.
+>
+> [Try it →](https://vue-echarts.dev/#codegen)
+
 ---
 
 <h2>💡 Heads up 💡 <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%F0%9F%87%A8%F0%9F%87%B3-%E4%B8%AD%E6%96%87%E7%89%88-white?labelColor=white" alt="前往中文版" align="right" height="24"/></a></h2>
@@ -208,7 +213,10 @@ export default {
 
 </details>
 
-We encourage manually importing components and charts from ECharts for smaller bundle size. See all supported renderers/charts/components [here →](https://github.com/apache/echarts/blob/master/src/echarts.all.ts)
+> [!IMPORTANT]
+> We encourage manually importing components and charts from ECharts for smaller bundle size. We've built an [import code generator](https://vue-echarts.dev/#codegen) to help you with that. You can just paste in your `option` code and we'll generate the precise import code for you.
+>
+> [Try it →](https://vue-echarts.dev/#codegen)
 
 But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
 
