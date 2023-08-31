@@ -15,6 +15,7 @@ import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 import { initialize, transform } from "esbuild-wasm";
+import va from "@vercel/analytics";
 
 import { getImportsFromOption } from "./utils/codegen";
 
@@ -136,6 +137,7 @@ const messageOpen = ref(false);
 let messageTimer;
 
 function copy() {
+  va.track("copy-code");
   clearTimeout(messageTimer);
 
   navigator.clipboard.writeText(importCode.value);
