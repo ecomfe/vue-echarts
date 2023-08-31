@@ -79,6 +79,9 @@ devDependencies:
   echarts-liquidfill:
     specifier: ^3.1.0
     version: 3.1.0(echarts@5.4.3)
+  esbuild-wasm:
+    specifier: ^0.19.2
+    version: 0.19.2
   eslint:
     specifier: ^7.32.0
     version: 7.32.0
@@ -4233,6 +4236,12 @@ packages:
 
   /es-module-lexer@1.3.0:
     resolution: {integrity: sha512-vZK7T0N2CBmBOixhmjdqx2gWVbFZ4DXZ/NyRMZVlJXPa7CyFS+/a4QQsDGDQy9ZfEzxFuNEsMLeQJnKP2p5/JA==}
+    dev: true
+
+  /esbuild-wasm@0.19.2:
+    resolution: {integrity: sha512-ak2XIIJKby+Uo3Iqh8wtw4pn2uZcnfLgtcmBHIgkShpun5ZIJsFigWXp7uLt7gXk3QAOCMmv0TSsIxD5qdn+Vw==}
+    engines: {node: '>=12'}
+    hasBin: true
     dev: true
 
   /escalade@3.1.1:

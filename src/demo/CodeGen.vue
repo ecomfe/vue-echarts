@@ -5,7 +5,8 @@ import {
   watch,
   onBeforeUnmount,
   defineProps,
-  defineEmits
+  defineEmits,
+  onMounted
 } from "vue";
 import { useLocalStorage } from "@vueuse/core";
 import "highlight.js/styles/github.css";
@@ -13,6 +14,7 @@ import hljs from "highlight.js/lib/core";
 import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
+import { initialize, transform } from "esbuild-wasm";
 
 import { getImportsFromOption } from "./utils/codegen";
 
@@ -56,37 +58,76 @@ watch(
     }
 
     setTimeout(() => {
+      if (initializing.value) {
+        return;
+      }
       source.value?.focus();
     });
   }
 );
 
+const initializing = ref(true);
 const optionCode = ref("");
+const transformedCode = ref("");
+const transformErrors = ref([]);
+
+onMounted(async () => {
+  await initialize({
+    wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.19.2/esbuild.wasm"
+  });
+
+  initializing.value = false;
+  source.value?.focus();
+});
+
+watch(optionCode, async val => {
+  try {
+    transformedCode.value = await transform(`(${val})`, { loader: "ts" });
+    transformErrors.value = [];
+  } catch (e) {
+    transformErrors.value = e.errors;
+  }
+});
+
+function formatError(errors) {
+  return errors
+    .map(({ text, location: { lineText, line, column, length } }) => {
+      const digit = Math.ceil(Math.log10(line)) || 1;
+      lineText = line === 1 ? lineText.slice(1) : lineText;
+      lineText =
+        line === optionCode.value.split("\n").length
+          ? lineText.slice(0, -1)
+          : lineText;
+      column = line === 1 ? column - 1 : column;
+
+      return `/* ${text} */
+
+// ${line} | ${lineText}
+// ${" ".repeat(digit)} | ${" ".repeat(column)}${"~".repeat(length)}
+`;
+    })
+    .join("\n\n");
+}
+
 const importCode = computed(() => {
   if (optionCode.value.trim() === "") {
-    return "/* Paste your option code first */";
+    return "// Paste your option code first";
   }
 
-  let option = null;
-  try {
-    option = JSON.parse(optionCode.value);
-  } catch (e) {
-    try {
-      option = eval(`(${optionCode.value})`);
-    } catch (e) {
-      return `/* Unable to parse \`option\` code */
-// ${e.message}
-`;
-    }
+  if (transformErrors.value.length) {
+    return formatError(transformErrors.value);
   }
 
   try {
-    return getImportsFromOption(option, {
+    return getImportsFromOption(eval(transformedCode.value.code), {
       renderer: renderer.value,
       ...codegenOptions.value
     });
   } catch (e) {
-    return `/* Invalid ECharts option */`;
+    return `/* Invalid ECharts option */
+
+// ${e.message}
+`;
   }
 });
 
@@ -169,7 +210,12 @@ onBeforeUnmount(() => {
           ref="source"
           class="option-code"
           v-model="optionCode"
-          placeholder="Paste your option code here..."
+          :placeholder="
+            initializing
+              ? 'Initializing...'
+              : 'Paste your option code (TS/JS literal) here...'
+          "
+          :disabled="initializing"
           autofocus
         ></textarea>
         <code-highlight
