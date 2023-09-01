@@ -6,7 +6,8 @@ import {
   onBeforeUnmount,
   defineProps,
   defineEmits,
-  onMounted
+  onMounted,
+  nextTick
 } from "vue";
 import { useLocalStorage } from "@vueuse/core";
 import "highlight.js/styles/github.css";
@@ -53,17 +54,17 @@ const renderer = ref(props.renderer);
 const source = ref(null);
 watch(
   () => props.open,
-  val => {
+  async val => {
     if (val) {
       renderer.value = props.renderer;
     }
 
-    setTimeout(() => {
-      if (initializing.value) {
-        return;
-      }
-      source.value?.focus();
-    });
+    await nextTick();
+
+    if (initializing.value) {
+      return;
+    }
+    source.value?.focus();
   }
 );
 
@@ -78,6 +79,9 @@ onMounted(async () => {
   });
 
   initializing.value = false;
+
+  await nextTick();
+
   source.value?.focus();
 });
 
