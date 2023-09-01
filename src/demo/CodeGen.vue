@@ -256,7 +256,7 @@ input::-webkit-inner-spin-button {
 
 /* Works for Firefox */
 input[type="number"] {
-  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 input[type="text"],
@@ -327,6 +327,7 @@ input[type="number"] {
     border-left: 1px solid rgba(0, 0, 0, 0.1);
 
     pre {
+      display: block;
       width: 100%;
       height: 100%;
       margin: 0;
