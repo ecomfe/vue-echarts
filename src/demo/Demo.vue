@@ -187,7 +187,6 @@ pre {
   padding: 0.8em;
   background-color: #f9f9f9;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.125);
-  font-size: 0.8em;
   text-align: left;
 }
 pre,

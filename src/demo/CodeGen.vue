@@ -136,8 +136,13 @@ const importCode = computed(() => {
 const messageOpen = ref(false);
 let messageTimer;
 
+function trackCopy(from) {
+  va.track("copy-code", { from });
+  console.log("copied");
+}
+
 function copy() {
-  va.track("copy-code");
+  trackCopy("button");
   clearTimeout(messageTimer);
 
   navigator.clipboard.writeText(importCode.value);
@@ -220,15 +225,16 @@ onBeforeUnmount(() => {
           :disabled="initializing"
           autofocus
         ></textarea>
-        <code-highlight
-          class="import-code"
-          :language="codegenOptions.includeType ? 'typescript' : 'javascript'"
-          :code="importCode"
-        />
+        <div class="import-code" @copy="trackCopy('system')">
+          <code-highlight
+            :language="codegenOptions.includeType ? 'typescript' : 'javascript'"
+            :code="importCode"
+          />
+        </div>
         <button
           class="copy"
           @click="copy"
-          :disabled="importCode.startsWith('/*')"
+          :disabled="importCode.startsWith('/*') || importCode.startsWith('//')"
         >
           Copy
         </button>
@@ -307,8 +313,8 @@ input[type="number"] {
   min-height: 0;
   tab-size: 4;
 
-  textarea,
-  pre {
+  .option-code,
+  .import-code {
     flex: 0 0 50%;
     margin: 0;
     border: none;
@@ -317,18 +323,24 @@ input[type="number"] {
     overflow: auto;
   }
 
-  pre {
-    padding: 0;
+  .import-code {
     border-left: 1px solid rgba(0, 0, 0, 0.1);
-    background: #fff;
-    box-shadow: none;
+
+    pre {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      box-shadow: none;
+    }
 
     code {
       height: 100%;
     }
   }
 
-  textarea {
+  .option-code {
     padding: 1em;
     outline: none;
     resize: none;
