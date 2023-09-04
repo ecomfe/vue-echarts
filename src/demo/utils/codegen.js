@@ -312,13 +312,15 @@ function buildMinimalBundleCode(
     importStatements.push(
       `import type { ComposeOption } from ${quote}echarts/core${quote}${semiStr}`
     );
-    const importTypeStatements = importSources.map(([imports, mod]) =>
-      importItems(
-        imports.filter(a => a.endsWith("Option")),
-        mod,
-        { ...options, type: true }
+    const importTypeStatements = importSources
+      .map(([imports, mod]) =>
+        importItems(
+          imports.filter(a => a.endsWith("Option")),
+          mod,
+          { ...options, type: true }
+        )
       )
-    );
+      .filter(Boolean);
     importStatements.push(...importTypeStatements);
   }
 
