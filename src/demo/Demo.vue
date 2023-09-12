@@ -152,6 +152,7 @@ h2 {
 
   small {
     font-weight: 300;
+    opacity: 0.7;
   }
 
   button {
@@ -169,10 +170,6 @@ h2 {
   }
 }
 
-h2 small {
-  opacity: 0.7;
-}
-
 p small {
   font-size: 0.8em;
   color: #7f8c8d;
@@ -180,6 +177,13 @@ p small {
 
 p {
   line-height: 1.5;
+
+  button + button,
+  button + select,
+  select + button,
+  select + select {
+    margin-left: 0.5em;
+  }
 }
 
 pre {
@@ -250,15 +254,6 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-p {
-  button + button,
-  button + select,
-  select + button,
-  select + select {
-    margin-left: 0.5em;
-  }
 }
 
 button,
