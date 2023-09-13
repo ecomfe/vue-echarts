@@ -4,7 +4,7 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { use } from "echarts/core";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
 import { INIT_OPTIONS_KEY } from "../ECharts";
-import va from "@vercel/analytics";
+import { track } from "@vercel/analytics";
 
 import LogoChart from "./examples/LogoChart";
 import BarChart from "./examples/BarChart";
@@ -31,12 +31,12 @@ provide(INIT_OPTIONS_KEY, initOptions);
 const codeOpen = ref(location.hash === "#codegen");
 
 if (codeOpen.value) {
-  va.track("codegen", { from: "link" });
+  track("codegen", { from: "link" });
 }
 
 function openCodegen() {
   codeOpen.value = true;
-  va.track("codegen", { from: "click" });
+  track("codegen", { from: "click" });
 }
 
 watch(codeOpen, open => {
