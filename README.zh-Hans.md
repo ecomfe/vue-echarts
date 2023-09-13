@@ -25,7 +25,7 @@
 ### npm & ESM
 
 ```bash
-$ npm install echarts vue-echarts
+npm install echarts vue-echarts
 ```
 
 要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
@@ -502,8 +502,8 @@ import { THEME_KEY } from 'vue-echarts'
 ## 本地开发
 
 ```bash
-$ pnpm i
-$ pnpm serve
+pnpm i
+pnpm serve
 ```
 
 打开 `http://localhost:8080` 来查看 demo。

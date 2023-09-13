@@ -24,7 +24,7 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 ### npm & ESM
 
 ```bash
-$ npm install echarts vue-echarts
+npm install echarts vue-echarts
 ```
 
 To make `vue-echarts` work for _Vue 2_ (<2.7.0), you need to have `@vue/composition-api` installed:
@@ -501,8 +501,8 @@ The following breaking changes are introduced in `vue-echarts@6`:
 ## Local development
 
 ```bash
-$ pnpm i
-$ pnpm serve
+pnpm i
+pnpm serve
 ```
 
 Open `http://localhost:8080` to see the demo.
