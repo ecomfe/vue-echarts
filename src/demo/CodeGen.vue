@@ -68,6 +68,7 @@ watch(
   }
 );
 
+const copied = ref(false);
 const initializing = ref(true);
 const optionCode = ref("");
 const transformedCode = ref("");
@@ -136,13 +137,22 @@ const importCode = computed(() => {
   }
 });
 
+watch(importCode, () => {
+  copied.value = false;
+});
+
 // copy message
 const messageOpen = ref(false);
 let messageTimer;
 
 function trackCopy(from) {
+  if (copied.value) {
+    // only track copy after modifications
+    return;
+  }
+
+  copied.value = true;
   track("copy-code", { from });
-  console.log("copied");
 }
 
 function copy() {
