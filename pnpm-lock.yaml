@@ -80,8 +80,8 @@ devDependencies:
     specifier: ^3.1.0
     version: 3.1.0(echarts@5.4.3)
   esbuild-wasm:
-    specifier: ^0.19.5
-    version: 0.19.5
+    specifier: ^0.19.2
+    version: 0.19.2
   eslint:
     specifier: ^7.32.0
     version: 7.32.0
@@ -4239,8 +4239,8 @@ packages:
     resolution: {integrity: sha512-JUFAyicQV9mXc3YRxPnDlrfBKpqt6hUYzz9/boprUJHs4e4KVr3XwOF70doO6gwXUor6EWZJAyWAfKki84t20Q==}
     dev: true
 
-  /esbuild-wasm@0.19.5:
-    resolution: {integrity: sha512-7zmLLn2QCj93XfMmHtzrDJ1UBuOHB2CZz1ghoCEZiRajxjUvHsF40PnbzFIY/pmesqPRaEtEWii0uzsTbnAgrA==}
+  /esbuild-wasm@0.19.2:
+    resolution: {integrity: sha512-ak2XIIJKby+Uo3Iqh8wtw4pn2uZcnfLgtcmBHIgkShpun5ZIJsFigWXp7uLt7gXk3QAOCMmv0TSsIxD5qdn+Vw==}
     engines: {node: '>=12'}
     hasBin: true
     dev: true
