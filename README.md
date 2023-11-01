@@ -2,7 +2,7 @@
 
 <p align="center">Vue.js <sup>(v2/v3)</sup> component for Apache ECharts <sup>(v5)</sup>.</p>
 <p align="center"><a href="https://vue-echarts.dev/">View Demo →</a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a><a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"> <img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
 > [!IMPORTANT]
 > We have released an [import code generator](https://vue-echarts.dev/#codegen) that can generate precise import code by pasting the `option` code.
@@ -235,7 +235,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
 ```
@@ -255,7 +255,7 @@ app.component('v-chart', VueECharts)
 
 <!-- vue2Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.15"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
 ```

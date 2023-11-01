@@ -2,7 +2,7 @@
 
 <p align="center">Apache ECharts <sup>(v5)</sup> 的 Vue.js <sup>(v2/v3)</sup> 组件。</p>
 <p align="center"><a href="https://vue-echarts.dev/">查看 Demo →</a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a><a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"> <img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
 
 > [!IMPORTANT]
@@ -236,7 +236,7 @@ import "echarts";
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
 ```
@@ -256,7 +256,7 @@ app.component('v-chart', VueECharts)
 
 <!-- vue2Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.15"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
 ```
