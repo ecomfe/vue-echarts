@@ -1,7 +1,7 @@
 {
   "allowJs": true,
   "compilerOptions": {
-    "target": "ES5",
+    "target": "es2020",
     "module": "ESNext",
     "strict": true,
     "jsx": "preserve",

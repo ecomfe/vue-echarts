@@ -6,6 +6,24 @@ export interface EChartsElement extends HTMLElement {
   __dispose: (() => void) | null;
 }
 
+function registerElement() {
+
+if (customElements.get(TAG_NAME) == null) {
+  customElements.define(TAG_NAME, EChartsElement);
+}
+}
+export class EChartsElement extends HTMLElement {
+  __dispose: null | (() => void) = null;
+
+  disconnectedCallback() {
+    if (this.__dispose) {
+      this.__dispose();
+      this.__dispose = null;
+    }
+  }
+}
+
+
 export function register(): boolean {
   if (registered != null) {
     return registered;
@@ -19,30 +37,7 @@ export function register(): boolean {
   }
 
   try {
-    // Class definitions cannot be transpiled to ES5
-    // so we are doing a little trick here to ensure
-    // we are using native classes. As we use this as
-    // a progressive enhancement, it will be fine even
-    // if the browser doesn't support native classes.
-    const reg = new Function(
-      "tag",
-      `class EChartsElement extends HTMLElement {
-  __dispose = null;
-
-  disconnectedCallback() {
-    if (this.__dispose) {
-      this.__dispose();
-      this.__dispose = null;
-    }
-  }
-}
-
-if (customElements.get(tag) == null) {
-  customElements.define(tag, EChartsElement);
-}
-`
-    );
-    reg(TAG_NAME);
+    registerElement();
   } catch (e) {
     return (registered = false);
   }
