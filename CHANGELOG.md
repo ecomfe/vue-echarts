@@ -1,3 +1,7 @@
+## 6.6.2
+
+* Fixed that tooltips may affected by internal styling by VueECharts.
+
 ## 6.6.1
 
 * Make `padding` work out-of-the-box.
