@@ -307,6 +307,8 @@ export default defineComponent({
     ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
-    return h(TAG_NAME, attrs, [h("div", { ref: "inner" })]);
+    return h(TAG_NAME, attrs, [
+      h("div", { ref: "inner", class: "echarts-inner" })
+    ]);
   }
 });
