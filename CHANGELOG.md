@@ -1,3 +1,7 @@
+## 6.6.3
+
+* Fixed inner wrapper styles.
+
 ## 6.6.2
 
 * Fixed that tooltips may affected by internal styling by VueECharts.

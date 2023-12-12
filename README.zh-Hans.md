@@ -4,7 +4,6 @@
 <p align="center"><a href="https://vue-echarts.dev/">查看 Demo →</a></p>
 <p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
-
 > [!IMPORTANT]
 > 我们新发布了一个[导入代码生成器](https://vue-echarts.dev/#codegen)，只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
 >
@@ -238,7 +237,7 @@ import "echarts";
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.3.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.3"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -258,7 +257,7 @@ app.component('v-chart', VueECharts)
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.15"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.6.3"></script>
 ```
 <!-- vue2Scripts:end -->
 
