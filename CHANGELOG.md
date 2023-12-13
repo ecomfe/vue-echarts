@@ -1,3 +1,7 @@
+## 6.6.4
+
+* Fixed style regression introduced by v6.6.3.
+
 ## 6.6.3
 
 * Fixed inner wrapper styles.
