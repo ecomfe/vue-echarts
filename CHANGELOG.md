@@ -1,3 +1,7 @@
+## 6.6.5
+
+* Fixed type for `option` regressed in v6.6.2.
+
 ## 6.6.4
 
 * Fixed style regression introduced by v6.6.3.
