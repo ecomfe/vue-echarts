@@ -1,10 +1,5 @@
 import { init } from "echarts/core";
-import type {
-  SetOptionOpts,
-  ECElementEvent,
-  ElementEvent,
-  EChartsOption
-} from "echarts";
+import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts";
 import type { Ref } from "vue";
 
 export type Injection<T> = T | null | Ref<T | null> | { value: T | null };
@@ -23,7 +18,9 @@ export type UpdateOptionsInjection = Injection<UpdateOptions>;
 export type EChartsType = ReturnType<InitType>;
 type ZRenderType = ReturnType<EChartsType["getZr"]>;
 export type EventTarget = EChartsType | ZRenderType;
-export type Option = EChartsOption;
+
+type SetOptionType = EChartsType["setOption"];
+export type Option = Parameters<SetOptionType>[0];
 
 export type LoadingOptions = {
   text?: string;
