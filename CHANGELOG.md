@@ -1,3 +1,7 @@
+## 6.6.7
+
+* Added missing type file for Vue 2.7.
+
 ## 6.6.6
 
 * Fixed types for Vue < 2.7.

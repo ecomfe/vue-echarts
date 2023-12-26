@@ -9,6 +9,14 @@ const options = [
       file: "dist/index.vue2.d.ts",
       format: "esm"
     }
+  },
+  {
+    input: "src/index.vue2_7.d.ts",
+    plugins: [dts()],
+    output: {
+      file: "dist/index.vue2_7.d.ts",
+      format: "esm"
+    }
   }
 ];
 
