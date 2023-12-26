@@ -1,6 +1,6 @@
 <h1 align="center">Vue-ECharts</h1>
 
-<p align="center">Apache ECharts <sup>(v5)</sup> 的 Vue.js <sup>(v2/v3)</sup> 组件。</p>
+<p align="center">Apache ECharts™ <sup>(v5)</sup> 的 Vue.js <sup>(v2/v3)</sup> 组件。</p>
 <p align="center"><a href="https://vue-echarts.dev/">查看 Demo →</a></p>
 <p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
@@ -23,17 +23,18 @@
 
 ### npm & ESM
 
-```bash
-npm install echarts vue-echarts
+```sh
+npm i echarts vue-echarts
 ```
 
-要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装：
+要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装（TypeScript 支持还需要 `@vue/runtime-core`）：
 
 ```sh
 npm i @vue/composition-api
+npm i @vue/runtime-core # TypeScript 支持
 ```
 
-如果你在使用基于 _Vue 2_ 的 _NuxtJS_，那么还需要安装 `@nuxtjs/composition-api`：
+如果你在使用基于 _Vue 2_ 的 _NuxtJS_，则需要安装 `@nuxtjs/composition-api`：
 
 ```sh
 npm i @nuxtjs/composition-api
@@ -475,7 +476,7 @@ import { THEME_KEY } from 'vue-echarts'
 
 ### Vue 2 支持
 
-- 要在 `vue@2.7.0` 之前的版本中使用 Vue-ECharts，必须安装 `@vue/composition-api`。
+- 要在 `vue@2.7.0` 之前的版本中使用 Vue-ECharts，必须安装 `@vue/composition-api`（还需要安装 `@vue/runtime-core` 来支持 TypeScript）。
 
 ### Prop
 
@@ -500,7 +501,7 @@ import { THEME_KEY } from 'vue-echarts'
 
 ## 本地开发
 
-```bash
+```sh
 pnpm i
 pnpm serve
 ```

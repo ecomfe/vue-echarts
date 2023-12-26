@@ -1,3 +1,7 @@
+## 6.6.6
+
+* Fixed types for Vue < 2.7.
+
 ## 6.6.5
 
 * Fixed type for `option` regressed in v6.6.2.

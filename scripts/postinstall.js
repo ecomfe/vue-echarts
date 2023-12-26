@@ -6,6 +6,7 @@ const packageFile = path.resolve(__dirname, "../package.json");
 
 const typesPaths = {
   3: "dist/index.d.ts",
+  2.7: "dist/index.vue2-7.d.ts",
   2: "dist/index.vue2.d.ts"
 };
 
@@ -36,6 +37,8 @@ if (!Vue || typeof Vue.version !== "string") {
   );
 } else if (Vue.version.startsWith("3.")) {
   switchVersion(3);
+} else if (Vue.version.startsWith("2.7.")) {
+  switchVersion(2.7);
 } else if (Vue.version.startsWith("2.")) {
   switchVersion(2);
 } else {

@@ -1,6 +1,6 @@
 <h1 align="center">Vue-ECharts</h1>
 
-<p align="center">Vue.js <sup>(v2/v3)</sup> component for Apache ECharts <sup>(v5)</sup>.</p>
+<p align="center">Vue.js <sup>(v2/v3)</sup> component for Apache ECharts™ <sup>(v5)</sup>.</p>
 <p align="center"><a href="https://vue-echarts.dev/">View Demo →</a></p>
 <p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
 
@@ -23,17 +23,18 @@ Not ready yet? Read documentation for older versions [here →](https://github.c
 
 ### npm & ESM
 
-```bash
-npm install echarts vue-echarts
+```sh
+npm i echarts vue-echarts
 ```
 
-To make `vue-echarts` work for _Vue 2_ (<2.7.0), you need to have `@vue/composition-api` installed:
+To make `vue-echarts` work for _Vue 2_ (<2.7.0), you need to have `@vue/composition-api` installed (`@vue/runtime-core` for TypeScript support):
 
 ```sh
 npm i @vue/composition-api
+npm i @vue/runtime-core # for TypeScript support
 ```
 
-If you are using _NuxtJS_ on top of _Vue 2_, you'll also need `@nuxtjs/composition-api`:
+If you are using _NuxtJS_ on top of _Vue 2_, you'll need `@nuxtjs/composition-api`:
 
 ```sh
 npm i @nuxtjs/composition-api
@@ -475,7 +476,7 @@ The following breaking changes are introduced in `vue-echarts@6`:
 
 ### Vue 2 support
 
-- If you are using version prior to `vue@2.7.0`, `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2.
+- If you are using version prior to `vue@2.7.0`, `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2 (and also `@vue/runtime-core` for TypeScript support).
 
 ### Props
 
@@ -500,7 +501,7 @@ The following breaking changes are introduced in `vue-echarts@6`:
 
 ## Local development
 
-```bash
+```sh
 pnpm i
 pnpm serve
 ```

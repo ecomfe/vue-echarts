@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@vue/runtime-core':
+    specifier: ^3.0.0
+    version: 3.3.7
   resize-detector:
     specifier: ^0.3.0
     version: 0.3.0
