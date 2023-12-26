@@ -1,3 +1,7 @@
+## 6.6.8
+
+* Fixed the postinstall script to patch the correct `types` entry for Vue 2.7.
+
 ## 6.6.7
 
 * Added missing type file for Vue 2.7.

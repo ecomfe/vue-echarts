@@ -6,7 +6,7 @@ const packageFile = path.resolve(__dirname, "../package.json");
 
 const typesPaths = {
   3: "dist/index.d.ts",
-  2.7: "dist/index.vue2-7.d.ts",
+  2.7: "dist/index.vue2_7.d.ts",
   2: "dist/index.vue2.d.ts"
 };
 
