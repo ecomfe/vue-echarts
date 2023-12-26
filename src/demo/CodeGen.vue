@@ -324,10 +324,6 @@ input[type="number"] {
   overflow: hidden;
   background-color: #fff;
   box-shadow: 0 0 45px rgba(0, 0, 0, 0.2);
-
-  h2 {
-    margin-top: 0;
-  }
 }
 
 .options {

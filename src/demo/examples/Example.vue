@@ -1,10 +1,10 @@
 <template>
-  <h2 :id="id">
+  <h3 :id="id">
     <a :href="`#${id}`">
       {{ title }}
       <small v-if="desc">{{ desc }}</small>
     </a>
-  </h2>
+  </h3>
   <section>
     <figure class="fig hero" v-if="!split">
       <slot />

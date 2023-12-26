@@ -56,10 +56,21 @@ watch(codeOpen, open => {
       <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
     </h1>
     <p class="desc">
-      Vue.js component for Apache ECharts. (<a
+      Vue.js component for Apache ECharts™. (<a
         href="https://github.com/ecomfe/vue-echarts#readme"
         >docs</a
       >)
+    </p>
+
+    <h2 class="sep">Examples</h2>
+    <p>
+      <small
+        >See
+        <a href="https://echarts.apache.org/examples/en/index.html"
+          >echarts.apache.org/examples</a
+        >
+        for all examples.</small
+      >
     </p>
 
     <bar-chart />
@@ -132,6 +143,19 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  box-shadow: 0 1px 0 0 #42b983;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 0 0 #42b983;
+  }
+}
+
+h1,
+h2,
+h3 {
+  color: #2c3e50;
+  font-weight: 400;
 }
 
 h1 {
@@ -139,13 +163,32 @@ h1 {
   font-family: Inter, "Helvetica Neue", Arial, sans-serif;
 }
 
-h1,
 h2 {
-  color: #2c3e50;
-  font-weight: 400;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
-h2 {
+.sep {
+  margin-top: 6em;
+  margin-bottom: 1.8em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.25em;
+  color: #7f8c8d;
+  opacity: 0.6;
+
+  &::before,
+  &::after {
+    content: "";
+    display: block;
+    width: 48px;
+    border-bottom: 1px dotted currentColor;
+  }
+}
+
+h3 {
   margin-top: 2em;
   padding-top: 1em;
   font-size: 1.2em;
@@ -208,15 +251,18 @@ footer {
   a {
     display: inline-block;
     margin: 0 5px;
-    padding: 3px 0 6px;
     color: #7f8c8d;
     font-size: 2em;
-    text-decoration: none;
   }
+}
 
+h1,
+h2,
+h3 {
+  a,
   a:hover {
-    padding-bottom: 3px;
-    border-bottom: 3px solid #42b983;
+    text-decoration: none;
+    box-shadow: none;
   }
 }
 

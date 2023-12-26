@@ -25,6 +25,10 @@ export default {
             return "";
           }
         }
+      },
+      itemStyle: {
+        shadowBlur: 12,
+        shadowColor: "rgba(0, 0, 0, 0.25)"
       }
     }
   ]
