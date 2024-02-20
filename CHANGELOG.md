@@ -1,3 +1,7 @@
+## 6.6.9
+
+* Fixed that the chart may not be the same size as the component root element ([#761](https://github.com/ecomfe/vue-echarts/issues/761)).
+
 ## 6.6.8
 
 * Fixed the postinstall script to patch the correct `types` entry for Vue 2.7.

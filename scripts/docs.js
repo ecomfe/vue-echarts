@@ -10,8 +10,8 @@ function resolvePath(...parts) {
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  "vue@3": "3.3.7",
-  "vue@2": "2.7.15",
+  "vue@3": "3.4.19",
+  "vue@2": "2.7.16",
   echarts: "5.4.3",
   [name]: version
 };
