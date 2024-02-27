@@ -1,6 +1,7 @@
 {
   "name": "vue-echarts",
   "version": "6.6.9",
+  "type": "module",
   "description": "Vue.js component for Apache ECharts™.",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
@@ -28,9 +29,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@highlightjs/vue-plugin": "^2.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
-    "@rollup/plugin-terser": "^0.4.4",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vercel/analytics": "^1.1.1",
@@ -61,10 +60,10 @@
     "raw-loader": "^4.0.2",
     "resize-detector": "^0.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.79.1",
-    "rollup-plugin-dts": "^4.2.3",
-    "rollup-plugin-styles": "^4.0.0",
-    "rollup-plugin-ts": "^2.0.7",
+    "rollup": "^4.12.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-import-css": "^3.5.0",
     "tslib": "^2.6.2",
     "typescript": "4.6.4",
     "vue": "^3.3.7",

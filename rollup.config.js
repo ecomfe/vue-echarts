@@ -1,9 +1,7 @@
-import typescript from "rollup-plugin-ts";
-import terser from "@rollup/plugin-terser";
-import resolve from "@rollup/plugin-node-resolve";
+import esbuild from "rollup-plugin-esbuild";
+import { dts } from "rollup-plugin-dts";
 import replace from "@rollup/plugin-replace";
-import styles from "rollup-plugin-styles";
-import { injectVueDemi } from "./scripts/rollup";
+import css from "rollup-plugin-import-css";
 
 /**
  * Modifies the Rollup options for a build to support strict CSP
@@ -18,7 +16,7 @@ function configBuild(options, csp) {
   result.plugins = [
     ...(csp ? [replace({ __CSP__: `${csp}`, preventAssignment: true })] : []),
     ...plugins,
-    csp ? styles({ mode: ["extract", "style.css"] }) : styles()
+    csp ? css({ output: "style.css" }) : css({ inject: true })
   ];
 
   // modify output file names
@@ -39,99 +37,51 @@ function configBuild(options, csp) {
 const builds = [
   {
     input: "src/index.ts",
-    plugins: [
-      typescript({
-        tsconfig: resolvedConfig => ({ ...resolvedConfig, declaration: true }),
-        hook: {
-          outputPath: (path, kind) =>
-            kind === "declaration" ? "dist/index.d.ts" : path
-        }
-      })
-    ],
-    external: ["vue-demi", "echarts/core", "resize-detector"],
-    output: {
-      file: "dist/index.esm.js",
-      format: "esm",
-      sourcemap: true
-    }
-  },
-  {
-    input: "src/index.ts",
-    plugins: [typescript()],
+    plugins: [esbuild()],
     external: ["vue-demi", "echarts/core", "resize-detector"],
     output: [
       {
-        file: "dist/index.esm.min.js",
+        file: "dist/index.esm.js",
         format: "esm",
-        sourcemap: true,
-        plugins: [
-          terser({
-            format: {
-              comments: false
-            }
-          })
-        ]
+        sourcemap: true
       },
       {
         file: "dist/index.cjs.js",
         format: "cjs",
         exports: "named",
         sourcemap: true
+      }
+    ]
+  },
+  {
+    input: "src/index.ts",
+    plugins: [esbuild({ minify: true })],
+    external: ["vue-demi", "echarts/core", "resize-detector"],
+    output: [
+      {
+        file: "dist/index.esm.min.js",
+        format: "esm",
+        sourcemap: true
       },
       {
         file: "dist/index.cjs.min.js",
         format: "cjs",
         exports: "named",
-        sourcemap: true,
-        plugins: [
-          terser({
-            format: {
-              comments: false
-            }
-          })
-        ]
+        sourcemap: true
       }
     ]
   },
   {
-    input: "src/global.ts",
-    plugins: [resolve(), typescript()],
-    external: ["vue-demi", "echarts", "echarts/core"],
-    output: [
-      {
-        file: "dist/index.umd.js",
-        format: "umd",
-        name: "VueECharts",
-        exports: "default",
-        sourcemap: true,
-        globals: {
-          "vue-demi": "VueDemi",
-          echarts: "echarts",
-          "echarts/core": "echarts"
-        },
-        plugins: [injectVueDemi]
-      },
-      {
-        file: "dist/index.umd.min.js",
-        format: "umd",
-        name: "VueECharts",
-        exports: "default",
-        sourcemap: true,
-        globals: {
-          "vue-demi": "VueDemi",
-          echarts: "echarts",
-          "echarts/core": "echarts"
-        },
-        plugins: [
-          injectVueDemi,
-          terser({
-            format: {
-              comments: false
-            }
-          })
-        ]
-      }
-    ]
+    input: "src/index.ts",
+    plugins: [
+      dts({
+        respectExternal: true
+      })
+    ],
+    output: {
+      file: "dist/index.d.ts",
+      format: "esm"
+    }
   }
 ];
 

@@ -1,11 +1,15 @@
-const { readFileSync, writeFileSync } = require("fs");
-const { resolve } = require("path");
-const commentMark = require("comment-mark");
-const { name, version } = require("../package.json");
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import commentMark from "comment-mark";
 
 function resolvePath(...parts) {
-  return resolve(__dirname, ...parts);
+  return resolve(dirname(fileURLToPath(import.meta.url)), ...parts);
 }
+
+const { name, version } = JSON.parse(
+  readFileSync(resolvePath("..", "package.json"), "utf8")
+);
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
