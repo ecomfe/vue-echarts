@@ -1,4 +1,5 @@
 import { init } from "echarts/core";
+import { mouseEvents, elementEvents, otherEvents } from "./events";
 import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts";
 import type { Ref } from "vue";
 
@@ -37,58 +38,13 @@ export type LoadingOptions = {
   zlevel?: number;
 };
 
-type MouseEventName =
-  | "click"
-  | "dblclick"
-  | "mouseout"
-  | "mouseover"
-  | "mouseup"
-  | "mousedown"
-  | "mousemove"
-  | "contextmenu"
-  | "globalout";
+type MouseEventName = (typeof mouseEvents)[number];
 
-type ElementEventName =
-  | MouseEventName
-  | "mousewheel"
-  | "drag"
-  | "dragstart"
-  | "dragend"
-  | "dragenter"
-  | "dragleave"
-  | "dragover"
-  | "drop";
+type ElementEventName = (typeof elementEvents)[number] | MouseEventName;
 
 type ZRenderEventName = `zr:${ElementEventName}`;
 
-type OtherEventName =
-  | "highlight"
-  | "downplay"
-  | "selectchanged"
-  | "legendselectchanged"
-  | "legendselected"
-  | "legendunselected"
-  | "legendselectall"
-  | "legendinverseselect"
-  | "legendscroll"
-  | "datazoom"
-  | "datarangeselected"
-  | "graphroam"
-  | "georoam"
-  | "treeroam"
-  | "timelinechanged"
-  | "timelineplaychanged"
-  | "restore"
-  | "dataviewchanged"
-  | "magictypechanged"
-  | "geoselectchanged"
-  | "geoselected"
-  | "geounselected"
-  | "axisareaselected"
-  | "brush"
-  | "brushEnd"
-  | "brushselected"
-  | "globalcursortaken";
+type OtherEventName = (typeof otherEvents)[number];
 
 type MouseEmits = {
   [key in MouseEventName]: (params: ECElementEvent) => boolean;

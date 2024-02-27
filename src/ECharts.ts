@@ -37,7 +37,8 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import { omitOn, unwrapInjected } from "./utils";
+import { omitEChartsEvents, unwrapInjected, isOn } from "./utils";
+import { allEvents } from "./events";
 import { register, TAG_NAME, type EChartsElement } from "./wc";
 import "./style.css";
 
@@ -94,7 +95,7 @@ export default defineComponent({
     const realUpdateOptions = computed(
       () => props.updateOptions || unwrapInjected(defaultUpdateOptions, {})
     );
-    const nonEventAttrs = computed(() => omitOn(attrs));
+    const nonEventAttrs = computed(() => omitEChartsEvents(attrs));
 
     // @ts-expect-error listeners for Vue 2 compatibility
     const listeners = getCurrentInstance().proxy.$listeners;
@@ -119,7 +120,7 @@ export default defineComponent({
         realListeners = {};
 
         Object.keys(attrs)
-          .filter(key => key.indexOf("on") === 0 && key.length > 2)
+          .filter(key => isOn(key))
           .forEach(key => {
             // onClick    -> c + lick
             // onZr:click -> z + r:click
@@ -129,8 +130,10 @@ export default defineComponent({
             // zr:clickOnce -> ~zr:click
             if (event.substring(event.length - 4) === "Once") {
               event = `~${event.substring(0, event.length - 4)}`;
+              if (!allEvents.includes(event.slice(1))) return;
             }
 
+            if (!allEvents.includes(event)) return;
             realListeners[event] = attrs[key];
           });
       }

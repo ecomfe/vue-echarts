@@ -1,5 +1,6 @@
 import { unref } from "vue-demi";
 import type { Injection } from "./types";
+import { allEvents } from "./events";
 
 type Attrs = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,10 +12,23 @@ type Attrs = {
 const onRE = /^on[^a-z]/;
 export const isOn = (key: string): boolean => onRE.test(key);
 
-export function omitOn(attrs: Attrs): Attrs {
+function attrToEvent(attr: string) {
+  // onClick    -> c + lick
+  // onZr:click -> z + r:click
+  let event = attr.charAt(2).toLowerCase() + attr.slice(3);
+
+  // clickOnce    -> click
+  // zr:clickOnce -> zr:click
+  if (event.substring(event.length - 4) === "Once") {
+    event = event.substring(0, event.length - 4);
+  }
+  return event;
+}
+
+export function omitEChartsEvents(attrs: Attrs): Attrs {
   const result: Attrs = {};
   for (const key in attrs) {
-    if (!isOn(key)) {
+    if (!isOn(key) || !allEvents.includes(attrToEvent(key))) {
       result[key] = attrs[key];
     }
   }
