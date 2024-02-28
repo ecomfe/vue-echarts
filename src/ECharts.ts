@@ -13,11 +13,20 @@ import {
   nextTick,
   watchEffect,
   getCurrentInstance,
-  Vue2,
-  type PropType,
-  type InjectionKey
+  Vue2
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
+import {
+  usePublicAPI,
+  useAutoresize,
+  autoresizeProps,
+  useLoading,
+  loadingProps
+} from "./composables";
+import { omitOn, unwrapInjected } from "./utils";
+import { register, TAG_NAME } from "./wc";
+
+import type { PropType, InjectionKey } from "vue-demi";
 import type {
   EChartsType,
   EventTarget,
@@ -30,15 +39,8 @@ import type {
   UpdateOptionsInjection,
   Emits
 } from "./types";
-import {
-  usePublicAPI,
-  useAutoresize,
-  autoresizeProps,
-  useLoading,
-  loadingProps
-} from "./composables";
-import { omitOn, unwrapInjected } from "./utils";
-import { register, TAG_NAME, type EChartsElement } from "./wc";
+import type { EChartsElement } from "./wc";
+
 import "./style.css";
 
 const __CSP__ = false;

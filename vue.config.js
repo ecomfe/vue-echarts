@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const nested = require("postcss-nested");
+import nested from "postcss-nested";
 
-module.exports = {
+export default {
   outputDir: "demo",
   css: {
     loaderOptions: {

@@ -2,6 +2,7 @@ import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
 import replace from "@rollup/plugin-replace";
 import css from "rollup-plugin-import-css";
+import { ignoreCss } from "./scripts/rollup.js";
 
 /**
  * Modifies the Rollup options for a build to support strict CSP
@@ -38,7 +39,7 @@ const builds = [
   {
     input: "src/index.ts",
     plugins: [esbuild()],
-    external: ["vue-demi", "echarts/core", "resize-detector"],
+    external: ["vue-demi", /^echarts/, "resize-detector"],
     output: [
       {
         file: "dist/index.esm.js",
@@ -56,7 +57,7 @@ const builds = [
   {
     input: "src/index.ts",
     plugins: [esbuild({ minify: true })],
-    external: ["vue-demi", "echarts/core", "resize-detector"],
+    external: ["vue-demi", /^echarts/, "resize-detector"],
     output: [
       {
         file: "dist/index.esm.min.js",
@@ -74,10 +75,15 @@ const builds = [
   {
     input: "src/index.ts",
     plugins: [
+      ignoreCss,
       dts({
-        respectExternal: true
+        compilerOptions: {
+          // see https://github.com/unjs/unbuild/pull/57/files
+          preserveSymlinks: false
+        }
       })
     ],
+    external: ["vue-demi", /^echarts/, "resize-detector"],
     output: {
       file: "dist/index.d.ts",
       format: "esm"

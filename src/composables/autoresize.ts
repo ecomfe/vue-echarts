@@ -1,11 +1,10 @@
-import { watch, type Ref, type PropType } from "vue-demi";
+import { watch } from "vue-demi";
 import { throttle } from "echarts/core";
-import {
-  addListener,
-  removeListener,
-  type ResizeCallback
-} from "resize-detector";
-import { type EChartsType } from "../types";
+import { addListener, removeListener } from "resize-detector";
+
+import type { Ref, PropType } from "vue-demi";
+import type { ResizeCallback } from "resize-detector";
+import type { EChartsType } from "../types";
 
 type AutoresizeProp =
   | boolean
