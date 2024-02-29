@@ -37,7 +37,7 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import { omitOn, unwrapInjected } from "./utils";
+import { isOn, omitOn, unwrapInjected } from "./utils";
 import { register, TAG_NAME, type EChartsElement } from "./wc";
 import "./style.css";
 
@@ -95,6 +95,7 @@ export default defineComponent({
       () => props.updateOptions || unwrapInjected(defaultUpdateOptions, {})
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
+    const nativeEventAttrs: Record<string, unknown> = {};
 
     // @ts-expect-error listeners for Vue 2 compatibility
     const listeners = getCurrentInstance().proxy.$listeners;
@@ -119,11 +120,21 @@ export default defineComponent({
         realListeners = {};
 
         Object.keys(attrs)
-          .filter(key => key.indexOf("on") === 0 && key.length > 2)
+          .filter(key => isOn(key))
           .forEach(key => {
             // onClick    -> c + lick
             // onZr:click -> z + r:click
             let event = key.charAt(2).toLowerCase() + key.slice(3);
+
+            // Collect native events
+            if (event.startsWith("native:")) {
+              // native:click -> onClick
+              const nativeKey =
+                "on" + event.charAt(7).toUpperCase() + event.slice(8);
+
+              nativeEventAttrs[nativeKey] = attrs[key];
+              return;
+            }
 
             // clickOnce    -> ~click
             // zr:clickOnce -> ~zr:click
@@ -296,6 +307,7 @@ export default defineComponent({
       inner,
       setOption,
       nonEventAttrs,
+      nativeEventAttrs,
       ...publicApi
     };
   },
@@ -303,7 +315,9 @@ export default defineComponent({
     // Vue 3 and Vue 2 have different vnode props format:
     // See https://v3-migration.vuejs.org/breaking-changes/render-function-api.html#vnode-props-format
     const attrs = (
-      Vue2 ? { attrs: this.nonEventAttrs } : { ...this.nonEventAttrs }
+      Vue2
+        ? { attrs: this.nonEventAttrs }
+        : { ...this.nonEventAttrs, ...this.nativeEventAttrs }
     ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
