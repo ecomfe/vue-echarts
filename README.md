@@ -466,27 +466,11 @@ See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
 #### Native DOM Events
 
-<details open>
-<summary>Vue 3</summary>
-
 ```vue
 <template>
   <v-chart @native:click="handleClick" />
 </template>
 ```
-
-</details>
-
-<details open>
-<summary>Vue 2</summary>
-
-```vue
-<template>
-  <v-chart @click.native="handleClick" />
-</template>
-```
-
-</details>
 
 ## CSP: `style-src` or `style-src-elem`
 

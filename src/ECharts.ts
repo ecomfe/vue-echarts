@@ -126,7 +126,7 @@ export default defineComponent({
             // onZr:click -> z + r:click
             let event = key.charAt(2).toLowerCase() + key.slice(3);
 
-            // Collect native events
+            // Collect native DOM events
             if (event.startsWith("native:")) {
               // native:click -> onClick
               const nativeKey =
@@ -144,6 +144,18 @@ export default defineComponent({
 
             realListeners[event] = attrs[key];
           });
+      } else {
+        // Vue 2 native DOM events
+        Object.keys(realListeners).forEach(key => {
+          const index = key.indexOf("native:");
+          if (index === 0 || index === 1 || index === 2) {
+            // native:click   -> click
+            // ~native:click  -> ~click
+            // ~!native:click -> ~!click  (eg: .capture.once)
+            nativeEventAttrs[key.slice(0, index) + key.slice(index + 7)] =
+              realListeners[key];
+          }
+        });
       }
 
       Object.keys(realListeners).forEach(key => {
@@ -316,7 +328,7 @@ export default defineComponent({
     // See https://v3-migration.vuejs.org/breaking-changes/render-function-api.html#vnode-props-format
     const attrs = (
       Vue2
-        ? { attrs: this.nonEventAttrs }
+        ? { attrs: this.nonEventAttrs, on: this.nativeEventAttrs }
         : { ...this.nonEventAttrs, ...this.nativeEventAttrs }
     ) as any;
     attrs.ref = "root";
