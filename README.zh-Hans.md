@@ -507,3 +507,7 @@ pnpm serve
 ```
 
 打开 `http://localhost:8080` 来查看 demo。
+
+## 声明
+
+The Apache Software Foundation [Apache ECharts, ECharts](https://echarts.apache.org/), Apache, the Apache feather, and the Apache ECharts project logo are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/).
