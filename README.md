@@ -507,3 +507,7 @@ pnpm serve
 ```
 
 Open `http://localhost:8080` to see the demo.
+
+## Notice
+
+The Apache Software Foundation [Apache ECharts, ECharts](https://echarts.apache.org/), Apache, the Apache feather, and the Apache ECharts project logo are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/).
