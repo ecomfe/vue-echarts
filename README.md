@@ -464,6 +464,14 @@ Vue-ECharts support the following events:
 
 See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
+#### Native DOM Events
+
+```vue
+<template>
+  <v-chart @native:click="handleClick" />
+</template>
+```
+
 ## CSP: `style-src` or `style-src-elem`
 
 If you are applying a CSP to prevent inline `<style>` injection, you need to use files from `dist/csp` directory and include `dist/csp/style.css` into your app manually.
