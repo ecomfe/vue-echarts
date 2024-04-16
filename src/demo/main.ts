@@ -3,7 +3,17 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import Demo from "./Demo.vue";
 
-inject();
+const SAMPLE_RATE = 0.5;
+
+inject({
+  beforeSend: event => {
+    if (Math.random() > SAMPLE_RATE) {
+      return null;
+    }
+
+    return event;
+  }
+});
 
 const pinia = createPinia();
 const app = createApp(Demo);
