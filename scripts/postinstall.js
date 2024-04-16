@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import path from "node:path";
 import fs from "node:fs";
+import { resolvePath } from "./utils.js";
 
-const packageFile = path.resolve(__dirname, "../package.json");
+const packageFile = resolvePath(import.meta.url, "../package.json");
 
 const typesPaths = {
   3: "dist/index.d.ts",

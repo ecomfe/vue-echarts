@@ -71,7 +71,12 @@ const builds = [
         sourcemap: true
       }
     ]
-  },
+  }
+];
+
+export default [
+  ...builds.map(options => configBuild(options, false)),
+  ...builds.map(options => configBuild(options, true)),
   {
     input: "src/index.ts",
     plugins: [
@@ -89,9 +94,4 @@ const builds = [
       format: "esm"
     }
   }
-];
-
-export default [
-  ...builds.map(options => configBuild(options, false)),
-  ...builds.map(options => configBuild(options, true))
 ];
