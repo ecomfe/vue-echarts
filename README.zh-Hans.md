@@ -381,6 +381,16 @@ Vue-ECharts 支持如下事件：
 
 请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events)
 
+#### 原生 DOM 事件
+
+由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件（可以在 Vue 2 中也可以使用 `.native` 修饰符，但这在 Vue 3 中已被废弃）。
+
+```vue
+<template>
+  <v-chart @native:click="handleClick" />
+</template>
+```
+
 ### Provide / Inject
 
 Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
@@ -463,6 +473,8 @@ import { THEME_KEY } from 'vue-echarts'
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
+
+
 
 ## CSP: `style-src` 或 `style-src-elem`
 

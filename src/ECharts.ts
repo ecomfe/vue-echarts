@@ -55,6 +55,8 @@ export const UPDATE_OPTIONS_KEY =
   "ecUpdateOptions" as unknown as InjectionKey<UpdateOptionsInjection>;
 export { LOADING_OPTIONS_KEY } from "./composables";
 
+const NATIVE_EVENT_RE = /(^&?~?!?)native:/;
+
 export default defineComponent({
   name: "echarts",
   props: {
@@ -95,7 +97,7 @@ export default defineComponent({
       () => props.updateOptions || unwrapInjected(defaultUpdateOptions, {})
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
-    const nativeEventAttrs: Record<string, unknown> = {};
+    const nativeListeners: Record<string, unknown> = {};
 
     // @ts-expect-error listeners for Vue 2 compatibility
     const listeners = getCurrentInstance().proxy.$listeners;
@@ -116,7 +118,14 @@ export default defineComponent({
       }
 
       const realListeners: Record<string, any> = {};
+
       if (!listeners) {
+        // This is for Vue 3.
+        // We are converting all `on<Event>` props to event listeners compatible with Vue 2
+        // and collect them into `realListeners` so that we can bind them to the chart instance
+        // later in the same way.
+        // For `onNative:<event>` props, we just strip the `Native:` part and collect them into
+        // `nativeListeners` so that we can bind them to the root element directly.
         Object.keys(attrs)
           .filter(key => isOn(key))
           .forEach(key => {
@@ -125,12 +134,13 @@ export default defineComponent({
             let event = key.charAt(2).toLowerCase() + key.slice(3);
 
             // Collect native DOM events
-            if (event.startsWith("native:")) {
+            if (event.indexOf("native:") === 0) {
               // native:click -> onClick
-              const nativeKey =
-                "on" + event.charAt(7).toUpperCase() + event.slice(8);
+              const nativeKey = `on${event
+                .charAt(7)
+                .toUpperCase()}${event.slice(8)}`;
 
-              nativeEventAttrs[nativeKey] = attrs[key];
+              nativeListeners[nativeKey] = attrs[key];
               return;
             }
 
@@ -143,13 +153,18 @@ export default defineComponent({
             realListeners[event] = attrs[key];
           });
       } else {
+        // This is for Vue 2.
+        // We just need to distinguish normal events and `native:<event>` events and
+        // collect them into `realListeners` and `nativeListeners` respectively.
+        // For `native:<event>` events, we just strip the `native:` part and collect them
+        // into `nativeListeners` so that we can bind them to the root element directly.
         // native:click   -> click
         // ~native:click  -> ~click
         // &~!native:click -> &~!click
-        const regex = /(^&?~?!?)native:/;
         Object.keys(listeners).forEach(key => {
-          if (regex.test(key)) {
-            nativeEventAttrs[key.replace(regex, "$1")] = listeners[key];
+          if (NATIVE_EVENT_RE.test(key)) {
+            nativeListeners[key.replace(NATIVE_EVENT_RE, "$1")] =
+              listeners[key];
           } else {
             realListeners[key] = listeners[key];
           }
@@ -317,7 +332,7 @@ export default defineComponent({
       inner,
       setOption,
       nonEventAttrs,
-      nativeEventAttrs,
+      nativeListeners,
       ...publicApi
     };
   },
@@ -326,8 +341,8 @@ export default defineComponent({
     // See https://v3-migration.vuejs.org/breaking-changes/render-function-api.html#vnode-props-format
     const attrs = (
       Vue2
-        ? { attrs: this.nonEventAttrs, on: this.nativeEventAttrs }
-        : { ...this.nonEventAttrs, ...this.nativeEventAttrs }
+        ? { attrs: this.nonEventAttrs, on: this.nativeListeners }
+        : { ...this.nonEventAttrs, ...this.nativeListeners }
     ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";

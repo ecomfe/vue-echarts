@@ -319,6 +319,78 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/dem
 
   For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `option` prop. By specifying `manual-update` prop with `true` and not providing `option` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `setOption` method to update the chart.
 
+### Events
+
+You can bind events with Vue's `v-on` directive.
+
+```vue
+<template>
+  <v-chart :option="option" @highlight="handleHighlight" />
+</template>
+```
+
+> **Note**
+>
+> Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
+
+Vue-ECharts support the following events:
+
+- `highlight` [→](https://echarts.apache.org/en/api.html#events.highlight)
+- `downplay` [→](https://echarts.apache.org/en/api.html#events.downplay)
+- `selectchanged` [→](https://echarts.apache.org/en/api.html#events.selectchanged)
+- `legendselectchanged` [→](https://echarts.apache.org/en/api.html#events.legendselectchanged)
+- `legendselected` [→](https://echarts.apache.org/en/api.html#events.legendselected)
+- `legendunselected` [→](https://echarts.apache.org/en/api.html#events.legendunselected)
+- `legendselectall` [→](https://echarts.apache.org/en/api.html#events.legendselectall)
+- `legendinverseselect` [→](https://echarts.apache.org/en/api.html#events.legendinverseselect)
+- `legendscroll` [→](https://echarts.apache.org/en/api.html#events.legendscroll)
+- `datazoom` [→](https://echarts.apache.org/en/api.html#events.datazoom)
+- `datarangeselected` [→](https://echarts.apache.org/en/api.html#events.datarangeselected)
+- `timelinechanged` [→](https://echarts.apache.org/en/api.html#events.timelinechanged)
+- `timelineplaychanged` [→](https://echarts.apache.org/en/api.html#events.timelineplaychanged)
+- `restore` [→](https://echarts.apache.org/en/api.html#events.restore)
+- `dataviewchanged` [→](https://echarts.apache.org/en/api.html#events.dataviewchanged)
+- `magictypechanged` [→](https://echarts.apache.org/en/api.html#events.magictypechanged)
+- `geoselectchanged` [→](https://echarts.apache.org/en/api.html#events.geoselectchanged)
+- `geoselected` [→](https://echarts.apache.org/en/api.html#events.geoselected)
+- `geounselected` [→](https://echarts.apache.org/en/api.html#events.geounselected)
+- `axisareaselected` [→](https://echarts.apache.org/en/api.html#events.axisareaselected)
+- `brush` [→](https://echarts.apache.org/en/api.html#events.brush)
+- `brushEnd` [→](https://echarts.apache.org/en/api.html#events.brushEnd)
+- `brushselected` [→](https://echarts.apache.org/en/api.html#events.brushselected)
+- `globalcursortaken` [→](https://echarts.apache.org/en/api.html#events.globalcursortaken)
+- `rendered` [→](https://echarts.apache.org/en/api.html#events.rendered)
+- `finished` [→](https://echarts.apache.org/en/api.html#events.finished)
+- Mouse events
+  - `click` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.click)
+  - `dblclick` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.dblclick)
+  - `mouseover` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseover)
+  - `mouseout` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseout)
+  - `mousemove` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mousemove)
+  - `mousedown` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mousedown)
+  - `mouseup` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseup)
+  - `globalout` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.globalout)
+  - `contextmenu` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.contextmenu)
+- ZRender events
+  - `zr:click`
+  - `zr:mousedown`
+  - `zr:mouseup`
+  - `zr:mousewheel`
+  - `zr:dblclick`
+  - `zr:contextmenu`
+
+See supported events [here →](https://echarts.apache.org/en/api.html#events)
+
+#### Native DOM Events
+
+As Vue-ECharts binds events to the ECharts instance by default, there is some caveat when using native DOM events. You need to prefix the event name with `native:` to bind native DOM events (or you can use the `.native` modifier in Vue 2, which is dropped in Vue 3).
+
+```vue
+<template>
+  <v-chart @native:click="handleClick" />
+</template>
+```
+
 ### Provide / Inject
 
 Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
@@ -401,76 +473,6 @@ import { THEME_KEY } from 'vue-echarts'
 ### Static Methods
 
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
-
-### Events
-
-You can bind events with Vue's `v-on` directive.
-
-```vue
-<template>
-  <v-chart :option="option" @highlight="handleHighlight" />
-</template>
-```
-
-> **Note**
->
-> Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
-
-Vue-ECharts support the following events:
-
-- `highlight` [→](https://echarts.apache.org/en/api.html#events.highlight)
-- `downplay` [→](https://echarts.apache.org/en/api.html#events.downplay)
-- `selectchanged` [→](https://echarts.apache.org/en/api.html#events.selectchanged)
-- `legendselectchanged` [→](https://echarts.apache.org/en/api.html#events.legendselectchanged)
-- `legendselected` [→](https://echarts.apache.org/en/api.html#events.legendselected)
-- `legendunselected` [→](https://echarts.apache.org/en/api.html#events.legendunselected)
-- `legendselectall` [→](https://echarts.apache.org/en/api.html#events.legendselectall)
-- `legendinverseselect` [→](https://echarts.apache.org/en/api.html#events.legendinverseselect)
-- `legendscroll` [→](https://echarts.apache.org/en/api.html#events.legendscroll)
-- `datazoom` [→](https://echarts.apache.org/en/api.html#events.datazoom)
-- `datarangeselected` [→](https://echarts.apache.org/en/api.html#events.datarangeselected)
-- `timelinechanged` [→](https://echarts.apache.org/en/api.html#events.timelinechanged)
-- `timelineplaychanged` [→](https://echarts.apache.org/en/api.html#events.timelineplaychanged)
-- `restore` [→](https://echarts.apache.org/en/api.html#events.restore)
-- `dataviewchanged` [→](https://echarts.apache.org/en/api.html#events.dataviewchanged)
-- `magictypechanged` [→](https://echarts.apache.org/en/api.html#events.magictypechanged)
-- `geoselectchanged` [→](https://echarts.apache.org/en/api.html#events.geoselectchanged)
-- `geoselected` [→](https://echarts.apache.org/en/api.html#events.geoselected)
-- `geounselected` [→](https://echarts.apache.org/en/api.html#events.geounselected)
-- `axisareaselected` [→](https://echarts.apache.org/en/api.html#events.axisareaselected)
-- `brush` [→](https://echarts.apache.org/en/api.html#events.brush)
-- `brushEnd` [→](https://echarts.apache.org/en/api.html#events.brushEnd)
-- `brushselected` [→](https://echarts.apache.org/en/api.html#events.brushselected)
-- `globalcursortaken` [→](https://echarts.apache.org/en/api.html#events.globalcursortaken)
-- `rendered` [→](https://echarts.apache.org/en/api.html#events.rendered)
-- `finished` [→](https://echarts.apache.org/en/api.html#events.finished)
-- Mouse events
-  - `click` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.click)
-  - `dblclick` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.dblclick)
-  - `mouseover` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseover)
-  - `mouseout` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseout)
-  - `mousemove` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mousemove)
-  - `mousedown` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mousedown)
-  - `mouseup` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.mouseup)
-  - `globalout` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.globalout)
-  - `contextmenu` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.contextmenu)
-- ZRender events
-  - `zr:click`
-  - `zr:mousedown`
-  - `zr:mouseup`
-  - `zr:mousewheel`
-  - `zr:dblclick`
-  - `zr:contextmenu`
-
-See supported events [here →](https://echarts.apache.org/en/api.html#events)
-
-#### Native DOM Events
-
-```vue
-<template>
-  <v-chart @native:click="handleClick" />
-</template>
-```
 
 ## CSP: `style-src` or `style-src-elem`
 
