@@ -1,3 +1,7 @@
+## 6.6.10
+
+* Fixed that `autoresize` doesn't work when reducing the height or the root element.
+
 ## 6.6.9
 
 * Fixed that the chart may not be the same size as the component root element ([#761](https://github.com/ecomfe/vue-echarts/issues/761)).
