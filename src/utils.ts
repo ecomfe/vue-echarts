@@ -1,4 +1,4 @@
-import { unref } from "vue-demi";
+import { unref, isRef } from "vue-demi";
 import type { Injection } from "./types";
 
 type Attrs = {
@@ -26,7 +26,7 @@ export function unwrapInjected<T, V>(
   injection: Injection<T>,
   defaultValue: V
 ): T | V {
-  const value = unref(injection);
+  const value = isRef(injection) ? unref(injection) : injection;
 
   if (value && typeof value === "object" && "value" in value) {
     return value.value || defaultValue;
