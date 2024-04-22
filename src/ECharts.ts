@@ -115,10 +115,8 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      let realListeners = listeners;
-      if (!realListeners) {
-        realListeners = {};
-
+      const realListeners: Record<string, any> = {};
+      if (!listeners) {
         Object.keys(attrs)
           .filter(key => isOn(key))
           .forEach(key => {
@@ -145,15 +143,15 @@ export default defineComponent({
             realListeners[event] = attrs[key];
           });
       } else {
-        // Vue 2 native DOM events
-        Object.keys(realListeners).forEach(key => {
-          const index = key.indexOf("native:");
-          if (index === 0 || index === 1 || index === 2) {
-            // native:click   -> click
-            // ~native:click  -> ~click
-            // ~!native:click -> ~!click  (eg: .capture.once)
-            nativeEventAttrs[key.slice(0, index) + key.slice(index + 7)] =
-              realListeners[key];
+        // native:click   -> click
+        // ~native:click  -> ~click
+        // &~!native:click -> &~!click
+        const regex = /(^&?~?!?)native:/;
+        Object.keys(listeners).forEach(key => {
+          if (regex.test(key)) {
+            nativeEventAttrs[key.replace(regex, "$1")] = listeners[key];
+          } else {
+            realListeners[key] = listeners[key];
           }
         });
       }
