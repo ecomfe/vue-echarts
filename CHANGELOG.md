@@ -1,3 +1,7 @@
+## 6.7.0
+
+* Added supports for native DOM events binding with the `native:` prefix.
+
 ## 6.6.10
 
 * Fixed that `autoresize` doesn't work when reducing the height or the root element.
