@@ -76,7 +76,7 @@ const transformErrors = ref([]);
 
 onMounted(async () => {
   await initialize({
-    wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.19.2/esbuild.wasm"
+    wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.19.12/esbuild.wasm"
   });
 
   initializing.value = false;
