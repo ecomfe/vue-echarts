@@ -1,3 +1,7 @@
+## 6.7.1
+
+* Fixed that native events won't actually trigger.
+
 ## 6.7.0
 
 * Added supports for native DOM events binding with the `native:` prefix.
