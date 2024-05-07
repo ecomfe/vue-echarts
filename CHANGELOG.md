@@ -1,3 +1,7 @@
+## 6.7.2
+
+* Fixed that charts inside `<keep-alive>` failed to display after activation.
+
 ## 6.7.1
 
 * Fixed that native events won't actually trigger.
