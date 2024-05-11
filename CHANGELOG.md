@@ -1,3 +1,10 @@
+## 7.0.0
+
+### Breaking changes
+
+* Dropped browsers without `ResizeObserver` support. Can work with [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill).
+* Dropped support for Vue < 2.7.
+
 ## 6.7.3
 
 * Fixed that `padding` on the component root doesn't work.
