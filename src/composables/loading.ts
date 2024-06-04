@@ -5,10 +5,9 @@ import {
   watchEffect,
   type Ref,
   type InjectionKey,
-  type PropType, unref
+  type PropType
 } from "vue-demi";
 import type { EChartsType, LoadingOptions } from "../types";
-import { toRaw } from "vue";
 
 export const LOADING_OPTIONS_KEY =
   "ecLoadingOptions" as unknown as InjectionKey<
@@ -21,10 +20,10 @@ export function useLoading(
   loadingOptions: Ref<LoadingOptions | undefined>
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
-  const realLoadingOptions = computed(() => ({
-    ...toRaw(defaultLoadingOptions),
+  const realLoadingOptions = () => ({
+    ...unwrapInjected(defaultLoadingOptions,{}),
     ...loadingOptions?.value
-  }));
+  });
 
   watchEffect(() => {
     const instance = chart.value;
@@ -33,8 +32,7 @@ export function useLoading(
     }
 
     if (loading.value) {
-      console.warn("show loading", realLoadingOptions.value);
-      instance.showLoading(realLoadingOptions.value);
+      instance.showLoading(realLoadingOptions());
     } else {
       instance.hideLoading();
     }
