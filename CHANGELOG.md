@@ -1,3 +1,7 @@
+## 6.7.3
+
+* Fixed that `padding` on the component root doesn't work.
+
 ## 6.7.2
 
 * Fixed that charts inside `<keep-alive>` failed to display after activation.
