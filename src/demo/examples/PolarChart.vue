@@ -7,10 +7,12 @@ import {
   LegendComponent,
   TooltipComponent
 } from "echarts/components";
-import { shallowRef } from "vue";
+import { provide, shallowRef } from "vue";
 import VChart from "../../ECharts";
 import VExample from "./Example";
 import getData from "../data/polar";
+import { LOADING_OPTIONS_KEY } from "@/ECharts.ts";
+import { watchEffect } from "vue-demi";
 
 use([
   LineChart,
@@ -22,6 +24,40 @@ use([
 
 const option = shallowRef(getData());
 const theme = shallowRef("dark");
+const load = shallowRef(true);
+
+
+
+
+const loadOptions = shallowRef({
+  text: '',
+  color: '#409eff',
+  textColor: '#000',
+  maskColor: 'rgba(255, 255, 255, 0.8)',
+  zlevel: 0,
+
+  // 字体大小。从 `v4.8.0` 开始支持。
+  fontSize: 12,
+  // 是否显示旋转动画（spinner）。从 `v4.8.0` 开始支持。
+  showSpinner: true,
+  // 旋转动画（spinner）的半径。从 `v4.8.0` 开始支持。
+  spinnerRadius: 17,
+  // 旋转动画（spinner）的线宽。从 `v4.8.0` 开始支持。
+  lineWidth: 2,
+  // 字体粗细。从 `v5.0.1` 开始支持。
+  fontWeight: 'normal',
+  // 字体风格。从 `v5.0.1` 开始支持。
+  fontStyle: 'normal',
+  // 字体系列。从 `v5.0.1` 开始支持。
+  fontFamily: 'sans-serif'
+});
+
+watchEffect(() => {
+  loadOptions.value.maskColor = theme.value==='dark' ? '#1f1f1f' : 'rgba(255, 255, 255, 0.8)'
+})
+
+provide(LOADING_OPTIONS_KEY, loadOptions);
+
 </script>
 
 <template>
@@ -30,6 +66,7 @@ const theme = shallowRef("dark");
       :option="option"
       autoresize
       :theme="theme"
+      :loading="load"
       :style="theme === 'dark' ? 'background-color: #100c2a' : ''"
     />
     <template #extra>
