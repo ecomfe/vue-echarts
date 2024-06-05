@@ -1,7 +1,6 @@
 import { unwrapInjected } from "../utils";
 import {
   inject,
-  computed,
   watchEffect,
   type Ref,
   type InjectionKey,

@@ -7,12 +7,11 @@ import {
   LegendComponent,
   TooltipComponent
 } from "echarts/components";
-import { provide, shallowRef } from "vue";
 import VChart from "../../ECharts";
 import VExample from "./Example";
 import getData from "../data/polar";
 import { LOADING_OPTIONS_KEY } from "@/ECharts.ts";
-import { watchEffect } from "vue-demi";
+import { watchEffect, provide, shallowRef } from "vue-demi";
 
 use([
   LineChart,
@@ -25,8 +24,6 @@ use([
 const option = shallowRef(getData());
 const theme = shallowRef("dark");
 const load = shallowRef(true);
-
-
 
 
 const loadOptions = shallowRef({
@@ -53,7 +50,10 @@ const loadOptions = shallowRef({
 });
 
 watchEffect(() => {
+  load.value = true;
   loadOptions.value.maskColor = theme.value==='dark' ? '#1f1f1f' : 'rgba(255, 255, 255, 0.8)'
+  option.value = getData();
+  setTimeout(() => (load.value = false), 1000);
 })
 
 provide(LOADING_OPTIONS_KEY, loadOptions);
