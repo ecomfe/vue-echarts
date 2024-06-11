@@ -297,7 +297,7 @@ input {
 }
 
 label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -381,11 +381,13 @@ select {
       }
     }
   }
+}
 
-  .actions {
-    display: flex;
-    justify-content: center;
-  }
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
 
 .renderer,
