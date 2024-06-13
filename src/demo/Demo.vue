@@ -311,7 +311,7 @@ select {
 }
 
 #logo {
-  display: inline-block;
+  display: inline-flex;
   width: 128px;
   height: 128px;
   pointer-events: none;
