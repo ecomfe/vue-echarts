@@ -44,7 +44,7 @@
     "@vueuse/core": "^10.9.0",
     "comment-mark": "^1.1.1",
     "core-js": "^3.37.0",
-    "echarts": "^5.5.0",
+    "echarts": "^5.5.1",
     "echarts-gl": "^2.0.9",
     "echarts-liquidfill": "^3.1.0",
     "esbuild-wasm": "^0.19.12",
