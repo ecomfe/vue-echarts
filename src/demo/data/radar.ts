@@ -15,37 +15,17 @@ export const useScoreStore = defineStore("store", () => {
     return scores.value.map(({ name }) => name);
   });
 
-  const scoreRadar = computed(() => {
+  function getRadarData(activeIndex: number) {
     return {
       title: {
-        text: "Player Ability"
+        text: "Player Ability",
+        top: "5%",
+        left: "5%"
       },
       textStyle: {
         fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
         fontWeight: 300
       },
-      radar: {
-        indicator: scores.value.map(({ name, max }) => {
-          return { name, max };
-        })
-      },
-      series: [
-        {
-          name: "Value",
-          type: "radar",
-          data: [{ value: scores.value.map(({ value }) => value) }]
-        }
-      ]
-    };
-  });
-
-  function getRadarData(activeIndex: number) {
-    return {
-      animation: false,
-      title: {
-        text: "Player Ability"
-      },
-      tooltip: {},
       radar: {
         indicator: scores.value.map(({ name, max }, index) => {
           if (index === activeIndex) {
@@ -81,7 +61,6 @@ export const useScoreStore = defineStore("store", () => {
   return {
     scores,
     metrics,
-    scoreRadar,
     getRadarData,
     increase,
     isMax,

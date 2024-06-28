@@ -408,6 +408,7 @@ export default function getData() {
       text: "Air quality of major cities in China",
       subtext: "data from PM25.in",
       sublink: "http://www.pm25.in",
+      top: "5%",
       left: "center",
       textStyle: {
         color: "#fff"
@@ -418,9 +419,9 @@ export default function getData() {
     },
     legend: {
       orient: "vertical",
-      y: "bottom",
-      x: "right",
-      data: ["pm2.5"],
+      right: "5%",
+      bottom: "5%",
+      data: ["PM2.5"],
       textStyle: {
         color: "#fff"
       }
@@ -438,11 +439,13 @@ export default function getData() {
       itemStyle: {
         areaColor: "#323c48",
         borderColor: "#111"
-      }
+      },
+      top: "20%",
+      bottom: "7%"
     },
     series: [
       {
-        name: "pm2.5",
+        name: "PM2.5",
         type: "scatter",
         coordinateSystem: "geo",
         data: convertData(data),

@@ -13,13 +13,17 @@ export default function getData() {
       fontWeight: 300
     },
     title: {
-      text: "Dual Numeric Axis"
+      text: "Dual Numeric Axis",
+      top: "5%",
+      left: "5%"
     },
     legend: {
-      data: ["line"]
+      data: ["line"],
+      top: "6%"
     },
     polar: {
-      center: ["50%", "54%"]
+      radius: "65%",
+      center: ["50%", "56%"]
     },
     tooltip: {
       trigger: "axis",

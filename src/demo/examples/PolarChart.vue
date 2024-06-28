@@ -58,10 +58,8 @@ const style = computed(() => {
           <option :value="null">Default</option>
           <option value="dark">Dark</option>
         </select>
-        <label>
-          <input type="checkbox" v-model="loading" />
-          Loading
-        </label>
+        <input id="loading-check" type="checkbox" v-model="loading" />
+        <label for="loading-check">Loading</label>
       </p>
     </template>
   </v-example>
