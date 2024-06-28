@@ -1,4 +1,4 @@
-import dts from "rollup-plugin-dts";
+import { dts } from "rollup-plugin-dts";
 
 /** @type {import('rollup').RollupOptions[]} */
 const options = [
@@ -7,14 +7,6 @@ const options = [
     plugins: [dts()],
     output: {
       file: "dist/index.vue2.d.ts",
-      format: "esm"
-    }
-  },
-  {
-    input: "src/index.vue2_7.d.ts",
-    plugins: [dts()],
-    output: {
-      file: "dist/index.vue2_7.d.ts",
       format: "esm"
     }
   }

@@ -1,11 +1,8 @@
-const { readFileSync, writeFileSync } = require("fs");
-const { resolve } = require("path");
-const commentMark = require("comment-mark");
-const { name, version } = require("../package.json");
+import { readFileSync, writeFileSync } from "node:fs";
+import commentMark from "comment-mark";
+import { getPackageMeta, resolvePath } from "./utils.mjs";
 
-function resolvePath(...parts) {
-  return resolve(__dirname, ...parts);
-}
+const { name, version } = getPackageMeta();
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
@@ -41,7 +38,7 @@ const scripts = {
 };
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map(name =>
-  resolvePath("..", name)
+  resolvePath(import.meta.url, "..", name)
 );
 
 README_FILES.forEach(file => {

@@ -236,9 +236,9 @@ import "echarts";
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.23"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.7.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.30"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.0-beta.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -257,8 +257,8 @@ app.component('v-chart', VueECharts)
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.7.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.0-beta.0"></script>
 ```
 <!-- vue2Scripts:end -->
 

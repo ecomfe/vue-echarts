@@ -1,7 +1,9 @@
 {
   "name": "vue-echarts",
-  "version": "6.7.3",
+  "version": "7.0.0-beta.0",
   "description": "Vue.js component for Apache ECharts™.",
+  "license": "MIT",
+  "repository": "https://github.com/ecomfe/vue-echarts.git",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -9,20 +11,45 @@
     "build:2": "vue-demi-switch 2 vue2 && rollup -c rollup.vue2.config.js",
     "build:3": "vue-demi-switch 3 && rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
+    "publint": "publint",
     "build:demo": "vue-cli-service build",
-    "docs": "node ./scripts/docs.js",
-    "postinstall": "node ./scripts/postinstall.js",
-    "prepublishOnly": "pnpm run build"
+    "docs": "node ./scripts/docs.mjs",
+    "postinstall": "node ./scripts/postinstall.mjs",
+    "prepublishOnly": "pnpm run build && publint"
   },
-  "main": "dist/index.cjs.min.js",
-  "module": "dist/index.esm.min.js",
-  "unpkg": "dist/index.umd.min.js",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.cjs",
+  "unpkg": "dist/index.min.js",
+  "jsdelivr": "dist/index.min.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./csp": {
+      "import": "./dist/csp/index.js",
+      "require": "./dist/csp/index.cjs"
+    },
+    "./csp/style.css": "./dist/csp/style.css"
+  },
   "files": [
     "dist",
     "scripts/postinstall.js"
   ],
   "dependencies": {
     "vue-demi": "^0.13.11"
+  },
+  "peerDependencies": {
+    "@vue/runtime-core": "^3.0.0",
+    "echarts": "^5.5.1",
+    "vue": "^2.7.0 || ^3.1.1"
+  },
+  "peerDependenciesMeta": {
+    "@vue/runtime-core": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
@@ -38,7 +65,6 @@
     "@vue/cli-plugin-typescript": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
     "@vue/compiler-sfc": "^3.4.24",
-    "@vue/composition-api": "^1.7.2",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^10.0.0",
     "@vueuse/core": "^10.9.0",
@@ -57,32 +83,18 @@
     "postcss-loader": "^5.3.0",
     "postcss-nested": "^5.0.6",
     "prettier": "^2.8.8",
+    "publint": "^0.2.8",
     "raw-loader": "^4.0.2",
     "resize-detector": "^0.3.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.79.1",
-    "rollup-plugin-dts": "^4.2.3",
-    "rollup-plugin-styles": "^4.0.0",
-    "rollup-plugin-ts": "^2.0.7",
+    "rollup": "^4.12.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-import-css": "^3.5.0",
     "tslib": "^2.6.2",
     "typescript": "4.6.4",
     "vue": "^3.4.24",
     "vue2": "npm:vue@^2.7.16",
     "webpack": "^5.91.0"
-  },
-  "peerDependencies": {
-    "@vue/composition-api": "^1.0.5",
-    "@vue/runtime-core": "^3.0.0",
-    "echarts": "^5.4.1",
-    "vue": "^2.7.0 || ^3.1.1"
-  },
-  "jsdelivr": "dist/index.umd.min.js",
-  "license": "MIT",
-  "peerDependenciesMeta": {
-    "@vue/runtime-core": {
-      "optional": true
-    }
-  },
-  "repository": "https://github.com/ecomfe/vue-echarts.git",
-  "types": "dist/index.d.ts"
+  }
 }
