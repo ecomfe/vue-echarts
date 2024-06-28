@@ -1,6 +1,7 @@
 import { init } from "echarts/core";
+
 import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts";
-import type { Ref } from "vue";
+import type { Ref } from "vue-demi";
 
 export type Injection<T> = T | null | Ref<T | null> | { value: T | null };
 

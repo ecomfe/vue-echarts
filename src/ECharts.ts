@@ -13,11 +13,21 @@ import {
   nextTick,
   watchEffect,
   getCurrentInstance,
-  Vue2,
-  type PropType,
-  type InjectionKey
+  Vue2
 } from "vue-demi";
 import { init as initChart } from "echarts/core";
+
+import {
+  usePublicAPI,
+  useAutoresize,
+  autoresizeProps,
+  useLoading,
+  loadingProps
+} from "./composables";
+import { isOn, omitOn, unwrapInjected } from "./utils";
+import { register, TAG_NAME } from "./wc";
+
+import type { PropType, InjectionKey } from "vue-demi";
 import type {
   EChartsType,
   EventTarget,
@@ -30,15 +40,8 @@ import type {
   UpdateOptionsInjection,
   Emits
 } from "./types";
-import {
-  usePublicAPI,
-  useAutoresize,
-  autoresizeProps,
-  useLoading,
-  loadingProps
-} from "./composables";
-import { isOn, omitOn, unwrapInjected } from "./utils";
-import { register, TAG_NAME, type EChartsElement } from "./wc";
+import type { EChartsElement } from "./wc";
+
 import "./style.css";
 
 const __CSP__ = false;
@@ -75,7 +78,6 @@ export default defineComponent({
   inheritAttrs: false,
   setup(props, { attrs }) {
     const root = shallowRef<EChartsElement>();
-    const inner = shallowRef<HTMLElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
@@ -155,12 +157,12 @@ export default defineComponent({
     }
 
     function init(option?: Option) {
-      if (!inner.value) {
+      if (!root.value) {
         return;
       }
 
       const instance = (chart.value = initChart(
-        inner.value,
+        root.value,
         realTheme.value,
         realInitOptions.value
       ));
@@ -306,7 +308,7 @@ export default defineComponent({
 
     useLoading(chart, loading, loadingOptions);
 
-    useAutoresize(chart, autoresize, inner);
+    useAutoresize(chart, autoresize, root);
 
     onMounted(() => {
       init();
@@ -327,7 +329,6 @@ export default defineComponent({
     return {
       chart,
       root,
-      inner,
       setOption,
       nonEventAttrs,
       nativeListeners,
@@ -344,8 +345,6 @@ export default defineComponent({
     ) as any;
     attrs.ref = "root";
     attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
-    return h(TAG_NAME, attrs, [
-      h("div", { ref: "inner", class: "vue-echarts-inner" })
-    ]);
+    return h(TAG_NAME, attrs);
   }
 });

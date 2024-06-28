@@ -1,6 +1,8 @@
-import { watch, type Ref, type PropType } from "vue-demi";
+import { watch } from "vue-demi";
 import { throttle } from "echarts/core";
-import { type EChartsType } from "../types";
+
+import type { Ref, PropType } from "vue-demi";
+import type { EChartsType } from "../types";
 
 type AutoresizeProp =
   | boolean
