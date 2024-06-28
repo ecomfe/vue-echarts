@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import type { DefineComponent } from "@vue/runtime-core";
-import type { Ref } from "vue-demi";
+import type { Ref, DefineComponent } from "vue-demi";
 import type {
   Option,
   InitOptions,

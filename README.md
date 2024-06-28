@@ -13,7 +13,7 @@
 
 ---
 
-<h2>💡 Heads up 💡 <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%F0%9F%87%A8%F0%9F%87%B3-%E4%B8%AD%E6%96%87%E7%89%88-white?labelColor=white" alt="前往中文版" align="right" height="24"/></a></h2>
+<h2>💡 Heads up 💡 <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E7%89%88-20c3aa" alt="前往中文版" align="right" height="24"/></a></h2>
 
 If you are migrating from `vue-echarts` ≤ 5, you should read the _[Migration to v6](#migration-to-v6)_ section before you update to v6.
 
@@ -236,9 +236,9 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.23"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.7.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.30"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.0-beta.0"></script>
 ```
 <!-- vue3Scripts:end -->
 
@@ -257,8 +257,8 @@ app.component('v-chart', VueECharts)
 <!-- vue2Scripts:start -->
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.7.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.0-beta.0"></script>
 ```
 <!-- vue2Scripts:end -->
 
