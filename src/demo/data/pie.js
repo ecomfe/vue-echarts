@@ -6,6 +6,7 @@ export default function getData() {
     },
     title: {
       text: "Traffic Sources",
+      top: "5%",
       left: "center"
     },
     tooltip: {
@@ -14,7 +15,8 @@ export default function getData() {
     },
     legend: {
       orient: "vertical",
-      left: "left",
+      top: "5%",
+      left: "5%",
       data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
     },
     series: [

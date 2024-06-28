@@ -15,15 +15,16 @@ const c1 = {
     fontWeight: 300
   },
   legend: {
-    top: 20,
+    top: "3%",
     data: ["scatter"]
   },
   tooltip: {
     formatter: "{c}"
   },
   grid: {
-    top: "26%",
-    bottom: "26%"
+    top: "30%",
+    right: "18%",
+    bottom: "20%"
   },
   xAxis: {
     type: "value",
@@ -40,7 +41,8 @@ const c1 = {
   visualMap: [
     {
       realtime: false,
-      left: "right",
+      right: "2%",
+      bottom: "3%",
       selectedMode: "multiple",
       dimension: 2,
       selected: [],
@@ -67,15 +69,16 @@ const c2 = {
     fontWeight: 300
   },
   legend: {
-    top: 20,
+    top: "3%",
     data: ["scatter"]
   },
   tooltip: {
     formatter: "{c}"
   },
   grid: {
-    top: "26%",
-    bottom: "26%"
+    top: "30%",
+    right: "18%",
+    bottom: "20%"
   },
   xAxis: {
     type: "value",
@@ -91,7 +94,8 @@ const c2 = {
   },
   visualMap: [
     {
-      left: "right",
+      right: "2%",
+      bottom: "3%",
       selectedMode: "multiple",
       dimension: 2,
       selected: [],
