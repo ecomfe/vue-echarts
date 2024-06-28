@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Ref } from "vue-demi";
-import { EChartsType } from "../types";
+import type { Ref } from "vue-demi";
+import type { EChartsType } from "../types";
 
 const METHOD_NAMES = [
   "getWidth",

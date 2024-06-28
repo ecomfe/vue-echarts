@@ -1,12 +1,7 @@
 import { unwrapInjected } from "../utils";
-import {
-  inject,
-  computed,
-  watchEffect,
-  type Ref,
-  type InjectionKey,
-  type PropType
-} from "vue-demi";
+import { inject, computed, watchEffect } from "vue-demi";
+
+import type { Ref, InjectionKey, PropType } from "vue-demi";
 import type { EChartsType, LoadingOptions } from "../types";
 
 export const LOADING_OPTIONS_KEY =
