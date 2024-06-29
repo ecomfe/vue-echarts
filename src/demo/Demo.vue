@@ -111,9 +111,7 @@ watch(codeOpen, open => {
     </aside>
 
     <aside class="codegen">
-      <button @click="openCodegen">
-        ✨ <code>import</code> Codegen <span class="badge">beta</span>
-      </button>
+      <button @click="openCodegen">✨ <code>import</code> Codegen</button>
     </aside>
 
     <code-gen v-model:open="codeOpen" :renderer="initOptions.renderer" />
@@ -447,15 +445,6 @@ select {
     align-items: center;
     padding: 0 4px;
     gap: 4px;
-
-    .badge {
-      display: block;
-      padding: 2px 3px;
-      font-size: 10px;
-      background: #36485e54;
-      color: #fff;
-      border-radius: 4px;
-    }
   }
 }
 

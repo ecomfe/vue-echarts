@@ -50,6 +50,8 @@ onMounted(() => {
         }
       },
       visualMap: {
+        bottom: "3%",
+        left: "3%",
         max: 40,
         calculable: true,
         realtime: false,

@@ -46,10 +46,8 @@ watch(
     </template>
     <template #extra>
       <p class="actions">
-        <label>
-          <input type="checkbox" v-model="connected" />
-          Connected
-        </label>
+        <input id="connected-check" type="checkbox" v-model="connected" />
+        <label for="connected-check">Connected</label>
       </p>
     </template>
   </v-example>

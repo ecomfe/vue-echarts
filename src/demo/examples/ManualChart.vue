@@ -46,6 +46,7 @@ function load() {
       },
       title: {
         text: "World Flights",
+        top: "5%",
         left: "center",
         textStyle: {
           color: "#eee"
@@ -62,8 +63,10 @@ function load() {
       },
       geo: {
         map: "world",
-        left: 0,
-        right: 0,
+        top: "15%",
+        right: "5%",
+        bottom: "5%",
+        left: "5%",
         silent: true,
         itemStyle: {
           borderColor: "#003",

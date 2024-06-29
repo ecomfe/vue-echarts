@@ -47,15 +47,21 @@ const data = [
 
 export default function getData() {
   return {
+    grid: {
+      top: "25%"
+    },
     textStyle: {
       fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
       fontWeight: 300
     },
     title: {
-      text: "Life Expectancy vs. GDP by country"
+      text: "Life Expectancy vs. GDP by country",
+      top: "5%",
+      left: "5%"
     },
     legend: {
-      right: 10,
+      top: "6%",
+      right: "5%",
       data: ["1990", "2015"]
     },
     xAxis: {
