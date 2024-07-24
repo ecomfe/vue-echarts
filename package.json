@@ -7,31 +7,22 @@
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "pnpm run docs && rimraf dist && pnpm run build:2 && pnpm run build:3 && vue-demi-switch 3",
-    "build:2": "vue-demi-switch 2 vue2 && rollup -c rollup.vue2.config.js",
-    "build:3": "vue-demi-switch 3 && rollup -c rollup.config.js",
+    "build": "pnpm run docs && rimraf dist && pnpm run build:rollup",
+    "build:rollup": "vue-demi-switch 3 && rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
     "publint": "publint",
     "build:demo": "vue-cli-service build",
     "docs": "node ./scripts/docs.mjs",
-    "postinstall": "node ./scripts/postinstall.mjs",
     "prepublishOnly": "pnpm run build && publint"
   },
   "type": "module",
-  "module": "dist/index.js",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
   "jsdelivr": "dist/index.min.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./csp": {
-      "import": "./dist/csp/index.js",
-      "require": "./dist/csp/index.cjs"
-    },
+    ".": "./dist/index.js",
+    "./csp": "./dist/csp/index.js",
     "./csp/style.css": "./dist/csp/style.css"
   },
   "files": [

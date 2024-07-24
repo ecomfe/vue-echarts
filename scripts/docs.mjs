@@ -7,7 +7,7 @@ const { name, version } = getPackageMeta();
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  "vue@3": "3.4.30",
+  "vue@3": "3.4.33",
   "vue@2": "2.7.16",
   echarts: "5.5.1",
   [name]: version

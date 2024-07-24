@@ -2,8 +2,9 @@
 
 ### Breaking changes
 
-* Dropped browsers without `ResizeObserver` support. Can work with [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill).
+* Dropped support for browsers without `ResizeObserver`. Can work with [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill).
 * Dropped support for Vue < 2.7.
+* Dropped CJS outputs.
 
 ## 6.7.3
 
