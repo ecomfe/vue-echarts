@@ -10,6 +10,7 @@
 * Dropped support for Vue < 2.7.
 * Dropped CJS outputs.
 * Dropped extra wrapper element so that you should no longer set `padding` on the component root.
+* For strict CSP usage, `vue-echarts/csp` should now be used as the entry point and `vue-echarts/csp/style.css` should be included manually.
 
 ## 6.7.3
 

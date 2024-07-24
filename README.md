@@ -459,7 +459,7 @@ Static methods can be accessed from [`echarts` itself](https://echarts.apache.or
 
 ## CSP: `style-src` or `style-src-elem`
 
-If you are applying a CSP to prevent inline `<style>` injection, you need to use files from `dist/csp` directory and include `dist/csp/style.css` into your app manually.
+If you are applying a CSP to prevent inline `<style>` injection, you need to use `vue-echarts/csp` instead of `vue-echarts` and include `vue-echarts/csp/style.css` manually.
 
 ## Migration to v6
 
