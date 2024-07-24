@@ -413,7 +413,9 @@ input[type="number"] {
   transform: translate(-50%, 200%);
   border-radius: 4px;
   opacity: 0;
-  transition: transform 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
 }
 
 .message.open {
