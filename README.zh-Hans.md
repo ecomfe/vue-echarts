@@ -461,7 +461,7 @@ import { THEME_KEY } from 'vue-echarts'
 
 ## CSP: `style-src` 或 `style-src-elem`
 
-如果你正在应用 CSP 来防止内联 `<style>` 注入，则需要使用 `dist/csp` 目录中的文件，并手动引入 `dist/csp/style.css`。
+如果你正在应用 CSP 来防止内联 `<style>` 注入，则需要使用 `vue-echarts/csp` 代替 `vue-echarts`，并手动引入 `vue-echarts/csp/style.css`。
 
 ## 迁移到 v6
 
