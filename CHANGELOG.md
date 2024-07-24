@@ -1,10 +1,15 @@
 ## 7.0.0-beta.0
 
+* Upgraded to ESM.
+* Removed the `postinstall` script.
+* API remains the same.
+
 ### Breaking changes
 
 * Dropped support for browsers without `ResizeObserver`. Can work with [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill).
 * Dropped support for Vue < 2.7.
 * Dropped CJS outputs.
+* Dropped extra wrapper element so that you should no longer set `padding` on the component root.
 
 ## 6.7.3
 

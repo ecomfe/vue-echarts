@@ -6,7 +6,8 @@
   "extends": [
     "plugin:vue/vue3-essential",
     "eslint:recommended",
-    "@vue/prettier"
+    "@vue/eslint-config-typescript",
+    "@vue/eslint-config-prettier/skip-formatting"
   ],
   "parserOptions": {
     "ecmaVersion": 2020,
@@ -15,16 +16,5 @@
   "rules": {
     "no-console": "off",
     "vue/multi-word-component-names": "off"
-  },
-  "overrides": [
-    {
-      "files": ["*.ts"],
-      "extends": [
-        "plugin:vue/vue3-essential",
-        "eslint:recommended",
-        "@vue/eslint-config-typescript",
-        "@vue/eslint-config-prettier/skip-formatting"
-      ]
-    }
-  ]
+  }
 }
