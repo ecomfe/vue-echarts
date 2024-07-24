@@ -1,4 +1,4 @@
-## 7.0.0
+## 7.0.0-beta.0
 
 ### Breaking changes
 
