@@ -20,6 +20,14 @@ export default {
       .test(/\.svg$/)
       .type("asset/source");
 
+    config.module
+      .rule('wasm')
+      .test(/\.wasm$/)
+      .type('asset/resource')
+      .set('generator', {
+        filename: '[name].[hash:8][ext]'
+      })
+
     config.plugin("define").tap(([options]) => [
       {
         ...options,
