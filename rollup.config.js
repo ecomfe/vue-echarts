@@ -2,7 +2,7 @@ import replace from "@rollup/plugin-replace";
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
 import css from "rollup-plugin-import-css";
-import { ignoreCss } from "./scripts/rollup.mjs";
+import { injectVueDemi } from "./scripts/rollup.mjs";
 
 /**
  * Modifies the Rollup options for a build to support strict CSP
@@ -45,24 +45,26 @@ const builds = [
         file: "dist/index.js",
         format: "esm",
         sourcemap: true
-      },
-      {
-        file: "dist/index.cjs",
-        format: "cjs",
-        exports: "named",
-        sourcemap: true
       }
     ]
   },
   {
-    input: "src/index.ts",
+    input: "src/global.ts",
     plugins: [esbuild({ minify: true })],
     external: ["vue-demi", /^echarts/],
     output: [
       {
         file: "dist/index.min.js", // for unpkg/jsdelivr
-        format: "esm",
-        sourcemap: true
+        format: "umd",
+        name: "VueECharts",
+        exports: "default",
+        sourcemap: true,
+        globals: {
+          "vue-demi": "VueDemi",
+          echarts: "echarts",
+          "echarts/core": "echarts"
+        },
+        plugins: [injectVueDemi]
       }
     ]
   }
@@ -72,20 +74,17 @@ export default [
   ...builds.map(options => configBuild(options, false)),
   ...builds.map(options => configBuild(options, true)),
   {
-    input: "src/index.ts",
-    plugins: [
-      ignoreCss,
-      dts({
-        compilerOptions: {
-          // see https://github.com/unjs/unbuild/pull/57/files
-          preserveSymlinks: false
-        }
-      })
-    ],
-    external: ["vue-demi", /^echarts/],
-    output: {
-      file: "dist/index.vue3.d.ts",
-      format: "esm"
-    }
+    input: "src/index.d.ts",
+    plugins: [dts()],
+    output: [
+      {
+        file: "dist/index.d.ts",
+        format: "esm"
+      },
+      {
+        file: "dist/csp/index.d.ts",
+        format: "esm"
+      }
+    ]
   }
 ];

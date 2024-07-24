@@ -1,6 +1,6 @@
 import { init } from "echarts/core";
 
-import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts";
+import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts/core";
 import type { Ref } from "vue-demi";
 
 export type Injection<T> = T | null | Ref<T | null> | { value: T | null };
@@ -37,6 +37,7 @@ export type LoadingOptions = {
   lineWidth?: number;
   zlevel?: number;
 };
+export type LoadingOptionsInjection = Injection<LoadingOptions>;
 
 type MouseEventName =
   | "click"

@@ -15,32 +15,15 @@
 
 ## 💡 注意 💡
 
-若您准备从 `vue-echarts` ≤ 5 的版本迁移到新版本，请在升级 v6 前阅读 _[迁移到 v6](#迁移到-v6)_ 部分文档。
-
-没准备好的话，可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/5.x/README.zh_CN.md)
+还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh_CN.md)
 
 ## 安装 & 使用
 
-### npm & ESM
+### npm
 
 ```sh
-npm i echarts vue-echarts
+npm add echarts vue-echarts
 ```
-
-要在 _Vue 2_（<2.7.0）下使用 `vue-echarts`，需要确保 `@vue/composition-api` 已经安装（TypeScript 支持还需要 `@vue/runtime-core`）：
-
-```sh
-npm i @vue/composition-api
-npm i @vue/runtime-core # TypeScript 支持
-```
-
-如果你在使用基于 _Vue 2_ 的 _NuxtJS_，则需要安装 `@nuxtjs/composition-api`：
-
-```sh
-npm i @nuxtjs/composition-api
-```
-
-然后在 `nuxt.config.js` 的 `buildModules` 选项中添加 `'@nuxtjs/composition-api/module'`。
 
 #### 示例
 
@@ -227,7 +210,7 @@ export default {
 import "echarts";
 ```
 
-### CDN & 全局变量
+### CDN
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
@@ -236,7 +219,7 @@ import "echarts";
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.30"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.33"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.0-beta.0"></script>
 ```
