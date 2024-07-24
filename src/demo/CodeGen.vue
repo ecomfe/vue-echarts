@@ -16,6 +16,7 @@ import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 import { initialize, transform } from "esbuild-wasm";
+import wasmURL from "esbuild-wasm/esbuild.wasm";
 import { track } from "@vercel/analytics";
 
 import { getImportsFromOption } from "./utils/codegen";
@@ -75,9 +76,7 @@ const transformedCode = ref("");
 const transformErrors = ref([]);
 
 onMounted(async () => {
-  await initialize({
-    wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.19.12/esbuild.wasm"
-  });
+  await initialize({ wasmURL });
 
   initializing.value = false;
 
