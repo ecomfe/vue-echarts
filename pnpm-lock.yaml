@@ -79,8 +79,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(echarts@5.5.1)
       esbuild-wasm:
-        specifier: ^0.19.12
-        version: 0.19.12
+        specifier: ^0.23.0
+        version: 0.23.0
       eslint:
         specifier: ^7.32.0
         version: 7.32.0
@@ -2453,9 +2453,9 @@ packages:
   es-module-lexer@1.5.0:
     resolution: {integrity: sha512-pqrTKmwEIgafsYZAGw9kszYzmagcE/n4dbgwGWLEXg7J4QFJVQRBld8j3Q3GNez79jzxZshq0bcT962QHOghjw==}
 
-  esbuild-wasm@0.19.12:
-    resolution: {integrity: sha512-Zmc4hk6FibJZBcTx5/8K/4jT3/oG1vkGTEeKJUQFCUQKimD6Q7+adp/bdVQyYJFolMKaXkQnVZdV4O5ZaTYmyQ==}
-    engines: {node: '>=12'}
+  esbuild-wasm@0.23.0:
+    resolution: {integrity: sha512-6jP8UmWy6R6TUUV8bMuC3ZyZ6lZKI56x0tkxyCIqWwRRJ/DgeQKneh/Oid5EoGoPFLrGNkz47ZEtWAYuiY/u9g==}
+    engines: {node: '>=18'}
     hasBin: true
 
   esbuild@0.23.0:
@@ -7215,7 +7215,7 @@ snapshots:
 
   es-module-lexer@1.5.0: {}
 
-  esbuild-wasm@0.19.12: {}
+  esbuild-wasm@0.23.0: {}
 
   esbuild@0.23.0:
     optionalDependencies:
