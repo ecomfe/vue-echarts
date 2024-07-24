@@ -21,12 +21,12 @@ export default {
       .type("asset/source");
 
     config.module
-      .rule('wasm')
+      .rule("wasm")
       .test(/\.wasm$/)
-      .type('asset/resource')
-      .set('generator', {
-        filename: '[name].[hash:8][ext]'
-      })
+      .type("asset/resource")
+      .set("generator", {
+        filename: "[name].[hash:8][ext]"
+      });
 
     config.plugin("define").tap(([options]) => [
       {
