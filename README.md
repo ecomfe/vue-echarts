@@ -454,36 +454,9 @@ Static methods can be accessed from [`echarts` itself](https://echarts.apache.or
 
 If you are applying a CSP to prevent inline `<style>` injection, you need to use `vue-echarts/csp` instead of `vue-echarts` and include `vue-echarts/csp/style.css` manually.
 
-## Migration to v6
+## Migration to v7
 
-> 💡 Please make sure to read the [migration guide](https://echarts.apache.org/en/tutorial.html#ECharts%205%20Upgrade%20Guide) for ECharts 5 as well.
-
-The following breaking changes are introduced in `vue-echarts@6`:
-
-### Vue 2 support
-
-- If you are using version prior to `vue@2.7.0`, `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2 (and also `@vue/runtime-core` for TypeScript support).
-
-### Props
-
-- `options` is renamed to **`option`** to align with ECharts itself.
-- Updating `option` will respect **`update-options`** configs instead of checking reference change.
-- `watch-shallow` is removed. Use **`manual-update`** for performance critical scenarios.
-
-### Methods
-
-- `mergeOptions` is renamed to **`setOption`** to align with ECharts itself.
-- `showLoading` and `hideLoading` is removed. Use the **`loading` and `loading-options`** props instead.
-- `appendData` is removed. (Due to ECharts 5's breaking change.)
-- All static methods are removed from `vue-echarts`. Use those methods from `echarts` directly.
-
-### Computed getters
-
-- Computed getters (`width`, `height`, `isDisposed` and `computedOptions`) are removed. Use the **`getWidth`, `getHeight`, `isDisposed` and `getOption`** methods instead.
-
-### Styles
-
-- Now the root element of the component have **`100%×100%`** size by default, instead of `600×400`.
+Read the breaking changes document in the [release log](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0) and the migration shoud be straightforward.
 
 ## Local development
 

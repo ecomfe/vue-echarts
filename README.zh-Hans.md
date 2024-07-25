@@ -456,36 +456,12 @@ import { THEME_KEY } from 'vue-echarts'
 
 如果你正在应用 CSP 来防止内联 `<style>` 注入，则需要使用 `vue-echarts/csp` 代替 `vue-echarts`，并手动引入 `vue-echarts/csp/style.css`。
 
-## 迁移到 v6
+## 迁移到 v7
 
-> 💡 请确保同时查阅 ECharts 5 的[升级指南](https://echarts.apache.org/zh/tutorial.html#ECharts%205%20%E5%8D%87%E7%BA%A7%E6%8C%87%E5%8D%97)。
+Translate:
+Read the breaking changes document in the [release log](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0) and the migration shoud be straightforward.
 
-`vue-echarts@6` 引入了如下破坏性变更：
-
-### Vue 2 支持
-
-- 要在 `vue@2.7.0` 之前的版本中使用 Vue-ECharts，必须安装 `@vue/composition-api`（还需要安装 `@vue/runtime-core` 来支持 TypeScript）。
-
-### Prop
-
-- `options` 重命名为 **`option`**，以和 ECharts 本身保持一致。
-- 更新 `option` 将采用 **`update-options`** 中的配置，不再检查是否发生引用变化。
-- `watch-shallow` 被移除。在性能关键场景请使用 **`manual-update`**。
-
-### 方法
-
-- `mergeOptions` 重命名为 **`setOption`**，以和 ECharts 本身保持一致。
-- `showLoading` 与 `hideLoading` 被移除。请使用 **`loading` 与 `loading-options`** prop。
-- `appendData` 被移除。（由于 ECharts 5 引入的破坏性变更。）
-- 所有静态方法被从 `vue-echarts` 移除。可以直接使用 `echarts` 本身的这些方法。
-
-### 计算 Getter
-
-- 计算 getter（`width`、`height`、`isDisposed` 和 `computedOptions`）被移除。请分别使用 **`getWidth`、`getHeight`、`isDisposed` 和 `getOption`** 方法代替。
-
-### 样式
-
-- 现在组件根元素尺寸默认为 **`100%×100%`**，而非原来的 `600×400`。
+请阅读[发布日志](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0)中的变更记录，之后迁移过程应该会相对简单。
 
 ## 本地开发
 
