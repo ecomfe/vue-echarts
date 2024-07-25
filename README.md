@@ -1,21 +1,12 @@
 <h1 align="center">Vue-ECharts</h1>
 
-<p align="center">Vue.js <sup>(v2/v3)</sup> component for Apache ECharts™ <sup>(v5)</sup>.</p>
-<p align="center"><a href="https://vue-echarts.dev/">View Demo →</a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
-
-> [!IMPORTANT]
-> We have released an [import code generator](https://vue-echarts.dev/#codegen) that can generate precise import code by pasting the `option` code.
->
-> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
->
-> [Try it →](https://vue-echarts.dev/#codegen)
+<p align="center">Vue.js component for Apache ECharts™.</p>
+<p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm version" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/Demo%20%C2%BB-20c3aa" alt="View demo"></a> <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E7%89%88%20%C2%BB-000" alt="前往中文版"></a></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"></a></p>
 
 ---
 
-<h2>💡 Heads up 💡 <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E7%89%88-20c3aa" alt="前往中文版" align="right" height="24"/></a></h2>
-
-Still using v6? Read v6 docs [here →](https://github.com/ecomfe/vue-echarts/tree/6.x)
+> Still using v6? Read v6 docs [here →](https://github.com/ecomfe/vue-echarts/tree/6.x)
 
 ## Installation & Usage
 
@@ -201,6 +192,8 @@ export default {
 
 > [!IMPORTANT]
 > We encourage manually importing components and charts from ECharts for smaller bundle size. We've built an [import code generator](https://vue-echarts.dev/#codegen) to help you with that. You can just paste in your `option` code and we'll generate the precise import code for you.
+>
+> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
 >
 > [Try it →](https://vue-echarts.dev/#codegen)
 

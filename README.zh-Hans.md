@@ -1,21 +1,12 @@
 <h1 align="center">Vue-ECharts</h1>
 
-<p align="center">Apache ECharts™ <sup>(v5)</sup> 的 Vue.js <sup>(v2/v3)</sup> 组件。</p>
-<p align="center"><a href="https://vue-echarts.dev/">查看 Demo →</a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"/></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"/></a></p>
-
-> [!IMPORTANT]
-> 我们新发布了一个[导入代码生成器](https://vue-echarts.dev/#codegen)，只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
->
-> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
->
-> [试一试 →](https://vue-echarts.dev/#codegen)
+<p align="center">Apache ECharts™ 的 Vue.js 组件。</p>
+<p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm 版本" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%20%C2%BB-20c3aa" alt="查看演示"></a> <a href="./README.zh-Hans.md"></p>
+<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"></a></p>
 
 ---
 
-## 💡 注意 💡
-
-还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh_CN.md)
+> 还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh_CN.md)
 
 ## 安装 & 使用
 
@@ -201,6 +192,8 @@ export default {
 
 > [!IMPORTANT]
 > 我们鼓励手动从 ECharts 中引入组件和图表，以减小打包体积。我们已经为此构建了一个[导入代码生成器](https://vue-echarts.dev/#codegen)。你只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
+>
+> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
 >
 > [试一试 →](https://vue-echarts.dev/#codegen)
 
