@@ -23,6 +23,13 @@ export type EventTarget = EChartsType | ZRenderType;
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
 
+export type AutoResize =
+  | boolean
+  | {
+      throttle?: number;
+      onResize?: () => void;
+    };
+
 export type LoadingOptions = {
   text?: string;
   textColor?: string;

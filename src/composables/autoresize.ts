@@ -2,18 +2,11 @@ import { watch } from "vue-demi";
 import { throttle } from "echarts/core";
 
 import type { Ref, PropType } from "vue-demi";
-import type { EChartsType } from "../types";
-
-type AutoresizeProp =
-  | boolean
-  | {
-      throttle?: number;
-      onResize?: () => void;
-    };
+import type { EChartsType, AutoResize } from "../types";
 
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
-  autoresize: Ref<AutoresizeProp | undefined>,
+  autoresize: Ref<AutoResize | undefined>,
   root: Ref<HTMLElement | undefined>
 ): void {
   watch(
@@ -63,5 +56,5 @@ export function useAutoresize(
 }
 
 export const autoresizeProps = {
-  autoresize: [Boolean, Object] as PropType<AutoresizeProp>
+  autoresize: [Boolean, Object] as PropType<AutoResize>
 };

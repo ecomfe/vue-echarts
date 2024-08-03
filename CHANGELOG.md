@@ -1,3 +1,7 @@
+## 7.0.1
+
+* Fixed type for `autoresize`.
+
 ## 7.0.0
 
 > Other prerelease changes:
