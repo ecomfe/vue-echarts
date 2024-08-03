@@ -13,6 +13,7 @@
 
 ### Breaking changes
 
+* Peer deps for `echarts` is upgraded to `^5.5.1`.
 * Dropped support for browsers without `ResizeObserver`. Can work with [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill).
 * Dropped support for Vue < 2.7.
 * Dropped CJS outputs.
