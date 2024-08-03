@@ -93,19 +93,19 @@ type OtherEventName =
   | "globalcursortaken";
 
 type MouseEmits = {
-  [key in MouseEventName]: (params: ECElementEvent) => boolean;
+  [key in MouseEventName]: (params: ECElementEvent) => void;
 };
 
 type ZRenderEmits = {
-  [key in ZRenderEventName]: (params: ElementEvent) => boolean;
+  [key in ZRenderEventName]: (params: ElementEvent) => void;
 };
 
 type OtherEmits = {
-  [key in OtherEventName]: null;
+  [key in OtherEventName]: (params: any) => void;
 };
 
 export type Emits = MouseEmits &
   OtherEmits & {
-    rendered: (params: { elapsedTime: number }) => boolean;
-    finished: () => boolean;
+    rendered: (params: { elapsedTime: number }) => void;
+    finished: () => void;
   } & ZRenderEmits;

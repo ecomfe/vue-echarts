@@ -1,3 +1,10 @@
+## 7.0.0
+
+> Other prerelease changes:
+> * [7.0.0-beta.0](#700-beta0)
+
+* Fixed types for events.
+
 ## 7.0.0-beta.0
 
 * Upgraded to ESM.

@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "7.0.0-beta.0",
+  "version": "7.0.0",
   "description": "Vue.js component for Apache ECharts™.",
   "license": "MIT",
   "repository": "https://github.com/ecomfe/vue-echarts.git",
