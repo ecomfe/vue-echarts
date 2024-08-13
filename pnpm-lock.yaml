@@ -21,6 +21,9 @@ importers:
       '@highlightjs/vue-plugin':
         specifier: ^2.1.0
         version: 2.1.0(highlight.js@11.10.0)(vue@3.4.33(typescript@5.5.4))
+      '@justfork/rollup-plugin-import-css':
+        specifier: ^3.5.1
+        version: 3.5.1(rollup@4.19.0)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.19.0)
@@ -126,9 +129,6 @@ importers:
       rollup-plugin-esbuild:
         specifier: ^6.1.1
         version: 6.1.1(esbuild@0.23.0)(rollup@4.19.0)
-      rollup-plugin-import-css:
-        specifier: ^3.5.0
-        version: 3.5.0(rollup@4.19.0)
       tslib:
         specifier: ^2.6.3
         version: 2.6.3
@@ -1068,6 +1068,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@justfork/rollup-plugin-import-css@3.5.1':
+    resolution: {integrity: sha512-0ZKUAFk//Ki0m1IsuwGhd9WZa9yxsw+059GPIVqMbUPFO05a5V1LtmkV+EPxPAeWxjxSc0DPo7YZAulEoRLWsg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      rollup: ^2.x.x || ^3.x.x || ^4.x.x
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
@@ -4070,12 +4076,6 @@ packages:
       esbuild: '>=0.18.0'
       rollup: ^1.20.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
 
-  rollup-plugin-import-css@3.5.0:
-    resolution: {integrity: sha512-JOVow6n00qt2C/NnsqPmIjFOfxIAudwWqC5SaC84CodMGiMFaP1gPAdgnJ8g8hcG+P85TCYp2kI98grYCEt5pg==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      rollup: ^2.x.x || ^3.x.x || ^4.x.x
-
   rollup@4.19.0:
     resolution: {integrity: sha512-5r7EYSQIowHsK4eTZ0Y81qpZuJz+MUuYeqmmYmRMl1nwhdmbiYqt5jwzf6u7wyOzJgYqtCRMtVRKOtHANBz7rA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
@@ -5795,6 +5795,11 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  '@justfork/rollup-plugin-import-css@3.5.1(rollup@4.19.0)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.19.0)
+      rollup: 4.19.0
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
@@ -8982,11 +8987,6 @@ snapshots:
       rollup: 4.19.0
     transitivePeerDependencies:
       - supports-color
-
-  rollup-plugin-import-css@3.5.0(rollup@4.19.0):
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@4.19.0)
-      rollup: 4.19.0
 
   rollup@4.19.0:
     dependencies:
