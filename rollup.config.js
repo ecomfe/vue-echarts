@@ -1,7 +1,7 @@
 import replace from "@rollup/plugin-replace";
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
-import css from "rollup-plugin-import-css";
+import css from "@justfork/rollup-plugin-import-css";
 import { injectVueDemi } from "./scripts/rollup.mjs";
 
 /**

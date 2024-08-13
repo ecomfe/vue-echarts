@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Vue.js component for Apache ECharts™.",
   "license": "MIT",
   "repository": "https://github.com/ecomfe/vue-echarts.git",
@@ -80,7 +80,7 @@
     "rollup": "^4.19.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-esbuild": "^6.1.1",
-    "rollup-plugin-import-css": "^3.5.0",
+    "@justfork/rollup-plugin-import-css": "^3.5.1",
     "tslib": "^2.6.3",
     "typescript": "5.5.4",
     "vue": "^3.4.33",
