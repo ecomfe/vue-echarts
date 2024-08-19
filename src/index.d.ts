@@ -6,6 +6,7 @@ import type {
   InitOptions,
   UpdateOptions,
   LoadingOptions,
+  AutoResize,
   EChartsType,
   Emits,
   ThemeInjection,
@@ -25,7 +26,7 @@ declare type ChartProps = {
   updateOptions?: UpdateOptions;
   loadingOptions?: LoadingOptions;
   option?: Option;
-  autoresize?: boolean;
+  autoresize?: AutoResize;
   loading?: boolean;
   group?: string;
   manualUpdate?: boolean;

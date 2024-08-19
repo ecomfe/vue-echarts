@@ -1,6 +1,10 @@
+## 7.0.3
+
+* Fixed type for `autoresize` (again).
+
 ## 7.0.2
 
-* Fixed style injection regression.
+* Fixed style injection regression (#805).
 
 ## 7.0.1
 
