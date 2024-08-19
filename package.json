@@ -80,7 +80,7 @@
     "rollup": "^4.19.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-esbuild": "^6.1.1",
-    "@justfork/rollup-plugin-import-css": "^3.5.1",
+    "rollup-plugin-import-css": "^3.5.1",
     "tslib": "^2.6.3",
     "typescript": "5.5.4",
     "vue": "^3.4.33",
