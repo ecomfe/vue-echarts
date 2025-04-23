@@ -21,8 +21,14 @@
   "jsdelivr": "dist/index.min.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./csp": "./dist/csp/index.js",
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./csp": {
+      "import": "./dist/csp/index.js",
+      "types": "./dist/csp/index.d.ts"
+    },
     "./csp/style.css": "./dist/csp/style.css"
   },
   "files": [
