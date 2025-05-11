@@ -8,7 +8,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "pnpm run docs && rimraf dist && pnpm run build:rollup",
-    "build:rollup": "vue-demi-switch 3 && rollup -c rollup.config.js",
+    "build:rollup": "rollup -c rollup.config.js",
     "lint": "vue-cli-service lint",
     "publint": "publint",
     "build:demo": "vue-cli-service build",
@@ -29,13 +29,10 @@
     "dist",
     "scripts/postinstall.js"
   ],
-  "dependencies": {
-    "vue-demi": "^0.13.11"
-  },
   "peerDependencies": {
     "@vue/runtime-core": "^3.0.0",
     "echarts": "^5.5.1",
-    "vue": "^2.7.0 || ^3.1.1"
+    "vue": "^3.1.1"
   },
   "peerDependenciesMeta": {
     "@vue/runtime-core": {
@@ -57,7 +54,7 @@
     "@vue/compiler-sfc": "^3.4.33",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
-    "@vueuse/core": "^10.11.0",
+    "@vueuse/core": "^13.1.0",
     "comment-mark": "^1.1.1",
     "core-js": "^3.37.1",
     "echarts": "^5.5.1",
@@ -68,7 +65,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vue": "^9.27.0",
     "highlight.js": "^11.10.0",
-    "pinia": "^2.1.7",
+    "pinia": "^3.0.2",
     "postcss": "^8.4.39",
     "postcss-loader": "^8.1.1",
     "postcss-nested": "^6.2.0",
@@ -83,8 +80,7 @@
     "rollup-plugin-import-css": "^3.5.1",
     "tslib": "^2.6.3",
     "typescript": "5.5.4",
-    "vue": "^3.4.33",
-    "vue2": "npm:vue@^2.7.16",
+    "vue": "^3.5.13",
     "webpack": "^5.93.0"
   }
 }

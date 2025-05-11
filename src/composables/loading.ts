@@ -1,7 +1,6 @@
-import { unwrapInjected } from "../utils";
-import { inject, computed, watchEffect } from "vue-demi";
+import { inject, computed, watchEffect, unref } from "vue";
 
-import type { Ref, InjectionKey, PropType } from "vue-demi";
+import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions } from "../types";
 
 export const LOADING_OPTIONS_KEY =
@@ -16,7 +15,7 @@ export function useLoading(
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
-    ...unwrapInjected(defaultLoadingOptions, {}),
+    ...(unref(defaultLoadingOptions) || {}),
     ...loadingOptions?.value
   }));
 

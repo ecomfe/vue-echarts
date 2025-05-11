@@ -1,9 +1,9 @@
 import { init } from "echarts/core";
 
 import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts/core";
-import type { Ref } from "vue-demi";
+import type { MaybeRef } from "vue";
 
-export type Injection<T> = T | null | Ref<T | null> | { value: T | null };
+export type Injection<T> = MaybeRef<T | null>;
 
 type InitType = typeof init;
 export type InitParameters = Parameters<InitType>;

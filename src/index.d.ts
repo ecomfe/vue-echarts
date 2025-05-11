@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import type { Ref, DefineComponent, InjectionKey } from "vue-demi";
+import type { Ref, DefineComponent, InjectionKey } from "vue";
 import type {
   Option,
   Theme,

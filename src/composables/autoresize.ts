@@ -1,7 +1,7 @@
-import { watch } from "vue-demi";
+import { watch } from "vue";
 import { throttle } from "echarts/core";
 
-import type { Ref, PropType } from "vue-demi";
+import type { Ref, PropType } from "vue";
 import type { EChartsType, AutoResize } from "../types";
 
 export function useAutoresize(
