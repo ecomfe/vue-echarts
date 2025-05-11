@@ -212,7 +212,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 <!-- vue3Scripts:start -->
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.33"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
@@ -223,24 +223,6 @@ const app = Vue.createApp(...)
 
 // register globally (or you can do it locally)
 app.component('v-chart', VueECharts)
-```
-
-</details>
-
-<details>
-<summary>Vue 2 <a href="https://stackblitz.com/edit/vue-echarts-vue-2-global?file=index.html">Demo →</a></summary>
-
-<!-- vue2Scripts:start -->
-```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
-```
-<!-- vue2Scripts:end -->
-
-```js
-// register globally (or you can do it locally)
-Vue.component("v-chart", VueECharts);
 ```
 
 </details>

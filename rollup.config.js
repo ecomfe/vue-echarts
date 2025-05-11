@@ -2,7 +2,6 @@ import replace from "@rollup/plugin-replace";
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
 import css from "rollup-plugin-import-css";
-import { injectVueDemi } from "./scripts/rollup.mjs";
 
 /**
  * Modifies the Rollup options for a build to support strict CSP
@@ -39,7 +38,7 @@ const builds = [
   {
     input: "src/index.ts",
     plugins: [esbuild()],
-    external: ["vue-demi", /^echarts/],
+    external: ["vue", /^echarts/],
     output: [
       {
         file: "dist/index.js",
@@ -51,7 +50,7 @@ const builds = [
   {
     input: "src/global.ts",
     plugins: [esbuild({ minify: true })],
-    external: ["vue-demi", /^echarts/],
+    external: ["vue", /^echarts/],
     output: [
       {
         file: "dist/index.min.js", // for unpkg/jsdelivr
@@ -60,11 +59,10 @@ const builds = [
         exports: "default",
         sourcemap: true,
         globals: {
-          "vue-demi": "VueDemi",
+          vue: "vue",
           echarts: "echarts",
           "echarts/core": "echarts"
-        },
-        plugins: [injectVueDemi]
+        }
       }
     ]
   }
