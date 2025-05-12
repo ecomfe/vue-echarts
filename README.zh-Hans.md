@@ -96,100 +96,6 @@ const option = ref({
 
 </details>
 
-<details>
-<summary>Vue 2 <a href="https://stackblitz.com/edit/vue-echarts-vue-2?file=src%2FApp.vue">Demo →</a></summary>
-
-```vue
-<template>
-  <v-chart class="chart" :option="option" />
-</template>
-
-<script>
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { PieChart } from "echarts/charts";
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent
-} from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-
-use([
-  CanvasRenderer,
-  PieChart,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent
-]);
-
-export default {
-  name: "HelloWorld",
-  components: {
-    VChart
-  },
-  provide: {
-    [THEME_KEY]: "dark"
-  },
-  data() {
-    return {
-      option: {
-        title: {
-          text: "Traffic Sources",
-          left: "center"
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)"
-        },
-        legend: {
-          orient: "vertical",
-          left: "left",
-          data: [
-            "Direct",
-            "Email",
-            "Ad Networks",
-            "Video Ads",
-            "Search Engines"
-          ]
-        },
-        series: [
-          {
-            name: "Traffic Sources",
-            type: "pie",
-            radius: "55%",
-            center: ["50%", "60%"],
-            data: [
-              { value: 335, name: "Direct" },
-              { value: 310, name: "Email" },
-              { value: 234, name: "Ad Networks" },
-              { value: 135, name: "Video Ads" },
-              { value: 1548, name: "Search Engines" }
-            ],
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
-            }
-          }
-        ]
-      }
-    };
-  }
-};
-</script>
-
-<style scoped>
-.chart {
-  height: 400px;
-}
-</style>
-```
-
-</details>
-
 > [!IMPORTANT]
 > 我们鼓励手动从 ECharts 中引入组件和图表，以减小打包体积。我们已经为此构建了一个[导入代码生成器](https://vue-echarts.dev/#codegen)。你只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
 >
@@ -341,7 +247,7 @@ Vue-ECharts 支持如下事件：
 
 #### 原生 DOM 事件
 
-由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件（在 Vue 2 中也可以使用 `.native` 修饰符，但这在 Vue 3 中已被废弃）。
+由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件。
 
 ```vue
 <template>
@@ -370,42 +276,6 @@ provide(THEME_KEY, 'dark')
   }
 }
 ```
-
-</details>
-
-<details>
-<summary>Vue 2</summary>
-
-```js
-import { THEME_KEY } from 'vue-echarts'
-
-// 组件选项中
-{
-  provide: {
-    [THEME_KEY]: 'dark'
-  }
-}
-```
-
-> **Note**
->
-> 在 Vue 2 中，如果你想动态地改变这些选项，那么你需要提供一个对象。
->
-> ```js
-> // 组件选项中
-> {
->   data () {
->     return {
->       theme: { value: 'dark' }
->     }
->   },
->   provide () {
->     return {
->       [THEME_KEY]: this.theme
->     }
->   }
-> }
-> ```
 
 </details>
 
