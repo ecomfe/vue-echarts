@@ -1,4 +1,5 @@
-import { inject, computed, watchEffect, unref } from "vue";
+import { inject, computed, watchEffect } from "vue";
+import { toValue } from "../utils";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions } from "../types";
@@ -15,7 +16,7 @@ export function useLoading(
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
-    ...(unref(defaultLoadingOptions) || {}),
+    ...(toValue(defaultLoadingOptions) || {}),
     ...loadingOptions?.value
   }));
 

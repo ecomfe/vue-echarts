@@ -1,9 +1,18 @@
 import { init } from "echarts/core";
 
 import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts/core";
-import type { MaybeRef } from "vue";
+import type { Ref, ShallowRef, WritableComputedRef, ComputedRef } from "vue";
 
-export type Injection<T> = MaybeRef<T | null>;
+export type MaybeRef<T = any> =
+  | T
+  | Ref<T>
+  | ShallowRef<T>
+  | WritableComputedRef<T>;
+export type MaybeRefOrGetter<T = any> =
+  | MaybeRef<T>
+  | ComputedRef<T>
+  | (() => T);
+export type Injection<T> = MaybeRefOrGetter<T | null>;
 
 type InitType = typeof init;
 export type InitParameters = Parameters<InitType>;
