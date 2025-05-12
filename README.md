@@ -257,22 +257,53 @@ As Vue-ECharts binds events to the ECharts instance by default, there is some ca
 
 ### Provide / Inject
 
-Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `init-options` you can use the provide API like this:
+Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:
 
 <details>
-<summary>Vue 3</summary>
+<summary>Composition API</summary>
 
 ```js
 import { THEME_KEY } from 'vue-echarts'
 import { provide } from 'vue'
 
-// composition API
 provide(THEME_KEY, 'dark')
 
-// options API
-{
-  provide: {
-    [THEME_KEY]: 'dark'
+// or provide a reactive state
+const theme = ref('dark')
+provide(THEME_KEY, computed(() => theme.value))
+
+// getter is also supported
+provide(THEME_KEY, () => theme.value)
+```
+
+</details>
+
+<details>
+<summary>Options API</summary>
+
+```js
+import { THEME_KEY } from 'vue-echarts'
+import { computed } from 'vue'
+
+export default {
+  {
+    provide: {
+      [THEME_KEY]: 'dark'
+    }
+  }
+}
+
+// Or make injections reactive
+export default {
+  data() {
+    return {
+      theme: 'dark'
+    }
+  },
+  provide() {
+    return {
+      [THEME_KEY]: computed(() => this.theme)
+    }
   }
 }
 ```

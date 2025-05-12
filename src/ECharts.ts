@@ -11,8 +11,7 @@ import {
   onBeforeUnmount,
   h,
   nextTick,
-  watchEffect,
-  unref
+  watchEffect
 } from "vue";
 import { init as initChart } from "echarts/core";
 
@@ -23,7 +22,7 @@ import {
   useLoading,
   loadingProps
 } from "./composables";
-import { isOn, omitOn } from "./utils";
+import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
 import type { PropType, InjectionKey } from "vue";
@@ -82,12 +81,14 @@ export default defineComponent({
     const realOption = computed(
       () => manualOption.value || props.option || null
     );
-    const realTheme = computed(() => props.theme || unref(defaultTheme) || {});
+    const realTheme = computed(
+      () => props.theme || toValue(defaultTheme) || {}
+    );
     const realInitOptions = computed(
-      () => props.initOptions || unref(defaultInitOptions) || {}
+      () => props.initOptions || toValue(defaultInitOptions) || {}
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || unref(defaultUpdateOptions) || {}
+      () => props.updateOptions || toValue(defaultUpdateOptions) || {}
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
