@@ -307,9 +307,11 @@ export default defineComponent({
     };
   },
   render() {
-    const attrs = { ...this.nonEventAttrs, ...this.nativeListeners };
-    attrs.ref = "root";
-    attrs.class = attrs.class ? ["echarts"].concat(attrs.class) : "echarts";
-    return h(TAG_NAME, attrs);
+    return h(TAG_NAME, {
+      ...this.nonEventAttrs,
+      ...this.nativeListeners,
+      ref: "root",
+      class: ["echarts", ...(this.nonEventAttrs.class || [])]
+    });
   }
 });
