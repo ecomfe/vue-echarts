@@ -257,22 +257,53 @@ Vue-ECharts 支持如下事件：
 
 ### Provide / Inject
 
-Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `init-options` 提供上下文配置：
+Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `theme` 提供上下文配置：
 
 <details>
-<summary>Vue 3</summary>
+<summary>组合式 API</summary>
 
 ```js
 import { THEME_KEY } from 'vue-echarts'
 import { provide } from 'vue'
 
-// 组合式 API
 provide(THEME_KEY, 'dark')
 
-// 选项式 API
-{
-  provide: {
-    [THEME_KEY]: 'dark'
+// or provide a ref
+const theme = ref('dark')
+provide(THEME_KEY, theme)
+
+// getter is also supported
+provide(THEME_KEY, () => theme.value)
+```
+
+</details>
+
+<details>
+<summary>选项式 API</summary>
+
+```js
+import { THEME_KEY } from 'vue-echarts'
+import { computed } from 'vue'
+
+export default {
+  {
+    provide: {
+      [THEME_KEY]: 'dark'
+    }
+  }
+}
+
+// Or make injections reactive
+export default {
+  data() {
+    return {
+      theme: 'dark'
+    }
+  },
+  provide() {
+    return {
+      [THEME_KEY]: computed(() => this.theme)
+    }
   }
 }
 ```
