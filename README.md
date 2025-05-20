@@ -268,9 +268,9 @@ import { provide } from 'vue'
 
 provide(THEME_KEY, 'dark')
 
-// or provide a reactive state
+// or provide a ref
 const theme = ref('dark')
-provide(THEME_KEY, computed(() => theme.value))
+provide(THEME_KEY, theme)
 
 // getter is also supported
 provide(THEME_KEY, () => theme.value)
