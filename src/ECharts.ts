@@ -93,11 +93,10 @@ export default defineComponent({
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
 
-    const realListeners: Record<string, any> = {};
+    const listeners: Record<string, any> = {};
 
-    // We are converting all `on<Event>` props to event listeners compatible with Vue 2
-    // and collect them into `realListeners` so that we can bind them to the chart instance
-    // later in the same way.
+    // We are converting all `on<Event>` props and collect them into `listeners` so that
+    // we can bind them to the chart instance later.
     // For `onNative:<event>` props, we just strip the `Native:` part and collect them into
     // `nativeListeners` so that we can bind them to the root element directly.
     Object.keys(attrs)
@@ -124,7 +123,7 @@ export default defineComponent({
           event = `~${event.substring(0, event.length - 4)}`;
         }
 
-        realListeners[event] = attrs[key];
+        listeners[event] = attrs[key];
       });
 
     function init(option?: Option) {
@@ -142,8 +141,8 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      Object.keys(realListeners).forEach(key => {
-        let handler = realListeners[key];
+      Object.keys(listeners).forEach(key => {
+        let handler = listeners[key];
 
         if (!handler) {
           return;
