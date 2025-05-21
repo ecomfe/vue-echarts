@@ -28,7 +28,6 @@ import { register, TAG_NAME } from "./wc";
 import type { PropType, InjectionKey } from "vue";
 import type {
   EChartsType,
-  EventTarget,
   Option,
   Theme,
   ThemeInjection,
@@ -93,7 +92,8 @@ export default defineComponent({
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
 
-    const listeners: Record<string, any> = {};
+    const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> =
+      new Map();
 
     // We are converting all `on<Event>` props and collect them into `listeners` so that
     // we can bind them to the chart instance later.
@@ -102,28 +102,32 @@ export default defineComponent({
     Object.keys(attrs)
       .filter(key => isOn(key))
       .forEach(key => {
-        // onClick    -> c + lick
-        // onZr:click -> z + r:click
-        let event = key.charAt(2).toLowerCase() + key.slice(3);
-
         // Collect native DOM events
-        if (event.indexOf("native:") === 0) {
-          // native:click -> onClick
-          const nativeKey = `on${event.charAt(7).toUpperCase()}${event.slice(
-            8
-          )}`;
+        if (key.indexOf("Native:") === 2) {
+          // onNative:click -> onClick
+          const nativeKey = `on${key.charAt(9).toUpperCase()}${key.slice(10)}`;
 
           nativeListeners[nativeKey] = attrs[key];
           return;
         }
 
-        // clickOnce    -> ~click
-        // zr:clickOnce -> ~zr:click
-        if (event.substring(event.length - 4) === "Once") {
-          event = `~${event.substring(0, event.length - 4)}`;
+        // onClick    -> c + lick
+        // onZr:click -> z + r:click
+        let event = key.charAt(2).toLowerCase() + key.slice(3);
+
+        let zr: boolean | undefined;
+        if (event.indexOf("zr:") === 0) {
+          zr = true;
+          event = event.substring(3);
         }
 
-        listeners[event] = attrs[key];
+        let once: boolean | undefined;
+        if (event.substring(event.length - 4) === "Once") {
+          once = true;
+          event = event.substring(0, event.length - 4);
+        }
+
+        listeners.set({ event, zr, once }, attrs[key]);
       });
 
     function init(option?: Option) {
@@ -141,28 +145,14 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      Object.keys(listeners).forEach(key => {
-        let handler = listeners[key];
-
+      listeners.forEach((handler, { zr, once, event }) => {
         if (!handler) {
           return;
         }
 
-        let event = key.toLowerCase();
-        if (event.charAt(0) === "~") {
-          event = event.substring(1);
-          handler.__once__ = true;
-        }
+        const target = zr ? instance.getZr() : instance;
 
-        let target: EventTarget = instance;
-        if (event.indexOf("zr:") === 0) {
-          target = instance.getZr();
-          event = event.substring(3);
-        }
-
-        if (handler.__once__) {
-          delete handler.__once__;
-
+        if (once) {
           const raw = handler;
 
           handler = (...args: any[]) => {
