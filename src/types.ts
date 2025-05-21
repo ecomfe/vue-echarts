@@ -26,8 +26,6 @@ export type UpdateOptions = SetOptionOpts;
 export type UpdateOptionsInjection = Injection<UpdateOptions>;
 
 export type EChartsType = ReturnType<InitType>;
-type ZRenderType = ReturnType<EChartsType["getZr"]>;
-export type EventTarget = EChartsType | ZRenderType;
 
 type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
