@@ -4,8 +4,6 @@ import {
   computed,
   watch,
   onBeforeUnmount,
-  defineProps,
-  defineEmits,
   onMounted,
   nextTick
 } from "vue";
@@ -16,7 +14,7 @@ import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 import { initialize, transform } from "esbuild-wasm";
-import wasmURL from "esbuild-wasm/esbuild.wasm";
+import wasmURL from "esbuild-wasm/esbuild.wasm?url";
 import { track } from "@vercel/analytics";
 
 import { getImportsFromOption } from "./utils/codegen";

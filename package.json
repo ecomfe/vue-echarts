@@ -6,15 +6,16 @@
   "repository": "https://github.com/ecomfe/vue-echarts.git",
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "dev": "vite",
     "build": "pnpm run docs && rimraf dist && pnpm run build:rollup",
     "build:rollup": "rollup -c rollup.config.js",
-    "lint": "vue-cli-service lint",
+    "lint": "eslint . --fix",
     "publint": "publint",
-    "build:demo": "vue-cli-service build",
+    "build:demo": "vite build",
     "docs": "node ./scripts/docs.mjs",
     "prepublishOnly": "pnpm run build && publint"
   },
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
@@ -26,31 +27,28 @@
     "./csp/style.css": "./dist/csp/style.css"
   },
   "files": [
-    "dist",
-    "scripts/postinstall.js"
+    "dist"
   ],
   "peerDependencies": {
     "echarts": "^5.5.1",
     "vue": "^3.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.9",
     "@highlightjs/vue-plugin": "^2.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
+    "@types/node": "^22.15.21",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
     "@vercel/analytics": "^1.3.1",
-    "@vue/cli-plugin-babel": "^5.0.8",
-    "@vue/cli-plugin-eslint": "^5.0.8",
-    "@vue/cli-plugin-typescript": "^5.0.8",
-    "@vue/cli-service": "^5.0.8",
-    "@vue/compiler-sfc": "^3.4.33",
+    "@vitejs/plugin-legacy": "^6.1.1",
+    "@vitejs/plugin-vue": "^5.2.4",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/tsconfig": "^0.7.0",
     "@vueuse/core": "^13.1.0",
+    "browserslist": "^4.24.5",
+    "browserslist-to-esbuild": "^2.1.1",
     "comment-mark": "^1.1.1",
-    "core-js": "^3.37.1",
     "echarts": "^5.5.1",
     "echarts-gl": "^2.0.9",
     "echarts-liquidfill": "^3.1.0",
@@ -60,13 +58,10 @@
     "eslint-plugin-vue": "^9.27.0",
     "highlight.js": "^11.10.0",
     "pinia": "^3.0.2",
-    "postcss": "^8.4.39",
-    "postcss-loader": "^8.1.1",
-    "postcss-nested": "^6.2.0",
+    "postcss": "^8.5.3",
+    "postcss-preset-env": "^10.1.6",
     "prettier": "^3.3.3",
     "publint": "^0.2.9",
-    "raw-loader": "^4.0.2",
-    "resize-detector": "^0.3.0",
     "rimraf": "^6.0.1",
     "rollup": "^4.19.0",
     "rollup-plugin-dts": "^6.1.0",
@@ -74,7 +69,7 @@
     "rollup-plugin-import-css": "^3.5.1",
     "tslib": "^2.6.3",
     "typescript": "5.5.4",
-    "vue": "^3.5.13",
-    "webpack": "^5.93.0"
+    "vite": "^6.3.5",
+    "vue": "^3.5.13"
   }
 }

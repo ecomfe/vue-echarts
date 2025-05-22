@@ -350,10 +350,10 @@ Read the breaking changes document in the [release log](https://github.com/ecomf
 
 ```sh
 pnpm i
-pnpm serve
+pnpm dev
 ```
 
-打开 `http://localhost:8080` 来查看 demo。
+打开 `http://localhost:5173` 来查看 demo。
 
 ## 声明
 

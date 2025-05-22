@@ -1,7 +1,7 @@
 {
   "allowJs": true,
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ESNext",
     "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
@@ -15,13 +15,11 @@
     "baseUrl": ".",
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "shims-vue.d.ts",
-    "src/demo/**/*.ts",
-    "src/demo/**/*.vue"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

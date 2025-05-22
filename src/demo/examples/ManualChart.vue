@@ -8,7 +8,7 @@ import {
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../ECharts";
-import VExample from "./Example";
+import VExample from "./Example.vue";
 import worldMap from "../world.json";
 
 use([LinesChart, GeoComponent, TitleComponent, TooltipComponent]);

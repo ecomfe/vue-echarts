@@ -9,7 +9,7 @@ import {
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../ECharts";
-import VExample from "./Example";
+import VExample from "./Example.vue";
 import getData from "../data/map";
 import chinaMap from "../china.json";
 

@@ -6,18 +6,18 @@ import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
 import { INIT_OPTIONS_KEY } from "../ECharts";
 import { track } from "@vercel/analytics";
 
-import LogoChart from "./examples/LogoChart";
-import BarChart from "./examples/BarChart";
-import PieChart from "./examples/PieChart";
-import PolarChart from "./examples/PolarChart";
-import ScatterChart from "./examples/ScatterChart";
-import GeoChart from "./examples/GeoChart";
-import RadarChart from "./examples/RadarChart";
-import ConnectChart from "./examples/ConnectChart";
-import GlChart from "./examples/GlChart";
-import ManualChart from "./examples/ManualChart";
+import LogoChart from "./examples/LogoChart.vue";
+import BarChart from "./examples/BarChart.vue";
+import PieChart from "./examples/PieChart.vue";
+import PolarChart from "./examples/PolarChart.vue";
+import ScatterChart from "./examples/ScatterChart.vue";
+import GeoChart from "./examples/GeoChart.vue";
+import RadarChart from "./examples/RadarChart.vue";
+import ConnectChart from "./examples/ConnectChart.vue";
+import GlChart from "./examples/GlChart.vue";
+import ManualChart from "./examples/ManualChart.vue";
 
-import CodeGen from "./CodeGen";
+import CodeGen from "./CodeGen.vue";
 
 use([CanvasRenderer, SVGRenderer]);
 
