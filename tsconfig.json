@@ -8,10 +8,10 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "removeComments": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "noEmit": true,
     "baseUrl": ".",
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"]
   },
