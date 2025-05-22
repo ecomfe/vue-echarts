@@ -3,7 +3,7 @@ import { provide, computed, ref, watch } from "vue";
 import { useUrlSearchParams } from "@vueuse/core";
 import { use } from "echarts/core";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
-import { INIT_OPTIONS_KEY } from "../ECharts";
+import { INIT_OPTIONS_KEY } from "../src/ECharts";
 import { track } from "@vercel/analytics";
 
 import LogoChart from "./examples/LogoChart.vue";

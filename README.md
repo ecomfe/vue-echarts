@@ -133,7 +133,7 @@ app.component('v-chart', VueECharts)
 
 </details>
 
-See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/demo).
+See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 ### Props
 

@@ -22,4 +22,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-/src/demo/dist
+/demo/dist

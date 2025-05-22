@@ -133,7 +133,7 @@ app.component('v-chart', VueECharts)
 
 </details>
 
-可以在[这里](https://github.com/ecomfe/vue-echarts/tree/main/src/demo)查看更多例子。
+可以在[这里](https://github.com/ecomfe/vue-echarts/tree/main/demo)查看更多例子。
 
 ### Prop
 

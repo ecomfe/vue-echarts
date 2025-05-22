@@ -16,7 +16,7 @@ export default defineConfig({
     })
   ],
   build: { target: browserslistToEsbuild() },
-  root: "./src/demo",
+  root: "./demo",
   server: {
     host: true
   },

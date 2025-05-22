@@ -8,7 +8,7 @@ import {
   TooltipComponent
 } from "echarts/components";
 import { computed, shallowRef } from "vue";
-import VChart from "../../ECharts";
+import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/polar";
 
