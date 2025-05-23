@@ -40,6 +40,12 @@ export function useAutoresize(
               return;
             }
           }
+
+          // Skip if container has zero size
+          if (root.offsetWidth === 0 || root.offsetHeight === 0) {
+            return;
+          }
+
           resizeCallback();
         });
         ro.observe(root);
