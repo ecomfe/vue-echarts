@@ -7,7 +7,7 @@ import {
   LegendComponent,
   TooltipComponent
 } from "echarts/components";
-import { shallowRef, onMounted } from "vue";
+import { shallowRef, onMounted, onUnmounted } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/pie";
@@ -27,10 +27,10 @@ let timer = null;
 
 onMounted(() => {
   startActions();
+});
 
-  return () => {
-    stopActions();
-  };
+onUnmounted(() => {
+  stopActions();
 });
 
 function startActions() {
