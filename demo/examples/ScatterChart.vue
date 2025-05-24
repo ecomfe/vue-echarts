@@ -7,8 +7,8 @@ import {
   LegendComponent
 } from "echarts/components";
 import { shallowRef } from "vue";
-import VChart from "../../ECharts";
-import VExample from "./Example";
+import VChart from "../../src/ECharts";
+import VExample from "./Example.vue";
 import getData from "../data/scatter";
 
 use([ScatterChart, GridComponent, TitleComponent, LegendComponent]);

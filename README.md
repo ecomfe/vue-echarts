@@ -133,7 +133,7 @@ app.component('v-chart', VueECharts)
 
 </details>
 
-See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/src/demo).
+See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 ### Props
 
@@ -346,10 +346,10 @@ Read the breaking changes document in the [release log](https://github.com/ecomf
 
 ```sh
 pnpm i
-pnpm serve
+pnpm dev
 ```
 
-Open `http://localhost:8080` to see the demo.
+Open `http://localhost:5173` to see the demo.
 
 ## Notice
 

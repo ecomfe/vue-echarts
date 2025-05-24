@@ -1,0 +1,18 @@
+{
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "eslint.config.*",
+    "rollup.config.*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ESNext"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  }
+}
