@@ -3,8 +3,8 @@ import { use, registerTheme } from "echarts/core";
 import { BarChart } from "echarts/charts";
 import { GridComponent, DatasetComponent } from "echarts/components";
 import { shallowRef, onBeforeUnmount } from "vue";
-import VChart from "../../ECharts";
-import VExample from "./Example";
+import VChart from "../../src/ECharts";
+import VExample from "./Example.vue";
 import getData from "../data/bar";
 import theme from "../theme.json";
 
