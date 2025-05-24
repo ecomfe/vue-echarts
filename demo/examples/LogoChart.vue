@@ -2,7 +2,7 @@
 import { registerTheme } from "echarts/core";
 
 import "echarts-liquidfill";
-import VChart from "../../ECharts";
+import VChart from "../../src/ECharts";
 import theme from "../theme.json";
 import logo from "../data/logo";
 

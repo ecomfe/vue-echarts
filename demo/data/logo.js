@@ -1,4 +1,4 @@
-import logo from "../assets/Vue-ECharts.svg";
+import logo from "../assets/Vue-ECharts.svg?raw";
 
 const d = logo.match(/\bd="([^"]+)"/)[1];
 

@@ -4,8 +4,8 @@ import { Bar3DChart } from "echarts-gl/charts";
 import { VisualMapComponent } from "echarts/components";
 import { GlobeComponent } from "echarts-gl/components";
 import { shallowRef, onMounted } from "vue";
-import VChart from "../../ECharts";
-import VExample from "./Example";
+import VChart from "../../src/ECharts";
+import VExample from "./Example.vue";
 import world from "../assets/world.jpg";
 import starfield from "../assets/starfield.jpg";
 

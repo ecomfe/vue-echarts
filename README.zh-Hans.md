@@ -133,7 +133,7 @@ app.component('v-chart', VueECharts)
 
 </details>
 
-可以在[这里](https://github.com/ecomfe/vue-echarts/tree/main/src/demo)查看更多例子。
+可以在[这里](https://github.com/ecomfe/vue-echarts/tree/main/demo)查看更多例子。
 
 ### Prop
 
@@ -348,10 +348,10 @@ export default {
 
 ```sh
 pnpm i
-pnpm serve
+pnpm dev
 ```
 
-打开 `http://localhost:8080` 来查看 demo。
+打开 `http://localhost:5173` 来查看 demo。
 
 ## 声明
 
