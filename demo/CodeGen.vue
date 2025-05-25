@@ -36,7 +36,11 @@ const props = defineProps({ open: Boolean, renderer: String });
 const emit = defineEmits(["update:open"]);
 
 const dialog = ref(null);
-const clickFrom = null;
+let clickFrom = null;
+
+function onMousedown(e) {
+  clickFrom = e.target;
+}
 
 function closeFromOutside() {
   if (dialog.value?.contains(clickFrom)) {
@@ -209,7 +213,7 @@ onBeforeUnmount(() => {
   <aside
     class="modal"
     :class="{ open: props.open }"
-    @mousedown="clickFrom = $event.target"
+    @mousedown="onMousedown"
     @click="closeFromOutside"
     @keydown.esc="close"
   >
