@@ -1,6 +1,6 @@
 import {
   defineConfigWithVueTs,
-  vueTsConfigs
+  vueTsConfigs,
 } from "@vue/eslint-config-typescript";
 import pluginVue from "eslint-plugin-vue";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
@@ -15,7 +15,7 @@ import type {} from "@typescript-eslint/utils";
 export default defineConfigWithVueTs(
   {
     name: "app/files-to-lint",
-    files: ["**/*.{ts,mts,tsx,vue}"]
+    files: ["**/*.{ts,mts,tsx,vue}"],
   },
   { ignores: ["**/dist/**"] },
   pluginVue.configs["flat/essential"],
@@ -25,7 +25,7 @@ export default defineConfigWithVueTs(
     rules: {
       "vue/multi-word-component-names": "off",
       "vue/block-lang": "off",
-      "@typescript-eslint/no-explicit-any": "off"
-    }
-  }
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 );

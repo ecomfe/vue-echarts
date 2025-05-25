@@ -23,7 +23,7 @@ use([CanvasRenderer, SVGRenderer]);
 
 const params = useUrlSearchParams();
 const initOptions = computed(() => ({
-  renderer: params.renderer || "canvas"
+  renderer: params.renderer || "canvas",
 }));
 
 provide(INIT_OPTIONS_KEY, initOptions);
@@ -39,7 +39,7 @@ function openCodegen() {
   track("codegen", { from: "click" });
 }
 
-watch(codeOpen, open => {
+watch(codeOpen, (open) => {
   if (open) {
     location.hash = "#codegen";
   } else {
@@ -94,7 +94,7 @@ watch(codeOpen, open => {
     <aside class="renderer">
       <button
         :class="{
-          active: initOptions.renderer === 'canvas'
+          active: initOptions.renderer === 'canvas',
         }"
         @click="params.renderer = 'canvas'"
       >
@@ -102,7 +102,7 @@ watch(codeOpen, open => {
       </button>
       <button
         :class="{
-          active: initOptions.renderer === 'svg'
+          active: initOptions.renderer === 'svg',
         }"
         @click="params.renderer = 'svg'"
       >

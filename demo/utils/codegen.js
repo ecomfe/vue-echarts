@@ -28,7 +28,7 @@ const COMPONENTS_MAP = {
   xAxis: "GridComponent",
   yAxis: "GridComponent",
   angleAxis: "PolarComponent",
-  radiusAxis: "PolarComponent"
+  radiusAxis: "PolarComponent",
 };
 
 const CHARTS_MAP = {
@@ -53,7 +53,7 @@ const CHARTS_MAP = {
   pictorialBar: "PictorialBarChart",
   themeRiver: "ThemeRiverChart",
   sunburst: "SunburstChart",
-  custom: "CustomChart"
+  custom: "CustomChart",
 };
 
 const COMPONENTS_GL_MAP = {
@@ -66,7 +66,7 @@ const COMPONENTS_GL_MAP = {
   // Dependencies
   xAxis3D: "Grid3DComponent",
   yAxis3D: "Grid3DComponent",
-  zAxis3D: "Grid3DComponent"
+  zAxis3D: "Grid3DComponent",
 };
 
 const CHARTS_GL_MAP = {
@@ -81,17 +81,17 @@ const CHARTS_GL_MAP = {
   scatterGL: "ScatterGLChart",
   graphGL: "GraphGLChart",
   flowGL: "FlowGLChart",
-  linesGL: "LinesGLChart"
+  linesGL: "LinesGLChart",
 };
 
 const FEATURES = ["UniversalTransition", "LabelLayout"];
 const RENDERERS_MAP = {
   canvas: "CanvasRenderer",
-  svg: "SVGRenderer"
+  svg: "SVGRenderer",
 };
 
 const EXTENSIONS_MAP = {
-  bmap: "bmap/bmap"
+  bmap: "bmap/bmap",
   // PENDING: There seem no examples that use dataTool
   // dataTool: 'dataTool'
 };
@@ -103,7 +103,7 @@ const INJECTED_COMPONENTS = [
   ...MARKERS,
   "grid",
   "axisPointer",
-  "aria" // TODO aria
+  "aria", // TODO aria
 ];
 
 // Component that was dependent.
@@ -114,12 +114,12 @@ const DEPENDENT_COMPONENTS = [
   "radiusAxis",
   "xAxis3D",
   "yAxis3D",
-  "zAxis3D"
+  "zAxis3D",
 ];
 
 function createReverseMap(map) {
   const reverseMap = {};
-  Object.keys(map).forEach(key => {
+  Object.keys(map).forEach((key) => {
     // Exclude dependencies.
     if (DEPENDENT_COMPONENTS.includes(key)) {
       return;
@@ -139,7 +139,7 @@ function collectDeps(option) {
   let deps = [];
   if (option.options) {
     // TODO getOption() doesn't have baseOption and options.
-    option.options.forEach(opt => {
+    option.options.forEach((opt) => {
       deps = deps.concat(collectDeps(opt));
     });
 
@@ -151,7 +151,7 @@ function collectDeps(option) {
     return Array.from(new Set(deps));
   }
 
-  Object.keys(option).forEach(key => {
+  Object.keys(option).forEach((key) => {
     if (INJECTED_COMPONENTS.includes(key)) {
       return;
     }
@@ -177,7 +177,7 @@ function collectDeps(option) {
     series = [series];
   }
 
-  series.forEach(seriesOpt => {
+  series.forEach((seriesOpt) => {
     if (CHARTS_MAP[seriesOpt.type]) {
       deps.push(CHARTS_MAP[seriesOpt.type]);
     }
@@ -191,7 +191,7 @@ function collectDeps(option) {
     if (seriesOpt.coordinateSystem === "bmap") {
       deps.push("bmap");
     }
-    MARKERS.forEach(markerType => {
+    MARKERS.forEach((markerType) => {
       if (seriesOpt[markerType]) {
         deps.push(COMPONENTS_MAP[markerType]);
       }
@@ -206,7 +206,7 @@ function collectDeps(option) {
   });
   // Dataset transform
   if (option.dataset && Array.isArray(option.dataset)) {
-    option.dataset.forEach(dataset => {
+    option.dataset.forEach((dataset) => {
       if (dataset.transform) {
         deps.push("TransformComponent");
       }
@@ -225,15 +225,15 @@ function buildMinimalBundleCode(
     quote = "'",
     multiline = false,
     indent = "  ",
-    maxLen = 80
-  }
+    maxLen = 80,
+  },
 ) {
   const options = {
     semi,
     quote,
     multiline,
     indent,
-    maxLen
+    maxLen,
   };
 
   const chartsImports = [];
@@ -244,7 +244,7 @@ function buildMinimalBundleCode(
   const renderersImports = [];
   const extensionImports = [];
 
-  deps.forEach(dep => {
+  deps.forEach((dep) => {
     if (dep.endsWith("Renderer")) {
       renderersImports.push(dep);
     } else if (CHARTS_MAP_REVERSE[dep]) {
@@ -278,12 +278,12 @@ function buildMinimalBundleCode(
     ...componentsGLImports,
     ...chartsGLImports,
     ...renderersImports,
-    ...featuresImports
+    ...featuresImports,
   ];
 
   const ECOptionTypeCode = typeItems(
-    allImports.filter(a => a.endsWith("Option")),
-    options
+    allImports.filter((a) => a.endsWith("Option")),
+    options,
   );
 
   const importSources = [
@@ -292,33 +292,33 @@ function buildMinimalBundleCode(
     [featuresImports, "echarts/features"],
     [renderersImports, "echarts/renderers"],
     [chartsGLImports, "echarts-gl/charts"],
-    [componentsGLImports, "echarts-gl/components"]
-  ].filter(a => a[0].length > 0);
+    [componentsGLImports, "echarts-gl/components"],
+  ].filter((a) => a[0].length > 0);
   const importStatements = importSources.map(([imports, mod]) =>
     importItems(
-      imports.filter(a => !a.endsWith("Option")),
+      imports.filter((a) => !a.endsWith("Option")),
       mod,
-      options
-    )
+      options,
+    ),
   );
 
   const semiStr = semi ? ";" : "";
 
-  getExtensionDeps(extensionImports, includeType).forEach(ext => {
+  getExtensionDeps(extensionImports, includeType).forEach((ext) => {
     importStatements.push(`import ${quote}${ext}${quote}${semiStr}`);
   });
 
   if (includeType) {
     importStatements.push(
-      `import type { ComposeOption } from ${quote}echarts/core${quote}${semiStr}`
+      `import type { ComposeOption } from ${quote}echarts/core${quote}${semiStr}`,
     );
     const importTypeStatements = importSources
       .map(([imports, mod]) =>
         importItems(
-          imports.filter(a => a.endsWith("Option")),
+          imports.filter((a) => a.endsWith("Option")),
           mod,
-          { ...options, type: true }
-        )
+          { ...options, type: true },
+        ),
       )
       .filter(Boolean);
     importStatements.push(...importTypeStatements);
@@ -328,16 +328,18 @@ function buildMinimalBundleCode(
 ${importStatements.join("\n")}
 
 ${useItems(
-  allImports.filter(a => !a.endsWith("Option")),
-  options
+  allImports.filter((a) => !a.endsWith("Option")),
+  options,
 )}
 ${includeType ? `\n${ECOptionTypeCode}` : ""}
 `;
 }
 function getExtensionDeps(deps, ts) {
   return deps
-    .filter(dep => EXTENSIONS_MAP[dep])
-    .map(dep => `echarts/extension${ts ? "-src" : ""}/${EXTENSIONS_MAP[dep]}`);
+    .filter((dep) => EXTENSIONS_MAP[dep])
+    .map(
+      (dep) => `echarts/extension${ts ? "-src" : ""}/${EXTENSIONS_MAP[dep]}`,
+    );
 }
 
 /** import */
@@ -366,7 +368,7 @@ function importSingleLine(items, module, { type, semi, quote }) {
   const semiStr = semi ? ";" : "";
 
   return `import ${typeStr}{ ${items.join(
-    ", "
+    ", ",
   )} } from ${quote}${module}${quote}${semiStr}`;
 }
 
@@ -379,7 +381,7 @@ function importMultiLine(items, module, { type, indent, semi, quote }) {
   const semiStr = semi ? ";" : "";
 
   return `import ${typeStr}{
-${items.map(item => `${indent}${item}`).join(",\n")}
+${items.map((item) => `${indent}${item}`).join(",\n")}
 } from ${quote}${module}${quote}${semiStr}`;
 }
 
@@ -418,7 +420,7 @@ function useMultiLine(items, { indent, semi }) {
   const semiStr = semi ? ";" : "";
 
   return `use([
-${items.map(item => `${indent}${item}`).join(`,\n`)}
+${items.map((item) => `${indent}${item}`).join(`,\n`)}
 ])${semiStr}`;
 }
 
@@ -457,16 +459,16 @@ function typeMultiLine(items, { indent, semi }) {
   const semiStr = semi ? ";" : "";
 
   return `type EChartsOption = ComposeOption<
-${items.map(item => `${indent}| ${item}`).join("\n")}
+${items.map((item) => `${indent}| ${item}`).join("\n")}
 >${semiStr}`;
 }
 
 export function getImportsFromOption(
   option,
-  { renderer = "canvas", ...options }
+  { renderer = "canvas", ...options },
 ) {
   return buildMinimalBundleCode(
     [...collectDeps(option), RENDERERS_MAP[renderer]],
-    options
+    options,
   );
 }

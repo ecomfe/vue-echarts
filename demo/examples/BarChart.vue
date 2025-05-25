@@ -16,7 +16,7 @@ const loading = shallowRef(false);
 const loadingOptions = {
   text: "Loading…",
   color: "#4ea397",
-  maskColor: "rgba(255, 255, 255, 0.4)"
+  maskColor: "rgba(255, 255, 255, 0.4)",
 };
 const option = shallowRef(getData());
 

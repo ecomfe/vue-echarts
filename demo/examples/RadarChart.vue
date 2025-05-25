@@ -4,7 +4,7 @@ import { RadarChart } from "echarts/charts";
 import {
   PolarComponent,
   TitleComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";

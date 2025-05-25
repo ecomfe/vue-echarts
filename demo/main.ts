@@ -6,13 +6,13 @@ import Demo from "./Demo.vue";
 const SAMPLE_RATE = 0.5;
 
 inject({
-  beforeSend: event => {
+  beforeSend: (event) => {
     if (Math.random() > SAMPLE_RATE) {
       return null;
     }
 
     return event;
-  }
+  },
 });
 
 const pinia = createPinia();

@@ -3,5 +3,5 @@ import ECharts, * as exported from "./index";
 
 export default {
   ...ECharts,
-  ...exported
+  ...exported,
 };

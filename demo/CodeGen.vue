@@ -5,7 +5,7 @@ import {
   watch,
   onBeforeUnmount,
   onMounted,
-  nextTick
+  nextTick,
 } from "vue";
 import { useLocalStorage } from "@vueuse/core";
 import "highlight.js/styles/github.css";
@@ -29,7 +29,7 @@ const codegenOptions = useLocalStorage("ve.codegenOptions", {
   multiline: false,
   maxLen: 80,
   semi: false,
-  includeType: false
+  includeType: false,
 });
 
 const props = defineProps({ open: Boolean, renderer: String });
@@ -53,7 +53,7 @@ const renderer = ref(props.renderer);
 const source = ref(null);
 watch(
   () => props.open,
-  async val => {
+  async (val) => {
     if (val) {
       renderer.value = props.renderer;
     }
@@ -64,7 +64,7 @@ watch(
       return;
     }
     source.value?.focus();
-  }
+  },
 );
 
 const copied = ref(false);
@@ -119,7 +119,7 @@ onMounted(async () => {
   source.value?.focus();
 });
 
-watch(optionCode, async val => {
+watch(optionCode, async (val) => {
   try {
     transformedCode.value = await transform(`(${val})`, { loader: "ts" });
     transformErrors.value = [];
@@ -160,7 +160,7 @@ const importCode = computed(() => {
   try {
     return getImportsFromOption(eval(transformedCode.value.code), {
       renderer: renderer.value,
-      ...codegenOptions.value
+      ...codegenOptions.value,
     });
   } catch (e) {
     return `/* Invalid ECharts option */

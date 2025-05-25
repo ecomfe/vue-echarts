@@ -12,7 +12,7 @@ import type {
   ThemeInjection,
   InitOptionsInjection,
   UpdateOptionsInjection,
-  LoadingOptionsInjection
+  LoadingOptionsInjection,
 } from "./types";
 
 declare const THEME_KEY: InjectionKey<ThemeInjection>;
