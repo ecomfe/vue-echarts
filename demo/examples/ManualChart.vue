@@ -9,7 +9,7 @@ import {
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
-import worldMap from "../world.json";
+import worldMap from "../data/world.json";
 
 use([LinesChart, GeoComponent, TitleComponent, TooltipComponent]);
 registerMap("world", worldMap);

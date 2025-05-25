@@ -10,6 +10,7 @@
     "build": "pnpm run docs && rimraf dist && rollup -c",
     "typecheck": "vue-tsc",
     "lint": "eslint . --fix",
+    "format": "prettier . --write",
     "publint": "publint",
     "dev:build": "vite build",
     "dev:preview": "vite preview",

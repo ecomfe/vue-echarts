@@ -117,11 +117,13 @@ import "echarts";
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
+
 <!-- vue3Scripts:end -->
 
 ```js
@@ -263,17 +265,17 @@ Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options
 <summary>组合式 API</summary>
 
 ```js
-import { THEME_KEY } from 'vue-echarts'
-import { provide } from 'vue'
+import { THEME_KEY } from "vue-echarts";
+import { provide } from "vue";
 
-provide(THEME_KEY, 'dark')
+provide(THEME_KEY, "dark");
 
 // or provide a ref
-const theme = ref('dark')
-provide(THEME_KEY, theme)
+const theme = ref("dark");
+provide(THEME_KEY, theme);
 
 // getter is also supported
-provide(THEME_KEY, () => theme.value)
+provide(THEME_KEY, () => theme.value);
 ```
 
 </details>
@@ -332,8 +334,6 @@ export default {
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
-
-
 
 ## CSP: `style-src` 或 `style-src-elem`
 
