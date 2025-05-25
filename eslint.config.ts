@@ -4,6 +4,7 @@ import {
 } from "@vue/eslint-config-typescript";
 import pluginVue from "eslint-plugin-vue";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
+// The inferred type of 'default' cannot be named without a reference to "@typescript-eslint/utils"
 import type {} from "@typescript-eslint/utils";
 
 // To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
