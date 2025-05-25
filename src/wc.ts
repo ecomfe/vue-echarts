@@ -31,7 +31,7 @@ export function register(): boolean {
       "class EChartsElement extends HTMLElement{__dispose=null;disconnectedCallback(){this.__dispose&&(this.__dispose(),this.__dispose=null)}}customElements.get(tag)==null&&customElements.define(tag,EChartsElement);"
     );
     reg(TAG_NAME);
-  } catch (e) {
+  } catch {
     return (registered = false);
   }
 

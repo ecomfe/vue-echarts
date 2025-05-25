@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type { Ref } from "vue";
 import type { EChartsType } from "../types";
 

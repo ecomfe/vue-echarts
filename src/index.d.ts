@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { Ref, DefineComponent, InjectionKey } from "vue";
 import type {
   Option,

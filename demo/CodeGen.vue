@@ -36,7 +36,7 @@ const props = defineProps({ open: Boolean, renderer: String });
 const emit = defineEmits(["update:open"]);
 
 const dialog = ref(null);
-let clickFrom = null;
+const clickFrom = null;
 
 function closeFromOutside() {
   if (dialog.value?.contains(clickFrom)) {
