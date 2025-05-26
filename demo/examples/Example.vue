@@ -25,14 +25,14 @@
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   desc: String,
-  split: Boolean
+  split: Boolean,
 });
 </script>
 

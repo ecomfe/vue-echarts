@@ -15,14 +15,14 @@ const option = shallowRef();
 const loading = shallowRef(true);
 
 const initOptions = {
-  renderer: "canvas"
+  renderer: "canvas",
 };
 
 const loadingOptions = {
   text: "Loading...",
   color: "#000",
   textColor: "#fff",
-  maskColor: "transparent"
+  maskColor: "transparent",
 };
 
 onMounted(() => {
@@ -30,8 +30,8 @@ onMounted(() => {
     loading.value = false;
 
     data = data
-      .filter(dataItem => dataItem[2] > 0)
-      .map(dataItem => [dataItem[0], dataItem[1], Math.sqrt(dataItem[2])]);
+      .filter((dataItem) => dataItem[2] > 0)
+      .map((dataItem) => [dataItem[0], dataItem[1], Math.sqrt(dataItem[2])]);
 
     option.value = {
       backgroundColor: "#000",
@@ -42,12 +42,12 @@ onMounted(() => {
         environment: starfield,
         light: {
           main: {
-            intensity: 2
-          }
+            intensity: 2,
+          },
         },
         viewControl: {
-          autoRotate: false
-        }
+          autoRotate: false,
+        },
       },
       visualMap: {
         bottom: "3%",
@@ -56,19 +56,19 @@ onMounted(() => {
         calculable: true,
         realtime: false,
         inRange: {
-          colorLightness: [0.2, 0.9]
+          colorLightness: [0.2, 0.9],
         },
         textStyle: {
-          color: "#fff"
+          color: "#fff",
         },
         controller: {
           inRange: {
-            color: "orange"
-          }
+            color: "orange",
+          },
         },
         outOfRange: {
-          colorAlpha: 0
-        }
+          colorAlpha: 0,
+        },
       },
       series: [
         {
@@ -79,10 +79,10 @@ onMounted(() => {
           minHeight: 0.2,
           silent: true,
           itemStyle: {
-            color: "orange"
-          }
-        }
-      ]
+            color: "orange",
+          },
+        },
+      ],
     };
   });
 });

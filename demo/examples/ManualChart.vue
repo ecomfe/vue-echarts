@@ -4,12 +4,12 @@ import { LinesChart } from "echarts/charts";
 import {
   GeoComponent,
   TitleComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
-import worldMap from "../world.json";
+import worldMap from "../data/world.json";
 
 use([LinesChart, GeoComponent, TitleComponent, TooltipComponent]);
 registerMap("world", worldMap);
@@ -23,7 +23,7 @@ const loadingOptions = {
   color: "#c23531",
   textColor: "rgba(255, 255, 255, 0.5)",
   maskColor: "#003",
-  zlevel: 0
+  zlevel: 0,
 };
 
 function load() {
@@ -36,21 +36,21 @@ function load() {
     function getAirportCoord(idx) {
       return [data.airports[idx][3], data.airports[idx][4]];
     }
-    const routes = data.routes.map(airline => {
+    const routes = data.routes.map((airline) => {
       return [getAirportCoord(airline[1]), getAirportCoord(airline[2])];
     });
 
     chart.value.setOption({
       textStyle: {
-        fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif'
+        fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
       },
       title: {
         text: "World Flights",
         top: "5%",
         left: "center",
         textStyle: {
-          color: "#eee"
-        }
+          color: "#eee",
+        },
       },
       backgroundColor: "#003",
       tooltip: {
@@ -59,7 +59,7 @@ function load() {
           return (
             data.airports[route[1]][1] + " > " + data.airports[route[2]][1]
           );
-        }
+        },
       },
       geo: {
         map: "world",
@@ -70,8 +70,8 @@ function load() {
         silent: true,
         itemStyle: {
           borderColor: "#003",
-          color: "#005"
-        }
+          color: "#005",
+        },
       },
       series: [
         {
@@ -83,11 +83,11 @@ function load() {
           lineStyle: {
             opacity: 0.05,
             width: 0.5,
-            curveness: 0.3
+            curveness: 0.3,
           },
-          blendMode: "lighter"
-        }
-      ]
+          blendMode: "lighter",
+        },
+      ],
     });
   });
 }

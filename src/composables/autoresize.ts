@@ -7,7 +7,7 @@ import type { EChartsType, AutoResize } from "../types";
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<AutoResize | undefined>,
-  root: Ref<HTMLElement | undefined>
+  root: Ref<HTMLElement | undefined>,
 ): void {
   watch(
     [root, chart, autoresize],
@@ -57,10 +57,10 @@ export function useAutoresize(
           ro = null;
         }
       });
-    }
+    },
   );
 }
 
 export const autoresizeProps = {
-  autoresize: [Boolean, Object] as PropType<AutoResize>
+  autoresize: [Boolean, Object] as PropType<AutoResize>,
 };

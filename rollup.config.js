@@ -16,18 +16,23 @@ function configBuild(options, csp) {
   result.plugins = [
     ...(csp ? [replace({ __CSP__: `${csp}`, preventAssignment: true })] : []),
     ...plugins,
-    csp ? css({ output: "style.css" }) : css({ inject: true })
+    css({
+      ...(csp ? { output: "style.css" } : { inject: true }),
+      minify: true,
+    }),
   ];
 
   // modify output file names
   if (csp && output) {
-    result.output = (Array.isArray(output) ? output : [output]).map(output => {
-      return {
-        ...output,
-        file: output.file.replace(/^dist\//, "dist/csp/"),
-        assetFileNames: "[name][extname]"
-      };
-    });
+    result.output = (Array.isArray(output) ? output : [output]).map(
+      (output) => {
+        return {
+          ...output,
+          file: output.file.replace(/^dist\//, "dist/csp/"),
+          assetFileNames: "[name][extname]",
+        };
+      },
+    );
   }
 
   return result;
@@ -43,9 +48,9 @@ const builds = [
       {
         file: "dist/index.js",
         format: "esm",
-        sourcemap: true
-      }
-    ]
+        sourcemap: true,
+      },
+    ],
   },
   {
     input: "src/global.ts",
@@ -61,28 +66,28 @@ const builds = [
         globals: {
           vue: "vue",
           echarts: "echarts",
-          "echarts/core": "echarts"
-        }
-      }
-    ]
-  }
+          "echarts/core": "echarts",
+        },
+      },
+    ],
+  },
 ];
 
 export default [
-  ...builds.map(options => configBuild(options, false)),
-  ...builds.map(options => configBuild(options, true)),
+  ...builds.map((options) => configBuild(options, false)),
+  ...builds.map((options) => configBuild(options, true)),
   {
     input: "src/index.d.ts",
     plugins: [dts()],
     output: [
       {
         file: "dist/index.d.ts",
-        format: "esm"
+        format: "esm",
       },
       {
         file: "dist/csp/index.d.ts",
-        format: "esm"
-      }
-    ]
-  }
+        format: "esm",
+      },
+    ],
+  },
 ];

@@ -8,6 +8,6 @@ export function resolvePath(url, ...parts) {
 
 export function getPackageMeta() {
   return JSON.parse(
-    readFileSync(resolvePath(import.meta.url, "../package.json"), "utf8")
+    readFileSync(resolvePath(import.meta.url, "../package.json"), "utf8"),
   );
 }

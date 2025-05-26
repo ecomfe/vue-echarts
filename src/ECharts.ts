@@ -1,5 +1,3 @@
-/* eslint-disable vue/multi-word-component-names */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   defineComponent,
   shallowRef,
@@ -11,7 +9,7 @@ import {
   onBeforeUnmount,
   h,
   nextTick,
-  watchEffect
+  watchEffect,
 } from "vue";
 import { init as initChart } from "echarts/core";
 
@@ -20,7 +18,7 @@ import {
   useAutoresize,
   autoresizeProps,
   useLoading,
-  loadingProps
+  loadingProps,
 } from "./composables";
 import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
@@ -35,7 +33,7 @@ import type {
   InitOptionsInjection,
   UpdateOptions,
   UpdateOptionsInjection,
-  Emits
+  Emits,
 } from "./types";
 import type { EChartsElement } from "./wc";
 
@@ -56,14 +54,14 @@ export default defineComponent({
   props: {
     option: Object as PropType<Option>,
     theme: {
-      type: [Object, String] as PropType<Theme>
+      type: [Object, String] as PropType<Theme>,
     },
     initOptions: Object as PropType<InitOptions>,
     updateOptions: Object as PropType<UpdateOptions>,
     group: String,
     manualUpdate: Boolean,
     ...autoresizeProps,
-    ...loadingProps
+    ...loadingProps,
   },
   emits: {} as unknown as Emits,
   inheritAttrs: false,
@@ -78,16 +76,16 @@ export default defineComponent({
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
     const realOption = computed(
-      () => manualOption.value || props.option || null
+      () => manualOption.value || props.option || null,
     );
     const realTheme = computed(
-      () => props.theme || toValue(defaultTheme) || {}
+      () => props.theme || toValue(defaultTheme) || {},
     );
     const realInitOptions = computed(
-      () => props.initOptions || toValue(defaultInitOptions) || {}
+      () => props.initOptions || toValue(defaultInitOptions) || {},
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || toValue(defaultUpdateOptions) || {}
+      () => props.updateOptions || toValue(defaultUpdateOptions) || {},
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
@@ -100,8 +98,8 @@ export default defineComponent({
     // For `onNative:<event>` props, we just strip the `Native:` part and collect them into
     // `nativeListeners` so that we can bind them to the root element directly.
     Object.keys(attrs)
-      .filter(key => isOn(key))
-      .forEach(key => {
+      .filter((key) => isOn(key))
+      .forEach((key) => {
         // Collect native DOM events
         if (key.indexOf("Native:") === 2) {
           // onNative:click -> onClick
@@ -138,7 +136,7 @@ export default defineComponent({
       const instance = (chart.value = initChart(
         root.value,
         realTheme.value,
-        realInitOptions.value
+        realInitOptions.value,
       ));
 
       if (props.group) {
@@ -214,7 +212,7 @@ export default defineComponent({
     let unwatchOption: (() => void) | null = null;
     watch(
       manualUpdate,
-      manualUpdate => {
+      (manualUpdate) => {
         if (typeof unwatchOption === "function") {
           unwatchOption();
           unwatchOption = null;
@@ -234,17 +232,17 @@ export default defineComponent({
                   // mutating `option` will lead to `notMerge: false` and
                   // replacing it with new reference will lead to `notMerge: true`
                   notMerge: option !== oldOption,
-                  ...realUpdateOptions.value
+                  ...realUpdateOptions.value,
                 });
               }
             },
-            { deep: true }
+            { deep: true },
           );
         }
       },
       {
-        immediate: true
-      }
+        immediate: true,
+      },
     );
 
     watch(
@@ -254,8 +252,8 @@ export default defineComponent({
         init();
       },
       {
-        deep: true
-      }
+        deep: true,
+      },
     );
 
     watchEffect(() => {
@@ -292,7 +290,7 @@ export default defineComponent({
       setOption,
       nonEventAttrs,
       nativeListeners,
-      ...publicApi
+      ...publicApi,
     };
   },
   render() {
@@ -300,7 +298,7 @@ export default defineComponent({
       ...this.nonEventAttrs,
       ...this.nativeListeners,
       ref: "root",
-      class: ["echarts", ...(this.nonEventAttrs.class || [])]
+      class: ["echarts", ...(this.nonEventAttrs.class || [])],
     });
-  }
+  },
 });

@@ -1,10 +1,7 @@
 import type { MaybeRefOrGetter } from "./types";
 import { unref } from "vue";
 
-type Attrs = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-};
+type Attrs = Record<string, any>;
 
 // Copied from
 // https://github.com/vuejs/vue-next/blob/5a7a1b8293822219283d6e267496bec02234b0bc/packages/shared/src/index.ts#L40-L41
@@ -24,6 +21,7 @@ export function omitOn(attrs: Attrs): Attrs {
 
 // Copied from
 // https://github.com/vuejs/core/blob/3cb4db21efa61852b0541475b4ddf57fdec4c479/packages/shared/src/general.ts#L49-L50
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const isFunction = (val: unknown): val is Function => typeof val === "function";
 
 // Copied from

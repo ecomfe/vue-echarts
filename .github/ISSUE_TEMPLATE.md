@@ -29,7 +29,6 @@ Problems about ECharts itself are not handled in this repo. / 本 repo 不负责
 
 > eg. 6.0.0-beta.5
 
-
 ## Reproduction link / 复现链接
 
 **For bug reports, please provide the steps to reproduce and if possible a minimal demo of the problem. Please paste the link to your CodeSandbox demo below: ([Vue 3 template](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue) / [Vue 2 template](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue))**

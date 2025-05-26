@@ -5,7 +5,7 @@ import {
   PolarComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { computed, shallowRef } from "vue";
 import VChart from "../../src/ECharts";
@@ -17,7 +17,7 @@ use([
   PolarComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 ]);
 
 const option = shallowRef(getData());
@@ -28,9 +28,9 @@ const loadingOptions = computed(() =>
     ? {
         color: "#fff",
         textColor: "#fff",
-        maskColor: "rgba(0, 0, 0, 0.7)"
+        maskColor: "rgba(0, 0, 0, 0.7)",
       }
-    : null
+    : null,
 );
 const style = computed(() => {
   return theme.value === "dark"
