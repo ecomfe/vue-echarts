@@ -16,7 +16,10 @@ function configBuild(options, csp) {
   result.plugins = [
     ...(csp ? [replace({ __CSP__: `${csp}`, preventAssignment: true })] : []),
     ...plugins,
-    csp ? css({ output: "style.css" }) : css({ inject: true, minify: true }),
+    css({
+      ...(csp ? { output: "style.css" } : { inject: true }),
+      minify: true,
+    }),
   ];
 
   // modify output file names
