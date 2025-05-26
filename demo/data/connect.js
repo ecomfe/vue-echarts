@@ -5,38 +5,38 @@ for (let i = 0; i < 16; i++) {
     Math.random() * 5,
     Math.random() * 4,
     Math.random() * 12,
-    Math.round(Math.random() * (symbolCount - 1))
+    Math.round(Math.random() * (symbolCount - 1)),
   ]);
 }
 
 const c1 = {
   textStyle: {
     fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-    fontWeight: 300
+    fontWeight: 300,
   },
   legend: {
     top: "3%",
-    data: ["scatter"]
+    data: ["scatter"],
   },
   tooltip: {
-    formatter: "{c}"
+    formatter: "{c}",
   },
   grid: {
     top: "30%",
     right: "18%",
-    bottom: "20%"
+    bottom: "20%",
   },
   xAxis: {
     type: "value",
     splitLine: {
-      show: false
-    }
+      show: false,
+    },
   },
   yAxis: {
     type: "value",
     splitLine: {
-      show: false
-    }
+      show: false,
+    },
   },
   visualMap: [
     {
@@ -50,47 +50,47 @@ const c1 = {
       max: 18,
       precision: 0,
       splitNumber: 0,
-      calculable: true
-    }
+      calculable: true,
+    },
   ],
   series: [
     {
       name: "scatter",
       type: "scatter",
       symbolSize: 30,
-      data: data1
-    }
-  ]
+      data: data1,
+    },
+  ],
 };
 
 const c2 = {
   textStyle: {
     fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-    fontWeight: 300
+    fontWeight: 300,
   },
   legend: {
     top: "3%",
-    data: ["scatter"]
+    data: ["scatter"],
   },
   tooltip: {
-    formatter: "{c}"
+    formatter: "{c}",
   },
   grid: {
     top: "30%",
     right: "18%",
-    bottom: "20%"
+    bottom: "20%",
   },
   xAxis: {
     type: "value",
     splitLine: {
-      show: false
-    }
+      show: false,
+    },
   },
   yAxis: {
     type: "value",
     splitLine: {
-      show: false
-    }
+      show: false,
+    },
   },
   visualMap: [
     {
@@ -103,17 +103,17 @@ const c2 = {
       max: 18,
       precision: 0,
       splitNumber: 0,
-      calculable: true
-    }
+      calculable: true,
+    },
   ],
   series: [
     {
       name: "scatter",
       type: "scatter",
       symbolSize: 30,
-      data: data1
-    }
-  ]
+      data: data1,
+    },
+  ],
 };
 
 export default function getData() {

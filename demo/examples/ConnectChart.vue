@@ -5,7 +5,7 @@ import {
   GridComponent,
   TitleComponent,
   VisualMapComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { shallowRef, watch } from "vue";
 import VChart from "../../src/ECharts";
@@ -17,7 +17,7 @@ use([
   GridComponent,
   TitleComponent,
   VisualMapComponent,
-  TooltipComponent
+  TooltipComponent,
 ]);
 
 const [c1, c2] = getData().map(shallowRef);
@@ -25,14 +25,14 @@ const connected = shallowRef(true);
 
 watch(
   connected,
-  value => {
+  (value) => {
     if (value) {
       connect("radiance");
     } else {
       disconnect("radiance");
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

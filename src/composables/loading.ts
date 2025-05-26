@@ -12,12 +12,12 @@ export const LOADING_OPTIONS_KEY =
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean>,
-  loadingOptions: Ref<LoadingOptions | undefined>
+  loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
     ...(toValue(defaultLoadingOptions) || {}),
-    ...loadingOptions?.value
+    ...loadingOptions?.value,
   }));
 
   watchEffect(() => {
@@ -36,5 +36,5 @@ export function useLoading(
 
 export const loadingProps = {
   loading: Boolean,
-  loadingOptions: Object as PropType<LoadingOptions>
+  loadingOptions: Object as PropType<LoadingOptions>,
 };

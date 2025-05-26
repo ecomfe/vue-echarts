@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [vue()],
   root: "./demo",
   server: {
-    host: true
+    host: true,
   },
   css: {
     postcss: {
-      plugins: [postcssNested()]
-    }
-  }
+      plugins: [postcssNested()],
+    },
+  },
 });

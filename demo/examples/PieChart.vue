@@ -5,7 +5,7 @@ import {
   PolarComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { shallowRef, onMounted, onUnmounted } from "vue";
 import VChart from "../../src/ECharts";
@@ -17,7 +17,7 @@ use([
   PolarComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 ]);
 
 const option = shallowRef(getData());
@@ -54,18 +54,18 @@ function startActions() {
     pie.value.dispatchAction({
       type: "downplay",
       seriesIndex: 0,
-      dataIndex
+      dataIndex,
     });
     dataIndex = (dataIndex + 1) % dataLen;
     pie.value.dispatchAction({
       type: "highlight",
       seriesIndex: 0,
-      dataIndex
+      dataIndex,
     });
     pie.value.dispatchAction({
       type: "showTip",
       seriesIndex: 0,
-      dataIndex
+      dataIndex,
     });
   }, 1000);
 }
