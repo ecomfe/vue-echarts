@@ -8,7 +8,7 @@ export const useScoreStore = defineStore("store", () => {
     { name: "Speed", max: 20, value: 18 },
     { name: "Strength", max: 20, value: 16 },
     { name: "Endurance", max: 20, value: 16 },
-    { name: "Agility", max: 20, value: 20 }
+    { name: "Agility", max: 20, value: 20 },
   ]);
 
   const metrics = computed(() => {
@@ -20,11 +20,11 @@ export const useScoreStore = defineStore("store", () => {
       title: {
         text: "Player Ability",
         top: "5%",
-        left: "5%"
+        left: "5%",
       },
       textStyle: {
         fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-        fontWeight: 300
+        fontWeight: 300,
       },
       radar: {
         indicator: scores.value.map(({ name, max }, index) => {
@@ -32,15 +32,15 @@ export const useScoreStore = defineStore("store", () => {
             return { name, max, color: "goldenrod" };
           }
           return { name, max };
-        })
+        }),
       },
       series: [
         {
           name: "Value",
           type: "radar",
-          data: [{ value: scores.value.map(({ value }) => value) }]
-        }
-      ]
+          data: [{ value: scores.value.map(({ value }) => value) }],
+        },
+      ],
     };
   }
 
@@ -64,6 +64,6 @@ export const useScoreStore = defineStore("store", () => {
     getRadarData,
     increase,
     isMax,
-    isMin
+    isMin,
   };
 });

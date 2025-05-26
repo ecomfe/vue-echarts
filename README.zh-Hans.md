@@ -33,7 +33,7 @@ import { PieChart } from "echarts/charts";
 import {
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, provide } from "vue";
@@ -43,7 +43,7 @@ use([
   PieChart,
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
 ]);
 
 provide(THEME_KEY, "dark");
@@ -51,16 +51,16 @@ provide(THEME_KEY, "dark");
 const option = ref({
   title: {
     text: "Traffic Sources",
-    left: "center"
+    left: "center",
   },
   tooltip: {
     trigger: "item",
-    formatter: "{a} <br/>{b} : {c} ({d}%)"
+    formatter: "{a} <br/>{b} : {c} ({d}%)",
   },
   legend: {
     orient: "vertical",
     left: "left",
-    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
+    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"],
   },
   series: [
     {
@@ -73,17 +73,17 @@ const option = ref({
         { value: 310, name: "Email" },
         { value: 234, name: "Ad Networks" },
         { value: 135, name: "Video Ads" },
-        { value: 1548, name: "Search Engines" }
+        { value: 1548, name: "Search Engines" },
       ],
       emphasis: {
         itemStyle: {
           shadowBlur: 10,
           shadowOffsetX: 0,
-          shadowColor: "rgba(0, 0, 0, 0.5)"
-        }
-      }
-    }
-  ]
+          shadowColor: "rgba(0, 0, 0, 0.5)",
+        },
+      },
+    },
+  ],
 });
 </script>
 
@@ -117,11 +117,13 @@ import "echarts";
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
+
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
+
 <!-- vue3Scripts:end -->
 
 ```js
@@ -263,17 +265,17 @@ Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options
 <summary>组合式 API</summary>
 
 ```js
-import { THEME_KEY } from 'vue-echarts'
-import { provide } from 'vue'
+import { THEME_KEY } from "vue-echarts";
+import { provide } from "vue";
 
-provide(THEME_KEY, 'dark')
+provide(THEME_KEY, "dark");
 
 // or provide a ref
-const theme = ref('dark')
-provide(THEME_KEY, theme)
+const theme = ref("dark");
+provide(THEME_KEY, theme);
 
 // getter is also supported
-provide(THEME_KEY, () => theme.value)
+provide(THEME_KEY, () => theme.value);
 ```
 
 </details>
@@ -332,8 +334,6 @@ export default {
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
-
-
 
 ## CSP: `style-src` 或 `style-src-elem`
 

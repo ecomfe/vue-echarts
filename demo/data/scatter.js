@@ -20,7 +20,7 @@ const data = [
     [19349, 69.6, 147568552, "Russia", 1990],
     [10670, 67.3, 53994605, "Turkey", 1990],
     [26424, 75.7, 57110117, "United Kingdom", 1990],
-    [37062, 75.4, 252847810, "United States", 1990]
+    [37062, 75.4, 252847810, "United States", 1990],
   ],
   [
     [44056, 81.8, 23968973, "Australia", 2015],
@@ -41,43 +41,43 @@ const data = [
     [23038, 73.13, 143456918, "Russia", 2015],
     [19360, 76.5, 78665830, "Turkey", 2015],
     [38225, 81.4, 64715810, "United Kingdom", 2015],
-    [53354, 79.1, 321773631, "United States", 2015]
-  ]
+    [53354, 79.1, 321773631, "United States", 2015],
+  ],
 ];
 
 export default function getData() {
   return {
     grid: {
-      top: "25%"
+      top: "25%",
     },
     textStyle: {
       fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300
+      fontWeight: 300,
     },
     title: {
       text: "Life Expectancy vs. GDP by country",
       top: "5%",
-      left: "5%"
+      left: "5%",
     },
     legend: {
       top: "6%",
       right: "5%",
-      data: ["1990", "2015"]
+      data: ["1990", "2015"],
     },
     xAxis: {
       splitLine: {
         lineStyle: {
-          type: "dashed"
-        }
-      }
+          type: "dashed",
+        },
+      },
     },
     yAxis: {
       splitLine: {
         lineStyle: {
-          type: "dashed"
-        }
+          type: "dashed",
+        },
       },
-      scale: true
+      scale: true,
     },
     series: [
       {
@@ -93,8 +93,8 @@ export default function getData() {
             formatter({ data }) {
               return data[3];
             },
-            position: "top"
-          }
+            position: "top",
+          },
         },
         itemStyle: {
           shadowBlur: 10,
@@ -103,14 +103,14 @@ export default function getData() {
           color: new graphic.RadialGradient(0.4, 0.3, 1, [
             {
               offset: 0,
-              color: "rgb(251, 118, 123)"
+              color: "rgb(251, 118, 123)",
             },
             {
               offset: 1,
-              color: "rgb(204, 46, 72)"
-            }
-          ])
-        }
+              color: "rgb(204, 46, 72)",
+            },
+          ]),
+        },
       },
       {
         name: "2015",
@@ -125,8 +125,8 @@ export default function getData() {
             formatter({ data }) {
               return data[3];
             },
-            position: "top"
-          }
+            position: "top",
+          },
         },
         itemStyle: {
           shadowBlur: 10,
@@ -135,15 +135,15 @@ export default function getData() {
           color: new graphic.RadialGradient(0.4, 0.3, 1, [
             {
               offset: 0,
-              color: "rgb(129, 227, 238)"
+              color: "rgb(129, 227, 238)",
             },
             {
               offset: 1,
-              color: "rgb(25, 183, 207)"
-            }
-          ])
-        }
-      }
-    ]
+              color: "rgb(25, 183, 207)",
+            },
+          ]),
+        },
+      },
+    ],
   };
 }

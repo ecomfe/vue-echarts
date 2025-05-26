@@ -4,7 +4,7 @@ import { ScatterChart } from "echarts/charts";
 import {
   GridComponent,
   TitleComponent,
-  LegendComponent
+  LegendComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";

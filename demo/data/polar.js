@@ -10,33 +10,33 @@ export default function getData() {
   return {
     textStyle: {
       fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300
+      fontWeight: 300,
     },
     title: {
       text: "Dual Numeric Axis",
       top: "5%",
-      left: "5%"
+      left: "5%",
     },
     legend: {
       data: ["line"],
-      top: "6%"
+      top: "6%",
     },
     polar: {
       radius: "65%",
-      center: ["50%", "56%"]
+      center: ["50%", "56%"],
     },
     tooltip: {
       trigger: "axis",
       axisPointer: {
-        type: "cross"
-      }
+        type: "cross",
+      },
     },
     angleAxis: {
       type: "value",
-      startAngle: 0
+      startAngle: 0,
     },
     radiusAxis: {
-      min: 0
+      min: 0,
     },
     series: [
       {
@@ -44,9 +44,9 @@ export default function getData() {
         name: "line",
         type: "line",
         showSymbol: false,
-        data: data
-      }
+        data: data,
+      },
     ],
-    animationDuration: 2000
+    animationDuration: 2000,
   };
 }

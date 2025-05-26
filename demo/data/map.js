@@ -188,7 +188,7 @@ const data = [
   { name: "菏泽", value: 194 },
   { name: "合肥", value: 229 },
   { name: "武汉", value: 273 },
-  { name: "大庆", value: 279 }
+  { name: "大庆", value: 279 },
 ];
 const geoCoordMap = {
   海门: [121.15, 31.89],
@@ -380,7 +380,7 @@ const geoCoordMap = {
   菏泽: [115.480656, 35.23375],
   合肥: [117.27, 31.86],
   武汉: [114.31, 30.52],
-  大庆: [125.03, 46.58]
+  大庆: [125.03, 46.58],
 };
 
 function convertData(data) {
@@ -390,7 +390,7 @@ function convertData(data) {
     if (geoCoord) {
       res.push({
         name: data[i].name,
-        value: geoCoord.concat(data[i].value)
+        value: geoCoord.concat(data[i].value),
       });
     }
   }
@@ -401,7 +401,7 @@ export default function getData() {
   return {
     textStyle: {
       fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300
+      fontWeight: 300,
     },
     backgroundColor: "#404a59",
     title: {
@@ -411,11 +411,11 @@ export default function getData() {
       top: "5%",
       left: "center",
       textStyle: {
-        color: "#fff"
-      }
+        color: "#fff",
+      },
     },
     tooltip: {
-      trigger: "item"
+      trigger: "item",
     },
     legend: {
       orient: "vertical",
@@ -423,25 +423,25 @@ export default function getData() {
       bottom: "5%",
       data: ["PM2.5"],
       textStyle: {
-        color: "#fff"
-      }
+        color: "#fff",
+      },
     },
     geo: {
       map: "china",
       emphasis: {
         label: {
-          show: false
+          show: false,
         },
         itemStyle: {
-          areaColor: "#2a333d"
-        }
+          areaColor: "#2a333d",
+        },
       },
       itemStyle: {
         areaColor: "#323c48",
-        borderColor: "#111"
+        borderColor: "#111",
       },
       top: "20%",
-      bottom: "7%"
+      bottom: "7%",
     },
     series: [
       {
@@ -449,46 +449,46 @@ export default function getData() {
         type: "scatter",
         coordinateSystem: "geo",
         data: convertData(data),
-        symbolSize: val => val[2] / 10,
+        symbolSize: (val) => val[2] / 10,
         tooltip: {
           formatter: function (val) {
             return val.name + ": " + val.value[2];
-          }
+          },
         },
         itemStyle: {
-          color: "#ddb926"
-        }
+          color: "#ddb926",
+        },
       },
       {
         name: "Top 5",
         type: "effectScatter",
         coordinateSystem: "geo",
         data: convertData(data.sort((a, b) => b.value - a.value).slice(0, 6)),
-        symbolSize: val => val[2] / 10,
+        symbolSize: (val) => val[2] / 10,
         showEffectOn: "render",
         rippleEffect: {
-          brushType: "stroke"
+          brushType: "stroke",
         },
         emphasis: {
-          scale: true
+          scale: true,
         },
         tooltip: {
           formatter: function (val) {
             return val.name + ": " + val.value[2];
-          }
+          },
         },
         label: {
           formatter: "{b}",
           position: "right",
-          show: true
+          show: true,
         },
         itemStyle: {
           color: "#f4e925",
           shadowBlur: 10,
-          shadowColor: "#333"
+          shadowColor: "#333",
         },
-        zlevel: 1
-      }
-    ]
+        zlevel: 1,
+      },
+    ],
   };
 }

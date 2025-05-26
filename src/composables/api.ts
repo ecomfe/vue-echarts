@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Ref } from "vue";
 import type { EChartsType } from "../types";
 
@@ -17,7 +16,7 @@ const METHOD_NAMES = [
   "appendData",
   "clear",
   "isDisposed",
-  "dispose"
+  "dispose",
 ] as const;
 
 type MethodName = (typeof METHOD_NAMES)[number];
@@ -25,10 +24,10 @@ type MethodName = (typeof METHOD_NAMES)[number];
 type PublicMethods = Pick<EChartsType, MethodName>;
 
 export function usePublicAPI(
-  chart: Ref<EChartsType | undefined>
+  chart: Ref<EChartsType | undefined>,
 ): PublicMethods {
   function makePublicMethod<T extends MethodName>(
-    name: T
+    name: T,
   ): (...args: Parameters<EChartsType[T]>) => ReturnType<EChartsType[T]> {
     return (...args) => {
       if (!chart.value) {
@@ -40,7 +39,7 @@ export function usePublicAPI(
 
   function makePublicMethods(): PublicMethods {
     const methods = Object.create(null);
-    METHOD_NAMES.forEach(name => {
+    METHOD_NAMES.forEach((name) => {
       methods[name] = makePublicMethod(name);
     });
 

@@ -5,13 +5,13 @@ import {
   GeoComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/map";
-import chinaMap from "../china.json";
+import chinaMap from "../data/china.json";
 
 use([
   ScatterChart,
@@ -19,7 +19,7 @@ use([
   GeoComponent,
   TitleComponent,
   LegendComponent,
-  TooltipComponent
+  TooltipComponent,
 ]);
 
 registerMap("china", chinaMap);
@@ -33,10 +33,10 @@ let img = null;
 function convert() {
   img = {
     src: map.value.getDataURL({
-      pixelRatio: window.devicePixelRatio || 1
+      pixelRatio: window.devicePixelRatio || 1,
     }),
     width: map.value.getWidth(),
-    height: map.value.getHeight()
+    height: map.value.getHeight(),
   };
   open.value = true;
 }
