@@ -1,16 +1,16 @@
 import {
   defineConfigWithVueTs,
   vueTsConfigs,
+  configureVueProject,
 } from "@vue/eslint-config-typescript";
 import pluginVue from "eslint-plugin-vue";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
 // The inferred type of 'default' cannot be named without a reference to "@typescript-eslint/utils"
 import type {} from "@typescript-eslint/utils";
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
+// To allow more languages other than `ts` in `.vue` files
 // More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+configureVueProject({ scriptLangs: ["ts", "js"] });
 
 export default defineConfigWithVueTs(
   {
@@ -24,7 +24,6 @@ export default defineConfigWithVueTs(
   {
     rules: {
       "vue/multi-word-component-names": "off",
-      "vue/block-lang": "off",
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
