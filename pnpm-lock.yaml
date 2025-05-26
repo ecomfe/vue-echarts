@@ -39,8 +39,8 @@ importers:
         specifier: ^13.1.0
         version: 13.1.0(vue@3.5.13(typescript@5.8.3))
       comment-mark:
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^2.0.1
+        version: 2.0.1
       echarts:
         specifier: ^5.5.1
         version: 5.5.1
@@ -908,8 +908,9 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
-  comment-mark@1.1.1:
-    resolution: {integrity: sha512-KxFiXpu1/srgsSrftM/whqTpHZUX+BO3bgsToDNNJSqqsGP48sngnAIC+Cms+cCsDl9TQb7rlAVyfKDBdPQcaA==}
+  comment-mark@2.0.1:
+    resolution: {integrity: sha512-WObl+IX0fmiQYgt/pMTquyAYBdcKf8GQGPVPDNtL7XvDQDUdfHaOJYayzsLGS24GHLuHhFXgVXmwwq6CM1lHcQ==}
+    engines: {node: '>=20'}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -2391,7 +2392,7 @@ snapshots:
   commander@2.20.3:
     optional: true
 
-  comment-mark@1.1.1: {}
+  comment-mark@2.0.1: {}
 
   concat-map@0.0.1: {}
 

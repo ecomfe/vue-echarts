@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import commentMark from "comment-mark";
+import { commentMark } from "comment-mark";
 import { getPackageMeta, resolvePath } from "./utils.mjs";
 
 const { name, version } = getPackageMeta();
@@ -23,7 +23,7 @@ function getScripts() {
 }
 
 function getCodeBlock(code) {
-  return "```html\n" + code + "\n```";
+  return "\n```html\n" + code + "\n```\n";
 }
 
 const README_FILES = ["README.md", "README.zh-Hans.md"].map((name) =>
