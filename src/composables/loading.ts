@@ -2,16 +2,18 @@ import { inject, computed, watchEffect } from "vue";
 import { toValue } from "../utils";
 
 import type { Ref, InjectionKey, PropType } from "vue";
-import type { EChartsType, LoadingOptions } from "../types";
+import type {
+  EChartsType,
+  LoadingOptions,
+  LoadingOptionsInjection,
+} from "../types";
 
 export const LOADING_OPTIONS_KEY =
-  "ecLoadingOptions" as unknown as InjectionKey<
-    LoadingOptions | Ref<LoadingOptions>
-  >;
+  "ecLoadingOptions" as unknown as InjectionKey<LoadingOptionsInjection>;
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
-  loading: Ref<boolean>,
+  loading: Ref<boolean | undefined>,
   loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
