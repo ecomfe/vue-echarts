@@ -19,6 +19,7 @@ import {
   autoresizeProps,
   useLoading,
   loadingProps,
+  type PublicMethods,
 } from "./composables";
 import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
@@ -284,14 +285,15 @@ export default defineComponent({
       }
     });
 
-    return {
+    const exposed = {
       chart,
       root,
       setOption,
       nonEventAttrs,
       nativeListeners,
-      ...publicApi,
     };
+
+    return { ...exposed, ...publicApi } as typeof exposed & PublicMethods;
   },
   render() {
     return h(TAG_NAME, {
