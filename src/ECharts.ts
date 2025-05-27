@@ -27,6 +27,7 @@ import { register, TAG_NAME } from "./wc";
 import type { PropType, InjectionKey } from "vue";
 import type {
   EChartsType,
+  SetOptionType,
   Option,
   Theme,
   ThemeInjection,
@@ -65,8 +66,9 @@ export default defineComponent({
     ...loadingProps,
   },
   emits: {} as unknown as Emits,
+  methods: {} as PublicMethods & { setOption: SetOptionType },
   inheritAttrs: false,
-  setup(props, { attrs }) {
+  setup(props, { attrs, expose }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -191,7 +193,20 @@ export default defineComponent({
       }
     }
 
-    function setOption(option: Option, updateOptions?: UpdateOptions) {
+    function setOption(
+      option: Option,
+      notMerge?: boolean,
+      lazyUpdate?: boolean,
+    ): void;
+    function setOption(option: Option, updateOptions?: UpdateOptions): void;
+    function setOption(
+      option: Option,
+      notMerge?: boolean | UpdateOptions,
+      lazyUpdate?: boolean,
+    ): void {
+      const updateOptions =
+        typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
+
       if (props.manualUpdate) {
         manualOption.value = option;
       }
@@ -285,22 +300,17 @@ export default defineComponent({
       }
     });
 
-    const exposed = {
-      chart,
-      root,
+    expose({
+      ...publicApi,
       setOption,
-      nonEventAttrs,
-      nativeListeners,
-    };
-
-    return { ...exposed, ...publicApi } as typeof exposed & PublicMethods;
-  },
-  render() {
-    return h(TAG_NAME, {
-      ...this.nonEventAttrs,
-      ...this.nativeListeners,
-      ref: "root",
-      class: ["echarts", ...(this.nonEventAttrs.class || [])],
     });
+
+    return () =>
+      h(TAG_NAME, {
+        ...nonEventAttrs.value,
+        ...nativeListeners,
+        ref: root,
+        class: ["echarts", ...(nonEventAttrs.value.class || [])],
+      });
   },
 });
