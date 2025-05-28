@@ -192,18 +192,11 @@ export default defineComponent({
         commit();
       }
     }
-
-    function setOption(
-      option: Option,
-      notMerge?: boolean,
+    const setOption: SetOptionType = (
+      option,
+      notMerge,
       lazyUpdate?: boolean,
-    ): void;
-    function setOption(option: Option, updateOptions?: UpdateOptions): void;
-    function setOption(
-      option: Option,
-      notMerge?: boolean | UpdateOptions,
-      lazyUpdate?: boolean,
-    ): void {
+    ) => {
       const updateOptions =
         typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
 
@@ -216,7 +209,7 @@ export default defineComponent({
       } else {
         chart.value.setOption(option, updateOptions || {});
       }
-    }
+    };
 
     function cleanup() {
       if (chart.value) {
