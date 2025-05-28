@@ -66,7 +66,6 @@ export default defineComponent({
     ...loadingProps,
   },
   emits: {} as unknown as Emits,
-  methods: {} as PublicMethods & { setOption: SetOptionType },
   inheritAttrs: false,
   setup(props, { attrs, expose }) {
     const root = shallowRef<EChartsElement>();
@@ -293,17 +292,19 @@ export default defineComponent({
       }
     });
 
-    expose({
-      ...publicApi,
+    const exposed = {
       setOption,
-    });
+      root,
+      chart,
+    };
+    expose({ ...exposed, ...publicApi });
 
-    return () =>
+    return (() =>
       h(TAG_NAME, {
         ...nonEventAttrs.value,
         ...nativeListeners,
         ref: root,
         class: ["echarts", ...(nonEventAttrs.value.class || [])],
-      });
+      })) as unknown as typeof exposed & PublicMethods;
   },
 });
