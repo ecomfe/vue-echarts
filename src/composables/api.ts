@@ -21,7 +21,7 @@ const METHOD_NAMES = [
 
 type MethodName = (typeof METHOD_NAMES)[number];
 
-type PublicMethods = Pick<EChartsType, MethodName>;
+export type PublicMethods = Pick<EChartsType, MethodName>;
 
 export function usePublicAPI(
   chart: Ref<EChartsType | undefined>,
