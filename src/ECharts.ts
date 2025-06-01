@@ -298,6 +298,10 @@ export default defineComponent({
     };
     expose({ ...exposed, ...publicApi });
 
+    // While `expose()` exposes methods and properties to the parent component
+    // via template refs at runtime, it doesn't contribute to TypeScript types.
+    // This type casting ensures TypeScript correctly types the exposed members
+    // that will be available when using this component.
     return (() =>
       h(TAG_NAME, {
         ...nonEventAttrs.value,
