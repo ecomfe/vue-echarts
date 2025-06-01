@@ -41,8 +41,7 @@ import type { EChartsElement } from "./wc";
 
 import "./style.css";
 
-const __CSP__ = false;
-const wcRegistered = __CSP__ ? false : register();
+const wcRegistered = register();
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
