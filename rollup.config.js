@@ -2,6 +2,7 @@ import replace from "@rollup/plugin-replace";
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
 import css from "rollup-plugin-import-css";
+import { defineConfig } from "rollup";
 
 /**
  * Modifies the Rollup options for a build to support strict CSP
@@ -73,12 +74,24 @@ const builds = [
   },
 ];
 
-export default [
+export default defineConfig([
   ...builds.map((options) => configBuild(options, false)),
   ...builds.map((options) => configBuild(options, true)),
   {
-    input: "src/index.d.ts",
-    plugins: [dts()],
+    input: "src/index.ts",
+    plugins: [
+      dts({
+        // https://github.com/unjs/unbuild/pull/57/files
+        compilerOptions: {
+          preserveSymlinks: false,
+        },
+      }),
+      {
+        load(id) {
+          if (id.endsWith(".css")) return "";
+        },
+      },
+    ],
     output: [
       {
         file: "dist/index.d.ts",
@@ -90,4 +103,4 @@ export default [
       },
     ],
   },
-];
+]);

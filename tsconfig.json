@@ -1,12 +1,11 @@
 {
-  "allowJs": true,
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "removeComments": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
