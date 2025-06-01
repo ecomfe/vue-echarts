@@ -8,8 +8,8 @@ import type {
   LoadingOptionsInjection,
 } from "../types";
 
-export const LOADING_OPTIONS_KEY =
-  "ecLoadingOptions" as unknown as InjectionKey<LoadingOptionsInjection>;
+export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> =
+  Symbol();
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
