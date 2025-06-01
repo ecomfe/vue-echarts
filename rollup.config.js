@@ -1,4 +1,3 @@
-import replace from "@rollup/plugin-replace";
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
 import css from "rollup-plugin-import-css";
@@ -15,7 +14,6 @@ function configBuild(options, csp) {
   const { plugins, output } = result;
 
   result.plugins = [
-    ...(csp ? [replace({ __CSP__: `${csp}`, preventAssignment: true })] : []),
     ...plugins,
     css({
       ...(csp ? { output: "style.css" } : { inject: true }),
