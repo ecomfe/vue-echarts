@@ -11,9 +11,6 @@ importers:
       '@highlightjs/vue-plugin':
         specifier: ^2.1.0
         version: 2.1.0(highlight.js@11.10.0)(vue@3.5.13(typescript@5.8.3))
-      '@rollup/plugin-replace':
-        specifier: ^6.0.2
-        version: 6.0.2(rollup@4.41.1)
       '@types/node':
         specifier: ^22.15.21
         version: 22.15.21
@@ -394,15 +391,6 @@ packages:
   '@publint/pack@0.1.2':
     resolution: {integrity: sha512-S+9ANAvUmjutrshV4jZjaiG8XQyuJIZ8a4utWmN/vW1sgQ9IfBnPndwkmQYw53QmouOIytT874u65HEmu6H5jw==}
     engines: {node: '>=18'}
-
-  '@rollup/plugin-replace@6.0.2':
-    resolution: {integrity: sha512-7QaYCf8bqF04dOy7w/eHmJeNExxTYwvKAmlSAH/EaWWUzbT0h5sbF6bktFoX/0F/0qwng5/dWFMyf3gzaM8DsQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
 
   '@rollup/pluginutils@5.1.4':
     resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
@@ -1738,13 +1726,6 @@ snapshots:
   '@pkgr/core@0.2.4': {}
 
   '@publint/pack@0.1.2': {}
-
-  '@rollup/plugin-replace@6.0.2(rollup@4.41.1)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.4(rollup@4.41.1)
-      magic-string: 0.30.17
-    optionalDependencies:
-      rollup: 4.41.1
 
   '@rollup/pluginutils@5.1.4(rollup@4.41.1)':
     dependencies:

@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
-    "@rollup/plugin-replace": "^6.0.2",
     "@types/node": "^22.15.21",
     "@typescript-eslint/utils": "^8.32.1",
     "@vercel/analytics": "^1.3.1",
