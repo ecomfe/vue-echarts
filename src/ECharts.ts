@@ -24,7 +24,7 @@ import {
 import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
-import type { PropType, InjectionKey } from "vue";
+import type { PropType, InjectionKey, SlotsType } from "vue";
 import type {
   EChartsType,
   SetOptionType,
@@ -65,7 +65,10 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   inheritAttrs: false,
-  setup(props, { attrs, expose }) {
+  slots: Object as SlotsType<{
+    tooltip: { params: any; show: boolean };
+  }>,
+  setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -92,6 +95,9 @@ export default defineComponent({
 
     const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> =
       new Map();
+
+    const tooltipShow = shallowRef(false);
+    const tooltipParams = shallowRef<any>(null);
 
     // We are converting all `on<Event>` props and collect them into `listeners` so that
     // we can bind them to the chart instance later.
@@ -177,6 +183,14 @@ export default defineComponent({
           instance.setOption(opt, realUpdateOptions.value);
         }
       }
+
+      instance.on("showTip", (params) => {
+        tooltipShow.value = true;
+        tooltipParams.value = params;
+      });
+      instance.on("hideTip", () => {
+        tooltipShow.value = false;
+      });
 
       if (autoresize.value) {
         // Try to make chart fit to container in case container size
@@ -302,11 +316,18 @@ export default defineComponent({
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
     return (() =>
-      h(TAG_NAME, {
-        ...nonEventAttrs.value,
-        ...nativeListeners,
-        ref: root,
-        class: ["echarts", ...(nonEventAttrs.value.class || [])],
-      })) as unknown as typeof exposed & PublicMethods;
+      h(
+        TAG_NAME,
+        {
+          ...nonEventAttrs.value,
+          ...nativeListeners,
+          ref: root,
+          class: ["echarts", ...(nonEventAttrs.value.class || [])],
+        },
+        slots.tooltip?.({
+          params: tooltipParams.value,
+          show: tooltipShow.value,
+        }),
+      )) as unknown as typeof exposed & PublicMethods;
   },
 });
