@@ -359,7 +359,7 @@ Vue-ECharts 支持如下事件：
 
 #### 原生 DOM 事件
 
-由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件（可以在 Vue 2 中也可以使用 `.native` 修饰符，但这在 Vue 3 中已被废弃）。
+由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件（在 Vue 2 中也可以使用 `.native` 修饰符，但这在 Vue 3 中已被废弃）。
 
 ```vue
 <template>
