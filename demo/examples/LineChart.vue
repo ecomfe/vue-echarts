@@ -71,36 +71,6 @@ const option = shallowRef({
     title="Line chart"
     desc="(with component rendered tooltip)"
   >
-    <v-chart :option="option" autoresize>
-      <template #tooltip="{ params, show }">
-        <div
-          v-if="show"
-          :style="{
-            position: 'absolute',
-            top: '0px',
-            left: '0px',
-            transform: `translate3d(${params.x + 20}px, ${params.y + 20}px, 0px)`,
-            zIndex: 1000,
-            pointerEvents: 'none',
-            transition:
-              'opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-          }"
-        >
-          <div
-            style="
-              background: rgba(255, 255, 255, 0.2);
-              padding: 10px;
-              border-radius: 4px;
-              border: 1px solid rgb(102, 102, 102);
-              will-change: transform;
-              backdrop-filter: blur(8px);
-              box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px;
-            "
-          >
-            {{ params }}
-          </div>
-        </div>
-      </template>
-    </v-chart>
+    <v-chart :option="option" autoresize />
   </v-example>
 </template>
