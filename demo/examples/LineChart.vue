@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import {
@@ -9,6 +9,7 @@ import {
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";
+import { createTooltipTemplate } from "../../src/composables/tooltip";
 import VExample from "./Example.vue";
 
 use([
@@ -19,11 +20,19 @@ use([
   TooltipComponent,
 ]);
 
+type MyParams = {
+  seriesName: string;
+  seriesIndex: number;
+  data: number[];
+  marker: string;
+}[];
+const { define: DefineTooltip, formatter } = createTooltipTemplate<MyParams>();
+
 const option = shallowRef({
   legend: { top: 20 },
   tooltip: {
     trigger: "axis",
-    showContent: false,
+    formatter,
   },
   dataset: {
     source: [
@@ -72,5 +81,26 @@ const option = shallowRef({
     desc="(with component rendered tooltip)"
   >
     <v-chart :option="option" autoresize />
+    <!-- TODO: use a Pie Chart as tooltip -->
+    <define-tooltip v-slot="params">
+      <b>Custom Tooltip</b>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, i) in params" :key="i">
+            <td>
+              <span v-html="item.marker" />
+              {{ item.seriesName }}
+            </td>
+            <td>{{ item.data[i + 1] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </define-tooltip>
   </v-example>
 </template>
