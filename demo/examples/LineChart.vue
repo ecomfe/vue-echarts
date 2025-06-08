@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import { use } from "echarts/core";
-import { LineChart } from "echarts/charts";
+import { LineChart, PieChart } from "echarts/charts";
 import {
   GridComponent,
   DatasetComponent,
@@ -18,21 +18,22 @@ use([
   LegendComponent,
   LineChart,
   TooltipComponent,
+  PieChart,
 ]);
 
-type MyParams = {
-  seriesName: string;
-  seriesIndex: number;
-  data: number[];
-  marker: string;
-}[];
-const { define: DefineTooltip, formatter } = createTooltipTemplate<MyParams>();
+const { define: DefineTooltip, formatter } = createTooltipTemplate();
 
 const option = shallowRef({
   legend: { top: 20 },
   tooltip: {
     trigger: "axis",
-    formatter,
+    formatter: (params) => {
+      const source = [params[0].dimensionNames, params[0].data];
+      const dataset = { source };
+      const option = { ...pieOption, dataset };
+      option.series[0].label.formatter = params[0].name;
+      return formatter(option);
+    },
   },
   dataset: {
     source: [
@@ -72,6 +73,23 @@ const option = shallowRef({
     },
   ],
 });
+
+const pieOption = {
+  animation: false,
+  series: [
+    {
+      type: "pie",
+      radius: ["60%", "100%"],
+      seriesLayoutBy: "row",
+      itemStyle: {
+        borderRadius: 5,
+        borderColor: "#fff",
+        borderWidth: 2,
+      },
+      label: { position: "center" },
+    },
+  ],
+};
 </script>
 
 <template>
@@ -81,26 +99,13 @@ const option = shallowRef({
     desc="(with component rendered tooltip)"
   >
     <v-chart :option="option" autoresize />
-    <!-- TODO: use a Pie Chart as tooltip -->
-    <define-tooltip v-slot="params">
-      <b>Custom Tooltip</b>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, i) in params" :key="i">
-            <td>
-              <span v-html="item.marker" />
-              {{ item.seriesName }}
-            </td>
-            <td>{{ item.data[i + 1] }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <define-tooltip v-slot="opt">
+      <v-chart
+        :style="{ width: '100px', height: '100px' }"
+        :option="opt"
+        :update-options="{ notMerge: false }"
+        autoresize
+      />
     </define-tooltip>
   </v-example>
 </template>

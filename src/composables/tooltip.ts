@@ -34,17 +34,14 @@ export function createTooltipTemplate<Params extends object>() {
 
     if (!app) {
       app = createApp({
-        // root component is just a render function
         render() {
-          // call the slot function with your props
-          // return slot!(props);
           return slot!(props.value);
         },
       });
       app.mount(document.createElement("div"));
     }
 
-    return app._container!.innerHTML;
+    return app._container!;
   };
 
   onUnmounted(() => {

@@ -21,7 +21,7 @@
     "docs": "node ./scripts/docs.mjs",
     "prepublishOnly": "pnpm run typecheck && pnpm run dev:typecheck && pnpm run build && publint"
   },
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.11.1",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
