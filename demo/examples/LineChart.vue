@@ -7,9 +7,8 @@ import {
   LegendComponent,
   TooltipComponent,
 } from "echarts/components";
-import { shallowRef } from "vue";
-import VChart from "../../src/ECharts";
-import { createTooltipTemplate } from "../../src/composables/tooltip";
+import { useTemplateRef, shallowRef } from "vue";
+import VChart, { EChartsTooltip as VChartTooltip } from "../../src/ECharts";
 import VExample from "./Example.vue";
 
 use([
@@ -21,7 +20,7 @@ use([
   PieChart,
 ]);
 
-const { define: DefineTooltip, formatter } = createTooltipTemplate();
+const tooltipRef = useTemplateRef("tooltipRef");
 
 const option = shallowRef({
   legend: { top: 20 },
@@ -32,7 +31,7 @@ const option = shallowRef({
       const dataset = { source };
       const option = { ...pieOption, dataset };
       option.series[0].label.formatter = params[0].name;
-      return formatter(option);
+      return tooltipRef.value?.formatter(option);
     },
   },
   dataset: {
@@ -98,13 +97,12 @@ const pieOption = {
     desc="(with component rendered tooltip)"
   >
     <v-chart :option="option" autoresize />
-    <define-tooltip v-slot="opt">
+    <v-chart-tooltip ref="tooltipRef" v-slot="opt">
       <v-chart
         :style="{ width: '100px', height: '100px' }"
         :option="opt"
-        :update-options="{ notMerge: false }"
         autoresize
       />
-    </define-tooltip>
+    </v-chart-tooltip>
   </v-example>
 </template>

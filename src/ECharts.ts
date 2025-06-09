@@ -48,6 +48,7 @@ export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
 export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> =
   Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables";
+export { default as EChartsTooltip } from "./EChartsTooltip";
 
 export default defineComponent({
   name: "echarts",
