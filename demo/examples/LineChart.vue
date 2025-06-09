@@ -75,7 +75,6 @@ const option = shallowRef({
 });
 
 const pieOption = {
-  animation: false,
   series: [
     {
       type: "pie",

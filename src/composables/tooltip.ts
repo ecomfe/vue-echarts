@@ -2,16 +2,25 @@ import {
   defineComponent,
   Slot,
   shallowRef,
-  createApp,
+  createVNode,
+  render,
   onUnmounted,
-  type App,
+  getCurrentInstance,
   type DefineComponent,
 } from "vue";
 
 export function createTooltipTemplate<Params extends object>() {
   let slot: Slot | undefined;
-  let app: App<Element> | undefined;
+  let container: HTMLElement | undefined;
   const props = shallowRef<Params>();
+  const internal = getCurrentInstance();
+
+  if (!internal) {
+    throw new Error(
+      `[vue-echarts] createTooltipTemplate must be used in a setup function`,
+    );
+  }
+  const { appContext } = internal;
 
   const define = defineComponent({
     setup(_, { slots }) {
@@ -32,20 +41,27 @@ export function createTooltipTemplate<Params extends object>() {
       );
     }
 
-    if (!app) {
-      app = createApp({
-        render() {
-          return slot!(props.value);
+    if (!container) {
+      const component = defineComponent({
+        setup() {
+          return () => slot!(props.value);
         },
       });
-      app.mount(document.createElement("div"));
+      const vnode = createVNode(component);
+      vnode.appContext = appContext;
+
+      container = document.createElement("div");
+      render(vnode, container);
     }
 
-    return app._container!;
+    return container;
   };
 
   onUnmounted(() => {
-    app?.unmount();
+    if (container) {
+      render(null, container);
+      container.remove();
+    }
   });
 
   return { define, formatter };
