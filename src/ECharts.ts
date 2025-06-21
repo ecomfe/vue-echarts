@@ -40,6 +40,7 @@ import type {
 import type { EChartsElement } from "./wc";
 
 import "./style.css";
+import { useTooltip } from "./composables/tooltip";
 
 const wcRegistered = register();
 
@@ -48,7 +49,6 @@ export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
 export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> =
   Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables";
-export { default as EChartsTooltip } from "./EChartsTooltip";
 
 export default defineComponent({
   name: "echarts",
@@ -66,7 +66,7 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   inheritAttrs: false,
-  setup(props, { attrs, expose }) {
+  setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -175,6 +175,7 @@ export default defineComponent({
       function commit() {
         const opt = option || realOption.value;
         if (opt) {
+          mutateOption(opt);
           instance.setOption(opt, realUpdateOptions.value);
         }
       }
@@ -205,6 +206,7 @@ export default defineComponent({
       if (!chart.value) {
         init(option);
       } else {
+        mutateOption(option);
         chart.value.setOption(option, updateOptions || {});
       }
     };
@@ -235,6 +237,7 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
+                mutateOption(option);
                 chart.value.setOption(option, {
                   // mutating `option` will lead to `notMerge: false` and
                   // replacing it with new reference will lead to `notMerge: true`
@@ -275,6 +278,8 @@ export default defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
+    const { teleportedSlots, mutateOption } = useTooltip(slots);
+
     onMounted(() => {
       init();
     });
@@ -303,11 +308,15 @@ export default defineComponent({
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
     return (() =>
-      h(TAG_NAME, {
-        ...nonEventAttrs.value,
-        ...nativeListeners,
-        ref: root,
-        class: ["echarts", ...(nonEventAttrs.value.class || [])],
-      })) as unknown as typeof exposed & PublicMethods;
+      h(
+        TAG_NAME,
+        {
+          ...nonEventAttrs.value,
+          ...nativeListeners,
+          ref: root,
+          class: ["echarts", nonEventAttrs.value.class],
+        },
+        teleportedSlots(),
+      )) as unknown as typeof exposed & PublicMethods;
   },
 });

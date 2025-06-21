@@ -29,3 +29,9 @@ const isFunction = (val: unknown): val is Function => typeof val === "function";
 export function toValue<T>(source: MaybeRefOrGetter<T>): T {
   return isFunction(source) ? source() : unref(source);
 }
+
+export function parseProperties(path: string) {
+  // Convert bracket notation to dot notation and split the path
+  // "[2].series[0].data" -> ["2", "series", "0", "data"]
+  return path.replace(/\[(\w+)\]/g, ".$1").split(".");
+}

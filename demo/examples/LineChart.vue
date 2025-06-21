@@ -7,9 +7,10 @@ import {
   LegendComponent,
   TooltipComponent,
 } from "echarts/components";
-import { useTemplateRef, shallowRef } from "vue";
-import VChart, { EChartsTooltip as VChartTooltip } from "../../src/ECharts";
+import { shallowRef } from "vue";
+import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
+import getData from "../data/line";
 
 use([
   DatasetComponent,
@@ -20,74 +21,27 @@ use([
   PieChart,
 ]);
 
-const tooltipRef = useTemplateRef("tooltipRef");
+const option = shallowRef(getData());
 
-const option = shallowRef({
-  legend: { top: 20 },
-  tooltip: {
-    trigger: "axis",
-    formatter: (params) => {
-      const source = [params[0].dimensionNames, params[0].data];
-      const dataset = { source };
-      const option = { ...pieOption, dataset };
-      option.series[0].label.formatter = params[0].name;
-      return tooltipRef.value?.formatter(option);
-    },
-  },
-  dataset: {
-    source: [
-      ["product", "2012", "2013", "2014", "2015", "2016", "2017"],
-      ["Milk Tea", 56.5, 82.1, 88.7, 70.1, 53.4, 85.1],
-      ["Matcha Latte", 51.1, 51.4, 55.1, 53.3, 73.8, 68.7],
-      ["Cheese Cocoa", 40.1, 62.2, 69.5, 36.4, 45.2, 32.5],
-      ["Walnut Brownie", 25.2, 37.1, 41.2, 18, 33.9, 49.1],
-    ],
-  },
-  xAxis: { type: "category" },
-  yAxis: {},
-  series: [
-    {
-      type: "line",
-      smooth: true,
-      seriesLayoutBy: "row",
-      emphasis: { focus: "series" },
-    },
-    {
-      type: "line",
-      smooth: true,
-      seriesLayoutBy: "row",
-      emphasis: { focus: "series" },
-    },
-    {
-      type: "line",
-      smooth: true,
-      seriesLayoutBy: "row",
-      emphasis: { focus: "series" },
-    },
-    {
-      type: "line",
-      smooth: true,
-      seriesLayoutBy: "row",
-      emphasis: { focus: "series" },
-    },
-  ],
-});
-
-const pieOption = {
-  series: [
-    {
-      type: "pie",
-      radius: ["60%", "100%"],
-      seriesLayoutBy: "row",
-      itemStyle: {
-        borderRadius: 5,
-        borderColor: "#fff",
-        borderWidth: 2,
+function getPieOption(params) {
+  const option = {
+    dataset: { source: [params[0].dimensionNames, params[0].data] },
+    series: [
+      {
+        type: "pie",
+        radius: ["60%", "100%"],
+        seriesLayoutBy: "row",
+        itemStyle: {
+          borderRadius: 5,
+          borderColor: "#fff",
+          borderWidth: 2,
+        },
+        label: { position: "center", formatter: params[0].name },
       },
-      label: { position: "center" },
-    },
-  ],
-};
+    ],
+  };
+  return option;
+}
 </script>
 
 <template>
@@ -96,13 +50,14 @@ const pieOption = {
     title="Line chart"
     desc="(with component rendered tooltip)"
   >
-    <v-chart :option="option" autoresize />
-    <v-chart-tooltip ref="tooltipRef" v-slot="opt">
-      <v-chart
-        :style="{ width: '100px', height: '100px' }"
-        :option="opt"
-        autoresize
-      />
-    </v-chart-tooltip>
+    <v-chart :option="option" autoresize>
+      <template #tooltip="{ params }">
+        <v-chart
+          :style="{ width: '100px', height: '100px' }"
+          :option="getPieOption(params)"
+          autoresize
+        />
+      </template>
+    </v-chart>
   </v-example>
 </template>
