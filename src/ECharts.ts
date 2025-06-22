@@ -24,7 +24,7 @@ import {
 import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
-import type { PropType, InjectionKey } from "vue";
+import type { PropType, InjectionKey, SlotsType } from "vue";
 import type {
   EChartsType,
   SetOptionType,
@@ -65,6 +65,9 @@ export default defineComponent({
     ...loadingProps,
   },
   emits: {} as unknown as Emits,
+  slots: Object as SlotsType<
+    Record<"tooltip" | `tooltip:${string}`, { params: any }>
+  >,
   inheritAttrs: false,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();

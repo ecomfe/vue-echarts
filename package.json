@@ -50,7 +50,7 @@
     "@vue/tsconfig": "^0.7.0",
     "@vueuse/core": "^13.1.0",
     "comment-mark": "^2.0.1",
-    "echarts": "^5.5.1",
+    "echarts": "^5.6.0",
     "echarts-gl": "^2.0.9",
     "echarts-liquidfill": "^3.1.0",
     "esbuild-wasm": "^0.23.0",

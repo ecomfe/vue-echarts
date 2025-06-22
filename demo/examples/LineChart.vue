@@ -58,6 +58,9 @@ function getPieOption(params) {
           autoresize
         />
       </template>
+      <template #tooltip:xAxis="{ params }">
+        Year: <b>{{ params.name }}</b>
+      </template>
     </v-chart>
   </v-example>
 </template>

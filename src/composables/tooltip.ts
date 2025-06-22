@@ -1,13 +1,13 @@
 import {
-  type ShallowRef,
-  Slots,
-  Teleport,
   h,
-  onBeforeUnmount,
+  Teleport,
+  onUnmounted,
   shallowRef,
+  type ShallowRef,
+  type Slots,
 } from "vue";
 import { parseProperties } from "../utils";
-import { Option } from "src/types";
+import type { Option } from "src/types";
 
 export function useTooltip(slots: Slots) {
   const tooltipSlots = Object.fromEntries(
@@ -40,13 +40,13 @@ export function useTooltip(slots: Slots) {
   function mutateOption(option: Option) {
     Object.keys(tooltipSlots).forEach((key) => {
       let current: any = option;
-      if (key !== "tooltip") {
-        for (const prop of properties[key]) {
-          current = current[prop];
-          if (current == null) {
-            console.warn(`[vue-echarts] "option.${key}" is not defined`);
-            return;
-          }
+      for (const prop of properties[key]) {
+        current = current[prop];
+        if (current == null) {
+          console.warn(
+            `[vue-echarts] "option.${key.replace("tooltip:", "")}" is not defined`,
+          );
+          return;
         }
       }
       current.tooltip ??= {};
@@ -58,7 +58,7 @@ export function useTooltip(slots: Slots) {
     });
   }
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     Object.values(containers).forEach((container) => {
       container?.remove();
     });
