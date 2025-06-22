@@ -1,11 +1,4 @@
-import {
-  h,
-  Teleport,
-  onUnmounted,
-  shallowRef,
-  type ShallowRef,
-  type Slots,
-} from "vue";
+import { h, Teleport, onUnmounted, shallowReactive, type Slots } from "vue";
 import { parseProperties } from "../utils";
 import type { Option } from "src/types";
 
@@ -15,27 +8,34 @@ export function useTooltip(slots: Slots) {
       ([key]) => key === "tooltip" || key.startsWith("tooltip:"),
     ),
   );
-  const initialized: Record<string, ShallowRef<boolean>> = {};
-  const params: Record<string, ShallowRef<any>> = {};
-  const containers: Record<string, HTMLElement> = {};
-  const properties: Record<string, string[]> = {};
+  const detachedRoot = document?.createElement("div");
+  const containers = shallowReactive<Record<string, HTMLElement>>({});
+  const initialized = shallowReactive<Record<string, boolean>>({});
+  const params = shallowReactive<Record<string, any>>({});
+  const properties = Object.fromEntries(
+    Object.keys(tooltipSlots).map((key) => [
+      key,
+      key === "tooltip" ? [] : parseProperties(key.replace("tooltip:", "")),
+    ]),
+  );
 
-  Object.keys(tooltipSlots).forEach((key) => {
-    initialized[key] = shallowRef(false);
-    params[key] = shallowRef(null);
-    properties[key] =
-      key === "tooltip" ? [] : parseProperties(key.replace("tooltip:", ""));
-    containers[key] = document?.createElement("div");
-  });
-
-  const teleportedSlots = () =>
-    Object.keys(tooltipSlots).map((key) => {
-      const slot = tooltipSlots[key];
-      const slotContent = initialized[key].value
-        ? slot?.({ params: params[key].value })
-        : undefined;
-      return h(Teleport as any, { to: containers[key] }, slotContent);
-    });
+  const teleportedSlots = () => {
+    return h(
+      Teleport as any,
+      { to: detachedRoot },
+      Object.keys(tooltipSlots).map((key) => {
+        const slot = tooltipSlots[key];
+        const slotContent = initialized[key]
+          ? slot?.({ params: params[key] })
+          : undefined;
+        return h(
+          "div",
+          { ref: (el) => (containers[key] = el as HTMLElement) },
+          slotContent,
+        );
+      }),
+    );
+  };
 
   function mutateOption(option: Option) {
     Object.keys(tooltipSlots).forEach((key) => {
@@ -51,17 +51,15 @@ export function useTooltip(slots: Slots) {
       }
       current.tooltip ??= {};
       current.tooltip.formatter = (p: any) => {
-        initialized[key].value = true;
-        params[key].value = p;
+        initialized[key] = true;
+        params[key] = p;
         return containers[key];
       };
     });
   }
 
   onUnmounted(() => {
-    Object.values(containers).forEach((container) => {
-      container?.remove();
-    });
+    detachedRoot?.remove();
   });
 
   return {
