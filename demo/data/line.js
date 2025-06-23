@@ -16,9 +16,12 @@ export default function getData() {
     xAxis: {
       type: "category",
       triggerEvent: true,
-      tooltip: { show: true },
+      tooltip: { show: true, formatter: "" },
     },
-    yAxis: {},
+    yAxis: {
+      triggerEvent: true,
+      tooltip: { show: true, formatter: "" },
+    },
     series: [
       {
         type: "line",

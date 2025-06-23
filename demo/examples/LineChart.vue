@@ -22,6 +22,7 @@ use([
 ]);
 
 const option = shallowRef(getData());
+const axis = shallowRef("xAxis");
 
 function getPieOption(params) {
   const option = {
@@ -58,9 +59,19 @@ function getPieOption(params) {
           autoresize
         />
       </template>
-      <template #tooltip:xAxis="{ params }">
-        Year: <b>{{ params.name }}</b>
+      <template #[`tooltip:${axis}`]="{ params }">
+        {{ axis === "xAxis" ? "Year" : "Value" }}:
+        <b>{{ params.name }}</b>
       </template>
     </v-chart>
+    <template #extra>
+      <p class="actions">
+        Custom tooltip on
+        <select v-model="axis">
+          <option value="xAxis">X Axis</option>
+          <option value="yAxis">Y Axis</option>
+        </select>
+      </p>
+    </template>
   </v-example>
 </template>

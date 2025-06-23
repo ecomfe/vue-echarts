@@ -178,8 +178,16 @@ export default defineComponent({
       function commit() {
         const opt = option || realOption.value;
         if (opt) {
-          mutateOption(opt);
-          instance.setOption(opt, realUpdateOptions.value);
+          const tooltipOption = createTooltipOption();
+          instance.setOption(opt, {
+            ...realUpdateOptions.value,
+            lazyUpdate: true,
+          });
+          instance.setOption(tooltipOption, {
+            ...realUpdateOptions.value,
+            notMerge: false,
+            silent: true,
+          });
         }
       }
 
@@ -209,8 +217,16 @@ export default defineComponent({
       if (!chart.value) {
         init(option);
       } else {
-        mutateOption(option);
-        chart.value.setOption(option, updateOptions || {});
+        const tooltipOption = createTooltipOption();
+        chart.value.setOption(option, {
+          ...(updateOptions || {}),
+          lazyUpdate: true,
+        });
+        chart.value.setOption(tooltipOption, {
+          ...(updateOptions || {}),
+          notMerge: false,
+          silent: true,
+        });
       }
     };
 
@@ -240,12 +256,18 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
-                mutateOption(option);
+                const tooltipOption = createTooltipOption();
                 chart.value.setOption(option, {
                   // mutating `option` will lead to `notMerge: false` and
                   // replacing it with new reference will lead to `notMerge: true`
                   notMerge: option !== oldOption,
                   ...realUpdateOptions.value,
+                  lazyUpdate: true,
+                });
+                chart.value.setOption(tooltipOption, {
+                  ...realUpdateOptions.value,
+                  notMerge: false,
+                  silent: true,
                 });
               }
             },
@@ -281,7 +303,20 @@ export default defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
-    const { teleportedSlots, mutateOption } = useTooltip(slots);
+    const { teleportedSlots, createTooltipOption } = useTooltip(slots, () => {
+      if (!manualUpdate.value && props.option && chart.value) {
+        const tooltipOption = createTooltipOption();
+        chart.value.setOption(props.option, {
+          ...realUpdateOptions.value,
+          lazyUpdate: true,
+        });
+        chart.value.setOption(tooltipOption, {
+          ...realUpdateOptions.value,
+          notMerge: false,
+          silent: true,
+        });
+      }
+    });
 
     onMounted(() => {
       init();
