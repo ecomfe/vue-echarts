@@ -78,7 +78,11 @@ const transformedCode = ref("");
 const transformErrors = ref([]);
 
 onMounted(async () => {
-  await initialize({ wasmURL });
+  // prevent multiple initializations during HMR
+  if (!window.__esbuildInitialized) {
+    await initialize({ wasmURL });
+    window.__esbuildInitialized = true;
+  }
 
   initializing.value = false;
 
