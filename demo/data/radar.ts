@@ -27,6 +27,7 @@ export const useScoreStore = defineStore("store", () => {
         fontWeight: 300,
       },
       radar: {
+        splitNumber: 4,
         indicator: scores.value.map(({ name, max }, index) => {
           if (index === activeIndex) {
             return { name, max, color: "goldenrod" };
