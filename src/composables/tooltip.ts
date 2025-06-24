@@ -49,10 +49,18 @@ export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
         const path =
           key === "tooltip" ? [] : parseProperties(key.replace("tooltip:", ""));
         let current = option;
-        path.forEach((k) => {
+        path.forEach((k, index, arr) => {
           if (!(k in current)) {
-            // If the key is a number, create an array, otherwise create an object
-            current[k] = isNaN(Number(k)) ? {} : [];
+            // If the next key is a number, create an array, otherwise create an object
+            current[k] = isNaN(Number(arr[index + 1])) ? {} : [];
+            // fill the non-existent elements with empty objects
+            if (Array.isArray(current) && !isNaN(Number(k))) {
+              for (let i = 0; i < Number(k); i++) {
+                if (current[i] == undefined) {
+                  current[i] = {};
+                }
+              }
+            }
           }
           current = current[k];
         });
