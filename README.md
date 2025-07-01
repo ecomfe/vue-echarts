@@ -331,6 +331,9 @@ export default {
 - `clear` [→](https://echarts.apache.org/en/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
+> [!NOTE]
+> [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) and [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading) are not exposed. Use the **`loading`** and **`loading-options`** props.
+
 ### Static Methods
 
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
