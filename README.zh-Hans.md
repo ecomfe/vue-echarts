@@ -439,12 +439,13 @@ import { THEME_KEY } from 'vue-echarts'
 - `convertToPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.convertToPixel)
 - `convertFromPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.convertFromPixel)
 - `containPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.containPixel)
-- `showLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
-- `hideLoading` [→](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)
 - `getDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDataURL)
 - `getConnectedDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getConnectedDataURL)
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
+
+> [!NOTE]
+> [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) 和 [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading) 未被暴露，请使用 **`loading`** 和 **`loading-options`** prop。
 
 ### 静态方法
 
