@@ -444,6 +444,9 @@ import { THEME_KEY } from 'vue-echarts'
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
+> [!NOTE]
+> [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) 和 [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading) 未被暴露，请使用 **`loading`** 和 **`loading-options`** prop。
+
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
