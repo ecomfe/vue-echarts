@@ -155,7 +155,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
 
-  > 💡 When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, ` notMerge: true` will be specified.
+  > [!TIP]
+  > When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, ` notMerge: true` will be specified.
 
 - `update-options: object`
 
@@ -195,8 +196,7 @@ You can bind events with Vue's `v-on` directive.
 </template>
 ```
 
-> **Note**
->
+> [!NOTE]
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
 Vue-ECharts support the following events:
@@ -330,6 +330,62 @@ export default {
 - `getConnectedDataURL` [→](https://echarts.apache.org/en/api.html#echartsInstance.getConnectedDataURL)
 - `clear` [→](https://echarts.apache.org/en/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
+
+### Slots
+
+Vue-ECharts allows you to define ECharts option's `tooltip.formatter` callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom tooltip rendering using familiar Vue templating.
+
+**Slot Naming Convention**
+
+- Slot names begin with `tooltip`, followed by hyphen-separated path segments to the target formatter.
+- Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
+- The constructed slot name maps directly to the nested `formatter` it overrides.
+
+**Example mappings**:
+
+- `tooltip` → `option.tooltip.formatter`
+- `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
+- `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
+- `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+
+<details>
+<summary>Usage</summary>
+
+```vue
+<template>
+  <v-chart :option="chartOptions">
+    <!-- Override global tooltip.formatter -->
+    <template #tooltip="{ params }">
+      <table>
+        <tr>
+          <th>Series</th>
+          <th>Value</th>
+        </tr>
+        <tr v-for="(s, i) in params" :key="i">
+          <td>{{ s.seriesName }}</td>
+          <td>{{ s.data }}</td>
+        </tr>
+      </table>
+    </template>
+
+    <!-- Override tooltip on xAxis -->
+    <template #tooltip-xAxis="{ params }">
+      <div>X-Axis : {{ params.value }}</div>
+    </template>
+  </v-chart>
+</template>
+```
+
+[Example→](https://vue-echarts.dev/#line)
+
+</details>
+
+#### Slot Props
+
+- `params`: The first argument passed to the original [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) callback.
+
+> [!NOTE]
+> Slots take precedence over any `tooltip.formatter` defined in `props.option`. If a matching slot is present, the slot's content will render instead of using `option`'s formatter.
 
 ### Static Methods
 

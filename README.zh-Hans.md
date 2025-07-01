@@ -331,6 +331,62 @@ export default {
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
+### 插槽（Slots）
+
+Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.formatter` 回调，而无需在 `option` 对象中定义它们。这简化了自定义提示框的渲染，让你可以用熟悉的 Vue 模板语法来编写。
+
+**插槽命名约定**
+
+- 插槽名称以 `tooltip` 开头，后面跟随用连字符分隔的路径片段，用于定位要覆盖的 `formatter`。
+- 每个片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
+- 拼接后的插槽名称直接映射到要覆盖的嵌套 `formatter`。
+
+**示例映射**：
+
+- `tooltip` → `option.tooltip.formatter`
+- `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
+- `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
+- `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+
+<details>
+<summary>用法示例</summary>
+
+```vue
+<template>
+  <v-chart :option="chartOptions">
+    <!-- 覆盖全局 tooltip.formatter -->
+    <template #tooltip="{ params }">
+      <table>
+        <tr>
+          <th>系列名称</th>
+          <th>数值</th>
+        </tr>
+        <tr v-for="(item, idx) in params" :key="idx">
+          <td>{{ item.seriesName }}</td>
+          <td>{{ item.data }}</td>
+        </tr>
+      </table>
+    </template>
+
+    <!-- 覆盖x轴 tooltip.formatter -->
+    <template #tooltip-xAxis="{ params }">
+      <div>X 轴: {{ params.value }}</div>
+    </template>
+  </v-chart>
+</template>
+```
+
+[Example→](https://vue-echarts.dev/#line)
+
+</details>
+
+#### 插槽Props
+
+- `params`：[`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 回调的第一个参数。
+
+> [!NOTE]
+> 插槽内容会优先于 `props.option` 中对应的 `tooltip.formatter` 渲染，如果两者同时存在。
+
 ### 静态方法
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
