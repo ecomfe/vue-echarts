@@ -439,8 +439,6 @@ import { THEME_KEY } from 'vue-echarts'
 - `convertToPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.convertToPixel)
 - `convertFromPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.convertFromPixel)
 - `containPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.containPixel)
-- `showLoading` [→](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
-- `hideLoading` [→](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading)
 - `getDataURL` [→](https://echarts.apache.org/en/api.html#echartsInstance.getDataURL)
 - `getConnectedDataURL` [→](https://echarts.apache.org/en/api.html#echartsInstance.getConnectedDataURL)
 - `clear` [→](https://echarts.apache.org/en/api.html#echartsInstance.clear)
