@@ -315,7 +315,6 @@ export default {
 ### Methods
 
 - `setOption` [→](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
-- `setTheme` (introduced in ECharts v6)
 - `getWidth` [→](https://echarts.apache.org/en/api.html#echartsInstance.getWidth)
 - `getHeight` [→](https://echarts.apache.org/en/api.html#echartsInstance.getHeight)
 - `getDom` [→](https://echarts.apache.org/en/api.html#echartsInstance.getDom)

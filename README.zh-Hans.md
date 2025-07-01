@@ -315,7 +315,6 @@ export default {
 ### 方法
 
 - `setOption` [→](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
-- `setTheme` (ECharts v6 新功能)
 - `getWidth` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getWidth)
 - `getHeight` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getHeight)
 - `getDom` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDom)
