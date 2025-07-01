@@ -3,6 +3,8 @@ import {
   Teleport,
   onUpdated,
   onUnmounted,
+  onMounted,
+  shallowRef,
   shallowReactive,
   type Slots,
 } from "vue";
@@ -13,30 +15,35 @@ function isTooltipSlot(key: string) {
   return key === "tooltip" || key.startsWith("tooltip-");
 }
 
-export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
-  const detachedRoot = document?.createElement("div");
+export function useTooltip(slots: Slots, onSlotsChange: () => void) {
+  const detachedRoot =
+    typeof window !== "undefined" ? document.createElement("div") : undefined;
   const containers = shallowReactive<Record<string, HTMLElement>>({});
   const initialized = shallowReactive<Record<string, boolean>>({});
   const params = shallowReactive<Record<string, any>>({});
+  const isMounted = shallowRef(false);
 
   // Teleport the tooltip slots to a detached root
   const teleportedSlots = () => {
-    return h(
-      Teleport as any,
-      { to: detachedRoot },
-      Object.entries(slots)
-        .filter(([key]) => isTooltipSlot(key))
-        .map(([key, slot]) => {
-          const slotContent = initialized[key]
-            ? slot?.({ params: params[key] })
-            : undefined;
-          return h(
-            "div",
-            { ref: (el) => (containers[key] = el as HTMLElement), name: key },
-            slotContent,
-          );
-        }),
-    );
+    // Make tooltip slots client-side only to avoid SSR hydration mismatch
+    return isMounted.value
+      ? h(
+          Teleport as any,
+          { to: detachedRoot, defer: true },
+          Object.entries(slots)
+            .filter(([key]) => isTooltipSlot(key))
+            .map(([key, slot]) => {
+              const slotContent = initialized[key]
+                ? slot?.({ params: params[key] })
+                : undefined;
+              return h(
+                "div",
+                { ref: (el) => (containers[key] = el as HTMLElement) },
+                slotContent,
+              );
+            }),
+        )
+      : undefined;
   };
 
   // Shallow clone the option along the path and patch the tooltip formatter
@@ -96,8 +103,12 @@ export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
         }
       });
       slotNames = newSlotNames;
-      onSlotsChange?.();
+      onSlotsChange();
     }
+  });
+
+  onMounted(() => {
+    isMounted.value = true;
   });
 
   onUnmounted(() => {
