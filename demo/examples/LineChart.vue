@@ -59,7 +59,7 @@ function getPieOption(params) {
           autoresize
         />
       </template>
-      <template #[`tooltip:${axis}`]="{ params }">
+      <template #[`tooltip-${axis}`]="{ params }">
         {{ axis === "xAxis" ? "Year" : "Value" }}:
         <b>{{ params.name }}</b>
       </template>

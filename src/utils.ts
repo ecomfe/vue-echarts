@@ -30,8 +30,7 @@ export function toValue<T>(source: MaybeRefOrGetter<T>): T {
   return isFunction(source) ? source() : unref(source);
 }
 
-export function parseProperties(path: string) {
-  // Convert bracket notation to dot notation and split the path
-  // "[2].series[0].data" -> ["2", "series", "0", "data"]
-  return path.replace(/\[(\w+)\]/g, ".$1").split(".");
+export function isValidArrayIndex(key: string): boolean {
+  const num = Number(key);
+  return Number.isInteger(num) && num >= 0 && num < Math.pow(2, 32) - 1;
 }

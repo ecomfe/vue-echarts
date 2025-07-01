@@ -6,11 +6,11 @@ import {
   shallowReactive,
   type Slots,
 } from "vue";
-import { parseProperties } from "../utils";
-import type { Option } from "src/types";
+import type { Option } from "../types";
+import { isValidArrayIndex } from "../utils";
 
 function isTooltipSlot(key: string) {
-  return key === "tooltip" || key.startsWith("tooltip:");
+  return key === "tooltip" || key.startsWith("tooltip-");
 }
 
 export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
@@ -39,41 +39,46 @@ export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
     );
   };
 
-  // Create a minimal option with component rendered tooltip formatter
-  function createTooltipOption(): Option {
-    const option: any = {};
+  // Shallow clone the option along the path and patch the tooltip formatter
+  function patchOption(src: Option): Option {
+    const root = { ...src };
 
     Object.keys(slots)
       .filter((key) => isTooltipSlot(key))
       .forEach((key) => {
-        const path =
-          key === "tooltip" ? [] : parseProperties(key.replace("tooltip:", ""));
-        let current = option;
-        path.forEach((k, index, arr) => {
-          if (!(k in current)) {
-            // If the next key is a number, create an array, otherwise create an object
-            current[k] = isNaN(Number(arr[index + 1])) ? {} : [];
-            // fill the non-existent elements with empty objects
-            if (Array.isArray(current) && !isNaN(Number(k))) {
-              for (let i = 0; i < Number(k); i++) {
-                if (current[i] == undefined) {
-                  current[i] = {};
-                }
-              }
-            }
+        const path = key.split("-");
+        path.push(path.shift()!);
+        let cur: any = root;
+
+        for (let i = 0; i < path.length; i++) {
+          const seg = path[i];
+          const next = cur[seg];
+
+          if (i < path.length - 1) {
+            // shallow-clone the link; create empty shell if missing
+            cur[seg] = next
+              ? Array.isArray(next)
+                ? next.slice()
+                : { ...next }
+              : isValidArrayIndex(seg)
+                ? []
+                : {};
+            cur = cur[seg];
+          } else {
+            // final node = tooltip
+            cur[seg] = {
+              ...(next || {}),
+              formatter(p: any) {
+                initialized[key] = true;
+                params[key] = p;
+                return containers[key];
+              },
+            };
           }
-          current = current[k];
-        });
-        current.tooltip = {
-          formatter(p: any) {
-            initialized[key] = true;
-            params[key] = p;
-            return containers[key];
-          },
-        };
+        }
       });
 
-    return option;
+    return root;
   }
 
   // `slots` is not reactive and cannot be watched
@@ -101,6 +106,6 @@ export function useTooltip(slots: Slots, onSlotsChange?: () => void) {
 
   return {
     teleportedSlots,
-    createTooltipOption,
+    patchOption,
   };
 }
