@@ -8,7 +8,7 @@ const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
   vue: "3.5.13",
-  echarts: "5.5.1",
+  echarts: "6.0.0-beta.1",
   [name]: version,
 };
 

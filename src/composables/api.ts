@@ -6,6 +6,7 @@ const METHOD_NAMES = [
   "getHeight",
   "getDom",
   "getOption",
+  "setTheme",
   "resize",
   "dispatchAction",
   "convertToPixel",

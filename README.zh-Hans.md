@@ -120,7 +120,7 @@ import "echarts";
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
 
@@ -315,6 +315,7 @@ export default {
 ### 方法
 
 - `setOption` [→](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
+- `setTheme` (ECharts v6 新功能)
 - `getWidth` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getWidth)
 - `getHeight` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getHeight)
 - `getDom` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDom)
