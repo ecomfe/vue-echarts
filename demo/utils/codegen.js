@@ -8,6 +8,7 @@ const COMPONENTS_MAP = {
   singleAxis: "SingleAxisComponent",
   parallel: "ParallelComponent",
   calendar: "CalendarComponent",
+  matrix: "MatrixComponent",
   graphic: "GraphicComponent",
   toolbox: "ToolboxComponent",
   tooltip: "TooltipComponent",
@@ -21,6 +22,7 @@ const COMPONENTS_MAP = {
   legend: "LegendComponent",
   dataZoom: "DataZoomComponent",
   visualMap: "VisualMapComponent",
+  thumbnail: "ThumbnailComponent",
   aria: "AriaComponent",
   dataset: "DatasetComponent",
 
@@ -41,6 +43,7 @@ const CHARTS_MAP = {
   tree: "TreeChart",
   treemap: "TreemapChart",
   graph: "GraphChart",
+  chord: "ChordChart",
   gauge: "GaugeChart",
   funnel: "FunnelChart",
   parallel: "ParallelChart",
@@ -84,7 +87,13 @@ const CHARTS_GL_MAP = {
   linesGL: "LinesGLChart",
 };
 
-const FEATURES = ["UniversalTransition", "LabelLayout"];
+const FEATURES = [
+  "UniversalTransition",
+  "LabelLayout",
+  "AxisBreak",
+  "LegacyGridContainLabel",
+  "ScatterJitter",
+];
 const RENDERERS_MAP = {
   canvas: "CanvasRenderer",
   svg: "SVGRenderer",
