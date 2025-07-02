@@ -120,7 +120,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
 
@@ -330,7 +330,10 @@ export default {
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
 > [!NOTE]
-> [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) and [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading) are not exposed. Use the **`loading`** and **`loading-options`** props.
+> The following ECharts instance methods aren't exposed because their functionality is already provided by component [props](#props):
+>
+> - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
+> - `setTheme`: use the `theme` prop instead.
 
 ### Static Methods
 
