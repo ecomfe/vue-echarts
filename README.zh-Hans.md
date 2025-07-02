@@ -120,7 +120,7 @@ import "echarts";
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
 
@@ -330,7 +330,10 @@ export default {
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
 > [!NOTE]
-> [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) 和 [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading) 未被暴露，请使用 **`loading`** 和 **`loading-options`** prop。
+> 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [props](#props) 提供了：
+>
+> - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
+> - `setTheme`：请使用 `theme` prop。
 
 ### 静态方法
 

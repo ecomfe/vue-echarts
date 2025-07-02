@@ -252,10 +252,20 @@ export default defineComponent({
     );
 
     watch(
-      [realTheme, realInitOptions],
+      realInitOptions,
       () => {
         cleanup();
         init();
+      },
+      {
+        deep: true,
+      },
+    );
+
+    watch(
+      realTheme,
+      (theme) => {
+        chart.value?.setTheme(theme);
       },
       {
         deep: true,
