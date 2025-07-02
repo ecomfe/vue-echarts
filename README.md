@@ -332,7 +332,10 @@ export default {
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
 > [!NOTE]
-> [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) and [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading) are not exposed. Use the **`loading`** and **`loading-options`** props.
+> Certain ECharts instance methods aren’t exposed because their functionality is already provided by component [props](#props):
+>
+> - Instead of [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading), set the `loading` and `loading-options` props;
+> - Instead of `setTheme`, set the `theme` prop.
 
 ### Static Methods
 

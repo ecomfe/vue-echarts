@@ -332,7 +332,10 @@ export default {
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
 > [!NOTE]
-> [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) 和 [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading) 未被暴露，请使用 **`loading`** 和 **`loading-options`** prop。
+> 某些 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [props](#props) 提供了：
+>
+> - 不要使用 [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)，请设置 `loading` 和 `loading-options` props；
+> - 不要使用 `setTheme`，请设置 `theme` prop。
 
 ### 静态方法
 
