@@ -376,7 +376,7 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.fo
 </template>
 ```
 
-[Example→](https://vue-echarts.dev/#line)
+[示例 →](https://vue-echarts.dev/#line)
 
 </details>
 

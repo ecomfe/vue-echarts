@@ -37,7 +37,14 @@ function getPieOption(params) {
           borderColor: "#fff",
           borderWidth: 2,
         },
-        label: { position: "center", formatter: params[0].name },
+        label: {
+          position: "center",
+          formatter: params[0].name,
+          textStyle: {
+            fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+            fontWeight: 300,
+          },
+        },
       },
     ],
   };

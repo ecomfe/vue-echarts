@@ -1,5 +1,9 @@
 export default function getData() {
   return {
+    textStyle: {
+      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+      fontWeight: 300,
+    },
     legend: { top: 20 },
     tooltip: {
       trigger: "axis",

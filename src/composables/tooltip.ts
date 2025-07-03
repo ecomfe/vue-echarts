@@ -65,7 +65,7 @@ export function useTooltip(slots: Slots, onSlotsChange: () => void) {
             // shallow-clone the link; create empty shell if missing
             cur[seg] = next
               ? Array.isArray(next)
-                ? next.slice()
+                ? [...next]
                 : { ...next }
               : isValidArrayIndex(seg)
                 ? []
