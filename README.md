@@ -339,13 +339,13 @@ export default {
 
 ### Slots
 
-Vue-ECharts allows you to define ECharts option's `tooltip.formatter` callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom tooltip rendering using familiar Vue templating.
+Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
 
 **Slot Naming Convention**
 
-- Slot names begin with `tooltip`, followed by hyphen-separated path segments to the target formatter.
+- Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
 - Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
-- The constructed slot name maps directly to the nested `formatter` it overrides.
+- The constructed slot name maps directly to the nested callback it overrides.
 
 **Example mappings**:
 
@@ -353,6 +353,8 @@ Vue-ECharts allows you to define ECharts option's `tooltip.formatter` callbacks 
 - `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
 - `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
 - `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+- `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-media[1]-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
 <details>
 <summary>Usage</summary>
@@ -360,23 +362,37 @@ Vue-ECharts allows you to define ECharts option's `tooltip.formatter` callbacks 
 ```vue
 <template>
   <v-chart :option="chartOptions">
-    <!-- Override global tooltip.formatter -->
+    <!-- Global `tooltip.formatter` -->
     <template #tooltip="{ params }">
-      <table>
-        <tr>
-          <th>Series</th>
-          <th>Value</th>
-        </tr>
-        <tr v-for="(s, i) in params" :key="i">
-          <td>{{ s.seriesName }}</td>
-          <td>{{ s.data }}</td>
-        </tr>
-      </table>
+      <div v-for="(param, i) in params" :key="i">
+        <span v-html="param.marker" />
+        <span>{{ param.seriesName }}</span>
+        <span>{{ param.value[0] }}</span>
+      </div>
     </template>
 
-    <!-- Override tooltip on xAxis -->
+    <!-- Tooltip on xAxis -->
     <template #tooltip-xAxis="{ params }">
       <div>X-Axis : {{ params.value }}</div>
+    </template>
+
+    <!-- Data View Content -->
+    <template #dataView="{ option }">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+              {{ t }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+            <th>{{ row[0] }}</th>
+            <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+          </tr>
+        </tbody>
+      </table>
     </template>
   </v-chart>
 </template>
@@ -386,12 +402,8 @@ Vue-ECharts allows you to define ECharts option's `tooltip.formatter` callbacks 
 
 </details>
 
-#### Slot Props
-
-- `params`: The first argument passed to the original [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) callback.
-
 > [!NOTE]
-> Slots take precedence over any `tooltip.formatter` defined in `props.option`. If a matching slot is present, the slot's content will render instead of using `option`'s formatter.
+> Slots take precedence over the corresponding callback defined in `props.option`.
 
 ### Static Methods
 

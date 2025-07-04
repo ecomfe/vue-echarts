@@ -58,7 +58,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       : undefined;
   };
 
-  // Shallow clone the option along the path and patch the tooltip formatter
+  // Shallow clone the option along the path and override the target callback
   function patchOption(src: Option): Option {
     const root = { ...src };
 
