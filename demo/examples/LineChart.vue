@@ -6,6 +6,7 @@ import {
   DatasetComponent,
   LegendComponent,
   TooltipComponent,
+  ToolboxComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
 import VChart from "../../src/ECharts";
@@ -18,6 +19,7 @@ use([
   LegendComponent,
   LineChart,
   TooltipComponent,
+  ToolboxComponent,
   PieChart,
 ]);
 
@@ -56,7 +58,7 @@ function getPieOption(params) {
   <v-example
     id="line"
     title="Line chart"
-    desc="(with component rendered tooltip)"
+    desc="(with tooltip and dataView slots)"
   >
     <v-chart :option="option" autoresize>
       <template #tooltip="{ params }">
@@ -70,6 +72,23 @@ function getPieOption(params) {
         {{ axis === "xAxis" ? "Year" : "Value" }}:
         <b>{{ params.name }}</b>
       </template>
+      <template #dataView="{ option }">
+        <table style="margin: 20px auto">
+          <thead>
+            <tr>
+              <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+                {{ t }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+              <th>{{ row[0] }}</th>
+              <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
     </v-chart>
     <template #extra>
       <p class="actions">
@@ -82,3 +101,10 @@ function getPieOption(params) {
     </template>
   </v-example>
 </template>
+
+<style scoped>
+th,
+td {
+  padding: 4px 8px;
+}
+</style>

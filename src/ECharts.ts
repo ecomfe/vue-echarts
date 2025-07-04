@@ -19,6 +19,7 @@ import {
   autoresizeProps,
   useLoading,
   loadingProps,
+  useSlotOption,
   type PublicMethods,
 } from "./composables";
 import { isOn, omitOn, toValue } from "./utils";
@@ -40,7 +41,6 @@ import type {
 import type { EChartsElement } from "./wc";
 
 import "./style.css";
-import { useTooltip } from "./composables/tooltip";
 
 const wcRegistered = register();
 
@@ -66,7 +66,8 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   slots: Object as SlotsType<
-    Record<"tooltip" | `tooltip:${string}`, { params: any }>
+    Record<"tooltip" | `tooltip-${string}`, { params: any }> &
+      Record<"dataView" | `dataView-${string}`, { option: Option }>
   >,
   inheritAttrs: false,
   setup(props, { attrs, expose, slots }) {
@@ -256,10 +257,20 @@ export default defineComponent({
     );
 
     watch(
-      [realTheme, realInitOptions],
+      realInitOptions,
       () => {
         cleanup();
         init();
+      },
+      {
+        deep: true,
+      },
+    );
+
+    watch(
+      realTheme,
+      (theme) => {
+        chart.value?.setTheme(theme);
       },
       {
         deep: true,
@@ -278,7 +289,7 @@ export default defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
-    const { teleportedSlots, patchOption } = useTooltip(slots, () => {
+    const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
         chart.value.setOption(
           patchOption(props.option),

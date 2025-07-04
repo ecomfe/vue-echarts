@@ -11,11 +11,19 @@ import {
 import type { Option } from "../types";
 import { isValidArrayIndex } from "../utils";
 
-function isTooltipSlot(key: string) {
-  return key === "tooltip" || key.startsWith("tooltip-");
+const SLOT_PATH_MAP = {
+  tooltip: ["tooltip", "formatter"],
+  dataView: ["toolbox", "feature", "dataView", "optionToContent"],
+};
+type SlotPrefix = keyof typeof SLOT_PATH_MAP;
+
+function isValidSlotName(key: string) {
+  return Object.keys(SLOT_PATH_MAP).some(
+    (slotPrefix) => key === slotPrefix || key.startsWith(slotPrefix + "-"),
+  );
 }
 
-export function useTooltip(slots: Slots, onSlotsChange: () => void) {
+export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const detachedRoot =
     typeof window !== "undefined" ? document.createElement("div") : undefined;
   const containers = shallowReactive<Record<string, HTMLElement>>({});
@@ -31,14 +39,18 @@ export function useTooltip(slots: Slots, onSlotsChange: () => void) {
           Teleport as any,
           { to: detachedRoot, defer: true },
           Object.entries(slots)
-            .filter(([key]) => isTooltipSlot(key))
+            .filter(([key]) => isValidSlotName(key))
             .map(([key, slot]) => {
+              const propName = key.startsWith("tooltip") ? "params" : "option";
               const slotContent = initialized[key]
-                ? slot?.({ params: params[key] })
+                ? slot?.({ [propName]: params[key] })
                 : undefined;
               return h(
                 "div",
-                { ref: (el) => (containers[key] = el as HTMLElement) },
+                {
+                  ref: (el) => (containers[key] = el as HTMLElement),
+                  style: { display: "contents" },
+                },
                 slotContent,
               );
             }),
@@ -46,43 +58,37 @@ export function useTooltip(slots: Slots, onSlotsChange: () => void) {
       : undefined;
   };
 
-  // Shallow clone the option along the path and patch the tooltip formatter
+  // Shallow clone the option along the path and override the target callback
   function patchOption(src: Option): Option {
     const root = { ...src };
 
     Object.keys(slots)
-      .filter((key) => isTooltipSlot(key))
+      .filter((key) => isValidSlotName(key))
       .forEach((key) => {
         const path = key.split("-");
-        path.push(path.shift()!);
-        let cur: any = root;
+        const prefix = path.shift() as SlotPrefix;
+        path.push(...SLOT_PATH_MAP[prefix]);
 
-        for (let i = 0; i < path.length; i++) {
+        let cur: any = root;
+        for (let i = 0; i < path.length - 1; i++) {
           const seg = path[i];
           const next = cur[seg];
 
-          if (i < path.length - 1) {
-            // shallow-clone the link; create empty shell if missing
-            cur[seg] = next
-              ? Array.isArray(next)
-                ? [...next]
-                : { ...next }
-              : isValidArrayIndex(seg)
-                ? []
-                : {};
-            cur = cur[seg];
-          } else {
-            // final node = tooltip
-            cur[seg] = {
-              ...(next || {}),
-              formatter(p: any) {
-                initialized[key] = true;
-                params[key] = p;
-                return containers[key];
-              },
-            };
-          }
+          // shallow-clone the link; create empty shell if missing
+          cur[seg] = next
+            ? Array.isArray(next)
+              ? [...next]
+              : { ...next }
+            : isValidArrayIndex(seg)
+              ? []
+              : {};
+          cur = cur[seg];
         }
+        cur[path[path.length - 1]] = (p: any) => {
+          initialized[key] = true;
+          params[key] = p;
+          return containers[key];
+        };
       });
 
     return root;
@@ -90,9 +96,15 @@ export function useTooltip(slots: Slots, onSlotsChange: () => void) {
 
   // `slots` is not reactive and cannot be watched
   // so we need to watch it manually
-  let slotNames = Object.keys(slots).filter((key) => isTooltipSlot(key));
+  let slotNames: string[] = [];
   onUpdated(() => {
-    const newSlotNames = Object.keys(slots).filter((key) => isTooltipSlot(key));
+    const newSlotNames = Object.keys(slots).filter((key) => {
+      if (isValidSlotName(key)) {
+        return true;
+      }
+      console.warn(`[vue-echarts] Invalid slot name: ${key}`);
+      return false;
+    });
     if (newSlotNames.join() !== slotNames.join()) {
       // Clean up params and initialized for removed slots
       slotNames.forEach((key) => {

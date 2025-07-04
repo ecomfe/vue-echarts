@@ -120,7 +120,7 @@ import "echarts";
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
 ```
 
@@ -331,15 +331,21 @@ export default {
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
+> [!NOTE]
+> 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [props](#props) 提供了：
+>
+> - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
+> - `setTheme`：请使用 `theme` prop。
+
 ### 插槽（Slots）
 
-Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.formatter` 回调，而无需在 `option` 对象中定义它们。这简化了自定义提示框的渲染，让你可以用熟悉的 Vue 模板语法来编写。
+Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
 
 **插槽命名约定**
 
-- 插槽名称以 `tooltip` 开头，后面跟随用连字符分隔的路径片段，用于定位要覆盖的 `formatter`。
-- 每个片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
-- 拼接后的插槽名称直接映射到要覆盖的嵌套 `formatter`。
+- 插槽名称以 `tooltip`/`dataView` 开头，后面跟随用连字符分隔的路径片段，用于定位目标。
+- 每个路径片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
+- 拼接后的插槽名称直接映射到要覆盖的嵌套回调函数。
 
 **示例映射**：
 
@@ -347,6 +353,8 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.fo
 - `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
 - `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
 - `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+- `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-media[1]-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
 <details>
 <summary>用法示例</summary>
@@ -354,23 +362,37 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.fo
 ```vue
 <template>
   <v-chart :option="chartOptions">
-    <!-- 覆盖全局 tooltip.formatter -->
+    <!-- 全局 `tooltip.formatter` -->
     <template #tooltip="{ params }">
-      <table>
-        <tr>
-          <th>系列名称</th>
-          <th>数值</th>
-        </tr>
-        <tr v-for="(item, idx) in params" :key="idx">
-          <td>{{ item.seriesName }}</td>
-          <td>{{ item.data }}</td>
-        </tr>
-      </table>
+      <div v-for="(param, i) in params" :key="i">
+        <span v-html="param.marker" />
+        <span>{{ param.seriesName }}</span>
+        <span>{{ param.value[0] }}</span>
+      </div>
     </template>
 
-    <!-- 覆盖x轴 tooltip.formatter -->
+    <!-- x轴 tooltip -->
     <template #tooltip-xAxis="{ params }">
-      <div>X 轴: {{ params.value }}</div>
+      <div>X轴: {{ params.value }}</div>
+    </template>
+
+    <!-- 数据视图内容 -->
+    <template #dataView="{ option }">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+              {{ t }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+            <th>{{ row[0] }}</th>
+            <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+          </tr>
+        </tbody>
+      </table>
     </template>
   </v-chart>
 </template>
@@ -380,12 +402,8 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 `tooltip.fo
 
 </details>
 
-#### 插槽Props
-
-- `params`：[`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 回调的第一个参数。
-
 > [!NOTE]
-> 插槽内容会优先于 `props.option` 中对应的 `tooltip.formatter` 渲染，如果两者同时存在。
+> 插槽会优先于 `props.option` 中对应的回调函数。
 
 ### 静态方法
 
