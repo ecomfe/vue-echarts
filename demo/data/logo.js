@@ -20,10 +20,8 @@ export default {
       },
       shape: `path://${d}`,
       label: {
-        normal: {
-          formatter() {
-            return "";
-          },
+        formatter() {
+          return "";
         },
       },
       itemStyle: {
