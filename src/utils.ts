@@ -29,3 +29,13 @@ const isFunction = (val: unknown): val is Function => typeof val === "function";
 export function toValue<T>(source: MaybeRefOrGetter<T>): T {
   return isFunction(source) ? source() : unref(source);
 }
+
+export function isValidArrayIndex(key: string): boolean {
+  const num = Number(key);
+  return (
+    Number.isInteger(num) &&
+    num >= 0 &&
+    num < Math.pow(2, 32) - 1 &&
+    String(num) === key
+  );
+}

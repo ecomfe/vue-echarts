@@ -43,7 +43,7 @@ defineProps({
   width: fit-content;
   margin: 2em auto;
 
-  .echarts {
+  > .echarts {
     width: calc(60vw + 4em);
     height: 360px;
     max-width: 720px;
