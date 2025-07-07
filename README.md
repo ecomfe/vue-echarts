@@ -354,7 +354,7 @@ Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://
 - `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
 - `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
 - `dataView` → `option.toolbox.feature.dataView.optionToContent`
-- `dataView-media[1]-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
+- `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
 <details>
 <summary>Usage</summary>
