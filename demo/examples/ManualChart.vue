@@ -78,8 +78,6 @@ function load() {
           type: "lines",
           coordinateSystem: "geo",
           data: routes,
-          large: true,
-          largeThreshold: 100,
           lineStyle: {
             opacity: 0.05,
             width: 0.5,
