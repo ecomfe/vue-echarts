@@ -155,7 +155,8 @@ app.component('v-chart', VueECharts)
 
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
 
-  > 💡 在没有指定 `update-options` 时，如果直接修改 `option` 对象而引用保持不变，`setOption` 方法调用时将默认指定 `notMerge: false`；否则，如果为 `option` 绑定一个新的引用，将指定 `notMerge: true`。
+  > [!TIP]
+  > 在没有指定 `update-options` 时，如果直接修改 `option` 对象而引用保持不变，`setOption` 方法调用时将默认指定 `notMerge: false`；否则，如果为 `option` 绑定一个新的引用，将指定 `notMerge: true`。
 
 - `update-options: object`
 
@@ -195,8 +196,7 @@ app.component('v-chart', VueECharts)
 </template>
 ```
 
-> **Note**
->
+> [!NOTE]
 > 仅支持 `.once` 修饰符，因为其它修饰符都与 DOM 事件机制强耦合。
 
 Vue-ECharts 支持如下事件：
@@ -336,6 +336,74 @@ export default {
 >
 > - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
 > - `setTheme`：请使用 `theme` prop。
+
+### 插槽（Slots）
+
+Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
+
+**插槽命名约定**
+
+- 插槽名称以 `tooltip`/`dataView` 开头，后面跟随用连字符分隔的路径片段，用于定位目标。
+- 每个路径片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
+- 拼接后的插槽名称直接映射到要覆盖的嵌套回调函数。
+
+**示例映射**：
+
+- `tooltip` → `option.tooltip.formatter`
+- `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
+- `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
+- `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+- `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
+
+<details>
+<summary>用法示例</summary>
+
+```vue
+<template>
+  <v-chart :option="chartOptions">
+    <!-- 全局 `tooltip.formatter` -->
+    <template #tooltip="{ params }">
+      <div v-for="(param, i) in params" :key="i">
+        <span v-html="param.marker" />
+        <span>{{ param.seriesName }}</span>
+        <span>{{ param.value[0] }}</span>
+      </div>
+    </template>
+
+    <!-- x轴 tooltip -->
+    <template #tooltip-xAxis="{ params }">
+      <div>X轴: {{ params.value }}</div>
+    </template>
+
+    <!-- 数据视图内容 -->
+    <template #dataView="{ option }">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+              {{ t }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+            <th>{{ row[0] }}</th>
+            <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+  </v-chart>
+</template>
+```
+
+[示例 →](https://vue-echarts.dev/#line)
+
+</details>
+
+> [!NOTE]
+> 插槽会优先于 `props.option` 中对应的回调函数。
 
 ### 静态方法
 
