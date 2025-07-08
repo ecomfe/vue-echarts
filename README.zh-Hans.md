@@ -6,7 +6,7 @@
 
 ---
 
-> 还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh_CN.md)
+> 还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh-Hans.md)
 
 ## 安装 & 使用
 
