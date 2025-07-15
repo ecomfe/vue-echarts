@@ -6,19 +6,28 @@ import {
   onMounted,
   shallowRef,
   shallowReactive,
-  type Slots,
+  warn,
 } from "vue";
+import type { Slots } from "vue";
 import type { Option } from "../types";
-import { isValidArrayIndex } from "../utils";
+import { isValidArrayIndex, isSameSet } from "../utils";
 
-const SLOT_PATH_MAP = {
-  tooltip: ["tooltip", "formatter"],
-  dataView: ["toolbox", "feature", "dataView", "optionToContent"],
-};
-type SlotPrefix = keyof typeof SLOT_PATH_MAP;
+const SLOT_CONFIG = {
+  tooltip: {
+    path: ["tooltip", "formatter"],
+    propNames: ["params"],
+  },
+  dataView: {
+    path: ["toolbox", "feature", "dataView", "optionToContent"],
+    propNames: ["option"],
+  },
+} as const;
+type SlotPrefix = keyof typeof SLOT_CONFIG;
+type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
+const SLOT_PREFIXES = Object.keys(SLOT_CONFIG) as SlotPrefix[];
 
-function isValidSlotName(key: string) {
-  return Object.keys(SLOT_PATH_MAP).some(
+function isValidSlotName(key: string): key is SlotName {
+  return SLOT_PREFIXES.some(
     (slotPrefix) => key === slotPrefix || key.startsWith(slotPrefix + "-"),
   );
 }
@@ -26,9 +35,13 @@ function isValidSlotName(key: string) {
 export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const detachedRoot =
     typeof window !== "undefined" ? document.createElement("div") : undefined;
-  const containers = shallowReactive<Record<string, HTMLElement>>({});
-  const initialized = shallowReactive<Record<string, boolean>>({});
-  const params = shallowReactive<Record<string, any>>({});
+  const containers = shallowReactive<Partial<Record<SlotName, HTMLElement>>>(
+    {},
+  );
+  const initialized = shallowReactive<Partial<Record<SlotName, boolean>>>({});
+  const params = shallowReactive<
+    Partial<Record<SlotName, Record<string, any>>>
+  >({});
   const isMounted = shallowRef(false);
 
   // Teleport the tooltip slots to a detached root
@@ -41,14 +54,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
           Object.entries(slots)
             .filter(([key]) => isValidSlotName(key))
             .map(([key, slot]) => {
-              const propName = key.startsWith("tooltip") ? "params" : "option";
-              const slotContent = initialized[key]
-                ? slot?.({ [propName]: params[key] })
+              const slotName = key as SlotName;
+              const slotContent = initialized[slotName]
+                ? slot?.(params[slotName])
                 : undefined;
               return h(
                 "div",
                 {
-                  ref: (el) => (containers[key] = el as HTMLElement),
+                  ref: (el) => (containers[slotName] = el as HTMLElement),
                   style: { display: "contents" },
                 },
                 slotContent,
@@ -63,11 +76,17 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     const root = { ...src };
 
     Object.keys(slots)
-      .filter((key) => isValidSlotName(key))
+      .filter((key) => {
+        const isValidSlot = isValidSlotName(key);
+        if (!isValidSlot) {
+          warn(`Invalid slot name: ${key}`);
+        }
+        return isValidSlot;
+      })
       .forEach((key) => {
         const path = key.split("-");
         const prefix = path.shift() as SlotPrefix;
-        path.push(...SLOT_PATH_MAP[prefix]);
+        path.push(...SLOT_CONFIG[prefix].path);
 
         let cur: any = root;
         for (let i = 0; i < path.length - 1; i++) {
@@ -84,9 +103,15 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
               : {};
           cur = cur[seg];
         }
-        cur[path[path.length - 1]] = (p: any) => {
+        cur[path[path.length - 1]] = (...args: any[]) => {
           initialized[key] = true;
-          params[key] = p;
+          params[key] = SLOT_CONFIG[prefix].propNames.reduce(
+            (acc, paramName, index) => {
+              acc[paramName] = args[index];
+              return acc;
+            },
+            {} as Record<string, any>,
+          );
           return containers[key];
         };
       });
@@ -96,19 +121,13 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
   // `slots` is not reactive and cannot be watched
   // so we need to watch it manually
-  let slotNames: string[] = [];
+  let slotNames: SlotName[] = [];
   onUpdated(() => {
-    const newSlotNames = Object.keys(slots).filter((key) => {
-      if (isValidSlotName(key)) {
-        return true;
-      }
-      console.warn(`[vue-echarts] Invalid slot name: ${key}`);
-      return false;
-    });
-    if (newSlotNames.join() !== slotNames.join()) {
+    const newSlotNames = Object.keys(slots).filter(isValidSlotName);
+    if (!isSameSet(newSlotNames, slotNames)) {
       // Clean up params and initialized for removed slots
       slotNames.forEach((key) => {
-        if (!(key in slots)) {
+        if (!newSlotNames.includes(key)) {
           delete params[key];
           delete initialized[key];
           delete containers[key];
