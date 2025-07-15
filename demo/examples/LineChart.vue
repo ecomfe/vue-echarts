@@ -42,10 +42,8 @@ function getPieOption(params) {
         label: {
           position: "center",
           formatter: params[0].name,
-          textStyle: {
-            fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-            fontWeight: 300,
-          },
+          fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
+          fontWeight: 300,
         },
       },
     ],

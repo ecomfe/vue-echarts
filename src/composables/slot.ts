@@ -24,6 +24,7 @@ const SLOT_CONFIG = {
 } as const;
 type SlotPrefix = keyof typeof SLOT_CONFIG;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
+type SlotRecord<T> = Partial<Record<SlotName, T>>;
 const SLOT_PREFIXES = Object.keys(SLOT_CONFIG) as SlotPrefix[];
 
 function isValidSlotName(key: string): key is SlotName {
@@ -35,13 +36,9 @@ function isValidSlotName(key: string): key is SlotName {
 export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const detachedRoot =
     typeof window !== "undefined" ? document.createElement("div") : undefined;
-  const containers = shallowReactive<Partial<Record<SlotName, HTMLElement>>>(
-    {},
-  );
-  const initialized = shallowReactive<Partial<Record<SlotName, boolean>>>({});
-  const params = shallowReactive<
-    Partial<Record<SlotName, Record<string, any>>>
-  >({});
+  const containers = shallowReactive<SlotRecord<HTMLElement>>({});
+  const initialized = shallowReactive<SlotRecord<boolean>>({});
+  const params = shallowReactive<SlotRecord<Record<string, any>>>({});
   const isMounted = shallowRef(false);
 
   // Teleport the tooltip slots to a detached root
@@ -79,7 +76,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       .filter((key) => {
         const isValidSlot = isValidSlotName(key);
         if (!isValidSlot) {
-          warn(`Invalid slot name: ${key}`);
+          warn(`Invalid vue-echarts slot name: ${key}`);
         }
         return isValidSlot;
       })
