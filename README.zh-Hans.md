@@ -356,6 +356,8 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 - `dataView` → `option.toolbox.feature.dataView.optionToContent`
 - `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
+插槽的 props 对象对应回调函数的第一个参数。
+
 <details>
 <summary>用法示例</summary>
 

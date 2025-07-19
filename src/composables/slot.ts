@@ -35,9 +35,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const params = shallowReactive<SlotRecord<Record<string, any>>>({});
   const isMounted = shallowRef(false);
 
-  // Teleport the tooltip slots to a detached root
+  // Teleport the slots to a detached root
   const teleportedSlots = () => {
-    // Make tooltip slots client-side only to avoid SSR hydration mismatch
+    // Make slots client-side only to avoid SSR hydration mismatch
     return isMounted.value
       ? h(
           Teleport as any,
@@ -62,7 +62,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       : undefined;
   };
 
-  // Shallow clone the option along the path and override the target callback
+  // Shallow-clone the option along the path and override the target callback
   function patchOption(src: Option): Option {
     const root = { ...src };
 
@@ -84,7 +84,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
           const seg = path[i];
           const next = cur[seg];
 
-          // shallow-clone the link; create empty shell if missing
+          // Shallow-clone the link; create empty shell if missing
           cur[seg] = next
             ? Array.isArray(next)
               ? [...next]
@@ -104,13 +104,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     return root;
   }
 
-  // `slots` is not reactive and cannot be watched
-  // so we need to watch it manually
+  // `slots` is not reactive, so we need to watch it manually
   let slotNames: SlotName[] = [];
   onUpdated(() => {
     const newSlotNames = Object.keys(slots).filter(isValidSlotName);
     if (!isSameSet(newSlotNames, slotNames)) {
-      // Clean up params and initialized for removed slots
+      // Clean up states for removed slots
       slotNames.forEach((key) => {
         if (!newSlotNames.includes(key)) {
           delete params[key];

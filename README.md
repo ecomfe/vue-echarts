@@ -356,6 +356,8 @@ Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://
 - `dataView` → `option.toolbox.feature.dataView.optionToContent`
 - `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
+The slot props correspond to the first parameter of the callback function.
+
 <details>
 <summary>Usage</summary>
 
