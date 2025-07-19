@@ -19,12 +19,13 @@ import {
   autoresizeProps,
   useLoading,
   loadingProps,
+  useSlotOption,
   type PublicMethods,
 } from "./composables";
 import { isOn, omitOn, toValue } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
-import type { PropType, InjectionKey } from "vue";
+import type { PropType, InjectionKey, SlotsType } from "vue";
 import type {
   EChartsType,
   SetOptionType,
@@ -64,8 +65,12 @@ export default defineComponent({
     ...loadingProps,
   },
   emits: {} as unknown as Emits,
+  slots: Object as SlotsType<
+    Record<"tooltip" | `tooltip-${string}`, any> &
+      Record<"dataView" | `dataView-${string}`, Option>
+  >,
   inheritAttrs: false,
-  setup(props, { attrs, expose }) {
+  setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
     const manualOption = shallowRef<Option>();
@@ -174,7 +179,7 @@ export default defineComponent({
       function commit() {
         const opt = option || realOption.value;
         if (opt) {
-          instance.setOption(opt, realUpdateOptions.value);
+          instance.setOption(patchOption(opt), realUpdateOptions.value);
         }
       }
 
@@ -204,7 +209,7 @@ export default defineComponent({
       if (!chart.value) {
         init(option);
       } else {
-        chart.value.setOption(option, updateOptions || {});
+        chart.value.setOption(patchOption(option), updateOptions);
       }
     };
 
@@ -234,7 +239,7 @@ export default defineComponent({
               if (!chart.value) {
                 init();
               } else {
-                chart.value.setOption(option, {
+                chart.value.setOption(patchOption(option), {
                   // mutating `option` will lead to `notMerge: false` and
                   // replacing it with new reference will lead to `notMerge: true`
                   notMerge: option !== oldOption,
@@ -284,6 +289,15 @@ export default defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
+    const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
+      if (!manualUpdate.value && props.option && chart.value) {
+        chart.value.setOption(
+          patchOption(props.option),
+          realUpdateOptions.value,
+        );
+      }
+    });
+
     onMounted(() => {
       init();
     });
@@ -312,11 +326,15 @@ export default defineComponent({
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
     return (() =>
-      h(TAG_NAME, {
-        ...nonEventAttrs.value,
-        ...nativeListeners,
-        ref: root,
-        class: ["echarts", ...(nonEventAttrs.value.class || [])],
-      })) as unknown as typeof exposed & PublicMethods;
+      h(
+        TAG_NAME,
+        {
+          ...nonEventAttrs.value,
+          ...nativeListeners,
+          ref: root,
+          class: ["echarts", nonEventAttrs.value.class],
+        },
+        teleportedSlots(),
+      )) as unknown as typeof exposed & PublicMethods;
   },
 });

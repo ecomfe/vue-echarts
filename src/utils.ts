@@ -29,3 +29,26 @@ const isFunction = (val: unknown): val is Function => typeof val === "function";
 export function toValue<T>(source: MaybeRefOrGetter<T>): T {
   return isFunction(source) ? source() : unref(source);
 }
+
+export function isValidArrayIndex(key: string): boolean {
+  const num = Number(key);
+  return (
+    Number.isInteger(num) &&
+    num >= 0 &&
+    num < Math.pow(2, 32) - 1 &&
+    String(num) === key
+  );
+}
+
+export function isSameSet<T>(a: T[], b: T[]): boolean {
+  const setA = new Set(a);
+  const setB = new Set(b);
+
+  if (setA.size !== setB.size) return false;
+
+  for (const val of setA) {
+    if (!setB.has(val)) return false;
+  }
+
+  return true;
+}
