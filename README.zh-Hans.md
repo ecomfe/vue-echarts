@@ -363,7 +363,7 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 <template>
   <v-chart :option="chartOptions">
     <!-- 全局 `tooltip.formatter` -->
-    <template #tooltip="{ params }">
+    <template #tooltip="params">
       <div v-for="(param, i) in params" :key="i">
         <span v-html="param.marker" />
         <span>{{ param.seriesName }}</span>
@@ -372,12 +372,12 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
     </template>
 
     <!-- x轴 tooltip -->
-    <template #tooltip-xAxis="{ params }">
+    <template #tooltip-xAxis="params">
       <div>X轴: {{ params.value }}</div>
     </template>
 
     <!-- 数据视图内容 -->
-    <template #dataView="{ option }">
+    <template #dataView="option">
       <table>
         <thead>
           <tr>

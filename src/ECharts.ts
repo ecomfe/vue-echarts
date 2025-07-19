@@ -66,8 +66,8 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   slots: Object as SlotsType<
-    Record<"tooltip" | `tooltip-${string}`, { params: any }> &
-      Record<"dataView" | `dataView-${string}`, { option: Option }>
+    Record<"tooltip" | `tooltip-${string}`, any> &
+      Record<"dataView" | `dataView-${string}`, Option>
   >,
   inheritAttrs: false,
   setup(props, { attrs, expose, slots }) {

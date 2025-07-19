@@ -59,18 +59,18 @@ function getPieOption(params) {
     desc="(with tooltip and dataView slots)"
   >
     <v-chart :option="option" autoresize>
-      <template #tooltip="{ params }">
+      <template #tooltip="params">
         <v-chart
           :style="{ width: '100px', height: '100px' }"
           :option="getPieOption(params)"
           autoresize
         />
       </template>
-      <template #[`tooltip-${axis}`]="{ params }">
+      <template #[`tooltip-${axis}`]="params">
         {{ axis === "xAxis" ? "Year" : "Value" }}:
         <b>{{ params.name }}</b>
       </template>
-      <template #dataView="{ option }">
+      <template #dataView="option">
         <table style="margin: 20px auto">
           <thead>
             <tr>

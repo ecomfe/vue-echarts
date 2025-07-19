@@ -12,20 +12,14 @@ import type { Slots } from "vue";
 import type { Option } from "../types";
 import { isValidArrayIndex, isSameSet } from "../utils";
 
-const SLOT_CONFIG = {
-  tooltip: {
-    path: ["tooltip", "formatter"],
-    propNames: ["params"],
-  },
-  dataView: {
-    path: ["toolbox", "feature", "dataView", "optionToContent"],
-    propNames: ["option"],
-  },
+const SLOT_OPTION_PATHS = {
+  tooltip: ["tooltip", "formatter"],
+  dataView: ["toolbox", "feature", "dataView", "optionToContent"],
 } as const;
-type SlotPrefix = keyof typeof SLOT_CONFIG;
+type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
 type SlotRecord<T> = Partial<Record<SlotName, T>>;
-const SLOT_PREFIXES = Object.keys(SLOT_CONFIG) as SlotPrefix[];
+const SLOT_PREFIXES = Object.keys(SLOT_OPTION_PATHS) as SlotPrefix[];
 
 function isValidSlotName(key: string): key is SlotName {
   return SLOT_PREFIXES.some(
@@ -47,7 +41,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     return isMounted.value
       ? h(
           Teleport as any,
-          { to: detachedRoot, defer: true },
+          { to: detachedRoot },
           Object.entries(slots)
             .filter(([key]) => isValidSlotName(key))
             .map(([key, slot]) => {
@@ -83,7 +77,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       .forEach((key) => {
         const path = key.split("-");
         const prefix = path.shift() as SlotPrefix;
-        path.push(...SLOT_CONFIG[prefix].path);
+        path.push(...SLOT_OPTION_PATHS[prefix]);
 
         let cur: any = root;
         for (let i = 0; i < path.length - 1; i++) {
@@ -100,15 +94,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
               : {};
           cur = cur[seg];
         }
-        cur[path[path.length - 1]] = (...args: any[]) => {
+        cur[path[path.length - 1]] = (p: any) => {
           initialized[key] = true;
-          params[key] = SLOT_CONFIG[prefix].propNames.reduce(
-            (acc, paramName, index) => {
-              acc[paramName] = args[index];
-              return acc;
-            },
-            {} as Record<string, any>,
-          );
+          params[key] = p;
           return containers[key];
         };
       });

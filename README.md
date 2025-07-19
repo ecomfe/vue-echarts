@@ -363,7 +363,7 @@ Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://
 <template>
   <v-chart :option="chartOptions">
     <!-- Global `tooltip.formatter` -->
-    <template #tooltip="{ params }">
+    <template #tooltip="params">
       <div v-for="(param, i) in params" :key="i">
         <span v-html="param.marker" />
         <span>{{ param.seriesName }}</span>
@@ -372,12 +372,12 @@ Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://
     </template>
 
     <!-- Tooltip on xAxis -->
-    <template #tooltip-xAxis="{ params }">
+    <template #tooltip-xAxis="params">
       <div>X-Axis : {{ params.value }}</div>
     </template>
 
     <!-- Data View Content -->
-    <template #dataView="{ option }">
+    <template #dataView="option">
       <table>
         <thead>
           <tr>
