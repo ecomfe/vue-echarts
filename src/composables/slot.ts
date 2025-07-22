@@ -32,7 +32,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     typeof window !== "undefined" ? document.createElement("div") : undefined;
   const containers = shallowReactive<SlotRecord<HTMLElement>>({});
   const initialized = shallowReactive<SlotRecord<boolean>>({});
-  const params = shallowReactive<SlotRecord<Record<string, any>>>({});
+  const params = shallowReactive<SlotRecord<unknown>>({});
   const isMounted = shallowRef(false);
 
   // Teleport the slots to a detached root
@@ -40,7 +40,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     // Make slots client-side only to avoid SSR hydration mismatch
     return isMounted.value
       ? h(
-          Teleport as any,
+          Teleport,
           { to: detachedRoot },
           Object.entries(slots)
             .filter(([key]) => isValidSlotName(key))
@@ -94,7 +94,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
               : {};
           cur = cur[seg];
         }
-        cur[path[path.length - 1]] = (p: any) => {
+        cur[path[path.length - 1]] = (p: unknown) => {
           initialized[key] = true;
           params[key] = p;
           return containers[key];
