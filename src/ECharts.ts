@@ -12,6 +12,7 @@ import {
   watchEffect,
 } from "vue";
 import { init as initChart } from "echarts/core";
+import type { TooltipComponentFormatterCallbackParams } from "echarts";
 
 import {
   usePublicAPI,
@@ -66,7 +67,10 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   slots: Object as SlotsType<
-    Record<"tooltip" | `tooltip-${string}`, any> &
+    Record<
+      "tooltip" | `tooltip-${string}`,
+      TooltipComponentFormatterCallbackParams
+    > &
       Record<"dataView" | `dataView-${string}`, Option>
   >,
   inheritAttrs: false,
