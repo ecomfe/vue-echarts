@@ -13,7 +13,6 @@ import {
   toValue,
 } from "vue";
 import { init as initChart } from "echarts/core";
-import type { TooltipComponentFormatterCallbackParams } from "echarts";
 
 import {
   usePublicAPI,
@@ -22,12 +21,12 @@ import {
   useLoading,
   loadingProps,
   useSlotOption,
-  type PublicMethods,
 } from "./composables";
+import type { PublicMethods, SlotsTypes } from "./composables";
 import { isOn, omitOn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
-import type { PropType, InjectionKey, SlotsType } from "vue";
+import type { PropType, InjectionKey } from "vue";
 import type {
   EChartsType,
   SetOptionType,
@@ -67,13 +66,7 @@ export default defineComponent({
     ...loadingProps,
   },
   emits: {} as unknown as Emits,
-  slots: Object as SlotsType<
-    Record<
-      "tooltip" | `tooltip-${string}`,
-      TooltipComponentFormatterCallbackParams
-    > &
-      Record<"dataView" | `dataView-${string}`, Option>
-  >,
+  slots: Object as SlotsTypes,
   inheritAttrs: false,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
@@ -102,6 +95,15 @@ export default defineComponent({
 
     const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> =
       new Map();
+
+    const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
+      if (!manualUpdate.value && props.option && chart.value) {
+        chart.value.setOption(
+          patchOption(props.option),
+          realUpdateOptions.value,
+        );
+      }
+    });
 
     // We are converting all `on<Event>` props and collect them into `listeners` so that
     // we can bind them to the chart instance later.
@@ -293,15 +295,6 @@ export default defineComponent({
     useLoading(chart, loading, loadingOptions);
 
     useAutoresize(chart, autoresize, root);
-
-    const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
-      if (!manualUpdate.value && props.option && chart.value) {
-        chart.value.setOption(
-          patchOption(props.option),
-          realUpdateOptions.value,
-        );
-      }
-    });
 
     onMounted(() => {
       init();

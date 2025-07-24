@@ -8,9 +8,10 @@ import {
   shallowReactive,
   warn,
 } from "vue";
-import type { Slots } from "vue";
+import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
 import { isValidArrayIndex, isSameSet } from "../utils";
+import type { TooltipComponentFormatterCallbackParams } from "echarts";
 
 const SLOT_OPTION_PATHS = {
   tooltip: ["tooltip", "formatter"],
@@ -135,3 +136,11 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     patchOption,
   };
 }
+
+export type SlotsTypes = SlotsType<
+  Record<
+    "tooltip" | `tooltip-${string}`,
+    TooltipComponentFormatterCallbackParams
+  > &
+    Record<"dataView" | `dataView-${string}`, Option>
+>;
