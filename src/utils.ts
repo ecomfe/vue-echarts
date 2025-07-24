@@ -1,6 +1,3 @@
-import type { MaybeRefOrGetter } from "./types";
-import { unref } from "vue";
-
 type Attrs = Record<string, any>;
 
 // Copied from
@@ -17,17 +14,6 @@ export function omitOn(attrs: Attrs): Attrs {
   }
 
   return result;
-}
-
-// Copied from
-// https://github.com/vuejs/core/blob/3cb4db21efa61852b0541475b4ddf57fdec4c479/packages/shared/src/general.ts#L49-L50
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-const isFunction = (val: unknown): val is Function => typeof val === "function";
-
-// Copied from
-// https://github.com/vuejs/core/blob/3cb4db21efa61852b0541475b4ddf57fdec4c479/packages/reactivity/src/ref.ts#L246-L248
-export function toValue<T>(source: MaybeRefOrGetter<T>): T {
-  return isFunction(source) ? source() : unref(source);
 }
 
 export function isValidArrayIndex(key: string): boolean {

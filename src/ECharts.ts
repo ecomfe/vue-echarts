@@ -10,6 +10,7 @@ import {
   h,
   nextTick,
   watchEffect,
+  toValue,
 } from "vue";
 import { init as initChart } from "echarts/core";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
@@ -23,7 +24,7 @@ import {
   useSlotOption,
   type PublicMethods,
 } from "./composables";
-import { isOn, omitOn, toValue } from "./utils";
+import { isOn, omitOn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 
 import type { PropType, InjectionKey, SlotsType } from "vue";
