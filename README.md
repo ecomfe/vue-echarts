@@ -155,7 +155,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
 
-  > 💡 When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, ` notMerge: true` will be specified.
+  > [!TIP]
+  > When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
 
 - `update-options: object`
 
@@ -195,8 +196,7 @@ You can bind events with Vue's `v-on` directive.
 </template>
 ```
 
-> **Note**
->
+> [!NOTE]
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
 Vue-ECharts support the following events:
@@ -334,6 +334,76 @@ export default {
 >
 > - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
 > - `setTheme`: use the `theme` prop instead.
+
+### Slots
+
+Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
+
+**Slot Naming Convention**
+
+- Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
+- Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
+- The constructed slot name maps directly to the nested callback it overrides.
+
+**Example mappings**:
+
+- `tooltip` → `option.tooltip.formatter`
+- `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
+- `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
+- `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
+- `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
+
+The slot props correspond to the first parameter of the callback function.
+
+<details>
+<summary>Usage</summary>
+
+```vue
+<template>
+  <v-chart :option="chartOptions">
+    <!-- Global `tooltip.formatter` -->
+    <template #tooltip="params">
+      <div v-for="(param, i) in params" :key="i">
+        <span v-html="param.marker" />
+        <span>{{ param.seriesName }}</span>
+        <span>{{ param.value[0] }}</span>
+      </div>
+    </template>
+
+    <!-- Tooltip on xAxis -->
+    <template #tooltip-xAxis="params">
+      <div>X-Axis : {{ params.value }}</div>
+    </template>
+
+    <!-- Data View Content -->
+    <template #dataView="option">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+              {{ t }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+            <th>{{ row[0] }}</th>
+            <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+  </v-chart>
+</template>
+```
+
+[Example →](https://vue-echarts.dev/#line)
+
+</details>
+
+> [!NOTE]
+> Slots take precedence over the corresponding callback defined in `props.option`.
 
 ### Static Methods
 
