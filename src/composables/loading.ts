@@ -1,5 +1,4 @@
-import { inject, computed, watchEffect } from "vue";
-import { toValue } from "../utils";
+import { inject, computed, watchEffect, toValue } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type {
@@ -18,7 +17,7 @@ export function useLoading(
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
-    ...(toValue(defaultLoadingOptions) || {}),
+    ...toValue(defaultLoadingOptions),
     ...loadingOptions?.value,
   }));
 

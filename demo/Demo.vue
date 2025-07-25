@@ -8,6 +8,7 @@ import { track } from "@vercel/analytics";
 
 import LogoChart from "./examples/LogoChart.vue";
 import BarChart from "./examples/BarChart.vue";
+import LineChart from "./examples/LineChart.vue";
 import PieChart from "./examples/PieChart.vue";
 import PolarChart from "./examples/PolarChart.vue";
 import ScatterChart from "./examples/ScatterChart.vue";
@@ -74,6 +75,7 @@ watch(codeOpen, (open) => {
     </p>
 
     <bar-chart />
+    <line-chart />
     <pie-chart />
     <polar-chart />
     <scatter-chart />
