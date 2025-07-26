@@ -411,9 +411,11 @@ The slot props correspond to the first parameter of the callback function.
 
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
 
-## CSP: `style-src` or `style-src-elem`
+## Style
 
-If you are applying a CSP to prevent inline `<style>` injection, you need to use `vue-echarts/csp` instead of `vue-echarts` and include `vue-echarts/csp/style.css` manually.
+Vue-ECharts uses [Constructable Stylesheets](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) to inject styles, which is CSP-compliant by default. Only in older browsers that don't support Constructable Stylesheets, it falls back to traditional `<style>` tag injection.
+
+If you are using older browsers and have strict CSP policies that prevent inline `<style>` injection, you need to manually include `vue-echarts/style.css`.
 
 ## Migration to v7
 

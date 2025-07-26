@@ -21,7 +21,7 @@
     "docs": "node ./scripts/docs.mjs",
     "prepublishOnly": "pnpm run typecheck && pnpm run dev:typecheck && pnpm run build && publint"
   },
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.14.0",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
@@ -29,8 +29,7 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./csp": "./dist/csp/index.js",
-    "./csp/style.css": "./dist/csp/style.css"
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist"
@@ -64,9 +63,9 @@
     "publint": "^0.3.12",
     "rimraf": "^6.0.1",
     "rollup": "^4.41.1",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.2.1",
     "rollup-plugin-esbuild": "^6.2.1",
-    "rollup-plugin-import-css": "^3.5.8",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vue": "^3.5.13",

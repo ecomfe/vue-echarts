@@ -1,69 +1,43 @@
 import esbuild from "rollup-plugin-esbuild";
 import { dts } from "rollup-plugin-dts";
-import css from "rollup-plugin-import-css";
 import { defineConfig } from "rollup";
+import copy from "rollup-plugin-copy";
 
-/**
- * Avoid "document is undefined" error on the server
- * @type {() => import('rollup').Plugin}
- */
-function guardCssInjection() {
+import fs from "node:fs";
+import path from "node:path";
+
+/** @type {() => import('rollup').Plugin} */
+function raw() {
   return {
-    name: "guard-css-injection",
-    renderChunk(code) {
-      const target = "document.head";
-      const patched = code.replace(
-        target,
-        'if(typeof document !== "undefined")' + target,
-      );
-      return {
-        code: patched,
-        map: null,
-      };
+    name: "raw",
+
+    // Catch imports ending with '?raw'
+    resolveId(source, importer) {
+      if (!source.endsWith("?raw")) return null;
+      const [filepath] = source.split("?");
+      const resolved = path.resolve(path.dirname(importer), filepath);
+      // preserve the '?raw' suffix so load() can detect it
+      return resolved + "?raw";
+    },
+
+    // load the file contents and export as a JS string
+    load(id) {
+      if (!id.endsWith("?raw")) return null;
+      const filepath = id.slice(0, -4); // strip '?raw'
+      const raw = fs.readFileSync(filepath, "utf-8");
+      return `export default ${JSON.stringify(raw)};`;
     },
   };
 }
 
-/**
- * Modifies the Rollup options for a build to support strict CSP
- * @param {import('rollup').RollupOptions} options the original options
- * @param {boolean} csp whether to support strict CSP
- * @returns {import('rollup').RollupOptions} the modified options
- */
-function configBuild(options, csp) {
-  const result = { ...options };
-  const { plugins, output } = result;
-
-  result.plugins = [
-    ...plugins,
-    css({
-      ...(csp ? { output: "style.css" } : { inject: true }),
-      minify: true,
-    }),
-    ...(!csp ? [guardCssInjection()] : []),
-  ];
-
-  // modify output file names
-  if (csp && output) {
-    result.output = (Array.isArray(output) ? output : [output]).map(
-      (output) => {
-        return {
-          ...output,
-          file: output.file.replace(/^dist\//, "dist/csp/"),
-          assetFileNames: "[name][extname]",
-        };
-      },
-    );
-  }
-
-  return result;
-}
-
-/** @type {import('rollup').RollupOptions[]} */
-const builds = [
+export default defineConfig([
   {
     input: "src/index.ts",
-    plugins: [esbuild()],
+    plugins: [
+      esbuild(),
+      raw(),
+      copy({ targets: [{ src: "src/style.css", dest: "dist" }] }),
+    ],
     external: ["vue", /^echarts/],
     output: [
       {
@@ -75,7 +49,7 @@ const builds = [
   },
   {
     input: "src/global.ts",
-    plugins: [esbuild({ minify: true })],
+    plugins: [esbuild({ minify: true }), raw()],
     external: ["vue", /^echarts/],
     output: [
       {
@@ -92,11 +66,6 @@ const builds = [
       },
     ],
   },
-];
-
-export default defineConfig([
-  ...builds.map((options) => configBuild(options, false)),
-  ...builds.map((options) => configBuild(options, true)),
   {
     input: "src/index.ts",
     plugins: [
@@ -106,19 +75,10 @@ export default defineConfig([
           preserveSymlinks: false,
         },
       }),
-      {
-        load(id) {
-          if (id.endsWith(".css")) return "";
-        },
-      },
     ],
     output: [
       {
         file: "dist/index.d.ts",
-        format: "esm",
-      },
-      {
-        file: "dist/csp/index.d.ts",
         format: "esm",
       },
     ],
