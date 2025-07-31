@@ -4,6 +4,27 @@ import css from "rollup-plugin-import-css";
 import { defineConfig } from "rollup";
 
 /**
+ * Avoid "document is undefined" error on the server
+ * @type {() => import('rollup').Plugin}
+ */
+function guardCssInjection() {
+  return {
+    name: "guard-css-injection",
+    renderChunk(code) {
+      const target = "document.head";
+      const patched = code.replace(
+        target,
+        'if(typeof document !== "undefined")' + target,
+      );
+      return {
+        code: patched,
+        map: null,
+      };
+    },
+  };
+}
+
+/**
  * Modifies the Rollup options for a build to support strict CSP
  * @param {import('rollup').RollupOptions} options the original options
  * @param {boolean} csp whether to support strict CSP
@@ -19,6 +40,7 @@ function configBuild(options, csp) {
       ...(csp ? { output: "style.css" } : { inject: true }),
       minify: true,
     }),
+    ...(!csp ? [guardCssInjection()] : []),
   ];
 
   // modify output file names
