@@ -1,4 +1,4 @@
-import cssRules from "./style.css?raw";
+import cssRules from "./style.css";
 
 if (typeof document !== "undefined") {
   if ("adoptedStyleSheets" in Document.prototype) {

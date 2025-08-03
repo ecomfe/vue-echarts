@@ -1,10 +1,5 @@
 {
-  "include": [
-    "vite.config.*",
-    "vitest.config.*",
-    "eslint.config.*",
-    "rollup.config.*"
-  ],
+  "include": ["*.config.*"],
   "compilerOptions": {
     "composite": true,
     "lib": ["ESNext"],

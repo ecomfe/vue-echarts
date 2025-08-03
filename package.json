@@ -10,7 +10,7 @@
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run docs && rimraf dist && rollup -c",
+    "build": "pnpm run docs && tsdown",
     "typecheck": "tsc",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
@@ -61,14 +61,10 @@
     "postcss-nested": "^7.0.2",
     "prettier": "^3.5.3",
     "publint": "^0.3.12",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.41.1",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-dts": "^6.2.1",
-    "rollup-plugin-esbuild": "^6.2.1",
+    "tsdown": "^0.13.2",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
+    "vite": "npm:rolldown-vite@latest",
     "vue": "^3.5.13",
-    "vue-tsc": "^2.2.10"
+    "vue-tsc": "^3.0.5"
   }
 }
