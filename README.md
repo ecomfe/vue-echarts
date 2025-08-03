@@ -411,7 +411,7 @@ The slot props correspond to the first parameter of the callback function.
 
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
 
-## Style
+## CSP: `style-src` or `style-src-elem`
 
 Vue-ECharts uses [Constructable Stylesheets](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) to inject styles, which is CSP-compliant by default. Only in older browsers that don't support Constructable Stylesheets, it falls back to traditional `<style>` tag injection.
 

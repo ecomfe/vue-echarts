@@ -411,7 +411,7 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
 
-## 样式
+## CSP: `style-src` 或 `style-src-elem`
 
 Vue-ECharts 使用 [Constructable Stylesheets](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) 来注入样式，这在默认情况下是符合 CSP 要求的。只有在不支持 Constructable Stylesheets 的老浏览器中，才会回退到传统的 `<style>` 标签注入。
 
