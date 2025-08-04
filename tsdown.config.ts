@@ -1,4 +1,4 @@
-import { defineConfig } from "tsdown/config";
+import { defineConfig } from "tsdown";
 import raw from "unplugin-raw/rollup";
 
 export default defineConfig([
