@@ -17,7 +17,7 @@ export default defineConfig([
       name: "VueECharts",
       exports: "default",
       globals: {
-        vue: "vue",
+        vue: "Vue",
         echarts: "echarts",
         "echarts/core": "echarts",
       },

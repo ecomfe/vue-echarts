@@ -2,7 +2,7 @@ import cssRules from "./style.css";
 
 if (typeof document !== "undefined") {
   if (
-    "adoptedStyleSheets" in Document.prototype &&
+    Array.isArray(document.adoptedStyleSheets) &&
     "replaceSync" in CSSStyleSheet.prototype
   ) {
     const sheet = new CSSStyleSheet();
