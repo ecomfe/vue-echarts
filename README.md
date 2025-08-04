@@ -413,7 +413,7 @@ Static methods can be accessed from [`echarts` itself](https://echarts.apache.or
 
 ## CSP: `style-src` or `style-src-elem`
 
-If you are both enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility), you need to manually include `vue-echarts/style.css`.
+If you are **both** enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility), you need to manually include `vue-echarts/style.css`.
 
 ## Migration to v7
 

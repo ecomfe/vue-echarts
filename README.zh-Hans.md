@@ -413,7 +413,7 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 ## CSP: `style-src` 或 `style-src-elem`
 
-如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，并且需要兼容不支持 [CSSStyleSheet() 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
+如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，**并且**需要兼容不支持 [CSSStyleSheet() 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
 
 ## 迁移到 v7
 
