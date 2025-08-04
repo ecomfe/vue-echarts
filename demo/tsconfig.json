@@ -1,6 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["./**/*", "./**/*.vue", "../*.d.ts"],
+  "include": ["./**/*", "./**/*.vue"],
   "compilerOptions": {
     "types": ["vite/client"],
     "allowJs": true

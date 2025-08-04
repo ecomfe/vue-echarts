@@ -1,4 +1,4 @@
-import cssRules from "./style.css";
+import cssRules from "./style.css?raw";
 
 if (typeof document !== "undefined") {
   if (

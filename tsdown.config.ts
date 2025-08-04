@@ -1,4 +1,5 @@
 import { defineConfig } from "tsdown/config";
+import raw from "unplugin-raw/rollup";
 
 export default defineConfig([
   {
@@ -6,7 +7,7 @@ export default defineConfig([
     platform: "browser",
     sourcemap: true,
     copy: ["src/style.css"],
-    loader: { ".css": "text" },
+    plugins: [raw()],
   },
   {
     entry: "src/global.ts",
@@ -26,6 +27,6 @@ export default defineConfig([
     sourcemap: true,
     minify: true,
     dts: false,
-    loader: { ".css": "text" },
+    plugins: [raw()],
   },
 ]);
