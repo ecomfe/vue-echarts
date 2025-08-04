@@ -12,6 +12,7 @@ export default defineConfig([
     entry: "src/global.ts",
     outputOptions: {
       file: "dist/index.min.js", // for unpkg/jsdelivr
+      dir: undefined,
       format: "umd",
       name: "VueECharts",
       exports: "default",

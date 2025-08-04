@@ -1,7 +1,10 @@
 import cssRules from "./style.css";
 
 if (typeof document !== "undefined") {
-  if ("adoptedStyleSheets" in Document.prototype) {
+  if (
+    "adoptedStyleSheets" in Document.prototype &&
+    "replaceSync" in CSSStyleSheet.prototype
+  ) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(cssRules);
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
