@@ -459,9 +459,6 @@ import { THEME_KEY } from 'vue-echarts'
 
 ## 迁移到 v7
 
-Translate:
-Read the breaking changes document in the [release log](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0) and the migration shoud be straightforward.
-
 请阅读[发布日志](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0)中的变更记录，之后迁移过程应该会相对简单。
 
 ## 本地开发
