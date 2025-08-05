@@ -6,7 +6,7 @@
 
 ---
 
-> Still using v6? Read v6 docs [here →](https://github.com/ecomfe/vue-echarts/tree/6.x)
+> Still using Vue 2? Read v7 docs [here →](https://github.com/ecomfe/vue-echarts/tree/7.x)
 
 ## Installation & Usage
 
@@ -119,9 +119,9 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <!-- vue3Scripts:start -->
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.18"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
 ```
 
 <!-- vue3Scripts:end -->
@@ -415,9 +415,15 @@ Static methods can be accessed from [`echarts` itself](https://echarts.apache.or
 
 If you are **both** enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility), you need to manually include `vue-echarts/style.css`.
 
-## Migration to v7
+## Migration to v8
 
-Read the breaking changes document in the [release log](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0) and the migration shoud be straightforward.
+The following breaking changes are introduced in `vue-echarts@8`:
+
+- **Vue 2 support is dropped:** If you still need to stay on Vue 2, use [`vue-echarts@7`](https://github.com/ecomfe/vue-echarts/tree/7.x).
+
+- **Browser compatibility changes:** We no longer provide compatibility for browsers without native [`class`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#browser_compatibility) support. If you need to support legacy browsers, you must transpile the code to ES5 yourself.
+
+- **CSP entry point removed:** The entry point `vue-echarts/csp` is removed. Use `vue-echarts` instead. You only need to manually include `vue-echarts/style.css` if you are **both** enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [`CSSStyleSheet()` constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility).
 
 ## Local development
 

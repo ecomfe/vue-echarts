@@ -1,23 +1,21 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { commentMark } from "comment-mark";
-import { getPackageMeta, resolvePath } from "./utils.mjs";
+import { getPackageMeta, resolvePath, getVersions } from "./utils.js";
 
-const { name, version } = getPackageMeta();
+const { name, version, devDependencies } = getPackageMeta();
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  vue: "3.5.13",
-  echarts: "6.0.0-beta.1",
+  ...getVersions(["vue", "echarts"], devDependencies),
   [name]: version,
 };
 
 function getScripts() {
-  const deps = ["vue", "echarts", name];
-  return deps
-    .map((dep) => {
+  return Object.entries(DEP_VERSIONS)
+    .map(([dep, version]) => {
       const [, name] = dep.match(/^(.+?)(?:@.+)?$/) || [];
-      return `<script src="${CDN_PREFIX}${name}@${DEP_VERSIONS[dep]}"></script>`;
+      return `<script src="${CDN_PREFIX}${name}@${version}"></script>`;
     })
     .join("\n");
 }
