@@ -417,6 +417,9 @@ If you are **both** enforcing a strict CSP that prevents inline `<style>` inject
 
 ## Migration to v8
 
+> [!NOTE]
+> Please make sure to read the [upgrade guide](https://echarts.apache.org/handbook/en/basics/release-note/v6-upgrade-guide/) for ECharts 6 as well.
+
 The following breaking changes are introduced in `vue-echarts@8`:
 
 - **Vue 2 support is dropped:** If you still need to stay on Vue 2, use [`vue-echarts@7`](https://github.com/ecomfe/vue-echarts/tree/7.x).

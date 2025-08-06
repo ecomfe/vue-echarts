@@ -417,6 +417,9 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 ## 迁移到 v8
 
+> [!NOTE]
+> 请确保同时查阅 [ECharts 6 的升级指南](https://echarts.apache.org/handbook/zh/basics/release-note/v6-upgrade-guide/)。
+
 `vue-echarts@8` 引入了以下破坏性变更：
 
 - **Vue 2 支持已移除：** 如果你仍需要继续使用 Vue 2，请使用 [`vue-echarts@7`](https://github.com/ecomfe/vue-echarts/tree/7.x)。
