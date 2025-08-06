@@ -18,7 +18,7 @@
     "dev:build": "vite build",
     "dev:preview": "vite preview",
     "dev:typecheck": "vue-tsc -p ./demo",
-    "docs": "node ./scripts/docs.js",
+    "docs": "jiti ./scripts/docs.ts",
     "prepublishOnly": "pnpm run typecheck && pnpm run dev:typecheck && pnpm run build && publint"
   },
   "packageManager": "pnpm@10.14.0",
