@@ -1,5 +1,5 @@
 {
-  "include": ["*.config.*", "scripts/**/*"],
+  "include": ["*.config.*"],
   "compilerOptions": {
     "composite": true,
     "lib": ["ESNext"],
