@@ -116,11 +116,15 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <details>
 <summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
 
+<!-- vue3Scripts:start -->
+
 ```html
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://unpkg.com/echarts@6/dist/echarts.min.js"></script>
-<script src="https://unpkg.com/vue-echarts/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.18"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
 ```
+
+<!-- vue3Scripts:end -->
 
 ```js
 const app = Vue.createApp(...)
