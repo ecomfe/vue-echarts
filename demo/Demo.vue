@@ -151,13 +151,6 @@ a {
   }
 }
 
-h1,
-h2,
-h3 {
-  color: #2c3e50;
-  font-weight: 400;
-}
-
 h1 {
   margin-bottom: 1em;
   font-family: Inter, "Helvetica Neue", Arial, sans-serif;
@@ -260,6 +253,8 @@ footer {
 h1,
 h2,
 h3 {
+  color: #2c3e50;
+  font-weight: 400;
   a,
   a:hover {
     text-decoration: none;
