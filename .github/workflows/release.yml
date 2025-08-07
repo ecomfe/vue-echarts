@@ -13,7 +13,6 @@ jobs:
     environment: npm-publish
 
     steps:
-      # ───── 基础环境 ─────
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
