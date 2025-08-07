@@ -1,3 +1,24 @@
+## 8.0.0-beta.1
+
+### Breaking changes
+
+- Updated peer dependency for `echarts` to `^6.0.0`.
+- Updated peer dependency for `vue` to `^3.3.0`.
+- Dropped support for browsers without native `class` support.
+- Removed `vue-echarts/csp` entry. Use `vue-echarts` instead. Only manually include `vue-echarts/style.css` if you are **both** enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [`CSSStyleSheet()` constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility).
+
+### New features
+
+- ECharts 6 support.
+- Added slots for tooltip and data view.
+- Added support for getter in provide/inject.
+
+### Chore
+
+- Built with tsdown.
+- Switched Demo from Webpack to Rolldown-Vite.
+- Use ESLint flat config.
+
 ## 7.0.3
 
 - Fixed type for `autoresize` (again).
