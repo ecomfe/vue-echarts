@@ -19,7 +19,7 @@ npm add echarts vue-echarts
 #### Example
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3?file=src%2FApp.vue">Demo →</a></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
@@ -114,7 +114,7 @@ import "echarts";
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
 

@@ -64,7 +64,7 @@
     "tsdown": "^0.13.3",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.5.1",
-    "vite": "npm:rolldown-vite@7.1.0-beta.0",
+    "vite": "npm:rolldown-vite@^7.1.0",
     "vue": "^3.5.18",
     "vue-tsc": "^3.0.5"
   },
