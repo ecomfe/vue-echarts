@@ -6,7 +6,7 @@
 
 ---
 
-> 还在使用 v6？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/6.x/README.zh_CN.md)
+> 还在使用 Vue 2？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/7.x/README.zh_CN.md)
 
 ## 安装 & 使用
 
@@ -19,7 +19,7 @@ npm add echarts vue-echarts
 #### 示例
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3?file=src%2FApp.vue">Demo →</a></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
@@ -114,14 +114,14 @@ import "echarts";
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-vue-3-global?file=index.html">Demo →</a></summary>
+<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
 
 <!-- vue3Scripts:start -->
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0-beta.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@7.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.18"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
 ```
 
 <!-- vue3Scripts:end -->
@@ -270,11 +270,11 @@ import { provide } from "vue";
 
 provide(THEME_KEY, "dark");
 
-// or provide a ref
+// 或者 provide 一个 ref
 const theme = ref("dark");
 provide(THEME_KEY, theme);
 
-// getter is also supported
+// 也支持 getter
 provide(THEME_KEY, () => theme.value);
 ```
 
@@ -295,7 +295,7 @@ export default {
   }
 }
 
-// Or make injections reactive
+// 或者让注入项具有响应性
 export default {
   data() {
     return {
@@ -415,12 +415,18 @@ Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，**并且**需要兼容不支持 [CSSStyleSheet() 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
 
-## 迁移到 v7
+## 迁移到 v8
 
-Translate:
-Read the breaking changes document in the [release log](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0) and the migration shoud be straightforward.
+> [!NOTE]
+> 请确保同时查阅 [ECharts 6 的升级指南](https://echarts.apache.org/handbook/zh/basics/release-note/v6-upgrade-guide/)。
 
-请阅读[发布日志](https://github.com/ecomfe/vue-echarts/releases/tag/v7.0.0-beta.0)中的变更记录，之后迁移过程应该会相对简单。
+`vue-echarts@8` 引入了以下破坏性变更：
+
+- **Vue 2 支持已移除：** 如果你仍需要继续使用 Vue 2，请使用 [`vue-echarts@7`](https://github.com/ecomfe/vue-echarts/tree/7.x)。
+
+- **浏览器兼容性变更：** 我们不再为不支持原生 [`class`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#browser_compatibility) 的浏览器提供兼容性支持。如果你需要支持旧版浏览器，必须自行将代码转译为 ES5。
+
+- **CSP 入口点已移除：** 入口点 `vue-echarts/csp` 已被移除。请使用 `vue-echarts` 替代。如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，**并且**需要兼容不支持 [`CSSStyleSheet()` 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
 
 ## 本地开发
 

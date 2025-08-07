@@ -41,6 +41,6 @@ body:
     id: repro
     attributes:
       label: Reproduction
-      description: "A link to a boiled-down reproduction (a minimal but runnable demo with unnecessary dependencies pruned). If the issue isn't reproducible within an online playground, please create a GitHub repo to reflect the problem. Please paste the link to your CodeSandbox demo or GitHub repo below: ([Vue 3 template](https://codesandbox.io/s/charming-night-2y6m6?file=/src/App.vue) / [Vue 2 template](https://codesandbox.io/s/suspicious-glitter-mk66j?file=/src/App.vue))"
+      description: "A link to a boiled-down reproduction (a minimal but runnable demo with unnecessary dependencies pruned). If the issue isn't reproducible within an online playground, please create a GitHub repo to reflect the problem. Please paste the link to your [StackBlitz demo](https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue) or GitHub repo below:"
     validations:
       required: true
