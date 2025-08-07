@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      # ───── 基础环境 ─────
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+          run_install: false
+
+      - run: pnpm install --frozen-lockfile
+
+      - id: pkg
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
+      - id: tag
+        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts '${{ steps.pkg.outputs.version }}')" >> "$GITHUB_OUTPUT"
+
+      - run: pnpm exec jiti scripts/changelog.ts '${{ steps.pkg.outputs.version }}' > tmp_release_body.md
+
+      - run: corepack prepare npm@11.5.0 --activate
+
+      - name: Publish to npm
+        run: |
+          pnpm exec npm@11.5.0 publish \
+            --tag '${{ steps.tag.outputs.tag }}' \
+            --access public
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          body_path: tmp_release_body.md
+          prerelease: ${{ startsWith(steps.pkg.outputs.version, '0') || contains(steps.pkg.outputs.version, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
