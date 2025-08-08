@@ -31,5 +31,8 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck && pnpm run dev:typecheck
 
+      - name: Build
+        run: pnpm run build
+
       - name: Publint
         run: pnpm run publint
