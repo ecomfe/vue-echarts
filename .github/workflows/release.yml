@@ -1,52 +1,47 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "v**"
 
 permissions:
   id-token: write
   contents: write
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     environment: npm-publish
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
-      - uses: pnpm/action-setup@v4
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Extract release notes
+        run: pnpm releaselog --format=notes ${{ github.ref_name }} > RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          version: 10.14.0
-          run_install: false
-
-      - run: pnpm install --frozen-lockfile
-
-      - id: pkg
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
-
-      - id: tag
-        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts '${{ steps.pkg.outputs.version }}')" >> "$GITHUB_OUTPUT"
-
-      - run: pnpm exec jiti scripts/changelog.ts '${{ steps.pkg.outputs.version }}' > tmp_release_body.md
-
-      - run: corepack prepare npm@11.5.0 --activate
-
-      - name: Publish to npm
-        run: |
-          pnpm exec npm@11.5.0 publish \
-            --tag '${{ steps.tag.outputs.tag }}' \
-            --access public
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.pkg.outputs.version }}
-          body_path: tmp_release_body.md
-          prerelease: ${{ startsWith(steps.pkg.outputs.version, '0') || contains(steps.pkg.outputs.version, '-') }}
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Publish to npm
+        run: npm i -g npm && pnpm publish --access public --tag latest --no-git-checks

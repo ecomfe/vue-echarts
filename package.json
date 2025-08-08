@@ -10,7 +10,7 @@
   "author": "GU Yiling <justice360@gmail.com>",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run docs && tsdown",
+    "build": "tsdown",
     "typecheck": "tsc",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
@@ -19,7 +19,7 @@
     "dev:preview": "vite preview",
     "dev:typecheck": "vue-tsc -p ./demo",
     "docs": "jiti ./scripts/docs.ts",
-    "prepublishOnly": "pnpm run typecheck && pnpm run dev:typecheck && pnpm run build && publint"
+    "release": "pnpm run docs && bumpp -a"
   },
   "packageManager": "pnpm@10.14.0",
   "type": "module",
@@ -48,6 +48,7 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.7.0",
     "@vueuse/core": "^13.6.0",
+    "bumpp": "^10.2.2",
     "comment-mark": "^2.0.1",
     "echarts": "^6.0.0",
     "echarts-gl": "^2.0.9",
@@ -61,6 +62,7 @@
     "postcss-nested": "^7.0.2",
     "prettier": "^3.6.2",
     "publint": "^0.3.12",
+    "releaselog": "^6.0.3",
     "tsdown": "^0.13.3",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.5.1",
