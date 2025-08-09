@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v**"
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Extract release notes
+        run: pnpm releaselog --format=notes ${{ github.ref_name }} > RELEASE_NOTES.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ contains(github.ref_name, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Get dist tag
+        id: tag
+        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts '${{ github.ref_name }}')" >> $GITHUB_OUTPUT
+
+      - name: Publish to npm
+        run: npm i -g npm && pnpm publish --access public --tag ${{ steps.tag.outputs.tag }} --no-git-checks
