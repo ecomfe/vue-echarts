@@ -8,6 +8,7 @@ const COMPONENTS_MAP = {
   singleAxis: "SingleAxisComponent",
   parallel: "ParallelComponent",
   calendar: "CalendarComponent",
+  matrix: "MatrixComponent",
   graphic: "GraphicComponent",
   toolbox: "ToolboxComponent",
   tooltip: "TooltipComponent",
@@ -21,6 +22,7 @@ const COMPONENTS_MAP = {
   legend: "LegendComponent",
   dataZoom: "DataZoomComponent",
   visualMap: "VisualMapComponent",
+  thumbnail: "ThumbnailComponent",
   aria: "AriaComponent",
   dataset: "DatasetComponent",
 
@@ -41,6 +43,7 @@ const CHARTS_MAP = {
   tree: "TreeChart",
   treemap: "TreemapChart",
   graph: "GraphChart",
+  chord: "ChordChart",
   gauge: "GaugeChart",
   funnel: "FunnelChart",
   parallel: "ParallelChart",
@@ -84,7 +87,13 @@ const CHARTS_GL_MAP = {
   linesGL: "LinesGLChart",
 };
 
-const FEATURES = ["UniversalTransition", "LabelLayout"];
+const FEATURES = [
+  "UniversalTransition",
+  "LabelLayout",
+  "AxisBreak",
+  // "LegacyGridContainLabel",
+  "ScatterJitter",
+];
 const RENDERERS_MAP = {
   canvas: "CanvasRenderer",
   svg: "SVGRenderer",
@@ -155,7 +164,7 @@ function collectDeps(option) {
     if (INJECTED_COMPONENTS.includes(key)) {
       return;
     }
-    const val = option[key];
+    let val = option[key];
 
     if (Array.isArray(val) && !val.length) {
       return;
@@ -172,12 +181,12 @@ function collectDeps(option) {
     }
   });
 
-  let series = option.series;
-  if (!Array.isArray(series)) {
-    series = [series];
-  }
-
+  const series = Array.isArray(option.series) ? option.series : [option.series];
+  let hasScatterSeries = false;
   series.forEach((seriesOpt) => {
+    if (seriesOpt.type === "scatter") {
+      hasScatterSeries = true;
+    }
     if (CHARTS_MAP[seriesOpt.type]) {
       deps.push(CHARTS_MAP[seriesOpt.type]);
     }
@@ -204,6 +213,21 @@ function collectDeps(option) {
       deps.push("UniversalTransition");
     }
   });
+
+  Object.keys(option).forEach((key) => {
+    if (key.endsWith("Axis")) {
+      const val = option[key];
+      for (const axisOption of Array.isArray(val) ? val : [val]) {
+        if (hasScatterSeries && +axisOption.jitter > 0) {
+          deps.push("ScatterJitter");
+        }
+        if (axisOption.breaks && axisOption.breaks.length > 0) {
+          deps.push("AxisBreak");
+        }
+      }
+    }
+  });
+
   // Dataset transform
   if (option.dataset && Array.isArray(option.dataset)) {
     option.dataset.forEach((dataset) => {
