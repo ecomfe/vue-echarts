@@ -43,5 +43,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Get dist tag
+        id: tag
+        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts '${{ github.ref_name }}')" >> $GITHUB_OUTPUT
+
       - name: Publish to npm
-        run: npm i -g npm && pnpm publish --access public --tag latest --no-git-checks
+        run: npm i -g npm && pnpm publish --access public --tag ${{ steps.tag.outputs.tag }} --no-git-checks
