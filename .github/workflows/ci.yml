@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - "8.0" # remove this after 8.0 is merged into main
 
 jobs:
   test:
@@ -20,7 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install

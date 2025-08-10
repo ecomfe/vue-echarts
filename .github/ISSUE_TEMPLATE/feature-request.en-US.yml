@@ -1,5 +1,5 @@
 name: "✨ Feature Request"
-description: Create a feature request for Vue-ECharts
+description: Create a feature request for Vue ECharts
 body:
   - type: markdown
     attributes:

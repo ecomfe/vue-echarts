@@ -1,5 +1,5 @@
 name: "🐞 Bug Report"
-description: Create a bug report for Vue-ECharts
+description: Create a bug report for Vue ECharts
 body:
   - type: markdown
     attributes:
@@ -9,14 +9,14 @@ body:
     id: confirmation
     attributes:
       label: Confirmation
-      description: Before submitting this issue, please make sure that the problem only occurs in Vue-ECharts and is not related to ECharts itself.
+      description: Before submitting this issue, please make sure that the problem only occurs in Vue ECharts and is not related to ECharts itself.
       options:
         - label: I can confirm this problem is not reproducible with ECharts itself.
           required: true
   - type: dropdown
     id: integration
     attributes:
-      label: How are you introducing Vue-ECharts into your project?
+      label: How are you introducing Vue ECharts into your project?
       options:
         - ES Module imports
         - "<script> tag"

@@ -285,7 +285,7 @@
 
 - Update peer dependency for `echarts` to `^5.0.2`.
 - Update peer dependency for `vue` to `^2.6.11 || ^3.0.0`.
-- Now `@vue/composition-api` is required to be installed to use Vue-ECharts with Vue 2.
+- Now `@vue/composition-api` is required to be installed to use Vue ECharts with Vue 2.
 - `options` is renamed to **`option`** to align with ECharts itself.
 - Updating `option` will respect **`update-options`** configs instead of checking reference change.
 - `watch-shallow` is removed. Use **`manual-update`** for performance critical scenarios.
