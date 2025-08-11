@@ -1,4 +1,4 @@
-<h1 align="center">Vue-ECharts</h1>
+<h1 align="center">Vue ECharts</h1>
 
 <p align="center">Vue.js component for Apache ECharts™.</p>
 <p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm version" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/Demo%20%C2%BB-20c3aa" alt="View demo"></a> <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E7%89%88%20%C2%BB-000" alt="前往中文版"></a></p>
@@ -199,7 +199,7 @@ You can bind events with Vue's `v-on` directive.
 > [!NOTE]
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
-Vue-ECharts support the following events:
+Vue ECharts support the following events:
 
 - `highlight` [→](https://echarts.apache.org/en/api.html#events.highlight)
 - `downplay` [→](https://echarts.apache.org/en/api.html#events.downplay)
@@ -249,7 +249,7 @@ See supported events [here →](https://echarts.apache.org/en/api.html#events)
 
 #### Native DOM Events
 
-As Vue-ECharts binds events to the ECharts instance by default, there is some caveat when using native DOM events. You need to prefix the event name with `native:` to bind native DOM events.
+As Vue ECharts binds events to the ECharts instance by default, there is some caveat when using native DOM events. You need to prefix the event name with `native:` to bind native DOM events.
 
 ```vue
 <template>
@@ -259,7 +259,7 @@ As Vue-ECharts binds events to the ECharts instance by default, there is some ca
 
 ### Provide / Inject
 
-Vue-ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:
+Vue ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:
 
 <details>
 <summary>Composition API</summary>
@@ -337,7 +337,7 @@ export default {
 
 ### Slots
 
-Vue-ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
+Vue ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
 
 **Slot Naming Convention**
 

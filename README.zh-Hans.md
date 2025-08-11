@@ -1,4 +1,4 @@
-<h1 align="center">Vue-ECharts</h1>
+<h1 align="center">Vue ECharts</h1>
 
 <p align="center">Apache ECharts™ 的 Vue.js 组件。</p>
 <p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm 版本" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%20%C2%BB-20c3aa" alt="查看演示"></a> <a href="./README.zh-Hans.md"></p>
@@ -199,7 +199,7 @@ app.component('v-chart', VueECharts)
 > [!NOTE]
 > 仅支持 `.once` 修饰符，因为其它修饰符都与 DOM 事件机制强耦合。
 
-Vue-ECharts 支持如下事件：
+Vue ECharts 支持如下事件：
 
 - `highlight` [→](https://echarts.apache.org/zh/api.html#events.highlight)
 - `downplay` [→](https://echarts.apache.org/zh/api.html#events.downplay)
@@ -249,7 +249,7 @@ Vue-ECharts 支持如下事件：
 
 #### 原生 DOM 事件
 
-由于 Vue-ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件。
+由于 Vue ECharts 默认将事件绑定到 ECharts 实例，因此在使用原生 DOM 事件时需要做一些特殊处理。你需要在事件名称前加上 `native:` 前缀来绑定原生 DOM 事件。
 
 ```vue
 <template>
@@ -259,7 +259,7 @@ Vue-ECharts 支持如下事件：
 
 ### Provide / Inject
 
-Vue-ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `theme` 提供上下文配置：
+Vue ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `theme` 提供上下文配置：
 
 <details>
 <summary>组合式 API</summary>
@@ -337,7 +337,7 @@ export default {
 
 ### 插槽（Slots）
 
-Vue-ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
+Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
 
 **插槽命名约定**
 

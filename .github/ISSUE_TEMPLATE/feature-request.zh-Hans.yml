@@ -1,5 +1,5 @@
 name: "✨ 新功能建议"
-description: 给 Vue-ECharts 提交新功能建议
+description: 给 Vue ECharts 提交新功能建议
 body:
   - type: markdown
     attributes:

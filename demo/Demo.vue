@@ -54,7 +54,7 @@ watch(codeOpen, (open) => {
     <logo-chart />
 
     <h1>
-      <a href="https://github.com/ecomfe/vue-echarts">Vue-ECharts</a>
+      <a href="https://github.com/ecomfe/vue-echarts">Vue ECharts</a>
     </h1>
     <p class="desc">
       Vue.js component for Apache ECharts™. (<a

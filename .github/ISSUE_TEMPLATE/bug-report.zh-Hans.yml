@@ -1,5 +1,5 @@
 name: "🐞 Bug 报告"
-description: 给 Vue-ECharts 报告 bug
+description: 给 Vue ECharts 报告 bug
 body:
   - type: markdown
     attributes:
@@ -9,14 +9,14 @@ body:
     id: confirmation
     attributes:
       label: 请确认
-      description: 在提交此问题前，请确认问题仅在 Vue-ECharts 中发生，而与 ECharts 本身无关。
+      description: 在提交此问题前，请确认问题仅在 Vue ECharts 中发生，而与 ECharts 本身无关。
       options:
         - label: 我可以确认这个问题无法在 ECharts 项目本身中复现。
           required: true
   - type: dropdown
     id: integration
     attributes:
-      label: 您是如何将 Vue-ECharts 引入项目的？
+      label: 您是如何将 Vue ECharts 引入项目的？
       options:
         - 通过 ES 模块 import
         - "<script> 标签"
