@@ -42,7 +42,7 @@ README_FILES.forEach((file) => {
   writeFileSync(
     file,
     commentMark(content, {
-      vue3Scripts: getCodeBlock(getScripts()),
+      scripts: getCodeBlock(getScripts()),
     }),
     "utf8",
   );
