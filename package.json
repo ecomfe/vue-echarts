@@ -19,7 +19,7 @@
     "dev:preview": "vite preview",
     "dev:typecheck": "vue-tsc -p ./demo",
     "docs": "jiti ./scripts/docs.ts",
-    "release": "pnpm run docs && bumpp --all"
+    "release": "bumpp --execute \"pnpm run docs\" --all"
   },
   "packageManager": "pnpm@10.14.0",
   "type": "module",
