@@ -19,7 +19,7 @@ npm install echarts vue-echarts
 #### 示例
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
+<summary><a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
@@ -114,9 +114,9 @@ import "echarts";
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
+<summary><a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
 
-<!-- vue3Scripts:start -->
+<!-- scripts:start -->
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
@@ -124,7 +124,7 @@ import "echarts";
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
 ```
 
-<!-- vue3Scripts:end -->
+<!-- scripts:end -->
 
 ```js
 const app = Vue.createApp(...)
@@ -333,7 +333,7 @@ export default {
 > 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [props](#props) 提供了：
 >
 > - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
-> - `setTheme`：请使用 `theme` prop。
+> - [`setTheme`](https://echarts.apache.org/zh/api.html#echartsInstance.setTheme)：请使用 `theme` prop。
 
 ### 插槽（Slots）
 

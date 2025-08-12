@@ -19,7 +19,7 @@ npm install echarts vue-echarts
 #### Example
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
+<summary><a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
 <template>
@@ -114,9 +114,9 @@ import "echarts";
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
 
 <details>
-<summary>Vue 3 <a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
+<summary><a href="https://stackblitz.com/edit/vue-echarts-8-global?file=index.html">Demo →</a></summary>
 
-<!-- vue3Scripts:start -->
+<!-- scripts:start -->
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
@@ -124,7 +124,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 <script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
 ```
 
-<!-- vue3Scripts:end -->
+<!-- scripts:end -->
 
 ```js
 const app = Vue.createApp(...)
@@ -333,7 +333,7 @@ export default {
 > The following ECharts instance methods aren't exposed because their functionality is already provided by component [props](#props):
 >
 > - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
-> - `setTheme`: use the `theme` prop instead.
+> - [`setTheme`](https://echarts.apache.org/en/api.html#echartsInstance.setTheme): use the `theme` prop instead.
 
 ### Slots
 
