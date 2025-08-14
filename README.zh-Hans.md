@@ -1,10 +1,8 @@
+<p align="center"><a href="https://vue-echarts.dev/"><img alt="Vue ECharts" src="./.github/assets/echarts.svg" width="100"></a></p>
 <h1 align="center">Vue ECharts</h1>
 
 <p align="center">Apache ECharts™ 的 Vue.js 组件。</p>
 <p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm 版本" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%20%C2%BB-20c3aa" alt="查看演示"></a> <a href="./README.zh-Hans.md"></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"></a></p>
-
----
 
 > 还在使用 Vue 2？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/7.x/README.zh-Hans.md)
 
@@ -155,8 +153,8 @@ app.component('v-chart', VueECharts)
 
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
 
-  > [!TIP]
-  > 在没有指定 `update-options` 时，如果直接修改 `option` 对象而引用保持不变，`setOption` 方法调用时将默认指定 `notMerge: false`；否则，如果为 `option` 绑定一个新的引用，将指定 `notMerge: true`。
+> [!TIP]
+> 在没有指定 `update-options` 时，如果直接修改 `option` 对象而引用保持不变，`setOption` 方法调用时将默认指定 `notMerge: false`；否则，如果为 `option` 绑定一个新的引用，将指定 `notMerge: true`。
 
 - `update-options: object`
 
