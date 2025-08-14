@@ -1,10 +1,8 @@
+<p align="center"><a href="https://vue-echarts.dev/"><img alt="Vue ECharts" src="https://raw.githubusercontent.com/ecomfe/vue-echarts/refs/heads/main/demo/public/favicon.svg" width="96"></a></p>
 <h1 align="center">Vue ECharts</h1>
 
 <p align="center">Vue.js component for Apache ECharts™.</p>
 <p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm version" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/Demo%20%C2%BB-20c3aa" alt="View demo"></a> <a href="./README.zh-Hans.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E7%89%88%20%C2%BB-000" alt="前往中文版"></a></p>
-<p align="center"><a href="https:///pr.new/ecomfe/vue-echarts"><img alt="Open in Codeflow" src="https://developer.stackblitz.com/img/open_in_codeflow.svg" height="28"></a> <a href="https://codesandbox.io/p/github/ecomfe/vue-echarts"><img alt="Edit in CodeSandbox" src="https://assets.codesandbox.io/github/button-edit-lime.svg" height="28"></a></p>
-
----
 
 > Still using Vue 2? Read v7 docs [here →](https://github.com/ecomfe/vue-echarts/tree/7.x)
 
@@ -155,8 +153,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
 
-  > [!TIP]
-  > When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
+  > 💡 When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
 
 - `update-options: object`
 
