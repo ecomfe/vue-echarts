@@ -1,4 +1,4 @@
-<p align="center"><a href="https://vue-echarts.dev/"><img alt="Vue ECharts" src="./.github/assets/echarts.svg" width="100"></a></p>
+<p align="center"><a href="https://vue-echarts.dev/"><img alt="Vue ECharts" src="https://raw.githubusercontent.com/ecomfe/vue-echarts/refs/heads/main/demo/public/favicon.svg" width="96"></a></p>
 <h1 align="center">Vue ECharts</h1>
 
 <p align="center">Apache ECharts™ 的 Vue.js 组件。</p>
