@@ -153,8 +153,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
 
-> [!TIP]
-> When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
+  > 💡 When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
 
 - `update-options: object`
 
