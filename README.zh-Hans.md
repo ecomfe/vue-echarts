@@ -2,7 +2,7 @@
 <h1 align="center">Vue ECharts</h1>
 
 <p align="center">Apache ECharts™ 的 Vue.js 组件。</p>
-<p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm 版本" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%20%C2%BB-20c3aa" alt="查看演示"></a> <a href="./README.zh-Hans.md"></p>
+<p align="center"><a href="https://npmjs.com/package/vue-echarts"><img alt="npm 版本" src="https://img.shields.io/npm/v/vue-echarts"></a> <a href="https://vue-echarts.dev/"><img src="https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%20%C2%BB-20c3aa" alt="查看演示"></a></p>
 
 > 还在使用 Vue 2？可以继续阅读老版本的文档。[前往 →](https://github.com/ecomfe/vue-echarts/blob/7.x/README.zh-Hans.md)
 
