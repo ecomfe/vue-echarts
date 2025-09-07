@@ -88,7 +88,7 @@ importers:
         version: 5.9.2
       unplugin-raw:
         specifier: ^0.6.0
-        version: 0.6.0
+        version: 0.6.1
       vite:
         specifier: npm:rolldown-vite@^7.1.2
         version: rolldown-vite@7.1.2(@types/node@22.17.1)(jiti@2.5.1)(yaml@2.8.1)
@@ -202,6 +202,9 @@ packages:
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
+
+  '@jridgewell/remapping@2.3.5':
+    resolution: {integrity: sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -1498,8 +1501,8 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  unplugin-raw@0.6.0:
-    resolution: {integrity: sha512-wr7EKwu7BmN/6yfEGJ7ZcXBI+3lFL/Qx3lkNMtGjAtYn+Ue3j8OWVTWbar81R3dAmcWJDZKWxipjMYyPcYq3DA==}
+  unplugin-raw@0.6.1:
+    resolution: {integrity: sha512-hXp1acn3YcqJqljk+6sO7KY0OQtp15gEKdxQ6judFTwu+n/I65CIxj1EnRkCh4rWXKcIBg9XEN7FR+XSVI8fAQ==}
     engines: {node: '>=20.18.0'}
     peerDependencies:
       esbuild: '>=0.25.0'
@@ -1511,8 +1514,8 @@ packages:
     resolution: {integrity: sha512-gwXJnPRewT4rT7sBi/IvxKTjsms7jX7QIDLOClApuZwR49SXbrB1z2NLUZ+vDHyqCj/n58OzRRqaW+B8OZi8vg==}
     engines: {node: '>=18.12.0'}
 
-  unplugin@2.3.5:
-    resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
+  unplugin@2.3.10:
+    resolution: {integrity: sha512-6NCPkv1ClwH+/BGE9QeoTIl09nuiAt0gS28nn1PvYXsGKRwM2TCbFA2QiilmehPDTXIe684k4rZI1yl3A1PCUw==}
     engines: {node: '>=18.12.0'}
 
   uri-js@4.4.1:
@@ -1683,6 +1686,11 @@ snapshots:
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/trace-mapping': 0.3.30
+
+  '@jridgewell/remapping@2.3.5':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.30
 
   '@jridgewell/resolve-uri@3.1.2': {}
@@ -2890,9 +2898,9 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  unplugin-raw@0.6.0:
+  unplugin-raw@0.6.1:
     dependencies:
-      unplugin: 2.3.5
+      unplugin: 2.3.10
       unplugin-utils: 0.2.5
 
   unplugin-utils@0.2.5:
@@ -2900,8 +2908,9 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin@2.3.5:
+  unplugin@2.3.10:
     dependencies:
+      '@jridgewell/remapping': 2.3.5
       acorn: 8.15.0
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
