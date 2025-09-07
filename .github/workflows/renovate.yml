@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 16 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   renovate:
     runs-on: ubuntu-latest
