@@ -21,7 +21,7 @@
     "docs": "jiti ./scripts/docs.ts",
     "release": "bumpp --execute \"pnpm run docs\" --all"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.15.1",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
