@@ -3,6 +3,7 @@
   "include": ["./**/*", "./**/*.vue"],
   "compilerOptions": {
     "types": ["vite/client"],
-    "allowJs": true
+    "allowJs": true,
+    "noUncheckedIndexedAccess": false
   }
 }
