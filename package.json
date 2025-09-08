@@ -21,7 +21,7 @@
     "docs": "jiti ./scripts/docs.ts",
     "release": "bumpp --execute \"pnpm run docs\" --all"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
@@ -46,7 +46,7 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
-    "@vue/tsconfig": "^0.7.0",
+    "@vue/tsconfig": "^0.8.0",
     "@vueuse/core": "^13.6.0",
     "bumpp": "^10.2.3",
     "comment-mark": "^2.0.1",
