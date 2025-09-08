@@ -1,4 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"]
+  "extends": ["config:recommended"],
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "groupName": "patches after 7 days",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "excludePackageNames": ["vue", "echarts"],
+      "groupName": "minors after 7 days",
+      "automerge": false
+    },
+    {
+      "matchPackageNames": ["vue", "echarts"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false
+    }
+  ]
 }
