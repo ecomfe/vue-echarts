@@ -108,9 +108,7 @@ export default defineComponent({
       override?: UpdateOptions,
     ): UpdateOptions {
       const base = realUpdateOptions.value;
-      const result: UpdateOptions = {
-        ...(override ?? {}),
-      };
+      const result: UpdateOptions = { ...override };
 
       const replacements = [
         ...(plan?.replaceMerge ?? []),

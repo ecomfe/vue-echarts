@@ -153,9 +153,15 @@ app.component('v-chart', VueECharts)
 
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
 
+  #### 智能更新
+
+  - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。
+  - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数。
+  - 其他情况下，Vue ECharts 会分析差异：删除的对象写入 `null`，删除的数组写入 `[]` 并加入 `replaceMerge`，ID/匿名项减少时追加 `replaceMerge`，风险较高的变更会退回 `notMerge: true`。
+
 - `update-options: object`
 
-  图表更新的配置项。一旦提供（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，并跳过[智能更新](#智能更新)。请参考 `echartsInstance.setOption` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
+  图表更新的配置项。一旦提供（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption` 并跳过智能更新。请参考 `echartsInstance.setOption` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)
 
   Inject 键名：`UPDATE_OPTIONS_KEY`。
 
@@ -180,17 +186,6 @@ app.component('v-chart', VueECharts)
 - `manual-update: boolean`（默认值`false`）
 
   在性能敏感（数据量很大）的场景下，我们最好对于 `option` prop 绕过 Vue 的响应式系统。当将 `manual-update` 指定为 `true` 且不传入 `option` prop 时，数据将不会被监听。此时需要用 `ref` 获取组件实例并手动调用 `setOption` 来更新图表（当 `manual-update` 为 `false` 时，手动调用 `setOption` 会被忽略）。
-
-### 智能更新
-
-Vue ECharts 在调用 `setOption` 之前会分析每次 `option` 变化：
-
-- 删除顶层对象（如 `legend`、`tooltip` 等）时，会自动写入 `null`，让 ECharts 清空旧配置。
-- 移除数组（如 `series`、`dataset` 等）时，会写入空数组并通过 `replaceMerge` 清除旧数据。
-- 如果检测到风险较高的变更（`options`/`media` 缩小、标量被删除等），会退回到 `notMerge: true` 以保证安全。
-- 如果提供了 `update-options`（或注入了默认值），会直接使用该配置并跳过智能计划。
-
-默认情况下响应式更新都会使用这套逻辑。手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 一致，仅应用你在本次调用中传入的更新参数。
 
 ### 事件
 
