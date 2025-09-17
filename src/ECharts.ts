@@ -27,8 +27,8 @@ import {
 import type { PublicMethods, SlotsTypes } from "./composables";
 import { isOn, omitOn } from "./utils";
 import { register, TAG_NAME } from "./wc";
-import { planUpdate } from "./merge";
-import type { Signature, UpdatePlan } from "./merge";
+import { planUpdate } from "./smart-update";
+import type { Signature, UpdatePlan } from "./smart-update";
 
 import type { PropType, InjectionKey } from "vue";
 import type {
@@ -81,15 +81,13 @@ export default defineComponent({
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
-    const realOption = computed(() => props.option || undefined);
-    const realTheme = computed(
-      () => props.theme || toValue(defaultTheme) || undefined,
-    );
+    const realOption = computed(() => props.option || {});
+    const realTheme = computed(() => props.theme || toValue(defaultTheme));
     const realInitOptions = computed(
       () => props.initOptions || toValue(defaultInitOptions) || undefined,
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || toValue(defaultUpdateOptions) || undefined,
+      () => props.updateOptions || toValue(defaultUpdateOptions),
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
