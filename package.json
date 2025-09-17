@@ -19,7 +19,9 @@
     "dev:preview": "vite preview",
     "dev:typecheck": "vue-tsc -p ./demo",
     "docs": "jiti ./scripts/docs.ts",
-    "release": "bumpp --execute \"pnpm run docs\" --all"
+    "release": "bumpp --execute \"pnpm run docs\" --all",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
   },
   "packageManager": "pnpm@10.15.1",
   "type": "module",
@@ -67,6 +69,7 @@
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.6.0",
     "vite": "npm:rolldown-vite@^7.1.2",
+    "vitest": "^3.2.4",
     "vue": "^3.5.18",
     "vue-tsc": "^3.0.5"
   },
