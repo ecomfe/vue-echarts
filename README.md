@@ -151,13 +151,11 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `option: object`
 
-  ECharts' universal interface. Modifying this prop will trigger ECharts' `setOption` method. Read more [here →](https://echarts.apache.org/en/option.html)
-
-  > 💡 When `update-options` is not specified, `notMerge: false` will be specified by default when the `setOption` method is called if the `option` object is modified directly and the reference remains unchanged; otherwise, if a new reference is bound to `option`, `notMerge: true` will be specified.
+  ECharts' universal interface. Modifying this prop triggers Vue ECharts to compute an [update plan](#smart-updates) and call `setOption`. Read more [here →](https://echarts.apache.org/en/option.html)
 
 - `update-options: object`
 
-  Options for updating chart option. See `echartsInstance.setOption`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
+  Options for updating chart option. If supplied (or injected), Vue ECharts forwards it directly to `setOption`, skipping the [smart plan](#smart-updates). See `echartsInstance.setOption`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
 
   Injection key: `UPDATE_OPTIONS_KEY`.
 
@@ -181,7 +179,18 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `manual-update: boolean` (default: `false`)
 
-  For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `option` prop. By specifying `manual-update` prop with `true` and not providing `option` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `setOption` method to update the chart.
+  For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `option` prop. By specifying `manual-update` prop with `true` and not providing `option` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `setOption` method to update the chart (manual `setOption` calls are ignored when `manual-update` is `false`).
+
+#### Smart updates
+
+Vue ECharts analyses each change to `option` before invoking `setOption`:
+
+- Removed config objects (`legend`, `tooltip`, etc.) are replaced with `null` automatically so ECharts clears them.
+- Removed arrays (`series`, `dataset`, …) are converted to empty arrays and marked via `replaceMerge` so old data disappears.
+- If the diff looks risky (shrinking `options`/`media`, dropping scalar values), the component falls back to `notMerge: true` to rebuild the chart safely.
+- Supplying `update-options` (or providing it via inject) bypasses the planner and uses your configuration as-is.
+
+Reactive updates use this logic by default. Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts (apart from slot patching) and honour only the per-call override you provide.
 
 ### Events
 

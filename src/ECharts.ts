@@ -11,8 +11,10 @@ import {
   nextTick,
   watchEffect,
   toValue,
+  warn,
 } from "vue";
 import { init as initChart } from "echarts/core";
+import type { EChartsOption } from "echarts";
 
 import {
   usePublicAPI,
@@ -25,6 +27,8 @@ import {
 import type { PublicMethods, SlotsTypes } from "./composables";
 import { isOn, omitOn } from "./utils";
 import { register, TAG_NAME } from "./wc";
+import { planUpdate } from "./merge";
+import type { Signature, UpdatePlan } from "./merge";
 
 import type { PropType, InjectionKey } from "vue";
 import type {
@@ -71,24 +75,21 @@ export default defineComponent({
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
-    const manualOption = shallowRef<Option>();
     const defaultTheme = inject(THEME_KEY, null);
     const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
     const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
-    const realOption = computed(
-      () => manualOption.value || props.option || null,
-    );
+    const realOption = computed(() => props.option || undefined);
     const realTheme = computed(
-      () => props.theme || toValue(defaultTheme) || {},
+      () => props.theme || toValue(defaultTheme) || undefined,
     );
     const realInitOptions = computed(
-      () => props.initOptions || toValue(defaultInitOptions) || {},
+      () => props.initOptions || toValue(defaultInitOptions) || undefined,
     );
     const realUpdateOptions = computed(
-      () => props.updateOptions || toValue(defaultUpdateOptions) || {},
+      () => props.updateOptions || toValue(defaultUpdateOptions) || undefined,
     );
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
@@ -98,12 +99,71 @@ export default defineComponent({
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
-        chart.value.setOption(
-          patchOption(props.option),
-          realUpdateOptions.value,
-        );
+        applyOption(chart.value, props.option);
       }
     });
+
+    let lastSignature: Signature | undefined;
+
+    function resolveUpdateOptions(
+      plan?: UpdatePlan,
+      override?: UpdateOptions,
+    ): UpdateOptions {
+      const base = realUpdateOptions.value;
+      const result: UpdateOptions = {
+        ...(override ?? {}),
+      };
+
+      const replacements = [
+        ...(plan?.replaceMerge ?? []),
+        ...(override?.replaceMerge ?? []),
+      ].filter((key): key is string => key != null);
+      if (replacements.length > 0) {
+        result.replaceMerge = [...new Set(replacements)];
+      } else {
+        delete result.replaceMerge;
+      }
+
+      const notMerge = override?.notMerge ?? plan?.notMerge;
+      if (notMerge !== undefined) {
+        result.notMerge = notMerge;
+      } else {
+        delete result.notMerge;
+      }
+
+      return base ? { ...base, ...result } : result;
+    }
+
+    function applyOption(
+      instance: EChartsType,
+      option: Option,
+      override?: UpdateOptions,
+      manual = false,
+    ) {
+      const patched = patchOption(option);
+
+      if (manual) {
+        instance.setOption(patched, override ?? {});
+        lastSignature = undefined;
+        return;
+      }
+
+      if (realUpdateOptions.value) {
+        const updateOptions = override ?? realUpdateOptions.value;
+        instance.setOption(patched, updateOptions);
+        lastSignature = undefined;
+        return;
+      }
+
+      const planned = planUpdate(
+        lastSignature,
+        patched as unknown as EChartsOption,
+      );
+
+      const updateOptions = resolveUpdateOptions(planned.plan, override);
+      instance.setOption(planned.option, updateOptions);
+      lastSignature = planned.signature;
+    }
 
     // We are converting all `on<Event>` props and collect them into `listeners` so that
     // we can bind them to the chart instance later.
@@ -140,7 +200,7 @@ export default defineComponent({
         listeners.set({ event, zr, once }, attrs[key]);
       });
 
-    function init(option?: Option) {
+    function init(option?: Option, manual = false, override?: UpdateOptions) {
       if (!root.value) {
         return;
       }
@@ -186,7 +246,8 @@ export default defineComponent({
       function commit() {
         const opt = option || realOption.value;
         if (opt) {
-          instance.setOption(patchOption(opt), realUpdateOptions.value);
+          applyOption(instance, opt, override, manual);
+          override = undefined;
         }
       }
 
@@ -206,17 +267,20 @@ export default defineComponent({
       notMerge,
       lazyUpdate?: boolean,
     ) => {
+      if (!props.manualUpdate) {
+        warn(
+          "[vue-echarts] setOption is only available when manual-update is true.",
+        );
+        return;
+      }
+
       const updateOptions =
         typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
 
-      if (props.manualUpdate) {
-        manualOption.value = option;
-      }
-
       if (!chart.value) {
-        init(option);
+        init(option, true, updateOptions ?? undefined);
       } else {
-        chart.value.setOption(patchOption(option), updateOptions);
+        applyOption(chart.value, option, updateOptions ?? undefined, true);
       }
     };
 
@@ -225,6 +289,7 @@ export default defineComponent({
         chart.value.dispose();
         chart.value = undefined;
       }
+      lastSignature = undefined;
     }
 
     let unwatchOption: (() => void) | null = null;
@@ -239,19 +304,15 @@ export default defineComponent({
         if (!manualUpdate) {
           unwatchOption = watch(
             () => props.option,
-            (option, oldOption) => {
+            (option) => {
               if (!option) {
+                lastSignature = undefined;
                 return;
               }
               if (!chart.value) {
                 init();
               } else {
-                chart.value.setOption(patchOption(option), {
-                  // mutating `option` will lead to `notMerge: false` and
-                  // replacing it with new reference will lead to `notMerge: true`
-                  notMerge: option !== oldOption,
-                  ...realUpdateOptions.value,
-                });
+                applyOption(chart.value, option);
               }
             },
             { deep: true },
@@ -277,7 +338,7 @@ export default defineComponent({
     watch(
       realTheme,
       (theme) => {
-        chart.value?.setTheme(theme);
+        chart.value?.setTheme(theme || {});
       },
       {
         deep: true,
