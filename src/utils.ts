@@ -38,3 +38,7 @@ export function isSameSet<T>(a: T[], b: T[]): boolean {
 
   return true;
 }
+
+export function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return v != null && typeof v === "object" && !Array.isArray(v);
+}
