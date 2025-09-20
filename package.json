@@ -23,7 +23,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.16.0",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
@@ -65,7 +65,7 @@
     "prettier": "^3.6.2",
     "publint": "^0.3.12",
     "releaselog": "^6.0.3",
-    "tsdown": "^0.14.1",
+    "tsdown": "^0.15.0",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.6.0",
     "vite": "npm:rolldown-vite@latest",
