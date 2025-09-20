@@ -68,7 +68,7 @@
     "tsdown": "^0.14.1",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.6.0",
-    "vite": "npm:rolldown-vite@^7.1.2",
+    "vite": "npm:rolldown-vite@latest",
     "vitest": "^3.2.4",
     "vue": "^3.5.18",
     "vue-tsc": "^3.0.5"
@@ -78,6 +78,9 @@
       "allowedVersions": {
         "echarts": "6"
       }
+    },
+    "overrides": {
+      "vite": "npm:rolldown-vite@latest"
     }
   }
 }
