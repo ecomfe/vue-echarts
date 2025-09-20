@@ -28,6 +28,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Setup Playwright (Chromium)
+        uses: microsoft/playwright-github-action@v1
+        with:
+          browsers: chromium
+
       - name: Lint
         run: pnpm run lint
 
@@ -42,3 +47,40 @@ jobs:
 
       - name: Publint
         run: pnpm run publint
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup Playwright (Chromium)
+        uses: microsoft/playwright-github-action@v1
+        with:
+          browsers: chromium
+
+      - name: Test (with coverage)
+        run: pnpm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/browser/lcov.info
+          flags: browser
+          disable_search: true
+          fail_ci_if_error: true
