@@ -10,10 +10,7 @@ describe("smart-update", () => {
         tooltip: { show: true },
         color: "#000",
         dataset: [{ id: "ds1", source: [] }, { source: [] }],
-        series: [
-          { id: "a", type: "bar" },
-          { type: "line" },
-        ],
+        series: [{ id: "a", type: "bar" }, { type: "line" }],
       };
 
       const signature = buildSignature(option);
@@ -24,6 +21,27 @@ describe("smart-update", () => {
       expect(signature.arrays.dataset?.noIdCount).toBe(1);
       expect(signature.arrays.series?.idsSorted).toEqual(["a"]);
       expect(signature.arrays.series?.noIdCount).toBe(1);
+      expect(signature.objects).not.toContain("color");
+      expect(signature.scalars).not.toContain("title");
+      expect(signature.arrays.tooltip).toBeUndefined();
+    });
+
+    it("treats numeric ids as strings and ignores unsupported ids", () => {
+      const option: EChartsOption = {
+        series: [
+          { id: 2, type: "bar" },
+          { id: 1, type: "line" },
+          { id: { nested: true } as unknown, type: "pie" },
+          { id: true as unknown as string, type: "scatter" },
+          { type: "area" },
+        ] as unknown as EChartsOption["series"],
+      };
+
+      const signature = buildSignature(option);
+      const summary = signature.arrays.series;
+
+      expect(summary?.idsSorted).toEqual(["1", "2"]);
+      expect(summary?.noIdCount).toBe(3);
     });
   });
 
@@ -83,19 +101,59 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toBeUndefined();
         expect(result.option.series).toEqual(update.series);
       });
+
+      it("keeps merge when dataset items reorder without shrink", () => {
+        const prev = buildSignature({ dataset: [{ id: "a" }, { id: "b" }] });
+        const update: EChartsOption = {
+          dataset: [{ id: "b" }, { id: "a" }],
+        };
+
+        const result = planUpdate(prev, update);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.option.dataset).toEqual(update.dataset);
+      });
     });
 
     describe("shrink detection", () => {
+      it("does not mark replace when previously empty array is removed", () => {
+        const base: EChartsOption = {
+          // empty array previously present
+          series: [] as any,
+        };
+        const update: EChartsOption = {
+          title: { text: "noop" },
+          // series key removed entirely
+        } as any;
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toBeUndefined();
+        // Should not inject [] override since it was empty before
+        expect((result.option as any).series).toBeUndefined();
+      });
       it("forces rebuild when options shrink", () => {
         const prev = buildSignature({ options: [{}, {}] });
         const { plan } = planUpdate(prev, { options: [{}] });
         expect(plan.notMerge).toBe(true);
+        expect(plan.replaceMerge).toBeUndefined();
+      });
+
+      it("forces rebuild when media entries shrink", () => {
+        const prev = buildSignature({ media: [{}, {}] as any });
+        const { plan } = planUpdate(prev, { media: [{}] as any });
+
+        expect(plan.notMerge).toBe(true);
+        expect(plan.replaceMerge).toBeUndefined();
       });
 
       it("forces rebuild when scalars disappear", () => {
         const prev = buildSignature({ color: "red", title: { text: "foo" } });
         const { plan } = planUpdate(prev, { title: { text: "foo" } });
         expect(plan.notMerge).toBe(true);
+        expect(plan.replaceMerge).toBeUndefined();
       });
 
       it("injects null for removed objects", () => {
@@ -104,6 +162,7 @@ describe("smart-update", () => {
 
         expect(next.option.legend).toBeNull();
         expect(next.plan.notMerge).toBe(false);
+        expect(next.plan.replaceMerge).toBeUndefined();
       });
 
       it("injects empty array and replaceMerge when array removed", () => {
@@ -112,6 +171,7 @@ describe("smart-update", () => {
 
         expect(next.option.series).toEqual([]);
         expect(next.plan.replaceMerge).toEqual(["series"]);
+        expect(next.plan.notMerge).toBe(false);
       });
 
       it("adds replaceMerge when ids shrink", () => {
@@ -119,6 +179,8 @@ describe("smart-update", () => {
         const next = planUpdate(prev, { series: [{ id: "a" }] });
 
         expect(next.plan.replaceMerge).toEqual(["series"]);
+        expect(next.plan.notMerge).toBe(false);
+        expect(next.option.series).toEqual([{ id: "a" }]);
       });
 
       it("adds replaceMerge when anonymous count shrinks", () => {
@@ -126,6 +188,8 @@ describe("smart-update", () => {
         const next = planUpdate(prev, { series: [{}] });
 
         expect(next.plan.replaceMerge).toEqual(["series"]);
+        expect(next.plan.notMerge).toBe(false);
+        expect(next.option.series).toEqual([{}]);
       });
     });
 
@@ -167,6 +231,7 @@ describe("smart-update", () => {
         expect(result.option.series).toEqual(update.series);
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toEqual(["series"]);
+        expect(result.plan.replaceMerge).not.toContain("dataset");
       });
 
       it("clears dataset when removed entirely", () => {
@@ -192,6 +257,7 @@ describe("smart-update", () => {
         expect(result.option.dataset).toEqual([]);
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toContain("dataset");
+        expect(result.plan.replaceMerge).not.toContain("series");
       });
 
       it("tracks multiple array shrink operations", () => {
@@ -229,6 +295,7 @@ describe("smart-update", () => {
         expect(result.option.dataset).toEqual([]);
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toEqual(["dataset", "series"]);
+        expect(result.plan.replaceMerge).not.toContain("legend");
       });
 
       it("injects null for tooltip removal while keeping explicit arrays", () => {
@@ -274,6 +341,8 @@ describe("smart-update", () => {
         expect(result.option.dataset).toEqual([]);
         expect(result.option.series).toEqual(update.series);
         expect(result.plan.replaceMerge).toEqual(["dataset"]);
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).not.toContain("series");
       });
 
       it("tracks series ID removal while keeping modifications", () => {
@@ -292,6 +361,8 @@ describe("smart-update", () => {
 
         expect(result.option.series).toEqual(update.series);
         expect(result.plan.replaceMerge).toEqual(["series"]);
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.option.series).not.toEqual(base.series);
       });
     });
   });

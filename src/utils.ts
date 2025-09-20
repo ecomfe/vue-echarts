@@ -1,5 +1,9 @@
 type Attrs = Record<string, any>;
 
+export function isBrowser(): boolean {
+  return typeof window !== "undefined" && typeof document !== "undefined";
+}
+
 // Copied from
 // https://github.com/vuejs/vue-next/blob/5a7a1b8293822219283d6e267496bec02234b0bc/packages/shared/src/index.ts#L40-L41
 const onRE = /^on[^a-z]/;

@@ -10,7 +10,7 @@ import {
 } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
-import { isValidArrayIndex, isSameSet } from "../utils";
+import { isBrowser, isValidArrayIndex, isSameSet } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 
 const SLOT_OPTION_PATHS = {
@@ -29,8 +29,7 @@ function isValidSlotName(key: string): key is SlotName {
 }
 
 export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
-  const detachedRoot =
-    typeof window !== "undefined" ? document.createElement("div") : undefined;
+  const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
   const containers = shallowReactive<SlotRecord<HTMLElement>>({});
   const initialized = shallowReactive<SlotRecord<boolean>>({});
   const params = shallowReactive<SlotRecord<unknown>>({});
@@ -39,7 +38,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   // Teleport the slots to a detached root
   const teleportedSlots = () => {
     // Make slots client-side only to avoid SSR hydration mismatch
-    return isMounted.value
+    return isMounted.value && detachedRoot
       ? h(
           Teleport,
           { to: detachedRoot },

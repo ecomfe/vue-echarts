@@ -1,4 +1,4 @@
-import type { EChartsOption } from "echarts";
+import type { Option } from "./types";
 import { isPlainObject } from "./utils";
 
 export interface UpdatePlan {
@@ -49,7 +49,7 @@ function readId(item: unknown): string | undefined {
  * Build a minimal signature from a full ECharts option.
  * Only top-level keys are inspected.
  */
-export function buildSignature(option: EChartsOption): Signature {
+export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
   const optionsLength = Array.isArray(opt.options)
@@ -152,7 +152,7 @@ function hasMissingIds(
 }
 
 export interface PlannedUpdate {
-  option: EChartsOption;
+  option: Option;
   signature: Signature;
   plan: UpdatePlan;
 }
@@ -163,7 +163,7 @@ export interface PlannedUpdate {
  */
 export function planUpdate(
   prev: Signature | undefined,
-  option: EChartsOption,
+  option: Option,
 ): PlannedUpdate {
   const next = buildSignature(option);
 
@@ -224,7 +224,7 @@ export function planUpdate(
     overrides.forEach((value, key) => {
       clone[key] = value;
     });
-    normalizedOption = clone as EChartsOption;
+    normalizedOption = clone as Option;
     signature = buildSignature(normalizedOption);
   }
 

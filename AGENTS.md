@@ -16,6 +16,11 @@ This project targets Vue 3 + TypeScript with ECMAScript modules. Follow the exis
 
 There is no standalone unit-test runner yet; rely on TypeScript, linting, and manual QA in the demo. Before opening a PR, run `pnpm lint`, `pnpm typecheck`, and `pnpm build`. Exercise relevant demos in `demo/src/` and add or update examples that showcase new behaviors. For major fixes, include reproduction and verification steps in the PR description so reviewers can follow along.
 
+- Centralize repeated test setup in shared helpers so suites stay focused on behavior, not plumbing.
+- Keep browser-mode output deterministic—assert on warnings or silence them intentionally rather than letting them leak to the console.
+- Lean on the framework/tooling type definitions wherever possible; only add custom shims when the build truly requires them.
+- For coverage in browser mode, enable Vitest’s built-in coverage (V8 for Chromium, Istanbul for other browsers) and run `pnpm vitest run --coverage`; an HTML report is emitted under `coverage/browser/`.
+
 ## Commit & Pull Request Guidelines
 
 Commit history follows Conventional Commits (`type(scope): summary`), e.g., `feat(runtime): add renderer option` or `chore(deps): update vue`. Use concise, imperative summaries and group related changes together. PRs should describe user-facing effects, list verification commands, and link issues with `Fixes #123` when applicable. Include screenshots or GIFs for visual updates to the demo, and note any doc changes (`README.md`, `demo/`) in the description. Ensure CI checks mirror local commands: `pnpm lint`, `pnpm typecheck`, and `pnpm build`.

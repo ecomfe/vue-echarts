@@ -103,31 +103,29 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
 
-    function resolveUpdateOptions(
-      plan?: UpdatePlan,
-      override?: UpdateOptions,
-    ): UpdateOptions {
-      const base = realUpdateOptions.value;
-      const result: UpdateOptions = { ...override };
+    // Note: This resolver is only used in the default "smart-update" path when
+    // no `updateOptions` are provided via props/injection (i.e., `realUpdateOptions`
+    // is falsy) and manual mode is off. Historically it attempted to merge
+    // caller overrides and base options, but those code paths are not reachable
+    // given current call sites (we never pass an override in non-manual paths,
+    // and when base options exist we short-circuit before calling this).
+    // To avoid dead branches and keep behavior clear, we only materialize flags
+    // derived from the computed update plan.
+    function resolveUpdateOptions(plan?: UpdatePlan): UpdateOptions {
+      const result: UpdateOptions = {};
 
-      const replacements = [
-        ...(plan?.replaceMerge ?? []),
-        ...(override?.replaceMerge ?? []),
-      ].filter((key): key is string => key != null);
+      const replacements = (plan?.replaceMerge ?? []).filter(
+        (key): key is string => key != null,
+      );
       if (replacements.length > 0) {
         result.replaceMerge = [...new Set(replacements)];
-      } else {
-        delete result.replaceMerge;
       }
 
-      const notMerge = override?.notMerge ?? plan?.notMerge;
-      if (notMerge !== undefined) {
-        result.notMerge = notMerge;
-      } else {
-        delete result.notMerge;
+      if (plan?.notMerge !== undefined) {
+        result.notMerge = plan.notMerge;
       }
 
-      return base ? { ...base, ...result } : result;
+      return result;
     }
 
     function applyOption(
@@ -156,7 +154,7 @@ export default defineComponent({
         patched as unknown as EChartsOption,
       );
 
-      const updateOptions = resolveUpdateOptions(planned.plan, override);
+      const updateOptions = resolveUpdateOptions(planned.plan);
       instance.setOption(planned.option, updateOptions);
       lastSignature = planned.signature;
     }
@@ -220,8 +218,13 @@ export default defineComponent({
 
         if (once) {
           const raw = handler;
+          let called = false;
 
           handler = (...args: any[]) => {
+            if (called) {
+              return;
+            }
+            called = true;
             raw(...args);
             target.off(event, handler);
           };
@@ -274,10 +277,10 @@ export default defineComponent({
         typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
 
       if (!chart.value) {
-        init(option, true, updateOptions ?? undefined);
-      } else {
-        applyOption(chart.value, option, updateOptions ?? undefined, true);
+        return;
       }
+
+      applyOption(chart.value, option, updateOptions ?? undefined, true);
     };
 
     function cleanup() {
@@ -306,10 +309,10 @@ export default defineComponent({
                 return;
               }
               if (!chart.value) {
-                init();
-              } else {
-                applyOption(chart.value, option);
+                return;
               }
+
+              applyOption(chart.value, option);
             },
             { deep: true },
           );
