@@ -1,3 +1,7 @@
+## 8.0.0-beta.2
+
+- Added [smart update](https://github.com/ecomfe/vue-echarts/blob/main/README.md#smart-update) strategy to make updates more effortless.
+
 ## 8.0.0-beta.1
 
 ### Breaking changes
