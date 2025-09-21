@@ -23,7 +23,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch"
   },
-  "packageManager": "pnpm@10.16.0",
+  "packageManager": "pnpm@10.16.1",
   "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
