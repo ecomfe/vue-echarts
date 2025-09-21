@@ -118,8 +118,8 @@ import "echarts";
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue@3.5.18"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.21"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.0.0-beta.2"></script>
 ```
 
 <!-- scripts:end -->
