@@ -14,7 +14,7 @@ This project targets Vue 3 + TypeScript with ECMAScript modules. Follow the exis
 
 ## Testing Guidelines
 
-For complete and up-to-date testing and CI guidance, see `tests/TESTING.md`.
+For complete and up-to-date testing and CI guidance, see [`tests/TESTING.md`](tests/TESTING.md).
 
 ## Commit & Pull Request Guidelines
 

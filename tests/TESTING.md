@@ -10,7 +10,7 @@ We run Vitest in browser mode using Playwright (Chromium) with `vitest-browser-v
 ## Run locally
 
 - Install dependencies: `pnpm install`
-- Install Chromium: `pnpm exec playwright install chromium`
+- Install Chromium: `pnpm test:setup`
 - Run tests: `pnpm test`
 - Coverage (V8): `pnpm test:coverage`
   - HTML report: `coverage/browser/index.html`
