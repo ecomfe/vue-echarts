@@ -56,7 +56,8 @@ export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> =
 export { LOADING_OPTIONS_KEY } from "./composables";
 
 export default defineComponent({
-  name: "echarts",
+  name: "Echarts",
+  inheritAttrs: false,
   props: {
     option: Object as PropType<Option>,
     theme: {
@@ -71,7 +72,6 @@ export default defineComponent({
   },
   emits: {} as unknown as Emits,
   slots: Object as SlotsTypes,
-  inheritAttrs: false,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();

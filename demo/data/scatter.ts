@@ -1,7 +1,35 @@
 import { graphic } from "echarts/core";
+import type { Option } from "../../src/types";
+import { DEMO_TEXT_STYLE } from "../constants";
 
-const data = [
-  [
+type ScatterDatum = [number, number, number, string, number];
+
+type ScatterDataset = ScatterDatum[];
+
+type SeriesColor = {
+  shadowColor: string;
+  gradient: graphic.RadialGradient;
+};
+
+const SERIES_CONFIG: Record<string, SeriesColor> = {
+  "1990": {
+    shadowColor: "rgba(120, 36, 50, 0.5)",
+    gradient: new graphic.RadialGradient(0.4, 0.3, 1, [
+      { offset: 0, color: "rgb(251, 118, 123)" },
+      { offset: 1, color: "rgb(204, 46, 72)" },
+    ]),
+  },
+  "2015": {
+    shadowColor: "rgba(25, 100, 150, 0.5)",
+    gradient: new graphic.RadialGradient(0.4, 0.3, 1, [
+      { offset: 0, color: "rgb(129, 227, 238)" },
+      { offset: 1, color: "rgb(25, 183, 207)" },
+    ]),
+  },
+};
+
+const dataset: Record<string, ScatterDataset> = {
+  "1990": [
     [28604, 77, 17096869, "Australia", 1990],
     [31163, 77.4, 27662440, "Canada", 1990],
     [1516, 68, 1154605773, "China", 1990],
@@ -22,7 +50,7 @@ const data = [
     [26424, 75.7, 57110117, "United Kingdom", 1990],
     [37062, 75.4, 252847810, "United States", 1990],
   ],
-  [
+  "2015": [
     [44056, 81.8, 23968973, "Australia", 2015],
     [43294, 81.7, 35939927, "Canada", 2015],
     [13334, 76.9, 1376048943, "China", 2015],
@@ -43,17 +71,41 @@ const data = [
     [38225, 81.4, 64715810, "United Kingdom", 2015],
     [53354, 79.1, 321773631, "United States", 2015],
   ],
-];
+};
 
-export default function getData() {
-  return {
+export default function getData(): Option {
+  const series = Object.entries(dataset).map(([year, data]) => {
+    const colors = SERIES_CONFIG[year];
+    return {
+      name: year,
+      data,
+      type: "scatter" as const,
+      symbolSize(value: ScatterDatum) {
+        return Math.sqrt(value[2]) / 5e2;
+      },
+      emphasis: {
+        label: {
+          show: true,
+          formatter({ data: datum }: { data: ScatterDatum }) {
+            return datum[3];
+          },
+          position: "top",
+        },
+      },
+      itemStyle: {
+        shadowBlur: 10,
+        shadowColor: colors.shadowColor,
+        shadowOffsetY: 5,
+        color: colors.gradient,
+      },
+    };
+  });
+
+  const option = {
     grid: {
       top: "25%",
     },
-    textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300,
-    },
+    textStyle: { ...DEMO_TEXT_STYLE },
     title: {
       text: "Life Expectancy vs. GDP by country",
       top: "5%",
@@ -62,7 +114,7 @@ export default function getData() {
     legend: {
       top: "6%",
       right: "5%",
-      data: ["1990", "2015"],
+      data: Object.keys(dataset),
     },
     xAxis: {
       splitLine: {
@@ -79,71 +131,8 @@ export default function getData() {
       },
       scale: true,
     },
-    series: [
-      {
-        name: "1990",
-        data: data[0],
-        type: "scatter",
-        symbolSize(data) {
-          return Math.sqrt(data[2]) / 5e2;
-        },
-        emphasis: {
-          label: {
-            show: true,
-            formatter({ data }) {
-              return data[3];
-            },
-            position: "top",
-          },
-        },
-        itemStyle: {
-          shadowBlur: 10,
-          shadowColor: "rgba(120, 36, 50, 0.5)",
-          shadowOffsetY: 5,
-          color: new graphic.RadialGradient(0.4, 0.3, 1, [
-            {
-              offset: 0,
-              color: "rgb(251, 118, 123)",
-            },
-            {
-              offset: 1,
-              color: "rgb(204, 46, 72)",
-            },
-          ]),
-        },
-      },
-      {
-        name: "2015",
-        data: data[1],
-        type: "scatter",
-        symbolSize(data) {
-          return Math.sqrt(data[2]) / 5e2;
-        },
-        emphasis: {
-          label: {
-            show: true,
-            formatter({ data }) {
-              return data[3];
-            },
-            position: "top",
-          },
-        },
-        itemStyle: {
-          shadowBlur: 10,
-          shadowColor: "rgba(25, 100, 150, 0.5)",
-          shadowOffsetY: 5,
-          color: new graphic.RadialGradient(0.4, 0.3, 1, [
-            {
-              offset: 0,
-              color: "rgb(129, 227, 238)",
-            },
-            {
-              offset: 1,
-              color: "rgb(25, 183, 207)",
-            },
-          ]),
-        },
-      },
-    ],
-  };
+    series,
+  } satisfies Option;
+
+  return option;
 }

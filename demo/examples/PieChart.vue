@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { use } from "echarts/core";
 import { PieChart } from "echarts/charts";
 import {
@@ -8,6 +8,8 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { shallowRef, onMounted, onUnmounted } from "vue";
+import type { Option } from "../../src/types";
+import type { PieSeriesOption } from "echarts/charts";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/pie";
@@ -20,10 +22,27 @@ use([
   TooltipComponent,
 ]);
 
-const option = shallowRef(getData());
-const pie = shallowRef(null);
+type ChartInstance = InstanceType<typeof VChart>;
 
-let timer = null;
+const option = shallowRef<Option>(getData());
+const pie = shallowRef<ChartInstance | null>(null);
+
+let timer: number | undefined;
+
+function getPieSeries(option: Option | undefined): PieSeriesOption | null {
+  if (!option) {
+    return null;
+  }
+  const series = option.series;
+  const firstSeries = Array.isArray(series) ? series[0] : series;
+  if (!firstSeries || typeof firstSeries !== "object") {
+    return null;
+  }
+  if ((firstSeries as PieSeriesOption).type === "pie") {
+    return firstSeries as PieSeriesOption;
+  }
+  return null;
+}
 
 onMounted(() => {
   startActions();
@@ -33,10 +52,12 @@ onUnmounted(() => {
   stopActions();
 });
 
-function startActions() {
+function startActions(): void {
   let dataIndex = -1;
 
-  const dataLen = option.value?.series?.[0]?.data?.length || 0;
+  const series = getPieSeries(option.value);
+  const data = Array.isArray(series?.data) ? series.data : [];
+  const dataLen = data.length;
 
   if (!pie.value || dataLen === 0) {
     return;
@@ -44,25 +65,28 @@ function startActions() {
 
   clearInterval(timer);
 
-  timer = setInterval(() => {
-    if (!pie.value) {
-      clearInterval(timer);
-
+  timer = window.setInterval(() => {
+    const chart = pie.value;
+    if (!chart) {
+      if (timer !== undefined) {
+        clearInterval(timer);
+        timer = undefined;
+      }
       return;
     }
 
-    pie.value.dispatchAction({
+    chart.dispatchAction({
       type: "downplay",
       seriesIndex: 0,
       dataIndex,
     });
     dataIndex = (dataIndex + 1) % dataLen;
-    pie.value.dispatchAction({
+    chart.dispatchAction({
       type: "highlight",
       seriesIndex: 0,
       dataIndex,
     });
-    pie.value.dispatchAction({
+    chart.dispatchAction({
       type: "showTip",
       seriesIndex: 0,
       dataIndex,
@@ -70,13 +94,16 @@ function startActions() {
   }, 1000);
 }
 
-function stopActions() {
-  clearInterval(timer);
+function stopActions(): void {
+  if (timer !== undefined) {
+    clearInterval(timer);
+    timer = undefined;
+  }
 }
 </script>
 
 <template>
-  <v-example id="pie" title="Pie chart" desc="(with action dispatch)">
-    <v-chart ref="pie" :option="option" autoresize />
-  </v-example>
+  <VExample id="pie" title="Pie chart" desc="action dispatch">
+    <VChart ref="pie" :option="option" autoresize />
+  </VExample>
 </template>

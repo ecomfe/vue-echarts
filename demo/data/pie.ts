@@ -1,9 +1,9 @@
-export default function getData() {
-  return {
-    textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300,
-    },
+import type { Option } from "../../src/types";
+import { DEMO_TEXT_STYLE } from "../constants";
+
+export default function getData(): Option {
+  const option = {
+    textStyle: { ...DEMO_TEXT_STYLE },
     title: {
       text: "Traffic Sources",
       top: "5%",
@@ -32,14 +32,9 @@ export default function getData() {
           { value: 135, name: "Video Ads" },
           { value: 1548, name: "Search Engines" },
         ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
       },
     ],
-  };
+  } satisfies Option;
+
+  return option;
 }

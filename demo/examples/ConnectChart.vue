@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { use, connect, disconnect } from "echarts/core";
 import { ScatterChart } from "echarts/charts";
 import {
@@ -7,7 +7,8 @@ import {
   VisualMapComponent,
   TooltipComponent,
 } from "echarts/components";
-import { shallowRef, watch } from "vue";
+import { shallowRef, watchEffect } from "vue";
+import type { Option } from "../../src/types";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/connect";
@@ -20,35 +21,36 @@ use([
   TooltipComponent,
 ]);
 
-const [c1, c2] = getData().map(shallowRef);
+const [firstOption, secondOption] = getData();
+const c1 = shallowRef<Option>(firstOption);
+const c2 = shallowRef<Option>(secondOption);
 const connected = shallowRef(true);
 
-watch(
-  connected,
-  (value) => {
-    if (value) {
-      connect("radiance");
-    } else {
+watchEffect((onCleanup) => {
+  if (connected.value) {
+    connect("radiance");
+    onCleanup(() => {
       disconnect("radiance");
-    }
-  },
-  { immediate: true },
-);
+    });
+    return;
+  }
+  disconnect("radiance");
+});
 </script>
 
 <template>
-  <v-example id="connect" title="Connectable charts" split>
+  <VExample id="connect" title="Connectable charts" split>
     <template #start>
-      <v-chart :option="c1" group="radiance" autoresize />
+      <VChart :option="c1" group="radiance" autoresize />
     </template>
     <template #end>
-      <v-chart :option="c2" group="radiance" autoresize />
+      <VChart :option="c2" group="radiance" autoresize />
     </template>
     <template #extra>
       <p class="actions">
-        <input id="connected-check" type="checkbox" v-model="connected" />
+        <input id="connected-check" v-model="connected" type="checkbox" />
         <label for="connected-check">Connected</label>
       </p>
     </template>
-  </v-example>
+  </VExample>
 </template>
