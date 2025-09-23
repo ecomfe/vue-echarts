@@ -436,6 +436,8 @@ pnpm dev
 
 打开 `http://localhost:5173` 来查看 demo。
 
+更多测试与 CI 说明请参见 [`tests/TESTING.md`](tests/TESTING.md)。
+
 ## 声明
 
 The Apache Software Foundation [Apache ECharts, ECharts](https://echarts.apache.org/), Apache, the Apache feather, and the Apache ECharts project logo are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/).

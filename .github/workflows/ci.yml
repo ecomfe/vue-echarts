@@ -29,7 +29,7 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm run test:setup:ci
 
       - name: Lint
         run: pnpm run lint
