@@ -19,5 +19,5 @@ We run Vitest in browser mode using Playwright (Chromium) with `vitest-browser-v
 ## CI
 
 - CI runs tests with coverage and uploads LCOV to Codecov (non-blocking).
-- Chromium is provisioned via the Playwright GitHub Action.
+- Chromium is installed via Playwright CLI with system deps: `pnpm exec playwright install --with-deps chromium`.
 - Optional: restrict Codecov uploads to PRs and `main` via a workflow condition.
