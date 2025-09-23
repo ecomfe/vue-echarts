@@ -103,14 +103,6 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
 
-    // Note: This resolver is only used in the default "smart-update" path when
-    // no `updateOptions` are provided via props/injection (i.e., `realUpdateOptions`
-    // is falsy) and manual mode is off. Historically it attempted to merge
-    // caller overrides and base options, but those code paths are not reachable
-    // given current call sites (we never pass an override in non-manual paths,
-    // and when base options exist we short-circuit before calling this).
-    // To avoid dead branches and keep behavior clear, we only materialize flags
-    // derived from the computed update plan.
     function resolveUpdateOptions(plan?: UpdatePlan): UpdateOptions {
       const result: UpdateOptions = {};
 
