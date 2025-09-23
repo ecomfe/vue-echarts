@@ -1,16 +1,23 @@
-# Test conventions
+# Testing
 
-This project uses Vitest browser mode with Playwright (Chromium) and `vitest-browser-vue` for mounting Vue components.
+We run Vitest in browser mode using Playwright (Chromium) with `vitest-browser-vue` to mount Vue components.
 
-- Global setup is in `tests/setup.ts`:
-  - Mocks `echarts/core` via `tests/helpers/mock.ts`
-  - Centralizes DOM cleanup with `vitest-browser-vue/pure`'s `cleanup()` and resets `document.body` after each test
+- Global setup: see `tests/setup.ts` (mocks `echarts/core`, resets DOM after each test).
+- Prefer shared helpers under `tests/helpers/` to avoid duplicated setup.
+- Test only public behavior; avoid internal implementation details.
+- Keep tests deterministic: silence console noise and flush updates/animation frames with provided helpers.
 
-- Prefer helpers to reduce duplication:
-  - `tests/helpers/renderChart.ts` exposes `renderChart(propsFactory, exposesRef)` to mount `src/ECharts` with reactive props and capture the exposed API.
-  - `tests/helpers/dom.ts` provides `createSizedContainer`, `flushAnimationFrame`, and `withConsoleWarn`.
-  - `tests/helpers/testing.ts` re-exports `render` from `vitest-browser-vue/pure` for consistency.
+## Run locally
 
-- Avoid testing internal, non-user-observable branches. Focus tests on public behavior of composables and the `ECharts` component, not implementation details.
+- Install dependencies: `pnpm install`
+- Install Chromium: `pnpm exec playwright install chromium`
+- Run tests: `pnpm test`
+- Coverage (V8): `pnpm test:coverage`
+  - HTML report: `coverage/browser/index.html`
+  - LCOV: `coverage/browser/lcov.info`
 
-- Keep tests deterministic: silence console warnings via `withConsoleWarn`; use `await nextTick()` to flush Vue updates; for ResizeObserver-driven code, use `flushAnimationFrame()`.
+## CI
+
+- CI runs tests with coverage and uploads LCOV to Codecov (non-blocking).
+- Chromium is provisioned via the Playwright GitHub Action.
+- Optional: restrict Codecov uploads to PRs and `main` via a workflow condition.

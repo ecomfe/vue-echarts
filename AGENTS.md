@@ -14,12 +14,7 @@ This project targets Vue 3 + TypeScript with ECMAScript modules. Follow the exis
 
 ## Testing Guidelines
 
-There is no standalone unit-test runner yet; rely on TypeScript, linting, and manual QA in the demo. Before opening a PR, run `pnpm lint`, `pnpm typecheck`, and `pnpm build`. Exercise relevant demos in `demo/src/` and add or update examples that showcase new behaviors. For major fixes, include reproduction and verification steps in the PR description so reviewers can follow along.
-
-- Centralize repeated test setup in shared helpers so suites stay focused on behavior, not plumbing.
-- Keep browser-mode output deterministic—assert on warnings or silence them intentionally rather than letting them leak to the console.
-- Lean on the framework/tooling type definitions wherever possible; only add custom shims when the build truly requires them.
-- For coverage in browser mode, enable Vitest’s built-in coverage (V8 for Chromium, Istanbul for other browsers) and run `pnpm vitest run --coverage`; an HTML report is emitted under `coverage/browser/`.
+For complete and up-to-date testing and CI guidance, see `tests/TESTING.md`.
 
 ## Commit & Pull Request Guidelines
 
