@@ -1,17 +1,17 @@
-const data = [];
+import type { Option } from "../../src/types";
+import { DEMO_TEXT_STYLE } from "../constants";
 
-for (let i = 0; i <= 360; i++) {
+const points: Array<[number, number]> = [];
+
+for (let i = 0; i <= 360; i += 1) {
   const t = (i / 180) * Math.PI;
   const r = Math.sin(2 * t) * Math.cos(2 * t);
-  data.push([r, i]);
+  points.push([r, i]);
 }
 
-export default function getData() {
-  return {
-    textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300,
-    },
+export default function getData(): Option {
+  const option = {
+    textStyle: { ...DEMO_TEXT_STYLE },
     title: {
       text: "Dual Numeric Axis",
       top: "5%",
@@ -44,9 +44,11 @@ export default function getData() {
         name: "line",
         type: "line",
         showSymbol: false,
-        data: data,
+        data: points,
       },
     ],
     animationDuration: 2000,
-  };
+  } satisfies Option;
+
+  return option;
 }

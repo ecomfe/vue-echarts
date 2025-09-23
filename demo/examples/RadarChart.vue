@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { use } from "echarts/core";
 import { RadarChart } from "echarts/charts";
 import {
@@ -6,7 +6,7 @@ import {
   TitleComponent,
   TooltipComponent,
 } from "echarts/components";
-import { shallowRef } from "vue";
+import { computed, shallowRef } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import { useScoreStore } from "../data/radar";
@@ -14,37 +14,38 @@ import { useScoreStore } from "../data/radar";
 use([RadarChart, PolarComponent, TitleComponent, TooltipComponent]);
 
 const { metrics, getRadarData, increase, isMax, isMin } = useScoreStore();
-
 const metricIndex = shallowRef(0);
+
+const option = computed(() => getRadarData(metricIndex.value));
 </script>
 
 <template>
-  <v-example id="radar" title="Radar chart" desc="(with Pinia integration)">
-    <v-chart :option="getRadarData(metricIndex)" autoresize />
+  <VExample id="radar" title="Radar chart" desc="Pinia integration">
+    <VChart :option="option" autoresize />
     <template #extra>
       <p class="actions">
-        <select v-model="metricIndex">
+        <select v-model.number="metricIndex">
           <option
             v-for="(metric, index) in metrics"
-            :value="index"
             :key="index"
+            :value="index"
           >
             {{ metric }}
           </option>
         </select>
         <button
-          @click="increase(metricIndex, 1)"
           :disabled="isMax(metricIndex)"
+          @click="increase(metricIndex, 1)"
         >
           Increase
         </button>
         <button
-          @click="increase(metricIndex, -1)"
           :disabled="isMin(metricIndex)"
+          @click="increase(metricIndex, -1)"
         >
           Decrease
         </button>
       </p>
     </template>
-  </v-example>
+  </VExample>
 </template>

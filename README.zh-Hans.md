@@ -21,7 +21,7 @@ npm install echarts vue-echarts
 
 ```vue
 <template>
-  <v-chart class="chart" :option="option" />
+  <VChart class="chart" :option="option" />
 </template>
 
 <script setup>
@@ -128,7 +128,7 @@ import "echarts";
 const app = Vue.createApp(...)
 
 // 全局注册组件（也可以使用局部注册）
-app.component('v-chart', VueECharts)
+app.component('VChart', VueECharts)
 ```
 
 </details>
@@ -154,7 +154,6 @@ app.component('v-chart', VueECharts)
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
 
   #### 智能更新
-
   - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。
   - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数。
   - 其他情况下，Vue ECharts 会分析差异：删除的对象写入 `null`，删除的数组写入 `[]` 并加入 `replaceMerge`，ID/匿名项减少时追加 `replaceMerge`，风险较高的变更会退回 `notMerge: true`。
@@ -193,7 +192,7 @@ app.component('v-chart', VueECharts)
 
 ```vue
 <template>
-  <v-chart :option="option" @highlight="handleHighlight" />
+  <VChart :option="option" @highlight="handleHighlight" />
 </template>
 ```
 
@@ -254,7 +253,7 @@ Vue ECharts 支持如下事件：
 
 ```vue
 <template>
-  <v-chart @native:click="handleClick" />
+  <VChart @native:click="handleClick" />
 </template>
 ```
 
@@ -362,7 +361,7 @@ Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 ```vue
 <template>
-  <v-chart :option="chartOptions">
+  <VChart :option="chartOptions">
     <!-- 全局 `tooltip.formatter` -->
     <template #tooltip="params">
       <div v-for="(param, i) in params" :key="i">
@@ -395,7 +394,7 @@ Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
         </tbody>
       </table>
     </template>
-  </v-chart>
+  </VChart>
 </template>
 ```
 

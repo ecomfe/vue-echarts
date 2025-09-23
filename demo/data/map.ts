@@ -1,4 +1,14 @@
-const data = [
+import type { Option } from "../../src/types";
+import { DEMO_TEXT_STYLE } from "../constants";
+
+interface CityDatum {
+  name: string;
+  value: number;
+}
+
+type ScatterPoint = { name: string; value: [number, number, number] };
+
+const cityData: CityDatum[] = [
   { name: "海门", value: 9 },
   { name: "鄂尔多斯", value: 12 },
   { name: "招远", value: 12 },
@@ -190,7 +200,7 @@ const data = [
   { name: "武汉", value: 273 },
   { name: "大庆", value: 279 },
 ];
-const geoCoordMap = {
+const geoCoordMap: Record<string, [number, number]> = {
   海门: [121.15, 31.89],
   鄂尔多斯: [109.781327, 39.608266],
   招远: [120.38, 37.35],
@@ -383,26 +393,28 @@ const geoCoordMap = {
   大庆: [125.03, 46.58],
 };
 
-function convertData(data) {
-  const res = [];
-  for (let i = 0; i < data.length; i++) {
-    const geoCoord = geoCoordMap[data[i].name];
-    if (geoCoord) {
-      res.push({
-        name: data[i].name,
-        value: geoCoord.concat(data[i].value),
-      });
+function convertData(list: CityDatum[]): ScatterPoint[] {
+  const points: ScatterPoint[] = [];
+  for (const item of list) {
+    const geoCoord = geoCoordMap[item.name];
+    if (!geoCoord) {
+      continue;
     }
+    points.push({
+      name: item.name,
+      value: [geoCoord[0], geoCoord[1], item.value],
+    });
   }
-  return res;
+  return points;
 }
 
-export default function getData() {
-  return {
-    textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300,
-    },
+export default function getData(): Option {
+  const sortedTopFive = [...cityData]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
+
+  const option = {
+    textStyle: { ...DEMO_TEXT_STYLE },
     backgroundColor: "#404a59",
     title: {
       text: "Air quality of major cities in China",
@@ -448,11 +460,11 @@ export default function getData() {
         name: "PM2.5",
         type: "scatter",
         coordinateSystem: "geo",
-        data: convertData(data),
-        symbolSize: (val) => val[2] / 10,
+        data: convertData(cityData),
+        symbolSize: (val: [number, number, number]) => val[2] / 10,
         tooltip: {
-          formatter: function (val) {
-            return val.name + ": " + val.value[2];
+          formatter(value: ScatterPoint) {
+            return `${value.name}: ${value.value[2]}`;
           },
         },
         itemStyle: {
@@ -463,8 +475,8 @@ export default function getData() {
         name: "Top 5",
         type: "effectScatter",
         coordinateSystem: "geo",
-        data: convertData(data.sort((a, b) => b.value - a.value).slice(0, 6)),
-        symbolSize: (val) => val[2] / 10,
+        data: convertData(sortedTopFive),
+        symbolSize: (val: [number, number, number]) => val[2] / 10,
         showEffectOn: "render",
         rippleEffect: {
           brushType: "stroke",
@@ -473,8 +485,8 @@ export default function getData() {
           scale: true,
         },
         tooltip: {
-          formatter: function (val) {
-            return val.name + ": " + val.value[2];
+          formatter(value: ScatterPoint) {
+            return `${value.name}: ${value.value[2]}`;
           },
         },
         label: {
@@ -490,5 +502,7 @@ export default function getData() {
         zlevel: 1,
       },
     ],
-  };
+  } satisfies Option;
+
+  return option;
 }

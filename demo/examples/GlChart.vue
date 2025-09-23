@@ -1,96 +1,121 @@
-<script setup>
+<script setup lang="ts">
 import { use } from "echarts/core";
 import { Bar3DChart } from "echarts-gl/charts";
 import { VisualMapComponent } from "echarts/components";
 import { GlobeComponent } from "echarts-gl/components";
 import { shallowRef, onMounted } from "vue";
+import type { InitOptions, LoadingOptions, Option } from "../../src/types";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import world from "../assets/world.jpg";
 import starfield from "../assets/starfield.jpg";
+import { DEMO_TEXT_STYLE } from "../constants";
 
 use([Bar3DChart, VisualMapComponent, GlobeComponent]);
 
-const option = shallowRef();
+type GlobeDatum = [number, number, number];
+
+function isGlobeData(value: unknown): value is GlobeDatum[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (entry) =>
+        Array.isArray(entry) &&
+        entry.length === 3 &&
+        typeof entry[0] === "number" &&
+        typeof entry[1] === "number" &&
+        typeof entry[2] === "number",
+    )
+  );
+}
+
+const option = shallowRef<Option | undefined>(undefined);
 const loading = shallowRef(true);
 
-const initOptions = {
+const initOptions: InitOptions = {
   renderer: "canvas",
 };
 
-const loadingOptions = {
+const loadingOptions: LoadingOptions = {
   text: "Loading...",
   color: "#000",
   textColor: "#fff",
   maskColor: "transparent",
 };
 
-onMounted(() => {
-  import("../data/population.json").then(({ default: data }) => {
+onMounted(async () => {
+  const module = await import("../data/population.json");
+  const population = module.default;
+
+  if (!isGlobeData(population)) {
     loading.value = false;
+    return;
+  }
 
-    data = data
-      .filter((dataItem) => dataItem[2] > 0)
-      .map((dataItem) => [dataItem[0], dataItem[1], Math.sqrt(dataItem[2])]);
+  const processed = population
+    .filter(([, , amount]) => amount > 0)
+    .map(([lon, lat, amount]): GlobeDatum => [lon, lat, Math.sqrt(amount)]);
 
-    option.value = {
-      backgroundColor: "#000",
-      globe: {
-        baseTexture: world,
-        heightTexture: world,
-        shading: "lambert",
-        environment: starfield,
-        light: {
-          main: {
-            intensity: 2,
-          },
-        },
-        viewControl: {
-          autoRotate: false,
+  option.value = {
+    textStyle: { ...DEMO_TEXT_STYLE },
+    backgroundColor: "#000",
+    globe: {
+      baseTexture: world,
+      heightTexture: world,
+      shading: "lambert",
+      environment: starfield,
+      light: {
+        main: {
+          intensity: 2,
         },
       },
-      visualMap: {
-        bottom: "3%",
-        left: "3%",
-        max: 40,
-        calculable: true,
-        realtime: false,
+      viewControl: {
+        autoRotate: false,
+      },
+    },
+    visualMap: {
+      bottom: "3%",
+      left: "3%",
+      max: 40,
+      calculable: true,
+      realtime: false,
+      inRange: {
+        colorLightness: [0.2, 0.9],
+      },
+      textStyle: {
+        color: "#fff",
+      },
+      controller: {
         inRange: {
-          colorLightness: [0.2, 0.9],
-        },
-        textStyle: {
-          color: "#fff",
-        },
-        controller: {
-          inRange: {
-            color: "orange",
-          },
-        },
-        outOfRange: {
-          colorAlpha: 0,
+          color: "orange",
         },
       },
-      series: [
-        {
-          type: "bar3D",
-          coordinateSystem: "globe",
-          data: data,
-          barSize: 0.6,
-          minHeight: 0.2,
-          silent: true,
-          itemStyle: {
-            color: "orange",
-          },
+      outOfRange: {
+        colorAlpha: 0,
+      },
+    },
+    series: [
+      {
+        type: "bar3D",
+        coordinateSystem: "globe",
+        data: processed,
+        barSize: 0.6,
+        minHeight: 0.2,
+        silent: true,
+        itemStyle: {
+          color: "orange",
         },
-      ],
-    };
-  });
+      },
+    ],
+  } satisfies Option;
+
+  loading.value = false;
 });
 </script>
 
 <template>
-  <v-example id="gl" title="GL charts" desc="(Globe & Bar3D)">
-    <v-chart
+  <VExample id="gl" title="GL charts" desc="Globe · Bar3D">
+    <VChart
       :option="option"
       :init-options="initOptions"
       autoresize
@@ -107,5 +132,5 @@ onMounted(() => {
         <small>(You can only use the canvas renderer for GL charts.)</small>
       </p>
     </template>
-  </v-example>
+  </VExample>
 </template>

@@ -21,7 +21,7 @@ npm install echarts vue-echarts
 
 ```vue
 <template>
-  <v-chart class="chart" :option="option" />
+  <VChart class="chart" :option="option" />
 </template>
 
 <script setup>
@@ -128,7 +128,7 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 const app = Vue.createApp(...)
 
 // register globally (or you can do it locally)
-app.component('v-chart', VueECharts)
+app.component('VChart', VueECharts)
 ```
 
 </details>
@@ -154,7 +154,6 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
   ECharts' universal interface. Modifying this prop triggers Vue ECharts to compute an update plan and call `setOption`. Read more [here →](https://echarts.apache.org/en/option.html)
 
   #### Smart Update
-
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner.
   - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in.
   - Otherwise, Vue ECharts analyses the change: removed objects become `null`, removed arrays become `[]` with `replaceMerge`, ID/anonymous deletions trigger `replaceMerge`, and risky changes fall back to `notMerge: true`.
@@ -193,7 +192,7 @@ You can bind events with Vue's `v-on` directive.
 
 ```vue
 <template>
-  <v-chart :option="option" @highlight="handleHighlight" />
+  <VChart :option="option" @highlight="handleHighlight" />
 </template>
 ```
 
@@ -254,7 +253,7 @@ As Vue ECharts binds events to the ECharts instance by default, there is some ca
 
 ```vue
 <template>
-  <v-chart @native:click="handleClick" />
+  <VChart @native:click="handleClick" />
 </template>
 ```
 
@@ -362,7 +361,7 @@ The slot props correspond to the first parameter of the callback function.
 
 ```vue
 <template>
-  <v-chart :option="chartOptions">
+  <VChart :option="chartOptions">
     <!-- Global `tooltip.formatter` -->
     <template #tooltip="params">
       <div v-for="(param, i) in params" :key="i">
@@ -395,7 +394,7 @@ The slot props correspond to the first parameter of the callback function.
         </tbody>
       </table>
     </template>
-  </v-chart>
+  </VChart>
 </template>
 ```
 

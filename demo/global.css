@@ -1,0 +1,142 @@
+/* Design tokens */
+:root {
+  /* Neutral palette */
+  --bg-light: #fafafa;
+  --surface-light: #ffffff;
+  --surface-2-light: #f5f5f5;
+  --border-light: #e6e6e6;
+  --text-light: #111827;
+  --muted-light: #6b7280;
+  --muted-2-light: #9ca3af;
+  --heading-light: #1f2937;
+
+  /* Accent (Vue green) */
+  --link-light: #42b883;
+  --accent-light: #42b883;
+  --accent-strong-light: #2a9f6b;
+  --ring-light: rgba(17, 24, 39, 0.2);
+
+  /* Code */
+  --code-bg-light: #0b1020;
+  --code-fg-light: #e2e8f0;
+
+  /* Shadow */
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  /* Dark palette */
+  --bg-dark: #0b1220;
+  --surface-dark: #0f172a;
+  --surface-2-dark: #0b1220;
+  --border-dark: #1f2937;
+  --text-dark: #e5e7eb;
+  --muted-dark: #9ca3af;
+  --muted-2-dark: #6b7280;
+  --heading-dark: #f3f4f6;
+  --link-dark: #42d39a;
+  --accent-dark: #42d39a;
+  --accent-strong-dark: #3bc28d;
+  --ring-dark: rgba(229, 231, 235, 0.25);
+  --shadow-dark: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --code-bg-dark: #0b1020;
+  --code-fg-dark: #e2e8f0;
+
+  /* Active tokens default to light */
+  --bg: var(--bg-light);
+  --surface: var(--surface-light);
+  --surface-2: var(--surface-2-light);
+  --border: var(--border-light);
+  --text: var(--text-light);
+  --muted: var(--muted-light);
+  --muted-2: var(--muted-2-light);
+  --heading: var(--heading-light);
+  --link: var(--link-light);
+  --accent: var(--accent-light);
+  --accent-strong: var(--accent-strong-light);
+  --ring: var(--ring-light);
+  --shadow: var(--shadow-light);
+  --code-bg: var(--code-bg-light);
+  --code-fg: var(--code-fg-light);
+
+  /* Focus */
+  --focus: 0 0 0 2px var(--ring);
+
+  /* Radius & spacing (8px scale) */
+  --r-s: 4px;
+  --r-m: 8px;
+  --r-l: 12px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Fonts */
+  --font-sans:
+    Manrope, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --bg: var(--bg-dark);
+    --surface: var(--surface-dark);
+    --surface-2: var(--surface-2-dark);
+    --border: var(--border-dark);
+    --text: var(--text-dark);
+    --muted: var(--muted-dark);
+    --muted-2: var(--muted-2-dark);
+    --heading: var(--heading-dark);
+    --link: var(--link-dark);
+    --accent: var(--accent-dark);
+    --accent-strong: var(--accent-strong-dark);
+    --ring: var(--ring-dark);
+    --shadow: var(--shadow-dark);
+    --code-bg: var(--code-bg-dark);
+    --code-fg: var(--code-fg-dark);
+  }
+}
+
+html.dark {
+  color-scheme: dark;
+  --bg: var(--bg-dark);
+  --surface: var(--surface-dark);
+  --surface-2: var(--surface-2-dark);
+  --border: var(--border-dark);
+  --text: var(--text-dark);
+  --muted: var(--muted-dark);
+  --muted-2: var(--muted-2-dark);
+  --heading: var(--heading-dark);
+  --link: var(--link-dark);
+  --accent: var(--accent-dark);
+  --accent-strong: var(--accent-strong-dark);
+  --ring: var(--ring-dark);
+  --shadow: var(--shadow-dark);
+  --code-bg: var(--code-bg-dark);
+  --code-fg: var(--code-fg-dark);
+}
+
+html.light {
+  color-scheme: light;
+  --bg: var(--bg-light);
+  --surface: var(--surface-light);
+  --surface-2: var(--surface-2-light);
+  --border: var(--border-light);
+  --text: var(--text-light);
+  --muted: var(--muted-light);
+  --muted-2: var(--muted-2-light);
+  --heading: var(--heading-light);
+  --link: var(--link-light);
+  --accent: var(--accent-light);
+  --accent-strong: var(--accent-strong-light);
+  --ring: var(--ring-light);
+  --shadow: var(--shadow-light);
+  --code-bg: var(--code-bg-light);
+  --code-fg: var(--code-fg-light);
+}

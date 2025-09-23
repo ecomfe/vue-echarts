@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { use } from "echarts/core";
 import { LineChart, PieChart } from "echarts/charts";
 import {
@@ -8,10 +8,12 @@ import {
   TooltipComponent,
   ToolboxComponent,
 } from "echarts/components";
-import { shallowRef } from "vue";
+import { shallowRef, ref } from "vue";
+import type { Option } from "../../src/types";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/line";
+import { DEMO_FONT_FAMILY } from "../constants";
 
 use([
   DatasetComponent,
@@ -23,81 +25,159 @@ use([
   PieChart,
 ]);
 
-const option = shallowRef(getData());
-const axis = shallowRef("xAxis");
+const option = shallowRef<Option>(getData());
+const axis = ref<"xAxis" | "yAxis">("xAxis");
 
-function getPieOption(params) {
-  const option = {
-    dataset: { source: [params[0].dimensionNames, params[0].data] },
+function isStringOrNumber(value: unknown): value is string | number {
+  return typeof value === "string" || typeof value === "number";
+}
+
+function isDataRow(value: unknown): value is (string | number)[] {
+  return Array.isArray(value) && value.every(isStringOrNumber);
+}
+
+type TooltipParams = unknown;
+
+interface TooltipDatumLike {
+  dimensionNames?: unknown;
+  data?: unknown;
+  name?: unknown;
+}
+
+function firstTooltipDatum(
+  params: TooltipParams,
+): TooltipDatumLike | undefined {
+  if (Array.isArray(params)) {
+    const [first] = params;
+    return first as TooltipDatumLike | undefined;
+  }
+  if (params && typeof params === "object" && "data" in params) {
+    return params as TooltipDatumLike;
+  }
+  return undefined;
+}
+
+function getPieOption(params: TooltipParams): Option {
+  const datum = firstTooltipDatum(params);
+  if (
+    !datum ||
+    !Array.isArray(datum.dimensionNames) ||
+    !isDataRow(datum.data)
+  ) {
+    return { series: [] } satisfies Option;
+  }
+
+  const dimensionNames = datum.dimensionNames.map((value) => String(value));
+  const dataRow = datum.data;
+
+  return {
+    textStyle: {
+      fontFamily: DEMO_FONT_FAMILY,
+      fontWeight: 400,
+    },
+    dataset: { source: [dimensionNames, dataRow] },
     series: [
       {
         type: "pie",
         radius: ["60%", "100%"],
         seriesLayoutBy: "row",
         itemStyle: {
-          borderRadius: 5,
-          borderColor: "#fff",
-          borderWidth: 2,
+          borderRadius: 4,
         },
         label: {
           position: "center",
-          formatter: params[0].name,
-          fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-          fontWeight: 300,
+          formatter: datum.name ?? "",
+          fontFamily: DEMO_FONT_FAMILY,
+          fontWeight: 600,
         },
       },
     ],
-  };
-  return option;
+  } satisfies Option;
+}
+
+function getAxisLabel(params: TooltipParams): string {
+  if (Array.isArray(params)) {
+    const [first] = params;
+    if (first && typeof first === "object" && "name" in first) {
+      return String((first as { name?: unknown }).name ?? "");
+    }
+    return "";
+  }
+  if (params && typeof params === "object" && "name" in params) {
+    return String((params as { name?: unknown }).name ?? "");
+  }
+  return "";
+}
+
+function getDatasetRows(option: Option): Array<string | number>[] {
+  const rawDataset = option.dataset;
+  if (!Array.isArray(rawDataset) || rawDataset.length === 0) {
+    return [];
+  }
+
+  const firstDataset = rawDataset[0] as { source?: unknown };
+  const { source } = firstDataset;
+  if (!Array.isArray(source) || source.length === 0) {
+    return [];
+  }
+
+  if (!source.every(isDataRow)) {
+    return [];
+  }
+
+  return source as Array<string | number>[];
 }
 </script>
 
 <template>
-  <v-example
-    id="line"
-    title="Line chart"
-    desc="(with tooltip and dataView slots)"
-  >
-    <v-chart :option="option" autoresize>
+  <VExample id="line" title="Line chart" desc="tooltip · dataView">
+    <VChart :option="option" autoresize>
       <template #tooltip="params">
-        <v-chart
+        <VChart
           :style="{ width: '100px', height: '100px' }"
-          :option="getPieOption(params)"
-          autoresize
+          :option="{ ...getPieOption(params), backgroundColor: 'transparent' }"
         />
       </template>
       <template #[`tooltip-${axis}`]="params">
         {{ axis === "xAxis" ? "Year" : "Value" }}:
-        <b>{{ params.name }}</b>
+        <b>{{ getAxisLabel(params) }}</b>
       </template>
-      <template #dataView="option">
-        <table style="margin: 20px auto">
+      <template #dataView="chartOption">
+        <table
+          v-if="getDatasetRows(chartOption).length"
+          style="margin: 20px auto"
+        >
           <thead>
             <tr>
-              <th v-for="(t, i) in option.dataset[0].source[0]" :key="i">
+              <th v-for="(t, i) in getDatasetRows(chartOption)[0]" :key="i">
                 {{ t }}
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, i) in option.dataset[0].source.slice(1)" :key="i">
+            <tr
+              v-for="(row, rowIndex) in getDatasetRows(chartOption).slice(1)"
+              :key="rowIndex"
+            >
               <th>{{ row[0] }}</th>
-              <td v-for="(v, i) in row.slice(1)" :key="i">{{ v }}</td>
+              <td v-for="(value, cellIndex) in row.slice(1)" :key="cellIndex">
+                {{ value }}
+              </td>
             </tr>
           </tbody>
         </table>
       </template>
-    </v-chart>
+    </VChart>
     <template #extra>
       <p class="actions">
-        Custom tooltip on
+        Tooltip axis
         <select v-model="axis">
-          <option value="xAxis">X Axis</option>
-          <option value="yAxis">Y Axis</option>
+          <option value="xAxis">X axis</option>
+          <option value="yAxis">Y axis</option>
         </select>
       </p>
     </template>
-  </v-example>
+  </VExample>
 </template>
 
 <style scoped>

@@ -1,13 +1,13 @@
-function random() {
+import type { Option } from "../../src/types";
+import { DEMO_TEXT_STYLE } from "../constants";
+
+function random(): number {
   return Math.round(300 + Math.random() * 700) / 10;
 }
 
-export default function getData() {
-  return {
-    textStyle: {
-      fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-      fontWeight: 300,
-    },
+export default function getData(): Option {
+  const option = {
+    textStyle: { ...DEMO_TEXT_STYLE },
     dataset: {
       dimensions: ["Product", "2015", "2016", "2017"],
       source: [
@@ -39,8 +39,8 @@ export default function getData() {
     },
     xAxis: { type: "category" },
     yAxis: {},
-    // Declare several bar series, each will be mapped
-    // to a column of dataset.source by default.
     series: [{ type: "bar" }, { type: "bar" }, { type: "bar" }],
-  };
+  } satisfies Option;
+
+  return option;
 }
