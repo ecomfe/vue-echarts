@@ -21,6 +21,9 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
+      - name: Install Playwright
+        run: pnpm run test:setup:ci
+
       - name: Install Node.js
         uses: actions/setup-node@v5
         with:
