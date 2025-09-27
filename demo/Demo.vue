@@ -96,7 +96,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
       <a href="https://github.com/ecomfe/vue-echarts">Vue ECharts</a>
     </h1>
     <p class="desc">Vue.js component for Apache ECharts™.</p>
-    <p>
+    <p class="badges">
       <a href="https://npmjs.com/package/vue-echarts"
         ><img alt="npm version" src="https://img.shields.io/npm/v/vue-echarts"
       /></a>
@@ -268,6 +268,15 @@ h3 {
   }
 }
 
+.badges {
+  display: flex;
+  gap: var(--space-2);
+
+  a {
+    display: flex;
+  }
+}
+
 p small {
   font-size: 0.8rem;
   color: var(--muted);
@@ -317,14 +326,14 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: calc(var(--space-1) * 2.5);
   margin: 3.5rem 0 1.6rem;
   color: var(--muted);
 }
 .examples-head .examples-deco {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: calc(var(--space-1) * 2.5);
   color: inherit;
   text-decoration: none;
 }
@@ -347,13 +356,13 @@ textarea {
 
 .toolbar {
   position: fixed;
-  top: 16px;
-  left: 16px;
+  top: var(--space-4);
+  left: var(--space-4);
   z-index: 1000;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--r-l);
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface) 50%, transparent);
@@ -367,7 +376,7 @@ textarea {
   display: inline-flex;
   align-items: stretch;
   gap: 0;
-  padding: 2px;
+  padding: calc(var(--space-1) * 0.5);
   border: 1px solid var(--border);
   border-radius: var(--r-m);
   background: var(--surface);
@@ -378,11 +387,11 @@ textarea {
 
 .toggle .indicator {
   position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  border-radius: calc(var(--r-m) - 3px);
+  top: calc(var(--space-1) * 0.75);
+  bottom: calc(var(--space-1) * 0.75);
+  left: calc(var(--space-1) * 0.75);
+  width: calc(50% - var(--space-1) * 0.75);
+  border-radius: calc(var(--r-m) - var(--space-1) * 0.75);
   background: color-mix(in srgb, var(--accent) 18%, var(--surface) 82%);
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -403,7 +412,6 @@ textarea {
   background: none;
   color: var(--muted);
   font-size: 0.875rem;
-  font-weight: 500;
   transition: color 0.2s ease;
   display: inline-flex;
   align-items: center;
@@ -438,7 +446,6 @@ textarea {
 }
 
 .codegen {
-  font-weight: 500;
   padding: 0 1rem;
 }
 
@@ -448,11 +455,11 @@ textarea {
 
 @media (max-width: 640px) {
   body {
-    padding-bottom: 96px;
+    padding-bottom: calc(var(--space-1) * 24);
   }
 
   .examples-head .examples-deco {
-    gap: 8px;
+    gap: var(--space-2);
   }
   .examples-head .examples-deco .rule {
     width: 36px;
@@ -460,11 +467,11 @@ textarea {
 
   .toolbar {
     top: auto;
-    bottom: 20px;
+    bottom: calc(var(--space-1) * 5);
     left: 50%;
     transform: translateX(-50%);
-    gap: 8px;
-    padding: 6px 10px;
+    gap: var(--space-2);
+    padding: calc(var(--space-1) * 1.5) calc(var(--space-1) * 2.5);
     border-radius: var(--r-m);
   }
 
@@ -477,11 +484,11 @@ textarea {
   }
 
   .toggle .indicator {
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    width: calc(50% - 2px);
-    border-radius: calc(var(--r-m) - 4px);
+    top: calc(var(--space-1) * 0.5);
+    bottom: calc(var(--space-1) * 0.5);
+    left: calc(var(--space-1) * 0.5);
+    width: calc(50% - var(--space-1) * 0.5);
+    border-radius: calc(var(--r-m) - var(--space-1));
   }
 
   .codegen {
@@ -572,12 +579,9 @@ input:not([type="checkbox"]):not([type="radio"]) {
   line-height: 1.2;
 }
 
-button {
-  cursor: pointer;
-  font-weight: 500;
-}
-
-select {
+button,
+select,
+label {
   cursor: pointer;
 }
 
@@ -683,49 +687,6 @@ x-vue-echarts {
     border: 1px solid var(--border);
     border-radius: var(--r-s);
     box-shadow: var(--shadow);
-  }
-}
-
-@media (max-width: 980px) {
-  p {
-    select {
-      text-indent: calc(50% - 1rem);
-    }
-
-    button,
-    input,
-    select,
-    label {
-      flex: 1 0;
-      margin: 0 0.5rem;
-      max-width: 40vw;
-      font-size: 0.8rem;
-    }
-
-    input[type="checkbox"] {
-      display: none;
-
-      &:checked + label {
-        background: color-mix(in srgb, var(--accent) 30%, var(--surface) 70%);
-        border-color: color-mix(in srgb, var(--accent) 45%, var(--border) 55%);
-        color: var(--surface);
-      }
-
-      & + label {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 0.75rem;
-        height: 2.25rem;
-        border: 1px solid var(--border);
-        border-radius: var(--r-m);
-        background: var(--surface);
-        transition:
-          background-color 0.15s ease,
-          color 0.15s ease,
-          border-color 0.15s ease;
-      }
-    }
   }
 }
 

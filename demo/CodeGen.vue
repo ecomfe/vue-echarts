@@ -458,14 +458,14 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 16px;
-  padding: 16px;
+  gap: var(--space-4);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--border);
 
   label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
     color: var(--muted);
   }
 
@@ -513,8 +513,8 @@ onBeforeUnmount(() => {
 
 .copy {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: var(--space-2);
+  top: var(--space-2);
   border-radius: var(--r-m);
   border: 1px solid var(--border);
 }
@@ -524,8 +524,8 @@ onBeforeUnmount(() => {
   z-index: 2147483647;
   bottom: 2rem;
   left: 50%;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--text);
+  padding: var(--space-2) var(--space-3);
+  background-color: color-mix(in srgb, var(--text) 88%, var(--surface) 12%);
   box-shadow: var(--shadow);
   color: var(--surface);
   font-size: 0.875rem;
@@ -535,6 +535,20 @@ onBeforeUnmount(() => {
   transition:
     transform 0.2s,
     opacity 0.2s;
+}
+
+html.dark .message {
+  background-color: color-mix(
+    in srgb,
+    var(--surface) 72%,
+    var(--border) 28%
+  );
+  color: var(--heading);
+  border: 1px solid color-mix(
+    in srgb,
+    var(--border) 45%,
+    transparent 55%
+  );
 }
 
 .message.open {

@@ -78,14 +78,14 @@ const badges = computed<string[]>(() => {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
   margin-top: 0.5rem;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: calc(var(--space-1) * 1.5);
   padding: 0.26rem 0.72rem;
   font-weight: 500;
   font-size: 0.78rem;
@@ -120,8 +120,113 @@ const badges = computed<string[]>(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: calc(var(--space-1) * 2);
+}
+
+.actions > * {
+  margin: 0;
+}
+
+.actions input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.actions input[type="checkbox"] + label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  height: 2.25rem;
+  border-radius: var(--r-m);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--heading);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.actions input[type="checkbox"] + label::before {
+  content: "";
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: calc(var(--r-s) * 0.9);
+  border: 2px solid color-mix(in srgb, var(--accent) 35%, var(--border) 65%);
+  background-color: var(--surface);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 95%;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    background-image 0.2s ease;
+}
+
+.actions input[type="checkbox"] + label:hover {
+  border-color: var(--border);
+  background: var(--surface-2);
+}
+
+.actions input[type="checkbox"]:checked + label {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border) 30%);
+  color: var(--accent-strong);
+}
+
+.actions input[type="checkbox"]:checked + label::before {
+  border-color: var(--accent-strong);
+  background-color: var(--accent-strong);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20fill='%23ffffff'%20d='M13.6%204.2a.75.75%200%2000-1.2-.9L6.8%2010%204.1%207.3a.75.75%200%2010-1.2%201l3.2%203.2c.3.3.8.3%201.1%200l6.4-7.3Z'/%3E%3C/svg%3E");
+}
+
+.actions input[type="checkbox"]:focus-visible + label {
+  outline: none;
+  border-color: var(--accent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .actions {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .actions button,
+  .actions select,
+  .actions input[type="checkbox"] + label {
+    width: auto;
+    min-width: min(150px, 100%);
+    font-size: 0.84rem;
+    height: 2.25rem;
+  }
+
+  .actions select {
+    text-align-last: center;
+  }
+
+  .actions button,
+  .actions select {
+    padding-inline: var(--space-2);
+  }
+
+  .actions input[type="checkbox"] + label {
+    padding: 0 var(--space-2);
+  }
 }
 
 @media (max-width: 980px) {
@@ -149,7 +254,7 @@ const badges = computed<string[]>(() => {
     }
 
     & + & {
-      margin-left: 30px;
+      margin-left: calc(var(--space-1) * 7.5);
     }
   }
 }

@@ -34,7 +34,7 @@ watch(isDark, colorize);
 <style scoped>
 .code-block {
   margin: 0;
-  padding: 12px;
+  padding: var(--space-3);
   font-size: 13px;
   line-height: 1.4;
   overflow: auto;

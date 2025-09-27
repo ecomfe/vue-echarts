@@ -145,7 +145,7 @@ function getDatasetRows(option: Option): Array<string | number>[] {
       <template #dataView="chartOption">
         <table
           v-if="getDatasetRows(chartOption).length"
-          style="margin: 20px auto"
+          style="margin: var(--space-5) auto"
         >
           <thead>
             <tr>
@@ -183,6 +183,6 @@ function getDatasetRows(option: Option): Array<string | number>[] {
 <style scoped>
 th,
 td {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
 }
 </style>

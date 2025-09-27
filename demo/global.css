@@ -60,7 +60,7 @@
   /* Focus */
   --focus: 0 0 0 2px var(--ring);
 
-  /* Radius & spacing (8px scale) */
+  /* Radius & spacing (4px base scale) */
   --r-s: 4px;
   --r-m: 8px;
   --r-l: 12px;
