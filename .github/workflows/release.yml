@@ -30,8 +30,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build
+        run: pnpm run build
+
       - name: Install Playwright
-        run: pnpm run test:setup:ci
+        run: pnpm run test:setup
+
+      - name: Test
+        run: pnpm run test
 
       - name: Extract release notes
         run: pnpm releaselog --format=notes ${{ github.ref_name }} > RELEASE_NOTES.md
@@ -43,12 +49,6 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Test
-        run: pnpm run test
-
-      - name: Build
-        run: pnpm run build
 
       - name: Get dist tag
         id: tag

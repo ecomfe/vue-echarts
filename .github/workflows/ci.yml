@@ -28,23 +28,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install Playwright
-        run: pnpm run test:setup:ci
-
       - name: Lint
         run: pnpm run lint
 
       - name: Typecheck
         run: pnpm run typecheck && pnpm run dev:typecheck
 
-      - name: Test
-        run: pnpm run test:coverage
-
       - name: Build
         run: pnpm run build
 
       - name: Publint
         run: pnpm run publint
+
+      - name: Install Playwright
+        run: pnpm run test:setup
+
+      - name: Test
+        run: pnpm run test:coverage
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
