@@ -1,3 +1,10 @@
+## 8.0.1
+
+### Fixes
+
+- Clarified that `manual-update` and reactive `option` updates are mutually exclusive—manual charts now ignore prop changes after the first render.
+- Optimized the slot handling logic.
+
 ## 8.0.0
 
 ### Breaking changes
