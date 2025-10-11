@@ -7,7 +7,7 @@ import {
   resetECharts,
   type ChartStub,
 } from "./helpers/mock";
-import type { UpdateOptions } from "../src/types";
+import type { InitOptions, Option, UpdateOptions } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
 import ECharts, { UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
@@ -74,9 +74,9 @@ describe("ECharts component", () => {
     const manualOption = { series: [{ type: "bar", data: [1, 2, 3] }] };
     exposed.value.setOption(manualOption);
 
-    expect(chartStub.setOption).toHaveBeenCalledTimes(2);
-    expect(chartStub.setOption.mock.calls[1][0]).toMatchObject(manualOption);
-    expect(chartStub.setOption.mock.calls[1][1]).toEqual({});
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
+    expect(chartStub.setOption.mock.calls[0][1]).toEqual({});
   });
 
   it("ignores setOption when manual-update is false", async () => {
@@ -91,8 +91,110 @@ describe("ECharts component", () => {
       exposed.value.setOption({ title: { text: "ignored" } }, true);
       expect(chartStub.setOption).toHaveBeenCalledTimes(initialCalls);
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("[vue-echarts] setOption is only available"),
+        expect.stringContaining(
+          "[vue-echarts] `setOption` is only available when `manual-update` is `true`.",
+        ),
       );
+    });
+  });
+
+  it("warns when option prop changes in manual-update mode", async () => {
+    const option = ref({ title: { text: "initial" } });
+    const exposed = shallowRef<any>();
+
+    renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
+    await nextTick();
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+      // noop
+    });
+
+    option.value = { title: { text: "next" } };
+    await nextTick();
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain(
+      "[vue-echarts] `option` prop changes are ignored when `manual-update` is `true`.",
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  it("does not replay manual option after initOptions-triggered reinit", async () => {
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const exposed = shallowRef<any>();
+
+    renderChart(
+      () => ({ manualUpdate: true, initOptions: initOptions.value }),
+      exposed,
+    );
+    await nextTick();
+
+    const manualOption: Option = {
+      title: { text: "manual" },
+      series: [{ type: "bar", data: [1, 2, 3] }],
+    };
+
+    exposed.value.setOption(manualOption);
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+
+    initOptions.value = { renderer: "svg" as const };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).not.toHaveBeenCalled();
+  });
+
+  it("re-initializes manual chart from option prop after reinit", async () => {
+    const option = ref<Required<Option>>({
+      title: { text: "base" },
+      series: [{ type: "bar", data: [1] }],
+    });
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const exposed = shallowRef<any>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        manualUpdate: true,
+        initOptions: initOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "base" },
+    });
+
+    chartStub.setOption.mockClear();
+
+    const manualOption: Option = {
+      title: { text: "manual" },
+      series: [{ type: "bar", data: [2] }],
+    };
+
+    exposed.value.setOption(manualOption);
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+
+    initOptions.value = { renderer: "svg" as const };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "base" },
     });
   });
 
@@ -173,6 +275,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "initial" } });
     const manualUpdate = ref(true);
     const exposed = shallowRef<any>();
+    const firstStub = chartStub;
 
     renderChart(
       () => ({
@@ -183,14 +286,33 @@ describe("ECharts component", () => {
     );
     await nextTick();
 
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(firstStub.setOption).toHaveBeenCalledTimes(1);
+    expect(firstStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "initial" },
+    });
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+      // noop
+    });
 
     option.value = { title: { text: "manual" } };
     await nextTick();
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(firstStub.setOption).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain(
+      "[vue-echarts] `option` prop changes are ignored when `manual-update` is `true`.",
+    );
+    warnSpy.mockClear();
 
+    const replacementStub = enqueueChart();
     manualUpdate.value = false;
+    chartStub = replacementStub;
     await nextTick();
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "manual" },
+    });
 
     option.value = { title: { text: "reactive" } };
     await nextTick();
@@ -199,6 +321,8 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[1][0]).toMatchObject({
       title: { text: "reactive" },
     });
+
+    warnSpy.mockRestore();
   });
 
   it("uses injected updateOptions defaults when not provided via props", async () => {
@@ -511,6 +635,26 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
   });
 
+  it("applies option when nested data mutates", async () => {
+    const option = ref<Option>({
+      series: [{ type: "bar", data: [1, 2, 3] }],
+    });
+    const exposed = shallowRef<any>();
+
+    renderChart(() => ({ option: option.value }), exposed);
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+
+    (option.value!.series as any)[0].data.push(4);
+    await nextTick();
+
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+      series: [{ data: [1, 2, 3, 4] }],
+    });
+  });
+
   it("honors override.replaceMerge in update options", async () => {
     const option = ref({ series: [{ type: "bar", data: [1] }] });
     const exposed = shallowRef<any>();
@@ -674,12 +818,28 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
 
     // Toggle to manual mode; watcher should be cleaned up (unwatchOption branch)
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
     manual.value = true;
+    chartStub = replacementStub;
     await nextTick();
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    chartStub.setOption.mockClear();
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+      // noop
+    });
 
     chartStub.setOption.mockClear();
     option.value = { title: { text: "reactive-2" } } as any;
     await nextTick();
     expect(chartStub.setOption).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain(
+      "[vue-echarts] `option` prop changes are ignored when `manual-update` is `true`.",
+    );
+
+    warnSpy.mockRestore();
   });
 });

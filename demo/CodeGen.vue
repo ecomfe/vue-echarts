@@ -538,17 +538,9 @@ onBeforeUnmount(() => {
 }
 
 html.dark .message {
-  background-color: color-mix(
-    in srgb,
-    var(--surface) 72%,
-    var(--border) 28%
-  );
+  background-color: color-mix(in srgb, var(--surface) 72%, var(--border) 28%);
   color: var(--heading);
-  border: 1px solid color-mix(
-    in srgb,
-    var(--border) 45%,
-    transparent 55%
-  );
+  border: 1px solid color-mix(in srgb, var(--border) 45%, transparent 55%);
 }
 
 .message.open {

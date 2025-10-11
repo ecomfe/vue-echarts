@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildSignature, planUpdate } from "../src/smart-update";
+import { buildSignature, planUpdate } from "../src/update";
 import type { EChartsOption } from "echarts";
 
 describe("smart-update", () => {

@@ -16,6 +16,7 @@ export function createEChartsModule() {
 
 export interface ChartStub {
   setOption: ReturnType<typeof vi.fn>;
+  getOption: ReturnType<typeof vi.fn>;
   resize: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
   isDisposed: ReturnType<typeof vi.fn>;
@@ -36,9 +37,15 @@ export function createChartStub(): ChartStub {
     on: vi.fn(),
     off: vi.fn(),
   };
+  let lastOption: unknown;
+
+  const setOption = vi.fn((option: unknown) => {
+    lastOption = option;
+  });
 
   return {
-    setOption: vi.fn(),
+    setOption,
+    getOption: vi.fn(() => lastOption),
     resize: vi.fn(),
     dispose: vi.fn(),
     isDisposed: vi.fn(() => false),
