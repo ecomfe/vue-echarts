@@ -121,7 +121,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
         // Traverse to the parent of the leaf, cloning or creating along the way
         let cur: Record<string, unknown> | undefined = root;
         for (let i = 0; i < path.length - 1; i++) {
-          cur = cur && ensureChild(cur, path[i]);
+          cur = ensureChild(cur, path[i]);
           if (!cur) {
             return; // Blocked by a primitive — skip this key
           }

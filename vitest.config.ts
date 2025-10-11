@@ -13,6 +13,7 @@ export default mergeConfig(
         provider: "v8",
         reporter: ["text", "lcov", "html"],
         include: ["src/**/*.{ts,tsx,js,jsx,vue}"],
+        exclude: ["src/types.ts"],
         reportsDirectory: "coverage/browser",
       },
       browser: {
