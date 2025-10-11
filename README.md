@@ -155,7 +155,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   #### Smart Update
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner.
-  - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in.
+  - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in and are not carried across re-initializations.
   - Otherwise, Vue ECharts analyses the change: removed objects become `null`, removed arrays become `[]` with `replaceMerge`, ID/anonymous deletions trigger `replaceMerge`, and risky changes fall back to `notMerge: true`.
 
 - `update-options: object`
@@ -184,7 +184,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `manual-update: boolean` (default: `false`)
 
-  For performance critical scenarios (having a large dataset) we'd better bypass Vue's reactivity system for `option` prop. By specifying `manual-update` prop with `true` and not providing `option` prop, the dataset won't be watched any more. After doing so, you need to retrieve the component instance with `ref` and manually call `setOption` method to update the chart (manual `setOption` calls are ignored when `manual-update` is `false`).
+  Handy for performance-sensitive charts (large or high-frequency updates). When set to `true`, Vue only uses the `option` prop for the initial render; later prop changes do nothing and you must drive updates via `setOption` on a template ref. If the chart re-initializes (for example due to `init-options` changes, flipping `manual-update`, or a remount), the manual state is discarded and the chart is rendered again from the current `option` value.
 
 ### Events
 
@@ -245,7 +245,7 @@ Vue ECharts support the following events:
   - `zr:dblclick`
   - `zr:contextmenu`
 
-See supported events [here →](https://echarts.apache.org/en/api.html#events)
+See supported events in the [ECharts API reference →](https://echarts.apache.org/en/api.html#events)
 
 #### Native DOM Events
 
@@ -339,7 +339,7 @@ export default {
 
 Vue ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
 
-**Slot Naming Convention**
+#### Slot Naming Convention
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
 - Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).

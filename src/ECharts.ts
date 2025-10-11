@@ -11,7 +11,6 @@ import {
   nextTick,
   watchEffect,
   toValue,
-  warn,
 } from "vue";
 import { init as initChart } from "echarts/core";
 import type { EChartsOption } from "echarts";
@@ -25,10 +24,10 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { isOn, omitOn } from "./utils";
+import { isOn, omitOn, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
-import { planUpdate } from "./smart-update";
-import type { Signature, UpdatePlan } from "./smart-update";
+import { planUpdate } from "./update";
+import type { Signature, UpdatePlan } from "./update";
 
 import type { PropType, InjectionKey } from "vue";
 import type {
@@ -81,7 +80,6 @@ export default defineComponent({
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
-    const realOption = computed(() => props.option || {});
     const realTheme = computed(() => props.theme || toValue(defaultTheme));
     const realInitOptions = computed(
       () => props.initOptions || toValue(defaultInitOptions) || undefined,
@@ -186,7 +184,7 @@ export default defineComponent({
         listeners.set({ event, zr, once }, attrs[key]);
       });
 
-    function init(option?: Option, manual = false, override?: UpdateOptions) {
+    function init() {
       if (!root.value) {
         return;
       }
@@ -235,10 +233,17 @@ export default defineComponent({
       }
 
       function commit() {
-        const opt = option || realOption.value;
-        if (opt) {
-          applyOption(instance, opt, override, manual);
-          override = undefined;
+        const { option } = props;
+
+        if (manualUpdate.value) {
+          if (option) {
+            applyOption(instance, option, undefined, true);
+          }
+          return;
+        }
+
+        if (option) {
+          applyOption(instance, option);
         }
       }
 
@@ -259,9 +264,7 @@ export default defineComponent({
       lazyUpdate?: boolean,
     ) => {
       if (!props.manualUpdate) {
-        warn(
-          "[vue-echarts] setOption is only available when manual-update is true.",
-        );
+        warn("`setOption` is only available when `manual-update` is `true`.");
         return;
       }
 
@@ -283,40 +286,32 @@ export default defineComponent({
       lastSignature = undefined;
     }
 
-    let unwatchOption: (() => void) | null = null;
     watch(
-      manualUpdate,
-      (manualUpdate) => {
-        if (typeof unwatchOption === "function") {
-          unwatchOption();
-          unwatchOption = null;
+      () => props.option,
+      (option) => {
+        if (!option) {
+          lastSignature = undefined;
+          return;
         }
 
-        if (!manualUpdate) {
-          unwatchOption = watch(
-            () => props.option,
-            (option) => {
-              if (!option) {
-                lastSignature = undefined;
-                return;
-              }
-              if (!chart.value) {
-                return;
-              }
-
-              applyOption(chart.value, option);
-            },
-            { deep: true },
+        if (manualUpdate.value) {
+          warn(
+            "`option` prop changes are ignored when `manual-update` is `true`.",
           );
+          return;
         }
+
+        if (!chart.value) {
+          return;
+        }
+
+        applyOption(chart.value, option);
       },
-      {
-        immediate: true,
-      },
+      { deep: true },
     );
 
     watch(
-      realInitOptions,
+      [manualUpdate, realInitOptions],
       () => {
         cleanup();
         init();

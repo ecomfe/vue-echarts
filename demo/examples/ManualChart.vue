@@ -7,7 +7,7 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { shallowRef } from "vue";
-import type { InitOptions, LoadingOptions, Option } from "../../src/types";
+import type { LoadingOptions, Option } from "../../src/types";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import worldMap from "../data/world.json";
@@ -40,7 +40,7 @@ function isFlightDataset(value: unknown): value is FlightDataset {
 
 const chart = shallowRef<ChartInstance | null>(null);
 const loading = shallowRef(false);
-const loaded = shallowRef(false);
+const flightData = shallowRef<FlightDataset | null>(null);
 
 const loadingOptions: LoadingOptions = {
   text: "",
@@ -50,80 +50,89 @@ const loadingOptions: LoadingOptions = {
   zlevel: 0,
 };
 
-const initOptions: InitOptions = {
-  renderer: "canvas",
-};
+async function load(): Promise<FlightDataset> {
+  if (flightData.value) {
+    return flightData.value;
+  }
 
-function load(): void {
-  loaded.value = true;
   loading.value = true;
 
-  import("../data/flight.json").then(({ default: rawData }) => {
-    if (!isFlightDataset(rawData)) {
-      loading.value = false;
-      return;
-    }
+  const { default: data } = await import("../data/flight.json");
 
-    loading.value = false;
+  loading.value = false;
 
-    const getAirportCoord = (index: number): [number, number] => [
-      rawData.airports[index][3],
-      rawData.airports[index][4],
-    ];
+  if (!isFlightDataset(data)) {
+    throw new Error("Invalid flight dataset");
+  }
 
-    type Route = [[number, number], [number, number]];
-    const routes = rawData.routes.map<Route>(([, from, to]) => {
-      const fromCoord = getAirportCoord(from);
-      const toCoord = getAirportCoord(to);
-      return [fromCoord, toCoord];
-    });
+  flightData.value = data;
 
-    chart.value?.setOption({
-      textStyle: { ...DEMO_TEXT_STYLE },
-      title: {
-        text: "World Flights",
-        top: "5%",
-        left: "center",
-        textStyle: {
-          color: "#eee",
-        },
-      },
-      backgroundColor: "#003",
-      tooltip: {
-        formatter({ dataIndex }: { dataIndex: number }) {
-          const route = rawData.routes[dataIndex];
-          const fromName = rawData.airports[route[1]][1];
-          const toName = rawData.airports[route[2]][1];
-          return `${fromName} > ${toName}`;
-        },
-      },
-      geo: {
-        map: "world",
-        top: "15%",
-        right: "5%",
-        bottom: "5%",
-        left: "5%",
-        silent: true,
-        itemStyle: {
-          borderColor: "#003",
-          color: "#005",
-        },
-      },
-      series: [
-        {
-          type: "lines",
-          coordinateSystem: "geo",
-          data: routes,
-          lineStyle: {
-            opacity: 0.05,
-            width: 0.5,
-            curveness: 0.3,
-          },
-          blendMode: "lighter",
-        },
-      ],
-    } satisfies Option);
+  return data;
+}
+
+async function render(): Promise<void> {
+  let data = flightData.value;
+  if (!data) {
+    data = await load();
+  }
+
+  const getAirportCoord = (index: number): [number, number] => [
+    data.airports[index][3],
+    data.airports[index][4],
+  ];
+
+  type Route = [[number, number], [number, number]];
+  const routes = data.routes.map<Route>(([, from, to]) => {
+    const fromCoord = getAirportCoord(from);
+    const toCoord = getAirportCoord(to);
+    return [fromCoord, toCoord];
   });
+
+  chart.value?.setOption({
+    textStyle: { ...DEMO_TEXT_STYLE },
+    title: {
+      text: "World Flights",
+      top: "5%",
+      left: "center",
+      textStyle: {
+        color: "#eee",
+      },
+    },
+    backgroundColor: "#003",
+    tooltip: {
+      formatter({ dataIndex }: { dataIndex: number }) {
+        const route = data.routes[dataIndex];
+        const fromName = data.airports[route[1]][1];
+        const toName = data.airports[route[2]][1];
+        return `${fromName} > ${toName}`;
+      },
+    },
+    geo: {
+      map: "world",
+      top: "15%",
+      right: "5%",
+      bottom: "5%",
+      left: "5%",
+      silent: true,
+      itemStyle: {
+        borderColor: "#003",
+        color: "#005",
+      },
+    },
+    series: [
+      {
+        type: "lines",
+        coordinateSystem: "geo",
+        data: routes,
+        lineStyle: {
+          opacity: 0.05,
+          width: 0.5,
+          curveness: 0.3,
+        },
+        blendMode: "lighter",
+      },
+    ],
+  } satisfies Option);
 }
 </script>
 
@@ -134,7 +143,6 @@ function load(): void {
       autoresize
       :loading="loading"
       :loading-options="loadingOptions"
-      :init-options="initOptions"
       style="background-color: #003"
       manual-update
     />
@@ -144,7 +152,7 @@ function load(): void {
         use cases.
       </p>
       <p class="actions">
-        <button :disabled="loaded" @click="load">Load</button>
+        <button :disabled="loading" @click="render">Load</button>
       </p>
     </template>
   </VExample>

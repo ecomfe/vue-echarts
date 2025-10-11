@@ -6,11 +6,10 @@ import {
   onMounted,
   shallowRef,
   shallowReactive,
-  warn,
 } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
-import { isBrowser, isValidArrayIndex, isSameSet } from "../utils";
+import { isBrowser, isValidArrayIndex, isSameSet, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 
 const SLOT_OPTION_PATHS = {
@@ -52,7 +51,11 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
               return h(
                 "div",
                 {
-                  ref: (el) => (containers[slotName] = el as HTMLElement),
+                  ref: (el) => {
+                    if (el instanceof HTMLElement) {
+                      containers[slotName] = el;
+                    }
+                  },
                   style: { display: "contents" },
                 },
                 slotContent,
@@ -62,38 +65,68 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       : undefined;
   };
 
-  // Shallow-clone the option along the path and override the target callback
+  // Helper to check if a value is a plain object
+  function isObject(val: unknown): val is Record<string, unknown> {
+    return val !== null && typeof val === "object" && !Array.isArray(val);
+  }
+
+  // Shallow-clone the option along each path and override the target callback
   function patchOption(src: Option): Option {
-    const root = { ...src };
+    const root = { ...src } as Record<string, unknown>;
+
+    // Ensure the child at `seg` is a writable container (cloned or newly created).
+    // Returns the child container, or undefined if traversal is blocked by a primitive.
+    const ensureChild = (
+      parent: Record<string, unknown>,
+      seg: string,
+    ): Record<string, unknown> | undefined => {
+      const next = parent[seg];
+
+      if (Array.isArray(next)) {
+        parent[seg] = [...next];
+        return parent[seg] as Record<string, unknown>;
+      }
+      if (isObject(next)) {
+        parent[seg] = { ...next };
+        return parent[seg] as Record<string, unknown>;
+      }
+      if (next === undefined) {
+        parent[seg] = isValidArrayIndex(seg) ? [] : {};
+        return parent[seg] as Record<string, unknown>;
+      }
+      // Blocked by a non-container value
+      return undefined;
+    };
 
     Object.keys(slots)
       .filter((key) => {
-        const isValidSlot = isValidSlotName(key);
-        if (!isValidSlot) {
-          warn(`Invalid vue-echarts slot name: ${key}`);
+        const valid = isValidSlotName(key);
+        if (!valid) {
+          warn(`Invalid slot name: ${key}`);
         }
-        return isValidSlot;
+        return valid;
       })
       .forEach((key) => {
-        const path = key.split("-");
-        const prefix = path.shift() as SlotPrefix;
-        path.push(...SLOT_OPTION_PATHS[prefix]);
-
-        let cur: any = root;
-        for (let i = 0; i < path.length - 1; i++) {
-          const seg = path[i];
-          const next = cur[seg];
-
-          // Shallow-clone the link; create empty shell if missing
-          cur[seg] = next
-            ? Array.isArray(next)
-              ? [...next]
-              : { ...next }
-            : isValidArrayIndex(seg)
-              ? []
-              : {};
-          cur = cur[seg];
+        const [prefix, ...rest] = key.split("-") as [SlotPrefix, ...string[]];
+        const tail = SLOT_OPTION_PATHS[prefix];
+        if (!tail) {
+          return;
         }
+
+        const path = [...rest, ...tail];
+        if (path.length === 0) {
+          return;
+        }
+
+        // Traverse to the parent of the leaf, cloning or creating along the way
+        let cur: Record<string, unknown> | undefined = root;
+        for (let i = 0; i < path.length - 1; i++) {
+          cur = cur && ensureChild(cur, path[i]);
+          if (!cur) {
+            return; // Blocked by a primitive — skip this key
+          }
+        }
+
         cur[path[path.length - 1]] = (p: unknown) => {
           initialized[key] = true;
           params[key] = p;
@@ -101,7 +134,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
         };
       });
 
-    return root;
+    return root as Option;
   }
 
   // `slots` is not reactive, so we need to watch it manually

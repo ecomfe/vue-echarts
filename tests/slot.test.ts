@@ -188,7 +188,7 @@ describe("useSlotOption", () => {
       const patched: any = exposed.value!.patchOption({});
       const flattened = warnSpy.mock.calls.flat().join(" ");
 
-      expect(flattened).toContain("Invalid vue-echarts slot name: legend");
+      expect(flattened).toContain("[vue-echarts] Invalid slot name: legend");
       expect(patched.legend).toBeUndefined();
       expect(changeSpy).not.toHaveBeenCalled();
     });
@@ -222,6 +222,20 @@ describe("useSlotOption", () => {
 
     await nextTick();
     expect(container?.textContent).toBe("series-0");
+  });
+
+  it("skips slot patch when path is blocked by non-object", async () => {
+    const { exposed } = renderSlotComponent(() => ({
+      "tooltip-series-0": () => [h("span", "series-0")],
+    }));
+
+    await nextTick();
+
+    const option = { series: 1 as any };
+    const patched = exposed.value!.patchOption(option);
+
+    expect(patched.series).toBe(1);
+    expect(typeof patched.series).toBe("number");
   });
 
   it("creates array shells when target slot path is missing", async () => {

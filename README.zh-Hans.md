@@ -155,7 +155,7 @@ app.component('VChart', VueECharts)
 
   #### 智能更新
   - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。
-  - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数。
+  - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数，重新初始化后不会保留这些调用的效果。
   - 其他情况下，Vue ECharts 会分析差异：删除的对象写入 `null`，删除的数组写入 `[]` 并加入 `replaceMerge`，ID/匿名项减少时追加 `replaceMerge`，风险较高的变更会退回 `notMerge: true`。
 
 - `update-options: object`
@@ -182,9 +182,9 @@ app.component('VChart', VueECharts)
 
   Inject 键名：`LOADING_OPTIONS_KEY`。
 
-- `manual-update: boolean`（默认值`false`）
+- `manual-update: boolean`（默认值 `false`）
 
-  在性能敏感（数据量很大）的场景下，我们最好对于 `option` prop 绕过 Vue 的响应式系统。当将 `manual-update` 指定为 `true` 且不传入 `option` prop 时，数据将不会被监听。此时需要用 `ref` 获取组件实例并手动调用 `setOption` 来更新图表（当 `manual-update` 为 `false` 时，手动调用 `setOption` 会被忽略）。
+  适用于性能敏感的场景（例如 `option` 很大或更新频繁）。设为 `true` 时，`option` 只参与首次渲染，后续的 prop 变更不会触发图表更新，需要你通过模板 `ref` 手动调用 `setOption`。如果图表因为修改 `init-options`、切换 `manual-update` 或重新挂载而被重新初始化，之前通过 `setOption` 写入的状态会丢失，并重新使用当前的 `option` 值渲染。
 
 ### 事件
 
@@ -245,7 +245,7 @@ Vue ECharts 支持如下事件：
   - `zr:dblclick`
   - `zr:contextmenu`
 
-请参考支持的事件列表。[前往 →](https://echarts.apache.org/zh/api.html#events)
+更多事件说明可参考 [ECharts 官方事件文档 →](https://echarts.apache.org/zh/api.html#events)
 
 #### 原生 DOM 事件
 
@@ -330,7 +330,7 @@ export default {
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
 > [!NOTE]
-> 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [props](#props) 提供了：
+> 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [prop](#props) 提供了：
 >
 > - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
 > - [`setTheme`](https://echarts.apache.org/zh/api.html#echartsInstance.setTheme)：请使用 `theme` prop。
@@ -339,7 +339,7 @@ export default {
 
 Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
 
-**插槽命名约定**
+#### 插槽命名约定
 
 - 插槽名称以 `tooltip`/`dataView` 开头，后面跟随用连字符分隔的路径片段，用于定位目标。
 - 每个路径片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。

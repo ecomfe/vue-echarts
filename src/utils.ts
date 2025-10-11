@@ -1,3 +1,5 @@
+import { warn as vueWarn } from "vue";
+
 type Attrs = Record<string, any>;
 
 export function isBrowser(): boolean {
@@ -34,10 +36,14 @@ export function isSameSet<T>(a: T[], b: T[]): boolean {
   const setA = new Set(a);
   const setB = new Set(b);
 
-  if (setA.size !== setB.size) return false;
+  if (setA.size !== setB.size) {
+    return false;
+  }
 
   for (const val of setA) {
-    if (!setB.has(val)) return false;
+    if (!setB.has(val)) {
+      return false;
+    }
   }
 
   return true;
@@ -45,4 +51,10 @@ export function isSameSet<T>(a: T[], b: T[]): boolean {
 
 export function isPlainObject(v: unknown): v is Record<string, unknown> {
   return v != null && typeof v === "object" && !Array.isArray(v);
+}
+
+const LOG_PREFIX = "[vue-echarts]";
+
+export function warn(message: string): void {
+  vueWarn(`${LOG_PREFIX} ${message}`);
 }
