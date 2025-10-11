@@ -151,7 +151,7 @@ describe("ECharts component", () => {
   });
 
   it("re-initializes manual chart from option prop after reinit", async () => {
-    const option = ref<Required<Option>>({
+    const option = ref<Option>({
       title: { text: "base" },
       series: [{ type: "bar", data: [1] }],
     });
