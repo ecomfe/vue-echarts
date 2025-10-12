@@ -16,7 +16,7 @@ npm install echarts vue-echarts
 
 #### 示例
 
-<details>
+<details open>
 <summary><a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
@@ -101,7 +101,7 @@ const option = ref({
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/codegen-dark.webp">
   <source media="(prefers-color-scheme: light)" srcset="assets/codegen-light.webp">
-  <img alt="一个用于生成 ECharts 导入代码的弹窗。左侧面板展示图表的 JSON 配置，右侧面板展示对应的 TypeScript 导入语句。" src="assets/codegen-light.webp" height="200">
+  <img alt="一个用于生成 ECharts 导入代码的弹窗。左侧面板展示图表的 JSON 配置，右侧面板展示对应的 TypeScript 导入语句。" src="assets/codegen-light.webp">
 </picture>
 
 [试一试 →](https://vue-echarts.dev/#codegen)

@@ -16,7 +16,7 @@ npm install echarts vue-echarts
 
 #### Example
 
-<details>
+<details open>
 <summary><a href="https://stackblitz.com/edit/vue-echarts-8?file=src%2FApp.vue">Demo →</a></summary>
 
 ```vue
@@ -101,7 +101,7 @@ To keep your bundle size small, we recommend manually importing the components a
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/codegen-dark.webp">
   <source media="(prefers-color-scheme: light)" srcset="assets/codegen-light.webp">
-  <img alt="A modal for generating ECharts import code. The left panel shows a chart configuration in JSON, while the right panel displays TypeScript import statements for ECharts charts and components." src="assets/codegen-light.webp" height="200">
+  <img alt="A modal for generating ECharts import code. The left panel shows a chart configuration in JSON, while the right panel displays TypeScript import statements for ECharts charts and components." src="assets/codegen-light.webp">
 </picture>
 
 [Try it →](https://vue-echarts.dev/#codegen)
