@@ -6,7 +6,7 @@
 
 > Still using Vue 2? Read v7 docs [here →](https://github.com/ecomfe/vue-echarts/tree/7.x)
 
-## Installation & Usage
+## Installation & usage
 
 ### npm
 
@@ -94,12 +94,17 @@ const option = ref({
 
 </details>
 
-> [!IMPORTANT]
-> We encourage manually importing components and charts from ECharts for smaller bundle size. We've built an [import code generator](https://vue-echarts.dev/#codegen) to help you with that. You can just paste in your `option` code and we'll generate the precise import code for you.
->
-> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
->
-> [Try it →](https://vue-echarts.dev/#codegen)
+#### On-demand importing <img src="https://img.shields.io/badge/recommended-10B981" alt="recommended">
+
+To keep your bundle size small, we recommend manually importing the components and charts you need from ECharts. To make this easier, we’ve created an [import code generator](https://vue-echarts.dev/#codegen). Simply paste your `option` code into the tool, and it will generate the exact import statements for you.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/codegen-dark.webp">
+  <source media="(prefers-color-scheme: light)" srcset="assets/codegen-light.webp">
+  <img alt="A modal for generating ECharts import code. The left panel shows a chart configuration in JSON, while the right panel displays TypeScript import statements for ECharts charts and components." src="assets/codegen-light.webp" height="200">
+</picture>
+
+[Try it →](https://vue-echarts.dev/#codegen)
 
 But if you really want to import the whole ECharts bundle without having to import modules manually, just add this in your code:
 
@@ -153,7 +158,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   ECharts' universal interface. Modifying this prop triggers Vue ECharts to compute an update plan and call `setOption`. Read more [here →](https://echarts.apache.org/en/option.html)
 
-  #### Smart Update
+  #### Smart update
+
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner.
   - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in and are not carried across re-initializations.
   - Otherwise, Vue ECharts analyses the change: removed objects become `null`, removed arrays become `[]` with `replaceMerge`, ID/anonymous deletions trigger `replaceMerge`, and risky changes fall back to `notMerge: true`.
@@ -247,7 +253,7 @@ Vue ECharts support the following events:
 
 See supported events in the [ECharts API reference →](https://echarts.apache.org/en/api.html#events)
 
-#### Native DOM Events
+#### Native DOM events
 
 As Vue ECharts binds events to the ECharts instance by default, there is some caveat when using native DOM events. You need to prefix the event name with `native:` to bind native DOM events.
 
@@ -257,7 +263,7 @@ As Vue ECharts binds events to the ECharts instance by default, there is some ca
 </template>
 ```
 
-### Provide / Inject
+### Provide / inject
 
 Vue ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:
 
@@ -335,11 +341,11 @@ export default {
 > - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
 > - [`setTheme`](https://echarts.apache.org/en/api.html#echartsInstance.setTheme): use the `theme` prop instead.
 
-### Slots
+### Slots <img src="https://img.shields.io/badge/new-A855F7" alt="new">
 
 Vue ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
 
-#### Slot Naming Convention
+#### Slot naming convention
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
 - Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
@@ -405,7 +411,7 @@ The slot props correspond to the first parameter of the callback function.
 > [!NOTE]
 > Slots take precedence over the corresponding callback defined in `props.option`.
 
-### Static Methods
+### Static methods
 
 Static methods can be accessed from [`echarts` itself](https://echarts.apache.org/en/api.html#echarts).
 

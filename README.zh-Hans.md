@@ -94,12 +94,17 @@ const option = ref({
 
 </details>
 
-> [!IMPORTANT]
-> 我们鼓励手动从 ECharts 中引入组件和图表，以减小打包体积。我们已经为此构建了一个[导入代码生成器](https://vue-echarts.dev/#codegen)。你只需要把`option` 代码粘贴进去，就可以得到精确的导入代码。
->
-> ![](https://github.com/ecomfe/vue-echarts/assets/1726061/f9c38a06-3422-4f0e-ab8c-f242d9aea9aa)
->
-> [试一试 →](https://vue-echarts.dev/#codegen)
+#### 按需导入 <img src="https://img.shields.io/badge/%E6%8E%A8%E8%8D%90-10B981" alt="推荐">
+
+为了减小打包体积，我们建议手动从 ECharts 中导入所需的组件和图表。我们提供了一个[导入代码生成器](https://vue-echarts.dev/#codegen)，可以帮你自动生成导入语句。只需将你的 `option` 代码粘贴进去，工具就会为你生成精确的导入代码。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/codegen-dark.webp">
+  <source media="(prefers-color-scheme: light)" srcset="assets/codegen-light.webp">
+  <img alt="一个用于生成 ECharts 导入代码的弹窗。左侧面板展示图表的 JSON 配置，右侧面板展示对应的 TypeScript 导入语句。" src="assets/codegen-light.webp" height="200">
+</picture>
+
+[试一试 →](https://vue-echarts.dev/#codegen)
 
 但如果你实在需要全量引入 ECharts 从而无需手动引入模块，只需要在代码中添加：
 
@@ -335,7 +340,7 @@ export default {
 > - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
 > - [`setTheme`](https://echarts.apache.org/zh/api.html#echartsInstance.setTheme)：请使用 `theme` prop。
 
-### 插槽（Slots）
+### 插槽 <img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能">
 
 Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
 
