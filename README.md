@@ -94,7 +94,7 @@ const option = ref({
 
 </details>
 
-#### On-demand importing <sup><a href="#on-demand-importing"><img src="https://img.shields.io/badge/recommended-10B981" alt="recommended" align="middle" height="16"></a></sup>
+#### On-demand importing <sup><a href="#on-demand-importing-"><img src="https://img.shields.io/badge/recommended-10B981" alt="recommended" align="middle" height="16"></a></sup>
 
 To keep your bundle size small, we recommend manually importing the components and charts you need from ECharts. To make this easier, we’ve created an [import code generator](https://vue-echarts.dev/#codegen). Simply paste your `option` code into the tool, and it will generate the exact import statements for you.
 
@@ -341,7 +341,7 @@ export default {
 > - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
 > - [`setTheme`](https://echarts.apache.org/en/api.html#echartsInstance.setTheme): use the `theme` prop instead.
 
-### Slots <sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
+### Slots <sup><a href="#slots-"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
 
 Vue ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
 
