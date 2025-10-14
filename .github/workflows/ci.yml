@@ -53,3 +53,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/browser/lcov.info
           disable_search: true
+
+      - name: Publish the commit
+        run: pnpm dlx pkg-pr-new publish --compact
