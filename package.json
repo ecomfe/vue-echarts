@@ -44,7 +44,7 @@
     "vue": "^3.3.0"
   },
   "devDependencies": {
-    "@types/node": "^22.17.1",
+    "@types/node": "^24.0.0",
     "@typescript-eslint/utils": "^8.39.1",
     "@vercel/analytics": "^1.5.0",
     "@vitejs/plugin-vue": "^6.0.1",
