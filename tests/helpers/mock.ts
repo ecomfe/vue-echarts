@@ -1,7 +1,14 @@
 import { vi } from "vitest";
 
-type InitFn = (typeof import("echarts/core"))["init"];
-type ThrottleFn = (typeof import("echarts/core"))["throttle"];
+import type { Mock } from "vitest";
+import type {
+  init as echartsInit,
+  throttle as echartsThrottle,
+} from "echarts/core";
+import type { EChartsType } from "../../src/types";
+
+type InitFn = typeof echartsInit;
+type ThrottleFn = typeof echartsThrottle;
 type Throttled = ReturnType<ThrottleFn>;
 
 export const init = vi.fn<InitFn>();
@@ -14,18 +21,33 @@ export function createEChartsModule() {
   } satisfies Partial<Record<string, unknown>>;
 }
 
-export interface ChartStub {
-  setOption: ReturnType<typeof vi.fn>;
-  getOption: ReturnType<typeof vi.fn>;
-  resize: ReturnType<typeof vi.fn>;
-  dispose: ReturnType<typeof vi.fn>;
-  isDisposed: ReturnType<typeof vi.fn>;
-  getZr: ReturnType<typeof vi.fn>;
-  on: ReturnType<typeof vi.fn>;
-  off: ReturnType<typeof vi.fn>;
-  setTheme: ReturnType<typeof vi.fn>;
-  showLoading: ReturnType<typeof vi.fn>;
-  hideLoading: ReturnType<typeof vi.fn>;
+type ZRenderStub = {
+  on: Mock;
+  off: Mock;
+};
+
+type MockedMethod<T> = T extends (...args: infer Args) => infer R
+  ? Mock<(...args: Args) => R>
+  : never;
+
+type ChartMethodKeys =
+  | "setOption"
+  | "resize"
+  | "dispose"
+  | "isDisposed"
+  | "setTheme"
+  | "showLoading"
+  | "hideLoading";
+
+type ChartMethodMocks = {
+  [K in ChartMethodKeys]: MockedMethod<EChartsType[K]>;
+};
+
+export interface ChartStub extends ChartMethodMocks {
+  getOption: Mock<() => unknown>;
+  getZr: Mock<() => ZRenderStub>;
+  on: Mock<(event: string, handler: (...args: unknown[]) => void) => void>;
+  off: Mock<(event: string, handler: (...args: unknown[]) => void) => void>;
   group: string | undefined;
 }
 
@@ -33,18 +55,16 @@ const queue: ChartStub[] = [];
 let cursor = 0;
 
 export function createChartStub(): ChartStub {
-  const zr = {
+  const zr: ZRenderStub = {
     on: vi.fn(),
     off: vi.fn(),
   };
   let lastOption: unknown;
 
-  const setOption = vi.fn((option: unknown) => {
-    lastOption = option;
-  });
-
   return {
-    setOption,
+    setOption: vi.fn((option: unknown) => {
+      lastOption = option;
+    }),
     getOption: vi.fn(() => lastOption),
     resize: vi.fn(),
     dispose: vi.fn(),
