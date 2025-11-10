@@ -73,7 +73,7 @@
     "unplugin-raw": "^0.6.0",
     "vite": "npm:rolldown-vite@latest",
     "vitest": "^3.2.4",
-    "vitest-browser-vue": "^1.1.0",
+    "vitest-browser-vue": "^2.0.0",
     "vue": "^3.5.18",
     "vue-tsc": "^3.0.5"
   },
