@@ -11,4 +11,5 @@ vi.mock("echarts/core", () => createEChartsModule());
 afterEach(() => {
   cleanup();
   resetDocumentBody();
+  vi.clearAllMocks();
 });
