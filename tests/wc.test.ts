@@ -6,15 +6,11 @@ declare global {
   }
 }
 
-type LoadOptions = { suffix?: string };
-
-const loadModule = (() => {
-  let counter = 0;
-  return async (mode: "stub" | "native", options?: LoadOptions) => {
-    const suffix = options?.suffix ?? `${mode}-${++counter}`;
-    return import(/* @vite-ignore */ `../src/wc?${suffix}`);
-  };
-})();
+const loadModule = async () => {
+  const mod = await import("../src/wc");
+  mod.__resetRegisterState();
+  return mod;
+};
 
 describe("register", () => {
   describe("with stubbed customElements", () => {
@@ -58,7 +54,7 @@ describe("register", () => {
         undefined as unknown as CustomElementRegistry,
       );
 
-      const { register } = await loadModule("stub");
+      const { register } = await loadModule();
 
       expect(register()).toBe(false);
       expect(register()).toBe(false);
@@ -71,7 +67,7 @@ describe("register", () => {
         define() {},
       } as unknown as CustomElementRegistry);
 
-      const { register } = await loadModule("stub", { suffix: "no-get" });
+      const { register } = await loadModule();
       expect(register()).toBe(false);
       expect(register()).toBe(false);
     });
@@ -79,7 +75,7 @@ describe("register", () => {
     it("registers the custom element once", async () => {
       const defineSpy = vi.spyOn(registry, "define");
 
-      const { register, TAG_NAME } = await loadModule("stub");
+      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
       expect(defineSpy).toHaveBeenCalledTimes(1);
@@ -95,17 +91,17 @@ describe("register", () => {
         throw new Error("boom");
       });
 
-      const { register, TAG_NAME } = await loadModule("stub");
+      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
-      expect(register()).toBe(false);
+      expect(register()).toBe(false)
       expect(defineSpy).toHaveBeenCalledTimes(1);
       expect(registry.get(TAG_NAME)).toBeUndefined();
     });
 
     it("skips redefinition when element already registered", async () => {
       const existing = class extends HTMLElement {};
-      const { register, TAG_NAME } = await loadModule("stub");
+      const { register, TAG_NAME } = await loadModule();
       registry.define(TAG_NAME, existing);
 
       const defineSpy = vi.spyOn(registry, "define");
@@ -116,7 +112,7 @@ describe("register", () => {
     });
 
     it("exposes a constructor with disconnect hook", async () => {
-      const { register, TAG_NAME } = await loadModule("stub");
+      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
 
@@ -130,6 +126,7 @@ describe("register", () => {
     let original: CustomElementConstructor | undefined;
 
     beforeEach(() => {
+      vi.resetModules();
       vi.restoreAllMocks();
       vi.unstubAllGlobals();
       original = customElements.get("x-vue-echarts");
@@ -144,7 +141,7 @@ describe("register", () => {
     });
 
     it("disposes chart when element is removed from DOM", async () => {
-      const { register, TAG_NAME } = await loadModule("native");
+      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
 

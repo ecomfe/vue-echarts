@@ -181,4 +181,47 @@ describe("useAutoresize", () => {
 
     scope.stop();
   });
+
+  it("skips the initial resize callback when dimensions are unchanged", async () => {
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+    const container = createSizedContainer(160, 90);
+
+    const originalRO = globalThis.ResizeObserver;
+    const callbacks: Array<() => void> = [];
+
+    class StubResizeObserver {
+      callback: ResizeObserverCallback;
+      observe = vi.fn();
+      disconnect = vi.fn();
+
+      constructor(cb: ResizeObserverCallback) {
+        this.callback = cb;
+        callbacks.push(() => cb([], this as unknown as ResizeObserver));
+      }
+    }
+
+    (globalThis as any).ResizeObserver = StubResizeObserver as any;
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(
+        chart as Ref<EChartsType | undefined>,
+        autoresize as Ref<AutoResize | undefined>,
+        root as Ref<HTMLElement | undefined>,
+      );
+    });
+
+    chart.value = { resize } as unknown as EChartsType;
+    root.value = container;
+    await nextTick();
+
+    callbacks[0]?.();
+    expect(resize).not.toHaveBeenCalled();
+
+    scope.stop();
+    (globalThis as any).ResizeObserver = originalRO;
+  });
 });

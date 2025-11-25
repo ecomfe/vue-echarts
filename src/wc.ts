@@ -43,3 +43,8 @@ export function register(): boolean {
   registered = true;
   return registered;
 }
+
+// Test helper to reset cached registration state.
+export function __resetRegisterState(): void {
+  registered = null;
+}
