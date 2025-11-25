@@ -109,14 +109,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       .forEach((key) => {
         const [prefix, ...rest] = key.split("-") as [SlotPrefix, ...string[]];
         const tail = SLOT_OPTION_PATHS[prefix];
-        if (!tail) {
-          return;
-        }
-
         const path = [...rest, ...tail];
-        if (path.length === 0) {
-          return;
-        }
 
         // Traverse to the parent of the leaf, cloning or creating along the way
         let cur: Record<string, unknown> | undefined = root;

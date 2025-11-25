@@ -413,7 +413,13 @@ describe("ECharts component", () => {
     await nextTick();
 
     chartStub.dispose.mockClear();
-    exposed.value.root.value = undefined;
+    Object.defineProperty(exposed.value.root, "value", {
+      configurable: true,
+      get: () => undefined,
+      set: () => {
+        /* ignore */
+      },
+    });
 
     screen.unmount();
     await nextTick();
@@ -841,5 +847,35 @@ describe("ECharts component", () => {
     );
 
     warnSpy.mockRestore();
+  });
+
+  it("ignores falsy listeners during event binding", async () => {
+    const option = ref({});
+    const exposed = shallowRef<any>();
+
+    renderChart(
+      () => ({ option: option.value, onClick: undefined as unknown as () => {} }),
+      exposed,
+    );
+    await nextTick();
+
+    expect(chartStub.on).not.toHaveBeenCalled();
+  });
+
+  it("skips option watcher when chart instance is missing", async () => {
+    const option = ref<any>(null);
+    const exposed = shallowRef<any>();
+
+    init.mockImplementation(() => undefined as any);
+
+    renderChart(() => ({ option: option.value }), exposed);
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+
+    option.value = { title: { text: "later" } };
+    await nextTick();
+
+    expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 });

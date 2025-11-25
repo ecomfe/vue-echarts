@@ -43,6 +43,20 @@ describe("smart-update", () => {
       expect(summary?.idsSorted).toEqual(["1", "2"]);
       expect(summary?.noIdCount).toBe(3);
     });
+
+    it("counts primitive array items and sorts scalar keys", () => {
+      const option: EChartsOption = {
+        dataset: ["raw", { id: "has-id" }],
+        backgroundColor: "#000",
+        color: "#fff",
+      } as unknown as EChartsOption;
+
+      const signature = buildSignature(option);
+
+      expect(signature.arrays.dataset?.noIdCount).toBe(1);
+      expect(signature.arrays.dataset?.idsSorted).toEqual(["has-id"]);
+      expect(signature.scalars).toEqual(["backgroundColor", "color"]);
+    });
   });
 
   describe("planUpdate", () => {
@@ -363,6 +377,38 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toEqual(["series"]);
         expect(result.plan.notMerge).toBe(false);
         expect(result.option.series).not.toEqual(base.series);
+      });
+
+      it("adds replaceMerge when ids disappear entirely", () => {
+        const base: EChartsOption = {
+          series: [
+            { id: "espresso", type: "bar" },
+            { id: "mocha", type: "line" },
+          ],
+        };
+
+        const update: EChartsOption = {
+          series: [{ type: "bar" }, { type: "line" }],
+        };
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.replaceMerge).toEqual(["series"]);
+        expect(result.option.series).toEqual(update.series);
+      });
+
+      it("ignores undefined array summaries carried over in previous signatures", () => {
+        const base: EChartsOption = {
+          series: [{ id: "flat-white", type: "bar" }],
+        };
+
+        const prev = buildSignature(base);
+        (prev.arrays as Record<string, unknown>).phantom = undefined;
+
+        const result = planUpdate(prev, base);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toBeUndefined();
       });
     });
   });

@@ -185,10 +185,6 @@ export default defineComponent({
       });
 
     function init() {
-      if (!root.value) {
-        return;
-      }
-
       const instance = (chart.value = initChart(
         root.value,
         realTheme.value,
@@ -355,6 +351,7 @@ export default defineComponent({
         // transition.
         root.value.__dispose = cleanup;
       } else {
+        /* c8 ignore next */
         cleanup();
       }
     });
