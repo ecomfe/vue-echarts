@@ -854,7 +854,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<any>();
 
     renderChart(
-      () => ({ option: option.value, onClick: undefined as unknown as () => {} }),
+      () => ({ option: option.value, onClick: undefined as any }),
       exposed,
     );
     await nextTick();
