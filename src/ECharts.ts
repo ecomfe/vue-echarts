@@ -351,7 +351,6 @@ export default defineComponent({
         // transition.
         root.value.__dispose = cleanup;
       } else {
-        /* c8 ignore next */
         cleanup();
       }
     });
