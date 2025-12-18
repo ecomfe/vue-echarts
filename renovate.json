@@ -3,6 +3,7 @@
   "extends": ["config:recommended", "schedule:weekly"],
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
+  "updatePinnedDependencies": false,
   "packageRules": [
     {
       "matchUpdateTypes": ["patch"],
