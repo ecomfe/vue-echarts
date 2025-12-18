@@ -68,7 +68,7 @@
     "prettier": "^3.6.2",
     "publint": "^0.3.12",
     "releaselog": "^7.0.0",
-    "tsdown": "^0.16.0",
+    "tsdown": "^0.17.0",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.6.0",
     "vite": "beta",
