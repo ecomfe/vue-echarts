@@ -1,9 +1,6 @@
 import { vi } from "vitest";
 
-export function createSizedContainer(
-  width = 100,
-  height = 100,
-): HTMLDivElement {
+export function createSizedContainer(width = 100, height = 100): HTMLDivElement {
   const element = document.createElement("div");
   element.style.width = `${width}px`;
   element.style.height = `${height}px`;
@@ -19,9 +16,7 @@ export async function flushAnimationFrame(): Promise<void> {
   await Promise.resolve();
 }
 
-export function withConsoleWarn<T>(
-  callback: (warnSpy: ReturnType<typeof vi.spyOn>) => T,
-): T {
+export function withConsoleWarn<T>(callback: (warnSpy: ReturnType<typeof vi.spyOn>) => T): T {
   const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
   try {

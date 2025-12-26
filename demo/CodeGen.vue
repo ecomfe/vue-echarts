@@ -394,11 +394,7 @@ onBeforeUnmount(() => {
         </label>
         <label>
           Max length
-          <input
-            v-model.number="codegenOptions.maxLen"
-            type="number"
-            step="10"
-          />
+          <input v-model.number="codegenOptions.maxLen" type="number" step="10" />
         </label>
       </section>
       <section class="code">
@@ -416,23 +412,12 @@ onBeforeUnmount(() => {
           aria-readonly="true"
           @copy="trackCopy('system')"
         ></div>
-        <button
-          class="copy"
-          :disabled="analysisState.hasBlockingIssue"
-          @click="copy"
-        >
-          Copy
-        </button>
+        <button class="copy" :disabled="analysisState.hasBlockingIssue" @click="copy">Copy</button>
       </section>
     </section>
   </aside>
 
-  <aside
-    class="message"
-    :class="{ open: messageOpen }"
-    role="status"
-    aria-live="polite"
-  >
+  <aside class="message" :class="{ open: messageOpen }" role="status" aria-live="polite">
     Copied to clipboard
   </aside>
 </template>

@@ -1,13 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import {
-  defineComponent,
-  h,
-  nextTick,
-  ref,
-  shallowRef,
-  watchEffect,
-  type PropType,
-} from "vue";
+import { defineComponent, h, nextTick, ref, shallowRef, watchEffect, type PropType } from "vue";
 import { render } from "./helpers/testing";
 
 import { useSlotOption } from "../src/composables/slot";
@@ -26,10 +18,7 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { teleportedSlots, patchOption } = useSlotOption(
-      ctx.slots,
-      props.onChange ?? (() => {}),
-    );
+    const { teleportedSlots, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
 
     ctx.expose({ patchOption, teleportedSlots });
 

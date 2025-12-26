@@ -23,9 +23,7 @@ type MethodName = (typeof METHOD_NAMES)[number];
 
 export type PublicMethods = Pick<EChartsType, MethodName>;
 
-export function usePublicAPI(
-  chart: Ref<EChartsType | undefined>,
-): PublicMethods {
+export function usePublicAPI(chart: Ref<EChartsType | undefined>): PublicMethods {
   function makePublicMethod<T extends MethodName>(name: T): EChartsType[T] {
     // Return a function that matches the signature of EChartsType[T]
     const fn = function (this: unknown, ...args: unknown[]): unknown {

@@ -9,9 +9,7 @@ describe("usePublicAPI", () => {
     const chart = ref<EChartsType | undefined>(undefined);
     const api = usePublicAPI(chart as Ref<EChartsType | undefined>);
 
-    expect(() => api.getWidth()).toThrowError(
-      "ECharts is not initialized yet.",
-    );
+    expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
 
     const chartImpl = {
       getWidth: vi.fn(() => 320),
@@ -53,10 +51,7 @@ describe("usePublicAPI", () => {
     const callArgs: Record<string, any[]> = {};
 
     methodNames.forEach((name) => {
-      chartImpl[name] = vi.fn(function (
-        this: Record<string, any>,
-        ...args: any[]
-      ) {
+      chartImpl[name] = vi.fn(function (this: Record<string, any>, ...args: any[]) {
         callArgs[name] = args;
         expect(this.marker).toBe("chart-instance");
         return `result:${name}`;
@@ -86,9 +81,9 @@ describe("usePublicAPI", () => {
     };
 
     methodNames.forEach((name) => {
-      const result = (
-        api[name as keyof PublicMethods] as (...args: any[]) => any
-      )(...argsByName[name]);
+      const result = (api[name as keyof PublicMethods] as (...args: any[]) => any)(
+        ...argsByName[name],
+      );
       expect(result).toBe(`result:${name}`);
       expect(chartImpl[name]).toHaveBeenCalledTimes(1);
       expect(callArgs[name]).toEqual(argsByName[name]);
@@ -110,8 +105,6 @@ describe("usePublicAPI", () => {
 
     chart.value = undefined;
 
-    expect(() => api.getWidth()).toThrowError(
-      "ECharts is not initialized yet.",
-    );
+    expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
   });
 });

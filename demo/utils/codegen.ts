@@ -15,9 +15,7 @@ interface FormatterOptions {
   type?: boolean;
 }
 
-type FormatterOptionsWithDefaults = Required<
-  Omit<FormatterOptions, "type" | "includeType">
-> &
+type FormatterOptionsWithDefaults = Required<Omit<FormatterOptions, "type" | "includeType">> &
   Pick<FormatterOptions, "type" | "includeType">;
 
 function isPlainObject(value: unknown): value is PlainObject {
@@ -327,10 +325,7 @@ function withDefaults(options: FormatterOptions): FormatterOptionsWithDefaults {
   };
 }
 
-function buildMinimalBundleCode(
-  deps: string[],
-  optionsInput: FormatterOptions,
-): string {
+function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions): string {
   const options = withDefaults(optionsInput);
 
   const chartsImports: string[] = [];
@@ -413,9 +408,7 @@ function buildMinimalBundleCode(
   const semiStr = options.semi ? ";" : "";
 
   getExtensionDeps(extensionImports, options.includeType).forEach((ext) => {
-    importStatements.push(
-      `import ${options.quote}${ext}${options.quote}${semiStr}`,
-    );
+    importStatements.push(`import ${options.quote}${ext}${options.quote}${semiStr}`);
   });
 
   if (options.includeType) {
@@ -446,10 +439,7 @@ ${options.includeType ? `\n${ECOptionTypeCode}` : ""}
 function getExtensionDeps(deps: string[], includeTypes?: boolean): string[] {
   return deps
     .filter((dep) => EXTENSIONS_MAP[dep])
-    .map(
-      (dep) =>
-        `echarts/extension${includeTypes ? "-src" : ""}/${EXTENSIONS_MAP[dep]}`,
-    );
+    .map((dep) => `echarts/extension${includeTypes ? "-src" : ""}/${EXTENSIONS_MAP[dep]}`);
 }
 
 /** import */
@@ -485,9 +475,7 @@ function importSingleLine(
   const typeStr = type ? "type " : "";
   const semiStr = semi ? ";" : "";
 
-  return `import ${typeStr}{ ${items.join(
-    ", ",
-  )} } from ${quote}${module}${quote}${semiStr}`;
+  return `import ${typeStr}{ ${items.join(", ")} } from ${quote}${module}${quote}${semiStr}`;
 }
 
 // import {
@@ -508,10 +496,7 @@ ${items.map((item) => `${indent}${item}`).join(",\n")}
 }
 
 /** use */
-function useItems(
-  items: string[],
-  options: FormatterOptionsWithDefaults,
-): string {
+function useItems(items: string[], options: FormatterOptionsWithDefaults): string {
   if (items.length === 0) {
     return "";
   }
@@ -531,10 +516,7 @@ function useItems(
 }
 
 // use([foo, bar])
-function useSingleLine(
-  items: string[],
-  { semi }: FormatterOptionsWithDefaults,
-): string {
+function useSingleLine(items: string[], { semi }: FormatterOptionsWithDefaults): string {
   const semiStr = semi ? ";" : "";
 
   return `use([${items.join(`, `)}])${semiStr}`;
@@ -544,10 +526,7 @@ function useSingleLine(
 //   foo,
 //   bar
 // ])
-function useMultiLine(
-  items: string[],
-  { indent, semi }: FormatterOptionsWithDefaults,
-): string {
+function useMultiLine(items: string[], { indent, semi }: FormatterOptionsWithDefaults): string {
   const semiStr = semi ? ";" : "";
 
   return `use([
@@ -556,10 +535,7 @@ ${items.map((item) => `${indent}${item}`).join(`,\n`)}
 }
 
 /** type */
-function typeItems(
-  items: string[],
-  options: FormatterOptionsWithDefaults,
-): string {
+function typeItems(items: string[], options: FormatterOptionsWithDefaults): string {
   const { multiline, maxLen } = options;
 
   if (items.length === 0) {
@@ -579,10 +555,7 @@ function typeItems(
 }
 
 // type EChartsOption = ComposeOption<FooOption | BarOption>
-function typeSingleLine(
-  items: string[],
-  { semi }: FormatterOptionsWithDefaults,
-): string {
+function typeSingleLine(items: string[], { semi }: FormatterOptionsWithDefaults): string {
   const semiStr = semi ? ";" : "";
 
   return `type EChartsOption = ComposeOption<${items.join(` | `)}>${semiStr}`;
@@ -592,10 +565,7 @@ function typeSingleLine(
 //   | FooOption
 //   | BarOption
 // >
-function typeMultiLine(
-  items: string[],
-  { indent, semi }: FormatterOptionsWithDefaults,
-): string {
+function typeMultiLine(items: string[], { indent, semi }: FormatterOptionsWithDefaults): string {
   const semiStr = semi ? ";" : "";
 
   return `type EChartsOption = ComposeOption<
@@ -611,8 +581,5 @@ export function getImportsFromOption(
   option: unknown,
   { renderer = "canvas", ...options }: PublicCodegenOptions = {},
 ): string {
-  return buildMinimalBundleCode(
-    [...collectDeps(option), RENDERERS_MAP[renderer]],
-    options,
-  );
+  return buildMinimalBundleCode([...collectDeps(option), RENDERERS_MAP[renderer]], options);
 }

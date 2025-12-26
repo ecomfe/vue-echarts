@@ -58,21 +58,12 @@ function convert(): void {
 
 <template>
   <VExample id="map" title="Map" desc="GeoJSON · image converter">
-    <VChart
-      ref="map"
-      :option="option"
-      autoresize
-      style="background-color: #404a59"
-    />
+    <VChart ref="map" :option="option" autoresize style="background-color: #404a59" />
     <template #extra>
       <p class="actions">
         <button @click="convert">Convert to image</button>
       </p>
-      <aside
-        class="modal"
-        :class="{ open: isModalOpen }"
-        @click="isModalOpen = false"
-      >
+      <aside class="modal" :class="{ open: isModalOpen }" @click="isModalOpen = false">
         <img
           v-if="snapshot"
           :src="snapshot.src"

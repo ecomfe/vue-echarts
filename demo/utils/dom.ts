@@ -44,8 +44,7 @@ export function getScrollbarWidth(): number {
     pointerEvents: "none",
   });
 
-  const rootScrollbarWidth =
-    getComputedStyle(root).getPropertyValue("scrollbar-width");
+  const rootScrollbarWidth = getComputedStyle(root).getPropertyValue("scrollbar-width");
   if (rootScrollbarWidth) {
     probe.style.setProperty("scrollbar-width", rootScrollbarWidth);
   }

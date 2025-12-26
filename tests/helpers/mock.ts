@@ -1,10 +1,7 @@
 import { vi } from "vitest";
 
 import type { Mock } from "vitest";
-import type {
-  init as echartsInit,
-  throttle as echartsThrottle,
-} from "echarts/core";
+import type { init as echartsInit, throttle as echartsThrottle } from "echarts/core";
 import type { EChartsType } from "../../src/types";
 
 type InitFn = typeof echartsInit;

@@ -1,12 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import {
-  isOn,
-  omitOn,
-  isValidArrayIndex,
-  isSameSet,
-  isPlainObject,
-} from "../src/utils";
+import { isOn, omitOn, isValidArrayIndex, isSameSet, isPlainObject } from "../src/utils";
 
 describe("utils", () => {
   describe("isOn", () => {

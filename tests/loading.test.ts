@@ -3,11 +3,7 @@ import { ref, nextTick, type Ref, defineComponent } from "vue";
 import { cleanup, render } from "vitest-browser-vue/pure";
 
 import { useLoading, LOADING_OPTIONS_KEY } from "../src/composables/loading";
-import type {
-  EChartsType,
-  LoadingOptions,
-  LoadingOptionsInjection,
-} from "../src/types";
+import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../src/types";
 
 afterEach(() => {
   cleanup();

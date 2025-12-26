@@ -32,9 +32,7 @@ export const useScoreStore = defineStore("store", () => {
       radar: {
         splitNumber: 4,
         indicator: scores.value.map(({ name, max }, index) =>
-          index === activeIndex
-            ? { name, max, color: "goldenrod" }
-            : { name, max },
+          index === activeIndex ? { name, max, color: "goldenrod" } : { name, max },
         ),
       },
       series: [

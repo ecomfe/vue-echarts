@@ -52,12 +52,8 @@ function readId(item: unknown): string | undefined {
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
-  const optionsLength = Array.isArray(opt.options)
-    ? (opt.options as unknown[]).length
-    : 0;
-  const mediaLength = Array.isArray(opt.media)
-    ? (opt.media as unknown[]).length
-    : 0;
+  const optionsLength = Array.isArray(opt.options) ? (opt.options as unknown[]).length : 0;
+  const mediaLength = Array.isArray(opt.media) ? (opt.media as unknown[]).length : 0;
 
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
   const objects: string[] = [];
@@ -107,10 +103,7 @@ export function buildSignature(option: Option): Signature {
   return { optionsLength, mediaLength, arrays, objects, scalars };
 }
 
-function diffKeys(
-  prevKeys: readonly string[],
-  nextKeys: readonly string[],
-): string[] {
+function diffKeys(prevKeys: readonly string[], nextKeys: readonly string[]): string[] {
   if (prevKeys.length === 0) {
     return [];
   }
@@ -131,10 +124,7 @@ function diffKeys(
   return missing;
 }
 
-function hasMissingIds(
-  prevIds: readonly string[],
-  nextIds: readonly string[],
-): boolean {
+function hasMissingIds(prevIds: readonly string[], nextIds: readonly string[]): boolean {
   if (prevIds.length === 0) {
     return false;
   }
@@ -161,10 +151,7 @@ export interface PlannedUpdate {
  * Produce an update plan plus a normalized option that encodes common deletions.
  * Falls back to `notMerge: true` when the change looks complex.
  */
-export function planUpdate(
-  prev: Signature | undefined,
-  option: Option,
-): PlannedUpdate {
+export function planUpdate(prev: Signature | undefined, option: Option): PlannedUpdate {
   const next = buildSignature(option);
 
   if (!prev) {
@@ -228,12 +215,9 @@ export function planUpdate(
     signature = buildSignature(normalizedOption);
   }
 
-  const replaceMerge =
-    replace.size > 0 ? Array.from(replace).sort() : undefined;
+  const replaceMerge = replace.size > 0 ? Array.from(replace).sort() : undefined;
 
-  const plan = replaceMerge
-    ? { notMerge: false, replaceMerge }
-    : { notMerge: false };
+  const plan = replaceMerge ? { notMerge: false, replaceMerge } : { notMerge: false };
 
   return {
     option: normalizedOption,

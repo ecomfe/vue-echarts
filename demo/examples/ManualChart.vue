@@ -147,10 +147,7 @@ async function render(): Promise<void> {
       manual-update
     />
     <template #extra>
-      <p>
-        You may use the <code>manual-update</code> prop for performance critical
-        use cases.
-      </p>
+      <p>You may use the <code>manual-update</code> prop for performance critical use cases.</p>
       <p class="actions">
         <button :disabled="loading" @click="render">Load</button>
       </p>

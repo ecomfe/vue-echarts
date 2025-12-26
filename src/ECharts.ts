@@ -50,8 +50,7 @@ const wcRegistered = register();
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
-export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> =
-  Symbol();
+export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables";
 
 export default defineComponent({
@@ -84,14 +83,11 @@ export default defineComponent({
     const realInitOptions = computed(
       () => props.initOptions || toValue(defaultInitOptions) || undefined,
     );
-    const realUpdateOptions = computed(
-      () => props.updateOptions || toValue(defaultUpdateOptions),
-    );
+    const realUpdateOptions = computed(() => props.updateOptions || toValue(defaultUpdateOptions));
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
 
-    const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> =
-      new Map();
+    const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> = new Map();
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
@@ -104,9 +100,7 @@ export default defineComponent({
     function resolveUpdateOptions(plan?: UpdatePlan): UpdateOptions {
       const result: UpdateOptions = {};
 
-      const replacements = (plan?.replaceMerge ?? []).filter(
-        (key): key is string => key != null,
-      );
+      const replacements = (plan?.replaceMerge ?? []).filter((key): key is string => key != null);
       if (replacements.length > 0) {
         result.replaceMerge = [...new Set(replacements)];
       }
@@ -139,10 +133,7 @@ export default defineComponent({
         return;
       }
 
-      const planned = planUpdate(
-        lastSignature,
-        patched as unknown as EChartsOption,
-      );
+      const planned = planUpdate(lastSignature, patched as unknown as EChartsOption);
 
       const updateOptions = resolveUpdateOptions(planned.plan);
       instance.setOption(planned.option, updateOptions);
@@ -254,18 +245,13 @@ export default defineComponent({
         commit();
       }
     }
-    const setOption: SetOptionType = (
-      option,
-      notMerge,
-      lazyUpdate?: boolean,
-    ) => {
+    const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {
       if (!props.manualUpdate) {
         warn("`setOption` is only available when `manual-update` is `true`.");
         return;
       }
 
-      const updateOptions =
-        typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
+      const updateOptions = typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
 
       if (!chart.value) {
         return;
@@ -291,9 +277,7 @@ export default defineComponent({
         }
 
         if (manualUpdate.value) {
-          warn(
-            "`option` prop changes are ignored when `manual-update` is `true`.",
-          );
+          warn("`option` prop changes are ignored when `manual-update` is `true`.");
           return;
         }
 

@@ -33,12 +33,8 @@ const diagnosticsOptions: monaco.languages.typescript.DiagnosticsOptions = {
   noSuggestionDiagnostics: true,
 };
 
-monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
-  diagnosticsOptions,
-);
-monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(
-  diagnosticsOptions,
-);
+monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
 monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
 
@@ -96,12 +92,7 @@ const MARKER_OWNER = "ve-codegen-option";
 
 export function createOptionEditor(
   container: HTMLElement,
-  {
-    initialCode,
-    language = "typescript",
-    onChange,
-    theme = "vs",
-  }: CreateOptionEditorOptions,
+  { initialCode, language = "typescript", onChange, theme = "vs" }: CreateOptionEditorOptions,
 ): OptionEditor {
   monaco.editor.setTheme(theme);
 
@@ -153,9 +144,7 @@ export function createOptionEditor(
     }
     const mapped = markers.map((marker) => ({
       ...marker,
-      severity: marker.severity
-        ? SEVERITY_MAP[marker.severity]
-        : monaco.MarkerSeverity.Error,
+      severity: marker.severity ? SEVERITY_MAP[marker.severity] : monaco.MarkerSeverity.Error,
     }));
     monaco.editor.setModelMarkers(model, MARKER_OWNER, mapped);
   }
@@ -186,11 +175,7 @@ export function createOptionEditor(
 
 export function createCodeViewer(
   container: HTMLElement,
-  {
-    initialCode,
-    language = "javascript",
-    theme = "vs",
-  }: CreateCodeViewerOptions,
+  { initialCode, language = "javascript", theme = "vs" }: CreateCodeViewerOptions,
 ): CodeViewer {
   monaco.editor.setTheme(theme);
 

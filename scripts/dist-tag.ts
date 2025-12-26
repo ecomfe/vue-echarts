@@ -7,8 +7,7 @@ import { join } from "node:path";
 
 // Prefer CLI arg, otherwise read package.json
 const version: string =
-  process.argv[2] ??
-  JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")).version;
+  process.argv[2] ?? JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")).version;
 
 // Capture first recognised prerelease label
 const tag = version.match(/-(alpha|beta|rc)\b/i)?.[1].toLowerCase() ?? "latest";

@@ -1,12 +1,4 @@
-import {
-  h,
-  Teleport,
-  onUpdated,
-  onUnmounted,
-  onMounted,
-  shallowRef,
-  shallowReactive,
-} from "vue";
+import { h, Teleport, onUpdated, onUnmounted, onMounted, shallowRef, shallowReactive } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
 import { isBrowser, isValidArrayIndex, isSameSet, warn } from "../utils";
@@ -22,9 +14,7 @@ type SlotRecord<T> = Partial<Record<SlotName, T>>;
 const SLOT_PREFIXES = Object.keys(SLOT_OPTION_PATHS) as SlotPrefix[];
 
 function isValidSlotName(key: string): key is SlotName {
-  return SLOT_PREFIXES.some(
-    (slotPrefix) => key === slotPrefix || key.startsWith(slotPrefix + "-"),
-  );
+  return SLOT_PREFIXES.some((slotPrefix) => key === slotPrefix || key.startsWith(slotPrefix + "-"));
 }
 
 export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
@@ -45,9 +35,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
             .filter(([key]) => isValidSlotName(key))
             .map(([key, slot]) => {
               const slotName = key as SlotName;
-              const slotContent = initialized[slotName]
-                ? slot?.(params[slotName])
-                : undefined;
+              const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
               return h(
                 "div",
                 {
@@ -163,9 +151,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 }
 
 export type SlotsTypes = SlotsType<
-  Record<
-    "tooltip" | `tooltip-${string}`,
-    TooltipComponentFormatterCallbackParams
-  > &
+  Record<"tooltip" | `tooltip-${string}`, TooltipComponentFormatterCallbackParams> &
     Record<"dataView" | `dataView-${string}`, Option>
 >;

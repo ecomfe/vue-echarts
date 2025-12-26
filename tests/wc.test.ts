@@ -36,10 +36,7 @@ describe("register", () => {
       vi.unstubAllGlobals();
 
       registry = new CustomElementRegistryStub();
-      vi.stubGlobal(
-        "customElements",
-        registry as unknown as CustomElementRegistry,
-      );
+      vi.stubGlobal("customElements", registry as unknown as CustomElementRegistry);
     });
 
     afterEach(() => {
@@ -49,10 +46,7 @@ describe("register", () => {
 
     it("returns false when custom elements are unavailable", async () => {
       vi.unstubAllGlobals();
-      vi.stubGlobal(
-        "customElements",
-        undefined as unknown as CustomElementRegistry,
-      );
+      vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
 
       const { register } = await loadModule();
 
@@ -94,7 +88,7 @@ describe("register", () => {
       const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
-      expect(register()).toBe(false)
+      expect(register()).toBe(false);
       expect(defineSpy).toHaveBeenCalledTimes(1);
       expect(registry.get(TAG_NAME)).toBeUndefined();
     });

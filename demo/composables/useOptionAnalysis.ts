@@ -61,9 +61,7 @@ export interface UseOptionAnalysisResult {
 
 const ANALYZE_DELAY = 120;
 
-export function useOptionAnalysis(
-  initialCode: string,
-): UseOptionAnalysisResult {
+export function useOptionAnalysis(initialCode: string): UseOptionAnalysisResult {
   const isBrowser = typeof window !== "undefined";
   const worker = isBrowser ? new OptionWorker() : null;
   const code = ref(initialCode);
@@ -102,8 +100,7 @@ export function useOptionAnalysis(
   };
 
   const handleMessage = (event: MessageEvent<WorkerMessage>) => {
-    const { id, diagnostics, issues, option, output, runtimeError, strategy } =
-      event.data;
+    const { id, diagnostics, issues, option, output, runtimeError, strategy } = event.data;
     if (id !== latestRequest) {
       return;
     }

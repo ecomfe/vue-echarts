@@ -15,10 +15,7 @@ describe("SSR environment", () => {
     const exposed = shallowRef<any>();
     const Probe = defineComponent({
       setup(_, ctx) {
-        const { teleportedSlots, patchOption } = useSlotOption(
-          ctx.slots,
-          () => {},
-        );
+        const { teleportedSlots, patchOption } = useSlotOption(ctx.slots, () => {});
         (ctx as any).expose({ teleportedSlots, patchOption });
         return () => h("div", teleportedSlots());
       },
@@ -31,11 +28,7 @@ describe("SSR environment", () => {
           if (r.value) exposed.value = r.value;
         });
         return () =>
-          h(
-            Probe,
-            { ref: (v: any) => (r.value = v) },
-            { tooltip: () => [h("span", "x")] },
-          );
+          h(Probe, { ref: (v: any) => (r.value = v) }, { tooltip: () => [h("span", "x")] });
       },
     });
 

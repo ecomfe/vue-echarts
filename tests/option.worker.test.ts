@@ -35,9 +35,7 @@ describe("option worker issues", () => {
   });
 
   it("reports syntax issues without exposing internals", async () => {
-    const result = await analyze(
-      "const option = { foo: 'bar';\nexport default option;",
-    );
+    const result = await analyze("const option = { foo: 'bar';\nexport default option;");
 
     expect(result.issues).not.toHaveLength(0);
     const issue = result.issues[0];
@@ -48,9 +46,7 @@ describe("option worker issues", () => {
   });
 
   it("captures runtime failures with user-friendly messages", async () => {
-    const result = await analyze(
-      "export default (() => { throw new Error('boom'); })();",
-    );
+    const result = await analyze("export default (() => { throw new Error('boom'); })();");
 
     const runtimeIssue = result.issues.find((item) => item.kind === "runtime");
     expect(runtimeIssue).toBeDefined();
@@ -68,15 +64,11 @@ describe("option worker issues", () => {
   });
 
   it("guides users when external imports cannot be resolved", async () => {
-    const result = await analyze(
-      "import data from './data';\nexport default { data };",
-    );
+    const result = await analyze("import data from './data';\nexport default { data };");
 
     const runtimeIssue = result.issues.find((item) => item.kind === "runtime");
     expect(runtimeIssue).toBeDefined();
-    expect(runtimeIssue?.message ?? "").toContain(
-      'Imports from "./data" can\'t be resolved',
-    );
+    expect(runtimeIssue?.message ?? "").toContain('Imports from "./data" can\'t be resolved');
     expect(runtimeIssue?.hint ?? "").toContain("Inline the referenced values");
     expect(result.option).toBeUndefined();
   });
@@ -86,12 +78,8 @@ describe("option worker issues", () => {
 
     const formatIssue = result.issues.find((item) => item.kind === "format");
     expect(formatIssue).toBeDefined();
-    expect(formatIssue?.message).toBe(
-      "The default export must be an ECharts option object.",
-    );
-    expect(formatIssue?.hint ?? "").toContain(
-      "Call the function and export its return value",
-    );
+    expect(formatIssue?.message).toBe("The default export must be an ECharts option object.");
+    expect(formatIssue?.hint ?? "").toContain("Call the function and export its return value");
     expect(result.option).toBeUndefined();
   });
 });

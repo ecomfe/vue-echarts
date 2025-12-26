@@ -143,10 +143,7 @@ function getDatasetRows(option: Option): Array<string | number>[] {
         <b>{{ getAxisLabel(params) }}</b>
       </template>
       <template #dataView="chartOption">
-        <table
-          v-if="getDatasetRows(chartOption).length"
-          style="margin: var(--space-5) auto"
-        >
+        <table v-if="getDatasetRows(chartOption).length" style="margin: var(--space-5) auto">
           <thead>
             <tr>
               <th v-for="(t, i) in getDatasetRows(chartOption)[0]" :key="i">
@@ -155,10 +152,7 @@ function getDatasetRows(option: Option): Array<string | number>[] {
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(row, rowIndex) in getDatasetRows(chartOption).slice(1)"
-              :key="rowIndex"
-            >
+            <tr v-for="(row, rowIndex) in getDatasetRows(chartOption).slice(1)" :key="rowIndex">
               <th>{{ row[0] }}</th>
               <td v-for="(value, cellIndex) in row.slice(1)" :key="cellIndex">
                 {{ value }}

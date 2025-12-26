@@ -159,7 +159,6 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
   ECharts' universal interface. Modifying this prop triggers Vue ECharts to compute an update plan and call `setOption`. Read more [here →](https://echarts.apache.org/en/option.html)
 
   #### Smart update
-
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner.
   - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in and are not carried across re-initializations.
   - Otherwise, Vue ECharts analyses the change: removed objects become `null`, removed arrays become `[]` with `replaceMerge`, ID/anonymous deletions trigger `replaceMerge`, and risky changes fall back to `notMerge: true`.

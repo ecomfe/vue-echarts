@@ -25,26 +25,12 @@ const option = computed(() => getRadarData(metricIndex.value));
     <template #extra>
       <p class="actions">
         <select v-model.number="metricIndex">
-          <option
-            v-for="(metric, index) in metrics"
-            :key="index"
-            :value="index"
-          >
+          <option v-for="(metric, index) in metrics" :key="index" :value="index">
             {{ metric }}
           </option>
         </select>
-        <button
-          :disabled="isMax(metricIndex)"
-          @click="increase(metricIndex, 1)"
-        >
-          Increase
-        </button>
-        <button
-          :disabled="isMin(metricIndex)"
-          @click="increase(metricIndex, -1)"
-        >
-          Decrease
-        </button>
+        <button :disabled="isMax(metricIndex)" @click="increase(metricIndex, 1)">Increase</button>
+        <button :disabled="isMin(metricIndex)" @click="increase(metricIndex, -1)">Decrease</button>
       </p>
     </template>
   </VExample>

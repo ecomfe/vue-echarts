@@ -24,12 +24,7 @@ export function omitOn(attrs: Attrs): Attrs {
 
 export function isValidArrayIndex(key: string): boolean {
   const num = Number(key);
-  return (
-    Number.isInteger(num) &&
-    num >= 0 &&
-    num < Math.pow(2, 32) - 1 &&
-    String(num) === key
-  );
+  return Number.isInteger(num) && num >= 0 && num < Math.pow(2, 32) - 1 && String(num) === key;
 }
 
 export function isSameSet<T>(a: T[], b: T[]): boolean {

@@ -1,12 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import { render } from "./helpers/testing";
-import {
-  init,
-  enqueueChart,
-  resetECharts,
-  type ChartStub,
-} from "./helpers/mock";
+import { init, enqueueChart, resetECharts, type ChartStub } from "./helpers/mock";
 import type { InitOptions, Option, UpdateOptions } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
 import ECharts, { UPDATE_OPTIONS_KEY } from "../src/ECharts";
@@ -25,10 +20,7 @@ describe("ECharts component", () => {
     const group = ref("group-a");
     const exposed = shallowRef<any>();
 
-    const screen = renderChart(
-      () => ({ option: option.value, group: group.value }),
-      exposed,
-    );
+    const screen = renderChart(() => ({ option: option.value, group: group.value }), exposed);
     await nextTick();
 
     expect(init).toHaveBeenCalledTimes(1);
@@ -63,10 +55,7 @@ describe("ECharts component", () => {
     const optionRef = ref();
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: optionRef.value, manualUpdate: true }),
-      exposed,
-    );
+    renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
     await nextTick();
 
     expect(typeof exposed.value?.setOption).toBe("function");
@@ -124,10 +113,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ manualUpdate: true, initOptions: initOptions.value }),
-      exposed,
-    );
+    renderChart(() => ({ manualUpdate: true, initOptions: initOptions.value }), exposed);
     await nextTick();
 
     const manualOption: Option = {
@@ -230,10 +216,7 @@ describe("ECharts component", () => {
     const initOptions = ref({ useDirtyRect: true });
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: option.value, initOptions: initOptions.value }),
-      exposed,
-    );
+    renderChart(() => ({ option: option.value, initOptions: initOptions.value }), exposed);
     await nextTick();
 
     const firstStub = chartStub;
@@ -256,10 +239,7 @@ describe("ECharts component", () => {
     const updateOptions = ref({ notMerge: true, replaceMerge: ["series"] });
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: option.value, updateOptions: updateOptions.value }),
-      exposed,
-    );
+    renderChart(() => ({ option: option.value, updateOptions: updateOptions.value }), exposed);
     await nextTick();
 
     expect(chartStub.setOption.mock.calls[0][1]).toBe(updateOptions.value);
@@ -368,10 +348,7 @@ describe("ECharts component", () => {
     const optionRef = ref({ title: { text: "initial" } });
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: optionRef.value, manualUpdate: true }),
-      exposed,
-    );
+    renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
     await nextTick();
 
     const replacement = enqueueChart();
@@ -507,9 +484,7 @@ describe("ECharts component", () => {
     );
     await nextTick();
 
-    const chartCall = chartStub.on.mock.calls.find(
-      (call: any[]) => call[0] === "click",
-    );
+    const chartCall = chartStub.on.mock.calls.find((call: any[]) => call[0] === "click");
     expect(chartCall).toBeTruthy();
     const chartListener = chartCall?.[1];
 
@@ -550,9 +525,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual(
-      expect.objectContaining({ replaceMerge: ["series"] }),
-    );
+    expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
   it("calls resize before commit when autoresize is true", async () => {
@@ -675,19 +648,14 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual(
-      expect.objectContaining({ replaceMerge: ["series"] }),
-    );
+    expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
   it("merges base updateOptions from props during reactive updates", async () => {
     const option = ref<any>({ title: { text: "merge-base" } });
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: option.value, updateOptions: { lazyUpdate: true } }),
-      exposed,
-    );
+    renderChart(() => ({ option: option.value, updateOptions: { lazyUpdate: true } }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -696,9 +664,7 @@ describe("ECharts component", () => {
     await nextTick();
 
     const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual(
-      expect.objectContaining({ lazyUpdate: true }),
-    );
+    expect(updateOptions).toEqual(expect.objectContaining({ lazyUpdate: true }));
   });
 
   it("sets __dispose on root during unmount when wcRegistered and cleanup runs via disconnectedCallback", async () => {
@@ -727,10 +693,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "mounted" } });
     const exposed = shallowRef<any>();
 
-    const screen = renderChart(
-      () => ({ option: option.value, manualUpdate: true }),
-      exposed,
-    );
+    const screen = renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
     await nextTick();
 
     const callsBefore = chartStub.setOption.mock.calls.length;
@@ -812,10 +775,7 @@ describe("ECharts component", () => {
     const manual = ref(false);
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: option.value, manualUpdate: manual.value }),
-      exposed,
-    );
+    renderChart(() => ({ option: option.value, manualUpdate: manual.value }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -853,10 +813,7 @@ describe("ECharts component", () => {
     const option = ref({});
     const exposed = shallowRef<any>();
 
-    renderChart(
-      () => ({ option: option.value, onClick: undefined as any }),
-      exposed,
-    );
+    renderChart(() => ({ option: option.value, onClick: undefined as any }), exposed);
     await nextTick();
 
     expect(chartStub.on).not.toHaveBeenCalled();

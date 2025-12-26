@@ -18,10 +18,7 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
 
     const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnectSpy = vi.spyOn(
-      window.ResizeObserver.prototype,
-      "disconnect",
-    );
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
 
     const container = createSizedContainer(120, 80);
 
@@ -142,10 +139,7 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
 
     const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnectSpy = vi.spyOn(
-      window.ResizeObserver.prototype,
-      "disconnect",
-    );
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
 
     const container = createSizedContainer(140, 90);
 

@@ -131,9 +131,7 @@ function convertDiagnostics(
 
   const prefixInfo = countLines(strategy.prefix);
   const suffixInfo = countLines(strategy.suffix);
-  const lastLineIndex = sourceFile.getLineAndCharacterOfPosition(
-    sourceFile.text.length,
-  ).line;
+  const lastLineIndex = sourceFile.getLineAndCharacterOfPosition(sourceFile.text.length).line;
   const results: AnalyzeDiagnostic[] = [];
   const issues: AnalysisIssue[] = [];
 
@@ -150,10 +148,7 @@ function convertDiagnostics(
         endLineNumber: 1,
         endColumn: 1,
         severity: severityMap[diagnostic.category] ?? "error",
-        code:
-          typeof diagnostic.code === "number"
-            ? String(diagnostic.code)
-            : undefined,
+        code: typeof diagnostic.code === "number" ? String(diagnostic.code) : undefined,
         source: diagnostic.source,
       };
       results.push(mapped);
@@ -215,10 +210,7 @@ function convertDiagnostics(
       endLineNumber,
       endColumn,
       severity: severityMap[diagnostic.category] ?? "error",
-      code:
-        typeof diagnostic.code === "number"
-          ? String(diagnostic.code)
-          : undefined,
+      code: typeof diagnostic.code === "number" ? String(diagnostic.code) : undefined,
       source: diagnostic.source,
     };
     results.push(mapped);
@@ -256,10 +248,7 @@ async function evaluateModule(js: string) {
     fn(exports, module, requireShim);
 
     const candidate = module.exports?.default ?? module.exports;
-    if (
-      candidate &&
-      typeof (candidate as Promise<unknown>).then === "function"
-    ) {
+    if (candidate && typeof (candidate as Promise<unknown>).then === "function") {
       try {
         const value = await (candidate as Promise<unknown>);
         return { value } as const;
@@ -329,9 +318,7 @@ ${guards}}
 }
 
 async function analyze(code: string): Promise<Omit<AnalyzeResponse, "id">> {
-  const candidates = STRATEGIES.filter((strategy) =>
-    strategy.enabled(code),
-  ).map((strategy) => {
+  const candidates = STRATEGIES.filter((strategy) => strategy.enabled(code)).map((strategy) => {
     const baseWrapped = `${strategy.prefix}${code}${strategy.suffix}`;
     const baseSourceFile = ts.createSourceFile(
       "ve-option.ts",
@@ -385,13 +372,11 @@ async function analyze(code: string): Promise<Omit<AnalyzeResponse, "id">> {
         {
           kind: "runtime",
           severity: "error",
-          message:
-            "Option analyzer could not find a parsing strategy for this code.",
+          message: "Option analyzer could not find a parsing strategy for this code.",
           hint: "Ensure the option is a valid JavaScript/TypeScript expression or module export.",
         },
       ],
-      runtimeError:
-        "Option analyzer could not find a parsing strategy for this code.",
+      runtimeError: "Option analyzer could not find a parsing strategy for this code.",
     };
   }
 
@@ -433,9 +418,7 @@ async function analyze(code: string): Promise<Omit<AnalyzeResponse, "id">> {
     };
   }
 
-  const { result: clonedValue, error: cloneError } = cloneSerializable(
-    validation.value,
-  );
+  const { result: clonedValue, error: cloneError } = cloneSerializable(validation.value);
   if (cloneError) {
     const serializationIssue = normalizeSerializationIssue(cloneError);
     issues.push(serializationIssue);
@@ -485,8 +468,7 @@ function normalizeRuntimeIssue(error: unknown): AnalysisIssue {
     return {
       kind: "runtime",
       severity: "error",
-      message:
-        "Imports that reference other files can't be resolved in this editor.",
+      message: "Imports that reference other files can't be resolved in this editor.",
       hint: "Inline the referenced values directly inside the option snippet before generating imports.",
     };
   }
@@ -520,9 +502,7 @@ function toUserFacingMessage(error: unknown): string {
 
 function validateOptionExport(
   value: unknown,
-):
-  | { ok: true; value: Record<string, unknown> }
-  | { ok: false; issue: AnalysisIssue } {
+): { ok: true; value: Record<string, unknown> } | { ok: false; issue: AnalysisIssue } {
   if (value === null || value === undefined) {
     return {
       ok: false,
@@ -547,8 +527,7 @@ function createMissingExportIssue(): AnalysisIssue {
   return {
     kind: "format",
     severity: "error",
-    message:
-      "No ECharts option export was found. Export your option object as the default value.",
+    message: "No ECharts option export was found. Export your option object as the default value.",
     hint: "Use `export default { ... }` or assign the option to the last declared variable.",
   };
 }

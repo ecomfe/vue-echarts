@@ -69,10 +69,7 @@ function createOption(data: Array<[number, number, number, number]>): Option {
 }
 
 export default function getData(): [Option, Option] {
-  const options: [Option, Option] = [
-    createOption(BASE_DATA),
-    createOption(BASE_DATA),
-  ];
+  const options: [Option, Option] = [createOption(BASE_DATA), createOption(BASE_DATA)];
 
   return options;
 }

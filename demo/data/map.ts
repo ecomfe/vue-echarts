@@ -409,9 +409,7 @@ function convertData(list: CityDatum[]): ScatterPoint[] {
 }
 
 export default function getData(): Option {
-  const sortedTopFive = [...cityData]
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
+  const sortedTopFive = [...cityData].sort((a, b) => b.value - a.value).slice(0, 6);
 
   const option = {
     textStyle: { ...DEMO_TEXT_STYLE },

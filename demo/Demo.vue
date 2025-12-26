@@ -101,9 +101,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
         ><img alt="npm version" src="https://img.shields.io/npm/v/vue-echarts"
       /></a>
       <a href="https://codecov.io/gh/ecomfe/vue-echarts"
-        ><img
-          alt="test coverage"
-          src="https://img.shields.io/codecov/c/github/ecomfe/vue-echarts"
+        ><img alt="test coverage" src="https://img.shields.io/codecov/c/github/ecomfe/vue-echarts"
       /></a>
     </p>
 
@@ -198,9 +196,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
           Dark
         </button>
       </div>
-      <button class="codegen" type="button" @click="openCodegen">
-        Generate code
-      </button>
+      <button class="codegen" type="button" @click="openCodegen">Generate code</button>
     </div>
 
     <CodeGen v-model:open="codeOpen" :renderer="selectedRenderer" />
