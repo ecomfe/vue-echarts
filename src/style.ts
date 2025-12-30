@@ -1,6 +1,7 @@
 import cssRules from "./style.css?raw";
+import { isBrowser } from "./utils";
 
-if (typeof document !== "undefined") {
+if (isBrowser()) {
   if (Array.isArray(document.adoptedStyleSheets) && "replaceSync" in CSSStyleSheet.prototype) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(cssRules);

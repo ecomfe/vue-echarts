@@ -57,6 +57,17 @@ describe("smart-update", () => {
       expect(signature.arrays.dataset?.idsSorted).toEqual(["has-id"]);
       expect(signature.scalars).toEqual(["backgroundColor", "color"]);
     });
+
+    it("ignores explicit undefined values in scalars", () => {
+      const option: EChartsOption = {
+        backgroundColor: undefined,
+        color: "#fff",
+      } as unknown as EChartsOption;
+
+      const signature = buildSignature(option);
+
+      expect(signature.scalars).toEqual(["color"]);
+    });
   });
 
   describe("planUpdate", () => {

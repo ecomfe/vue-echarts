@@ -35,4 +35,5 @@ describe("style entry", () => {
     expect(styleEl).not.toBeNull();
     expect(styleEl?.textContent).not.toBe("");
   });
+
 });

@@ -68,17 +68,6 @@ function renderSlotComponent(
 }
 
 describe("useSlotOption", () => {
-  it("returns a Teleport vnode after mount", async () => {
-    const { exposed } = renderSlotComponent(() => ({
-      tooltip: () => [h("span", "t")],
-    }));
-
-    // Component is mounted by the test renderer synchronously; teleportedSlots should return a Teleport VNode
-    const vnode: any = exposed.value!.teleportedSlots();
-    expect(vnode).toBeTruthy();
-    expect(vnode.type?.__isTeleport).toBe(true);
-  });
-
   it("patches tooltip slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 

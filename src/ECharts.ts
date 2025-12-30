@@ -97,7 +97,7 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
 
-    function resolveUpdateOptions(plan?: UpdatePlan): UpdateOptions {
+    function resolveUpdateOptions(plan: UpdatePlan): UpdateOptions {
       const result: UpdateOptions = {};
 
       const replacements = (plan?.replaceMerge ?? []).filter((key): key is string => key != null);
@@ -105,9 +105,7 @@ export default defineComponent({
         result.replaceMerge = [...new Set(replacements)];
       }
 
-      if (plan?.notMerge !== undefined) {
-        result.notMerge = plan.notMerge;
-      }
+      result.notMerge = plan.notMerge;
 
       return result;
     }

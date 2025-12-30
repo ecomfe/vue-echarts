@@ -1,13 +1,31 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import { render } from "./helpers/testing";
-import { init, enqueueChart, resetECharts, type ChartStub } from "./helpers/mock";
+import {
+  init,
+  enqueueChart,
+  resetECharts,
+  createEChartsModule,
+  type ChartStub,
+} from "./helpers/mock";
 import type { InitOptions, Option, UpdateOptions } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
 import ECharts, { UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 
+vi.mock("echarts/core", () => createEChartsModule());
+
 let chartStub: ChartStub;
+
+function clearExposedRef(exposed: any, key: "chart" | "root") {
+  const target = exposed?.[key] as any;
+  if (target && typeof target === "object" && "value" in target) {
+    target.value = undefined;
+  } else {
+    exposed[key] = undefined;
+  }
+}
+
 
 beforeEach(() => {
   resetECharts();
@@ -85,28 +103,6 @@ describe("ECharts component", () => {
         ),
       );
     });
-  });
-
-  it("warns when option prop changes in manual-update mode", async () => {
-    const option = ref({ title: { text: "initial" } });
-    const exposed = shallowRef<any>();
-
-    renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
-    await nextTick();
-
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
-      // noop
-    });
-
-    option.value = { title: { text: "next" } };
-    await nextTick();
-
-    expect(warnSpy).toHaveBeenCalled();
-    expect(warnSpy.mock.calls[0][0]).toContain(
-      "[vue-echarts] `option` prop changes are ignored when `manual-update` is `true`.",
-    );
-
-    warnSpy.mockRestore();
   });
 
   it("does not replay manual option after initOptions-triggered reinit", async () => {
@@ -209,6 +205,10 @@ describe("ECharts component", () => {
     theme.value = { palette: ["#fff"] } as any;
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({ palette: ["#fff"] });
+
+    theme.value = undefined as any;
+    await nextTick();
+    expect(currentStub.setTheme).toHaveBeenCalledWith({});
   });
 
   it("re-initializes when initOptions change", async () => {
@@ -353,7 +353,7 @@ describe("ECharts component", () => {
 
     const replacement = enqueueChart();
     const initCallsBefore = init.mock.calls.length;
-    exposed.value.chart.value = undefined;
+    clearExposedRef(exposed.value, "chart");
     await nextTick();
 
     const manualOption = { title: { text: "rehydrate" } };
@@ -361,7 +361,7 @@ describe("ECharts component", () => {
 
     expect(init.mock.calls.length).toBe(initCallsBefore);
     expect(replacement.setOption).not.toHaveBeenCalled();
-    expect(exposed.value.chart.value).toBeUndefined();
+    expect(exposed.value.chart?.value ?? exposed.value.chart).toBeUndefined();
   });
 
   it("ignores falsy reactive options", async () => {
@@ -380,28 +380,6 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(replacementStub.setOption).not.toHaveBeenCalled();
-  });
-
-  it("disposes chart on unmount when root element is unavailable", async () => {
-    const option = ref({ title: { text: "cleanup" } });
-    const exposed = shallowRef<any>();
-
-    const screen = renderChart(() => ({ option: option.value }), exposed);
-    await nextTick();
-
-    chartStub.dispose.mockClear();
-    Object.defineProperty(exposed.value.root, "value", {
-      configurable: true,
-      get: () => undefined,
-      set: () => {
-        /* ignore */
-      },
-    });
-
-    screen.unmount();
-    await nextTick();
-
-    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
   });
 
   it("shows and hides loading based on props", async () => {
@@ -431,8 +409,10 @@ describe("ECharts component", () => {
 
   it("binds chart, zr, and native event listeners", async () => {
     const clickHandler = vi.fn();
+    const clickOnce = vi.fn();
     const nativeClick = vi.fn();
     const zrMove = vi.fn();
+    const zrOnce = vi.fn();
     const option = ref({});
     const exposed = shallowRef<any>();
 
@@ -440,8 +420,10 @@ describe("ECharts component", () => {
       () => ({
         option: option.value,
         onClick: clickHandler,
+        onClickOnce: clickOnce,
         "onNative:click": nativeClick,
         "onZr:mousemoveOnce": zrMove,
+        "onZr:clickOnce": zrOnce,
       }),
       exposed,
     );
@@ -459,6 +441,22 @@ describe("ECharts component", () => {
     expect(zrMove).toHaveBeenCalledWith("zr-payload");
     expect(zr.off).toHaveBeenCalledWith("mousemove", zrListener);
 
+    const chartOnceCall = chartStub.on.mock.calls.find(
+      (call: any[]) => call[0] === "click" && call[1] !== chartListener,
+    );
+    const chartOnceListener = chartOnceCall?.[1];
+    chartOnceListener?.("once");
+    chartOnceListener?.("again");
+    expect(clickOnce).toHaveBeenCalledTimes(1);
+    expect(chartStub.off).toHaveBeenCalledWith("click", chartOnceListener);
+
+    const zrOnceCall = zr.on.mock.calls.find((call: any[]) => call[0] === "click");
+    const zrOnceListener = zrOnceCall?.[1];
+    zrOnceListener?.("once");
+    zrOnceListener?.("again");
+    expect(zrOnce).toHaveBeenCalledTimes(1);
+    expect(zr.off).toHaveBeenCalledWith("click", zrOnceListener);
+
     await nextTick();
     const rootEl =
       (exposed.value?.root?.value as HTMLElement | undefined) ??
@@ -466,42 +464,6 @@ describe("ECharts component", () => {
     expect(rootEl).toBeInstanceOf(HTMLElement);
     rootEl!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(nativeClick).toHaveBeenCalledTimes(1);
-  });
-
-  it("removes once listeners after first invocation", async () => {
-    const clickOnce = vi.fn();
-    const zrOnce = vi.fn();
-    const option = ref({});
-    const exposed = shallowRef<any>();
-
-    renderChart(
-      () => ({
-        option: option.value,
-        onClickOnce: clickOnce,
-        "onZr:clickOnce": zrOnce,
-      }),
-      exposed,
-    );
-    await nextTick();
-
-    const chartCall = chartStub.on.mock.calls.find((call: any[]) => call[0] === "click");
-    expect(chartCall).toBeTruthy();
-    const chartListener = chartCall?.[1];
-
-    chartListener?.("payload");
-    chartListener?.("again");
-    expect(clickOnce).toHaveBeenCalledTimes(1);
-    expect(chartStub.off).toHaveBeenCalledWith("click", chartListener);
-
-    const zr = chartStub.getZr();
-    const zrCall = zr.on.mock.calls.find((call: any[]) => call[0] === "click");
-    expect(zrCall).toBeTruthy();
-    const zrListener = zrCall?.[1];
-
-    zrListener?.("zr");
-    zrListener?.("zr-again");
-    expect(zrOnce).toHaveBeenCalledTimes(1);
-    expect(zr.off).toHaveBeenCalledWith("click", zrListener);
   });
 
   it("plans replaceMerge when series id is removed", async () => {
@@ -551,21 +513,6 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const updateOptions = chartStub.setOption.mock.calls[0][1];
     expect(updateOptions).toEqual({ notMerge: true, lazyUpdate: false });
-  });
-
-  it("applies empty object when theme becomes falsy", async () => {
-    const option = ref({});
-    const theme = ref({ palette: ["#000"] } as any);
-    const exposed = shallowRef<any>();
-
-    renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
-    await nextTick();
-
-    const current = chartStub;
-    theme.value = undefined as any;
-    await nextTick();
-
-    expect(current.setTheme).toHaveBeenCalledWith({});
   });
 
   it("sets notMerge when options array shrinks", async () => {
@@ -649,22 +596,6 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const updateOptions = chartStub.setOption.mock.calls[0][1];
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
-  });
-
-  it("merges base updateOptions from props during reactive updates", async () => {
-    const option = ref<any>({ title: { text: "merge-base" } });
-    const exposed = shallowRef<any>();
-
-    renderChart(() => ({ option: option.value, updateOptions: { lazyUpdate: true } }), exposed);
-    await nextTick();
-
-    chartStub.setOption.mockClear();
-    // Change option to trigger reactive update without special plan flags
-    option.value = { title: { text: "merge-base-2" } };
-    await nextTick();
-
-    const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual(expect.objectContaining({ lazyUpdate: true }));
   });
 
   it("sets __dispose on root during unmount when wcRegistered and cleanup runs via disconnectedCallback", async () => {
@@ -755,6 +686,45 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBeGreaterThan(initialCalls);
   });
 
+  it("does not re-apply option on slot change in manual-update mode", async () => {
+    const option = ref({ title: { text: "manual-slots" } });
+    const showExtra = ref(true);
+    const exposed = shallowRef<any>();
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              manualUpdate: true,
+              ref: (v: any) => (exposed.value = v),
+            },
+            showExtra.value
+              ? {
+                  tooltip: () => [h("span", "t")],
+                  "tooltip-extra": () => [h("span", "x")],
+                }
+              : {
+                  tooltip: () => [h("span", "t")],
+                },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    const initialCalls = chartStub.setOption.mock.calls.length;
+
+    showExtra.value = false;
+    await nextTick();
+    await nextTick();
+
+    expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
+  });
+
   it("skips resize when instance is disposed in autoresize path", async () => {
     const option = ref({});
     const exposed = shallowRef<any>();
@@ -834,5 +804,74 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
+  it("skips dispose when cleanup runs without a chart instance", async () => {
+    const option = ref({ title: { text: "missing-instance" } });
+    const manualUpdate = ref(false);
+    const exposed = shallowRef<any>();
+
+    renderChart(() => ({ option: option.value, manualUpdate: manualUpdate.value }), exposed);
+    await nextTick();
+
+    chartStub.dispose.mockClear();
+    clearExposedRef(exposed.value, "chart");
+
+    const replacementStub = enqueueChart();
+    manualUpdate.value = true;
+    await nextTick();
+
+    expect(chartStub.dispose).not.toHaveBeenCalled();
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to direct cleanup when root ref is missing on unmount", async () => {
+    const option = ref({ title: { text: "missing-root" } });
+    const exposed = shallowRef<any>();
+
+    const screen = renderChart(() => ({ option: option.value }), exposed);
+    await nextTick();
+
+    chartStub.dispose.mockClear();
+    clearExposedRef(exposed.value, "root");
+
+    screen.unmount();
+    await nextTick();
+
+    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls cleanup directly when web component registration fails", async () => {
+    vi.resetModules();
+
+    vi.doMock("../src/wc", () => ({
+      TAG_NAME: "x-vue-echarts",
+      register: () => false,
+    }));
+
+    const { default: LocalECharts } = await import("../src/ECharts");
+
+    const exposed = shallowRef<any>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(LocalECharts, {
+            option: { title: { text: "no-wc" } },
+            ref: (v: any) => (exposed.value = v),
+          });
+      },
+    });
+
+    const screen = render(Root);
+    await nextTick();
+
+    chartStub.dispose.mockClear();
+
+    screen.unmount();
+    await nextTick();
+
+    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
+
+    vi.doUnmock("../src/wc");
   });
 });

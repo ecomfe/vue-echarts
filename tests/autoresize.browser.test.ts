@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ref, effectScope, nextTick, type Ref } from "vue";
 
-import { throttle, resetECharts } from "./helpers/mock";
+import { throttle, resetECharts, createEChartsModule } from "./helpers/mock";
 import { createSizedContainer, flushAnimationFrame } from "./helpers/dom";
 import { useAutoresize } from "../src/composables/autoresize";
 import type { AutoResize, EChartsType } from "../src/types";
+
+vi.mock("echarts/core", () => createEChartsModule());
 
 describe("useAutoresize", () => {
   beforeEach(() => {

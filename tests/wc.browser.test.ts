@@ -80,6 +80,19 @@ describe("register", () => {
       expect(defineSpy).not.toHaveBeenCalled();
     });
 
+    it("returns cached result without touching the registry", async () => {
+      const { register } = await loadModule();
+
+      expect(register()).toBe(true);
+
+      const getSpy = vi.spyOn(registry, "get").mockImplementation(() => {
+        throw new Error("registry.get should not be called");
+      });
+
+      expect(register()).toBe(true);
+      expect(getSpy).not.toHaveBeenCalled();
+    });
+
     it("handles definition failures gracefully", async () => {
       const defineSpy = vi.spyOn(registry, "define").mockImplementation(() => {
         throw new Error("boom");

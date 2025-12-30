@@ -36,7 +36,9 @@
     "release": "bumpp --execute \"pnpm run docs\" --all",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "test:browser": "vitest run --project browser",
+    "test:node": "vitest run --project node"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
@@ -44,9 +46,10 @@
     "@vercel/analytics": "^1.5.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/browser-playwright": "^4.0.16",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-istanbul": "^4.0.16",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/server-renderer": "^3.5.18",
     "@vue/tsconfig": "^0.8.0",
     "@vueuse/core": "^14.0.0",
     "bumpp": "^10.2.3",
