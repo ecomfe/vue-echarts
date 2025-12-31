@@ -59,6 +59,7 @@
     "eslint": "^9.33.0",
     "eslint-plugin-vue": "^10.4.0",
     "jiti": "^2.5.1",
+    "lefthook": "^2.0.13",
     "monaco-editor": "0.54.0",
     "oxfmt": "^0.21.0",
     "pinia": "^3.0.3",
