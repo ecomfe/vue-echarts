@@ -4,7 +4,14 @@ import type { Ref, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { init, enqueueChart, resetECharts, createEChartsModule } from "./helpers/mock";
 import type { ChartStub } from "./helpers/mock";
-import type { EChartsType, InitOptions, Option, SetOptionType, Theme, UpdateOptions } from "../src/types";
+import type {
+  EChartsType,
+  InitOptions,
+  Option,
+  SetOptionType,
+  Theme,
+  UpdateOptions,
+} from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
 import ECharts, { UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
@@ -48,7 +55,6 @@ function setExposedField(exposed: Exposed, key: "chart" | "root", value: unknown
   }
   (exposed as Record<"chart" | "root", unknown>)[key] = value;
 }
-
 
 beforeEach(() => {
   resetECharts();

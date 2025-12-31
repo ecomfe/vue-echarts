@@ -37,9 +37,11 @@ describe("SSR environment", () => {
     expect(vnode).toBeUndefined();
 
     const patched = instance.patchOption({});
-    const tooltip = (patched as {
-      tooltip?: TooltipComponentOption | TooltipComponentOption[];
-    }).tooltip;
+    const tooltip = (
+      patched as {
+        tooltip?: TooltipComponentOption | TooltipComponentOption[];
+      }
+    ).tooltip;
     if (!tooltip || Array.isArray(tooltip) || typeof tooltip.formatter !== "function") {
       throw new Error("Expected tooltip formatter to be set.");
     }

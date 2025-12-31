@@ -95,13 +95,12 @@ function renderSlotComponent(
   };
 }
 
-function getTooltipFormatter(
-  option: Option,
-  label: string,
-): TooltipFormatter {
-  const tooltip = (option as {
-    tooltip?: TooltipComponentOption | TooltipComponentOption[];
-  }).tooltip;
+function getTooltipFormatter(option: Option, label: string): TooltipFormatter {
+  const tooltip = (
+    option as {
+      tooltip?: TooltipComponentOption | TooltipComponentOption[];
+    }
+  ).tooltip;
   if (!tooltip || Array.isArray(tooltip)) {
     throw new Error(`Expected ${label} tooltip to be a single object.`);
   }

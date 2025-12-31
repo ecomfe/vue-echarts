@@ -15,9 +15,7 @@ const baseTooltipParams = {
   $vars: [],
 } satisfies TooltipComponentFormatterCallbackParams;
 
-export function makeTooltipParams(
-  dataIndex: number,
-): TooltipComponentFormatterCallbackParams {
+export function makeTooltipParams(dataIndex: number): TooltipComponentFormatterCallbackParams {
   return {
     ...baseTooltipParams,
     dataIndex,

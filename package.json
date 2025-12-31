@@ -60,7 +60,7 @@
     "eslint-plugin-vue": "^10.4.0",
     "jiti": "^2.5.1",
     "monaco-editor": "0.54.0",
-    "oxfmt": "^0.19.0",
+    "oxfmt": "^0.21.0",
     "pinia": "^3.0.3",
     "playwright": "^1.55.0",
     "postcss-nested": "^7.0.2",
@@ -72,8 +72,8 @@
     "vite": "beta",
     "vitest": "^4.0.16",
     "vitest-browser-vue": "^2.0.1",
-    "vue-component-type-helpers": "^2.2.12",
     "vue": "^3.5.18",
+    "vue-component-type-helpers": "^2.2.12",
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {

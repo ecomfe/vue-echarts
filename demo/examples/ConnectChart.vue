@@ -13,13 +13,7 @@ import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/connect";
 
-use([
-  ScatterChart,
-  GridComponent,
-  TitleComponent,
-  VisualMapComponent,
-  TooltipComponent,
-]);
+use([ScatterChart, GridComponent, TitleComponent, VisualMapComponent, TooltipComponent]);
 
 const [firstOption, secondOption] = getData();
 const c1 = shallowRef<Option>(firstOption);

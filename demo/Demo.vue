@@ -22,12 +22,7 @@ import ManualChart from "./examples/ManualChart.vue";
 
 import CodeGen from "./CodeGen.vue";
 import { useDemoDark } from "./composables/useDemoDark";
-import {
-  getScrollLockTarget,
-  getScrollbarWidth,
-  isClient,
-  setHash,
-} from "./utils/dom";
+import { getScrollLockTarget, getScrollbarWidth, isClient, setHash } from "./utils/dom";
 
 type Renderer = "canvas" | "svg";
 
@@ -39,9 +34,7 @@ const isDark = useDemoDark();
 
 const params = useUrlSearchParams<{ renderer?: Renderer }>();
 
-const selectedRenderer = computed<Renderer>(() =>
-  params.renderer === "svg" ? "svg" : "canvas",
-);
+const selectedRenderer = computed<Renderer>(() => (params.renderer === "svg" ? "svg" : "canvas"));
 
 const initOptions = computed<InitOptions>(() => ({
   renderer: selectedRenderer.value,
@@ -170,11 +163,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
         </button>
       </div>
       <div
-        :class="[
-          'toggle',
-          'theme-toggle',
-          isDark ? 'right-active' : 'left-active',
-        ]"
+        :class="['toggle', 'theme-toggle', isDark ? 'right-active' : 'left-active']"
         role="group"
         aria-label="Theme"
       >

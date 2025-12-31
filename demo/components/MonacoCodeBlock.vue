@@ -40,7 +40,6 @@ watch(isDark, colorize);
   overflow: auto;
   background: var(--surface);
   color: var(--text);
-  font-family:
-    "Fira Code", "Fira Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: "Fira Code", "Fira Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 </style>

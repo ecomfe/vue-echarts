@@ -44,9 +44,7 @@ interface TooltipDatumLike {
   name?: unknown;
 }
 
-function firstTooltipDatum(
-  params: TooltipParams,
-): TooltipDatumLike | undefined {
+function firstTooltipDatum(params: TooltipParams): TooltipDatumLike | undefined {
   if (Array.isArray(params)) {
     const [first] = params;
     return first as TooltipDatumLike | undefined;
@@ -59,11 +57,7 @@ function firstTooltipDatum(
 
 function getPieOption(params: TooltipParams): Option {
   const datum = firstTooltipDatum(params);
-  if (
-    !datum ||
-    !Array.isArray(datum.dimensionNames) ||
-    !isDataRow(datum.data)
-  ) {
+  if (!datum || !Array.isArray(datum.dimensionNames) || !isDataRow(datum.data)) {
     return { series: [] } satisfies Option;
   }
 

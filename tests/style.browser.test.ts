@@ -41,5 +41,4 @@ describe("style entry", () => {
     }
     expect(styleEl.textContent).not.toBe("");
   });
-
 });

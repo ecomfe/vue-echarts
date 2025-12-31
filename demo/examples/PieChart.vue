@@ -14,13 +14,7 @@ import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/pie";
 
-use([
-  PieChart,
-  PolarComponent,
-  TitleComponent,
-  LegendComponent,
-  TooltipComponent,
-]);
+use([PieChart, PolarComponent, TitleComponent, LegendComponent, TooltipComponent]);
 
 type ChartInstance = InstanceType<typeof VChart>;
 

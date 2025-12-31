@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { use } from "echarts/core";
 import { RadarChart } from "echarts/charts";
-import {
-  PolarComponent,
-  TitleComponent,
-  TooltipComponent,
-} from "echarts/components";
+import { PolarComponent, TitleComponent, TooltipComponent } from "echarts/components";
 import { computed, shallowRef } from "vue";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";

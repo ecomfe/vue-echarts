@@ -1,6 +1,7 @@
 # Testing
 
 We run Vitest in two projects:
+
 - **browser** (Playwright + `vitest-browser-vue`) for DOM/custom element coverage.
 - **node** for pure logic tests.
 

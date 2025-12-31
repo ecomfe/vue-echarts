@@ -14,18 +14,10 @@ import VExample from "./Example.vue";
 import getData from "../data/polar";
 import { useDemoDark } from "../composables/useDemoDark";
 
-use([
-  LineChart,
-  PolarComponent,
-  TitleComponent,
-  LegendComponent,
-  TooltipComponent,
-]);
+use([LineChart, PolarComponent, TitleComponent, LegendComponent, TooltipComponent]);
 
 const isDark = useDemoDark();
-const themeSelection = shallowRef<"dark" | "default">(
-  isDark.value ? "dark" : "default",
-);
+const themeSelection = shallowRef<"dark" | "default">(isDark.value ? "dark" : "default");
 const option = shallowRef<Option>(getData());
 const loading = shallowRef(false);
 
@@ -47,9 +39,7 @@ const chartStyle = computed(() => {
   if (themeSelection.value !== "dark") {
     return "";
   }
-  return loading.value
-    ? "background-color: #05040d"
-    : "background-color: #100c2a";
+  return loading.value ? "background-color: #05040d" : "background-color: #100c2a";
 });
 
 watch(isDark, (value) => {

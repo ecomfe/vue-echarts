@@ -1,30 +1,16 @@
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  nextTick,
-} from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useLocalStorage, useTimeoutFn } from "@vueuse/core";
 import { track } from "@vercel/analytics";
 
-import {
-  getImportsFromOption,
-  type Quote,
-  type PublicCodegenOptions,
-} from "./utils/codegen";
+import { getImportsFromOption, type Quote, type PublicCodegenOptions } from "./utils/codegen";
 import {
   createOptionEditor,
   createCodeViewer,
   type OptionEditor,
   type CodeViewer,
 } from "./services/monaco";
-import {
-  useOptionAnalysis,
-  type AnalyzerIssue,
-} from "./composables/useOptionAnalysis";
+import { useOptionAnalysis, type AnalyzerIssue } from "./composables/useOptionAnalysis";
 import { useDemoDark } from "./composables/useDemoDark";
 
 const DEFAULT_OPTION = `{
@@ -73,18 +59,15 @@ interface CodegenPreferences {
   renderer: Renderer;
 }
 
-const codegenOptions = useLocalStorage<CodegenPreferences>(
-  "ve.codegenOptions",
-  {
-    indent: "  ",
-    quote: "'",
-    multiline: false,
-    maxLen: 80,
-    semi: false,
-    includeType: false,
-    renderer: "canvas",
-  } satisfies CodegenPreferences,
-);
+const codegenOptions = useLocalStorage<CodegenPreferences>("ve.codegenOptions", {
+  indent: "  ",
+  quote: "'",
+  multiline: false,
+  maxLen: 80,
+  semi: false,
+  includeType: false,
+  renderer: "canvas",
+} satisfies CodegenPreferences);
 
 const props = defineProps<{ open: boolean; renderer: string }>();
 const emit = defineEmits<{ "update:open": [boolean] }>();
@@ -106,10 +89,9 @@ let importViewer: CodeViewer | null = null;
 let suppressNextEditorEvent = false;
 const initializing = ref<boolean>(true);
 const showAnalyzingOverlay = ref(false);
-const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } =
-  useTimeoutFn(() => {
-    showAnalyzingOverlay.value = true;
-  }, 180);
+const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } = useTimeoutFn(() => {
+  showAnalyzingOverlay.value = true;
+}, 180);
 
 type Renderer = "canvas" | "svg";
 
@@ -150,12 +132,9 @@ function close() {
 
 const copied = ref(false);
 const messageOpen = ref(false);
-const { start: scheduleMessageClose, stop: cancelMessageClose } = useTimeoutFn(
-  () => {
-    messageOpen.value = false;
-  },
-  2018,
-);
+const { start: scheduleMessageClose, stop: cancelMessageClose } = useTimeoutFn(() => {
+  messageOpen.value = false;
+}, 2018);
 
 function trackCopy(from: "button" | "system") {
   if (copied.value) {
@@ -186,9 +165,7 @@ function formatIssues(issues: readonly AnalyzerIssue[]) {
 
 const hasErrors = computed<boolean>(() => analysisState.hasBlockingIssue);
 
-const isBusy = computed<boolean>(
-  () => initializing.value || showAnalyzingOverlay.value,
-);
+const isBusy = computed<boolean>(() => initializing.value || showAnalyzingOverlay.value);
 
 const importCode = computed(() => {
   const raw = sourceCode.value.trim();
@@ -197,9 +174,7 @@ const importCode = computed(() => {
   }
 
   if (hasErrors.value) {
-    const blockingIssues = analysisState.issues.filter(
-      (issue) => issue.severity === "error",
-    );
+    const blockingIssues = analysisState.issues.filter((issue) => issue.severity === "error");
     return formatIssues(blockingIssues);
   }
 
@@ -220,8 +195,7 @@ const importCode = computed(() => {
     };
     return getImportsFromOption(analysisState.option, config);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : String(error ?? "Unknown error");
+    const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
     return `/* Invalid ECharts option */\n\n// ${message}`;
   }
 });

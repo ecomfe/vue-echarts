@@ -13,13 +13,7 @@ import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
 import getData from "../data/scatter";
 
-use([
-  ScatterChart,
-  GridComponent,
-  TitleComponent,
-  LegendComponent,
-  TooltipComponent,
-]);
+use([ScatterChart, GridComponent, TitleComponent, LegendComponent, TooltipComponent]);
 
 const option = shallowRef<Option>(getData());
 </script>

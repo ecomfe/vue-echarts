@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { use, registerMap } from "echarts/core";
 import { LinesChart } from "echarts/charts";
-import {
-  GeoComponent,
-  TitleComponent,
-  TooltipComponent,
-} from "echarts/components";
+import { GeoComponent, TitleComponent, TooltipComponent } from "echarts/components";
 import { shallowRef } from "vue";
 import type { LoadingOptions, Option } from "../../src/types";
 import VChart from "../../src/ECharts";

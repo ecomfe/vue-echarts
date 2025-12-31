@@ -89,21 +89,21 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
           Teleport,
           { to: detachedRoot },
           renderSlotNames.map((slotName) => {
-              const slot = slots[slotName];
-              const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
-              return h(
-                "div",
-                {
-                  ref: (el) => {
-                    if (el instanceof HTMLElement) {
-                      containers[slotName] = el;
-                    }
-                  },
-                  style: { display: "contents" },
+            const slot = slots[slotName];
+            const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
+            return h(
+              "div",
+              {
+                ref: (el) => {
+                  if (el instanceof HTMLElement) {
+                    containers[slotName] = el;
+                  }
                 },
-                slotContent,
-              );
-            }),
+                style: { display: "contents" },
+              },
+              slotContent,
+            );
+          }),
         )
       : undefined;
   };

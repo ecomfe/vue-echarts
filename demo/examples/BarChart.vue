@@ -25,9 +25,7 @@ const loadingOptions = computed(
       text: "Loading…",
       textColor: isDark.value ? "#e5e7eb" : "#111827",
       color: "#42b883",
-      maskColor: isDark.value
-        ? "rgba(0, 0, 0, 0.45)"
-        : "rgba(255, 255, 255, 0.5)",
+      maskColor: isDark.value ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.5)",
     }) satisfies LoadingOptions,
 );
 const option = shallowRef(getData());
