@@ -13,7 +13,6 @@ import {
   toValue,
 } from "vue";
 import { init as initChart } from "echarts/core";
-import type { EChartsOption } from "echarts";
 
 import {
   usePublicAPI,
@@ -100,7 +99,7 @@ export default defineComponent({
     function resolveUpdateOptions(plan: UpdatePlan): UpdateOptions {
       const result: UpdateOptions = {};
 
-      const replacements = (plan?.replaceMerge ?? []).filter((key): key is string => key != null);
+      const replacements = (plan.replaceMerge ?? []).filter((key): key is string => key != null);
       if (replacements.length > 0) {
         result.replaceMerge = [...new Set(replacements)];
       }
@@ -131,7 +130,7 @@ export default defineComponent({
         return;
       }
 
-      const planned = planUpdate(lastSignature, patched as unknown as EChartsOption);
+      const planned = planUpdate(lastSignature, patched);
 
       const updateOptions = resolveUpdateOptions(planned.plan);
       instance.setOption(planned.option, updateOptions);

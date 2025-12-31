@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ref, effectScope, nextTick, type Ref } from "vue";
+import { ref, effectScope, nextTick } from "vue";
 
 import { throttle, resetECharts, createEChartsModule } from "./helpers/mock";
 import { createSizedContainer, flushAnimationFrame } from "./helpers/dom";
@@ -26,11 +26,7 @@ describe("useAutoresize", () => {
 
     const scope = effectScope();
     scope.run(() => {
-      useAutoresize(
-        chart as Ref<EChartsType | undefined>,
-        autoresize as Ref<AutoResize | undefined>,
-        root as Ref<HTMLElement | undefined>,
-      );
+      useAutoresize(chart, autoresize, root);
     });
 
     chart.value = { resize } as unknown as EChartsType;
@@ -64,11 +60,7 @@ describe("useAutoresize", () => {
 
     const scope = effectScope();
     scope.run(() => {
-      useAutoresize(
-        chart as Ref<EChartsType | undefined>,
-        autoresize as Ref<AutoResize | undefined>,
-        root as Ref<HTMLElement | undefined>,
-      );
+      useAutoresize(chart, autoresize, root);
     });
 
     chart.value = { resize } as unknown as EChartsType;
@@ -105,11 +97,7 @@ describe("useAutoresize", () => {
 
     const scope = effectScope();
     scope.run(() => {
-      useAutoresize(
-        chart as Ref<EChartsType | undefined>,
-        autoresize as Ref<AutoResize | undefined>,
-        root as Ref<HTMLElement | undefined>,
-      );
+      useAutoresize(chart, autoresize, root);
     });
 
     chart.value = { resize } as unknown as EChartsType;
@@ -147,11 +135,7 @@ describe("useAutoresize", () => {
 
     const scope = effectScope();
     scope.run(() => {
-      useAutoresize(
-        chart as Ref<EChartsType | undefined>,
-        autoresize as Ref<AutoResize | undefined>,
-        root as Ref<HTMLElement | undefined>,
-      );
+      useAutoresize(chart, autoresize, root);
     });
 
     chart.value = { resize } as unknown as EChartsType;
@@ -199,25 +183,27 @@ describe("useAutoresize", () => {
       }
     }
 
-    (globalThis as any).ResizeObserver = StubResizeObserver as any;
+    const globalWithRO = globalThis as typeof globalThis & {
+      ResizeObserver: typeof ResizeObserver;
+    };
+    globalWithRO.ResizeObserver = StubResizeObserver as unknown as typeof ResizeObserver;
 
     const scope = effectScope();
     scope.run(() => {
-      useAutoresize(
-        chart as Ref<EChartsType | undefined>,
-        autoresize as Ref<AutoResize | undefined>,
-        root as Ref<HTMLElement | undefined>,
-      );
+      useAutoresize(chart, autoresize, root);
     });
 
     chart.value = { resize } as unknown as EChartsType;
     root.value = container;
     await nextTick();
 
-    callbacks[0]?.();
+    if (!callbacks[0]) {
+      throw new Error("Expected ResizeObserver callback to be registered.");
+    }
+    callbacks[0]();
     expect(resize).not.toHaveBeenCalled();
 
     scope.stop();
-    (globalThis as any).ResizeObserver = originalRO;
+    globalWithRO.ResizeObserver = originalRO;
   });
 });

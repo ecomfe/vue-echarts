@@ -35,7 +35,7 @@ function readId(item: unknown): string | undefined {
   if (!isPlainObject(item)) {
     return undefined;
   }
-  const raw = (item as { id?: unknown }).id;
+  const raw = item.id;
   if (typeof raw === "string") {
     return raw;
   }
@@ -50,10 +50,10 @@ function readId(item: unknown): string | undefined {
  * Only top-level keys are inspected.
  */
 export function buildSignature(option: Option): Signature {
-  const opt = option as Record<string, unknown>;
+  const opt: Record<string, unknown> = option;
 
-  const optionsLength = Array.isArray(opt.options) ? (opt.options as unknown[]).length : 0;
-  const mediaLength = Array.isArray(opt.media) ? (opt.media as unknown[]).length : 0;
+  const optionsLength = Array.isArray(opt.options) ? opt.options.length : 0;
+  const mediaLength = Array.isArray(opt.media) ? opt.media.length : 0;
 
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
   const objects: string[] = [];
@@ -67,7 +67,7 @@ export function buildSignature(option: Option): Signature {
     const value = opt[key];
 
     if (Array.isArray(value)) {
-      const items = value as unknown[];
+      const items = value;
       const ids = new Set<string>();
       let noIdCount = 0;
 
@@ -207,11 +207,11 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
   let signature = next;
 
   if (overrides.size > 0) {
-    const clone = { ...(option as Record<string, unknown>) };
+    const clone: Option = { ...option };
     overrides.forEach((value, key) => {
       clone[key] = value;
     });
-    normalizedOption = clone as Option;
+    normalizedOption = clone;
     signature = buildSignature(normalizedOption);
   }
 

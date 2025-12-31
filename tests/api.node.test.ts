@@ -1,13 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
-import { ref, type Ref } from "vue";
+import { shallowRef } from "vue";
 
-import { usePublicAPI, type PublicMethods } from "../src/composables/api";
+import { usePublicAPI } from "../src/composables/api";
+import type { PublicMethods } from "../src/composables/api";
 import type { EChartsType } from "../src/types";
 
 describe("usePublicAPI", () => {
   it("throws until chart instance is available", () => {
-    const chart = ref<EChartsType | undefined>(undefined);
-    const api = usePublicAPI(chart as Ref<EChartsType | undefined>);
+    const chart = shallowRef<EChartsType | undefined>(undefined);
+    const api = usePublicAPI(chart);
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
 
@@ -47,22 +48,26 @@ describe("usePublicAPI", () => {
       "dispose",
     ] as const;
 
-    const chartImpl: Record<string, any> = { marker: "chart-instance" };
-    const callArgs: Record<string, any[]> = {};
+    type MethodName = (typeof methodNames)[number];
+    type ChartImpl = Record<MethodName, (...args: unknown[]) => unknown> & { marker: string };
+
+    const chartImpl = { marker: "chart-instance" } as ChartImpl;
+    const callArgs: Record<string, unknown[]> = {};
 
     methodNames.forEach((name) => {
-      chartImpl[name] = vi.fn(function (this: Record<string, any>, ...args: any[]) {
+      chartImpl[name] = vi.fn(function (this: ChartImpl, ...args: unknown[]) {
         callArgs[name] = args;
         expect(this.marker).toBe("chart-instance");
         return `result:${name}`;
       });
     });
 
-    const chart = ref<EChartsType | undefined>();
+    const chart = shallowRef<EChartsType | undefined>();
     chart.value = chartImpl as unknown as EChartsType;
-    const api = usePublicAPI(chart as Ref<EChartsType | undefined>);
+    const api = usePublicAPI(chart);
 
-    const argsByName: Record<(typeof methodNames)[number], any[]> = {
+    type ArgsByName = { [K in MethodName]: Parameters<PublicMethods[K]> };
+    const argsByName: ArgsByName = {
       getWidth: [],
       getHeight: [],
       getDom: [],
@@ -80,19 +85,22 @@ describe("usePublicAPI", () => {
       dispose: [],
     };
 
-    methodNames.forEach((name) => {
-      const result = (api[name as keyof PublicMethods] as (...args: any[]) => any)(
-        ...argsByName[name],
-      );
+    function invoke<K extends MethodName>(name: K, args: ArgsByName[K]) {
+      const method = api[name] as (...methodArgs: ArgsByName[K]) => ReturnType<PublicMethods[K]>;
+      const result = method(...args);
       expect(result).toBe(`result:${name}`);
       expect(chartImpl[name]).toHaveBeenCalledTimes(1);
-      expect(callArgs[name]).toEqual(argsByName[name]);
+      expect(callArgs[name]).toEqual(args);
+    }
+
+    methodNames.forEach((name) => {
+      invoke(name, argsByName[name]);
     });
   });
 
   it("throws again if the chart instance is cleared after initialization", () => {
-    const chart = ref<EChartsType | undefined>();
-    const api = usePublicAPI(chart as Ref<EChartsType | undefined>);
+    const chart = shallowRef<EChartsType | undefined>();
+    const api = usePublicAPI(chart);
 
     const chartImpl = {
       getWidth: vi.fn(() => 240),

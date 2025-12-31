@@ -17,10 +17,8 @@ describe("smart-update", () => {
 
       expect(signature.objects).toEqual(["title", "tooltip"]);
       expect(signature.scalars).toEqual(["color"]);
-      expect(signature.arrays.dataset?.idsSorted).toEqual(["ds1"]);
-      expect(signature.arrays.dataset?.noIdCount).toBe(1);
-      expect(signature.arrays.series?.idsSorted).toEqual(["a"]);
-      expect(signature.arrays.series?.noIdCount).toBe(1);
+      expect(signature.arrays.dataset).toEqual({ idsSorted: ["ds1"], noIdCount: 1 });
+      expect(signature.arrays.series).toEqual({ idsSorted: ["a"], noIdCount: 1 });
       expect(signature.objects).not.toContain("color");
       expect(signature.scalars).not.toContain("title");
       expect(signature.arrays.tooltip).toBeUndefined();
@@ -38,10 +36,7 @@ describe("smart-update", () => {
       };
 
       const signature = buildSignature(option);
-      const summary = signature.arrays.series;
-
-      expect(summary?.idsSorted).toEqual(["1", "2"]);
-      expect(summary?.noIdCount).toBe(3);
+      expect(signature.arrays.series).toEqual({ idsSorted: ["1", "2"], noIdCount: 3 });
     });
 
     it("counts primitive array items and sorts scalar keys", () => {
@@ -53,8 +48,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.arrays.dataset?.noIdCount).toBe(1);
-      expect(signature.arrays.dataset?.idsSorted).toEqual(["has-id"]);
+      expect(signature.arrays.dataset).toEqual({ idsSorted: ["has-id"], noIdCount: 1 });
       expect(signature.scalars).toEqual(["backgroundColor", "color"]);
     });
 
@@ -145,19 +139,19 @@ describe("smart-update", () => {
       it("does not mark replace when previously empty array is removed", () => {
         const base: EChartsOption = {
           // empty array previously present
-          series: [] as any,
+          series: [] as EChartsOption["series"],
         };
-        const update: EChartsOption = {
+        const update = {
           title: { text: "noop" },
           // series key removed entirely
-        } as any;
+        } as EChartsOption;
 
         const result = planUpdate(buildSignature(base), update);
 
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();
         // Should not inject [] override since it was empty before
-        expect((result.option as any).series).toBeUndefined();
+        expect(result.option.series).toBeUndefined();
       });
       it("forces rebuild when options shrink", () => {
         const prev = buildSignature({ options: [{}, {}] });
@@ -167,8 +161,8 @@ describe("smart-update", () => {
       });
 
       it("forces rebuild when media entries shrink", () => {
-        const prev = buildSignature({ media: [{}, {}] as any });
-        const { plan } = planUpdate(prev, { media: [{}] as any });
+        const prev = buildSignature({ media: [{ option: {} }, { option: {} }] });
+        const { plan } = planUpdate(prev, { media: [{ option: {} }] });
 
         expect(plan.notMerge).toBe(true);
         expect(plan.replaceMerge).toBeUndefined();
@@ -414,9 +408,12 @@ describe("smart-update", () => {
         };
 
         const prev = buildSignature(base);
-        (prev.arrays as Record<string, unknown>).phantom = undefined;
+        const signatureWithPhantom = {
+          ...prev,
+          arrays: { ...prev.arrays, phantom: undefined },
+        };
 
-        const result = planUpdate(prev, base);
+        const result = planUpdate(signatureWithPhantom, base);
 
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();

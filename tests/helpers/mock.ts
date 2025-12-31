@@ -6,7 +6,12 @@ import type { EChartsType } from "../../src/types";
 
 type InitFn = typeof echartsInit;
 type ThrottleFn = typeof echartsThrottle;
-type Throttled = ReturnType<ThrottleFn>;
+type ThrottleFunction = Parameters<ThrottleFn>[0];
+type ThrottleControls = {
+  clear: () => void;
+  dispose: () => void;
+  pending: () => boolean;
+};
 
 export const init = vi.fn<InitFn>();
 export const throttle = vi.fn<ThrottleFn>();
@@ -83,11 +88,13 @@ function ensureStub(): ChartStub {
   return queue[cursor++];
 }
 
-const defaultThrottleImplementation: ThrottleFn = ((fn: any) => {
-  const wrapped = ((...args: any[]) => fn(...args)) as Throttled;
-  (wrapped as any).clear = vi.fn();
-  (wrapped as any).dispose = vi.fn();
-  (wrapped as any).pending = vi.fn(() => false);
+const defaultThrottleImplementation: ThrottleFn = ((fn) => {
+  const wrapped = ((...args: Parameters<ThrottleFunction>) =>
+    (fn as (...args: Parameters<ThrottleFunction>) => unknown)(...args)) as ReturnType<ThrottleFn> &
+    ThrottleControls;
+  wrapped.clear = vi.fn();
+  wrapped.dispose = vi.fn();
+  wrapped.pending = vi.fn(() => false);
   return wrapped;
 }) as ThrottleFn;
 
@@ -98,10 +105,10 @@ export function resetECharts(): void {
   init.mockReset();
   throttle.mockReset();
 
-  init.mockImplementation(((...args: Parameters<InitFn>) => {
+  init.mockImplementation((...args: Parameters<InitFn>) => {
     void args;
     return ensureStub() as unknown as ReturnType<InitFn>;
-  }) as InitFn);
+  });
   throttle.mockImplementation(defaultThrottleImplementation);
 }
 

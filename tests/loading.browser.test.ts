@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { ref, nextTick, type Ref, defineComponent } from "vue";
+import { defineComponent, nextTick, ref } from "vue";
+import type { Ref } from "vue";
 import { cleanup, render } from "vitest-browser-vue/pure";
 
 import { useLoading, LOADING_OPTIONS_KEY } from "../src/composables/loading";
@@ -26,7 +27,7 @@ function renderUseLoading(
     ? {
         global: {
           provide: {
-            [LOADING_OPTIONS_KEY as symbol]: defaults,
+            [LOADING_OPTIONS_KEY]: defaults,
           },
         },
       }
@@ -76,7 +77,7 @@ describe("useLoading", () => {
     const hideLoading = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
-    const loadingOptions = ref<LoadingOptions | undefined>({});
+    const loadingOptions = ref<LoadingOptions | undefined>(undefined);
 
     renderUseLoading(chart, loading, loadingOptions);
 

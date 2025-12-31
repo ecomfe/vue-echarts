@@ -124,8 +124,11 @@ describe("register", () => {
       expect(register()).toBe(true);
 
       const ctor = registry.get(TAG_NAME);
+      if (!ctor) {
+        throw new Error("Expected custom element constructor to be registered.");
+      }
       expect(typeof ctor).toBe("function");
-      expect("disconnectedCallback" in (ctor?.prototype ?? {})).toBe(true);
+      expect("disconnectedCallback" in ctor.prototype).toBe(true);
     });
   });
 

@@ -13,7 +13,7 @@ export function useLoading(
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
   const realLoadingOptions = computed(() => ({
     ...toValue(defaultLoadingOptions),
-    ...loadingOptions?.value,
+    ...(loadingOptions.value ?? {}),
   }));
 
   watchEffect(() => {

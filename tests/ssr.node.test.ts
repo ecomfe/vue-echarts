@@ -3,12 +3,15 @@ import { createSSRApp, defineComponent, h, shallowRef } from "vue";
 import { renderToString } from "@vue/server-renderer";
 
 import { useSlotOption } from "../src/composables/slot";
+import type { Option } from "../src/types";
+import { makeTooltipParams } from "./helpers/tooltip";
+import type { TooltipComponentOption } from "echarts";
 
 describe("SSR environment", () => {
   it("slot: teleportedSlots undefined and formatter returns undefined", async () => {
     const exposed = shallowRef<{
       teleportedSlots: () => unknown;
-      patchOption: (option: Record<string, unknown>) => Record<string, unknown>;
+      patchOption: (option: Option) => Option;
     }>();
 
     const Probe = defineComponent({
@@ -25,11 +28,22 @@ describe("SSR environment", () => {
 
     await renderToString(app);
 
-    const vnode = exposed.value?.teleportedSlots();
+    const instance = exposed.value;
+    if (!instance) {
+      throw new Error("Expected slot helpers to be exposed.");
+    }
+
+    const vnode = instance.teleportedSlots();
     expect(vnode).toBeUndefined();
 
-    const patched = exposed.value?.patchOption({});
-    const container = (patched as any)?.tooltip?.formatter?.({ dataIndex: 0 });
+    const patched = instance.patchOption({});
+    const tooltip = (patched as {
+      tooltip?: TooltipComponentOption | TooltipComponentOption[];
+    }).tooltip;
+    if (!tooltip || Array.isArray(tooltip) || typeof tooltip.formatter !== "function") {
+      throw new Error("Expected tooltip formatter to be set.");
+    }
+    const container = tooltip.formatter(makeTooltipParams(0), "");
     expect(container).toBeUndefined();
   });
 });

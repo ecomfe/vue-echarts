@@ -15,7 +15,10 @@ describe("style entry", () => {
     if (adoptedDescriptor) {
       Object.defineProperty(document, "adoptedStyleSheets", adoptedDescriptor);
     } else {
-      delete (document as any).adoptedStyleSheets;
+      const doc = document as unknown as Record<string, unknown> & {
+        adoptedStyleSheets?: CSSStyleSheet[];
+      };
+      delete doc.adoptedStyleSheets;
     }
   });
 
@@ -33,7 +36,10 @@ describe("style entry", () => {
 
     expect(replaceSpy).not.toHaveBeenCalled();
     expect(styleEl).not.toBeNull();
-    expect(styleEl?.textContent).not.toBe("");
+    if (!styleEl) {
+      throw new Error("Expected fallback style tag to be injected.");
+    }
+    expect(styleEl.textContent).not.toBe("");
   });
 
 });

@@ -104,6 +104,9 @@ importers:
       vue:
         specifier: ^3.5.18
         version: 3.5.26(typescript@5.9.3)
+      vue-component-type-helpers:
+        specifier: ^2.2.12
+        version: 2.2.12
       vue-tsc:
         specifier: ^3.0.5
         version: 3.2.0(typescript@5.9.3)

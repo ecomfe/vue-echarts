@@ -14,13 +14,14 @@ type AnalyzeFn = (code: string) => Promise<AnalyzeResult>;
 describe("option worker issues", () => {
   let originalSelf: unknown;
   let analyze: AnalyzeFn;
+  const globalWithSelf = globalThis as unknown as { self?: unknown };
 
   beforeAll(async () => {
-    originalSelf = (globalThis as Record<string, unknown>).self;
+    originalSelf = globalWithSelf.self;
     const workerStub = {
       postMessage: vi.fn(),
-    } as unknown as Worker;
-    (globalThis as Record<string, unknown>).self = workerStub;
+    };
+    globalWithSelf.self = workerStub;
 
     const module = await import("../demo/workers/option.worker");
     analyze = module.analyze;
@@ -28,9 +29,9 @@ describe("option worker issues", () => {
 
   afterAll(() => {
     if (typeof originalSelf === "undefined") {
-      delete (globalThis as Record<string, unknown>).self;
+      delete globalWithSelf.self;
     } else {
-      (globalThis as Record<string, unknown>).self = originalSelf;
+      globalWithSelf.self = originalSelf;
     }
   });
 
@@ -49,8 +50,7 @@ describe("option worker issues", () => {
     const result = await analyze("export default (() => { throw new Error('boom'); })();");
 
     const runtimeIssue = result.issues.find((item) => item.kind === "runtime");
-    expect(runtimeIssue).toBeDefined();
-    expect(runtimeIssue?.message ?? "").toContain("boom");
+    expect(runtimeIssue).toMatchObject({ message: expect.stringContaining("boom") });
     expect(result.option).toBeUndefined();
   });
 
@@ -58,8 +58,7 @@ describe("option worker issues", () => {
     const result = await analyze("export default { label: () => 'hi' };");
 
     const formatIssue = result.issues.find((item) => item.kind === "format");
-    expect(formatIssue).toBeDefined();
-    expect(formatIssue?.message ?? "").toContain("cannot be serialized");
+    expect(formatIssue).toMatchObject({ message: expect.stringContaining("cannot be serialized") });
     expect(result.option).toBeUndefined();
   });
 
@@ -67,9 +66,10 @@ describe("option worker issues", () => {
     const result = await analyze("import data from './data';\nexport default { data };");
 
     const runtimeIssue = result.issues.find((item) => item.kind === "runtime");
-    expect(runtimeIssue).toBeDefined();
-    expect(runtimeIssue?.message ?? "").toContain('Imports from "./data" can\'t be resolved');
-    expect(runtimeIssue?.hint ?? "").toContain("Inline the referenced values");
+    expect(runtimeIssue).toMatchObject({
+      message: expect.stringContaining('Imports from "./data" can\'t be resolved'),
+      hint: expect.stringContaining("Inline the referenced values"),
+    });
     expect(result.option).toBeUndefined();
   });
 
@@ -77,9 +77,10 @@ describe("option worker issues", () => {
     const result = await analyze("export default function getData() {}");
 
     const formatIssue = result.issues.find((item) => item.kind === "format");
-    expect(formatIssue).toBeDefined();
-    expect(formatIssue?.message).toBe("The default export must be an ECharts option object.");
-    expect(formatIssue?.hint ?? "").toContain("Call the function and export its return value");
+    expect(formatIssue).toMatchObject({
+      message: "The default export must be an ECharts option object.",
+      hint: expect.stringContaining("Call the function and export its return value"),
+    });
     expect(result.option).toBeUndefined();
   });
 });
