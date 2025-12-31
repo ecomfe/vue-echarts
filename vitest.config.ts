@@ -13,7 +13,6 @@ export default defineConfig({
     include: [],
     projects: [
       {
-        extends: "./vite.config.ts",
         test: {
           name: "browser",
           globals: true,

@@ -51,7 +51,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/browser/lcov.info
+          files: coverage/lcov.info
           disable_search: true
 
       - name: Publish the commit
