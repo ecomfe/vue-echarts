@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import vue from "@vitejs/plugin-vue";
 import { playwright } from "@vitest/browser-playwright";
 
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
     include: [],
     projects: [
       {
+        plugins: [vue()],
         test: {
           name: "browser",
           globals: true,
