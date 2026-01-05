@@ -74,7 +74,7 @@
     "vitest": "^4.0.16",
     "vitest-browser-vue": "^2.0.1",
     "vue": "^3.5.18",
-    "vue-component-type-helpers": "^2.2.12",
+    "vue-component-type-helpers": "^3.0.0",
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {
