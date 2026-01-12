@@ -97,7 +97,7 @@ importers:
         version: 5.9.3
       unplugin-raw:
         specifier: ^0.6.0
-        version: 0.6.3
+        version: 0.6.4
       vite:
         specifier: 8.0.0-beta.5
         version: 8.0.0-beta.5(@types/node@24.10.4)(jiti@2.6.1)(yaml@2.8.2)
@@ -2127,21 +2127,21 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  unplugin-raw@0.6.3:
-    resolution: {integrity: sha512-R/AJrN3pcXOkKHF5nCVxk3Afx64jfeqQVAs/M+5npN7IWzVb0sVUlz3USW7AT5FhCs9pBuFZwdz3zgDsxQPzPQ==}
-    engines: {node: '>=20.18.0'}
+  unplugin-raw@0.6.4:
+    resolution: {integrity: sha512-Cxxk4mtLVJKwJjGVijQwVMkEOxBzBSz37jSfm44/Fw9lzo6z+oetXty5PrnkgWzKJYpeoJdBk6PnklibG0pLqg==}
+    engines: {node: '>=20.19.0'}
     peerDependencies:
       esbuild: '>=0.25.0'
     peerDependenciesMeta:
       esbuild:
         optional: true
 
-  unplugin-utils@0.3.0:
-    resolution: {integrity: sha512-JLoggz+PvLVMJo+jZt97hdIIIZ2yTzGgft9e9q8iMrC4ewufl62ekeW7mixBghonn2gVb/ICjyvlmOCUBnJLQg==}
+  unplugin-utils@0.3.1:
+    resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
 
-  unplugin@2.3.10:
-    resolution: {integrity: sha512-6NCPkv1ClwH+/BGE9QeoTIl09nuiAt0gS28nn1PvYXsGKRwM2TCbFA2QiilmehPDTXIe684k4rZI1yl3A1PCUw==}
+  unplugin@2.3.11:
+    resolution: {integrity: sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww==}
     engines: {node: '>=18.12.0'}
 
   unrun@0.2.24:
@@ -4398,17 +4398,17 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  unplugin-raw@0.6.3:
+  unplugin-raw@0.6.4:
     dependencies:
-      unplugin: 2.3.10
-      unplugin-utils: 0.3.0
+      unplugin: 2.3.11
+      unplugin-utils: 0.3.1
 
-  unplugin-utils@0.3.0:
+  unplugin-utils@0.3.1:
     dependencies:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin@2.3.10:
+  unplugin@2.3.11:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       acorn: 8.15.0
