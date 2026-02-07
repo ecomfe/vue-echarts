@@ -396,7 +396,7 @@ describe("graphic slot edge and integration behavior", () => {
                 items.map((i) =>
                   h(GRect, {
                     id: `node-${i}`,
-                    x: i * 2 + rerenderTick.value * 0,
+                    x: i * 2,
                     y: i % 10,
                     width: 2,
                     height: 2,
