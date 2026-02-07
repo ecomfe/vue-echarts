@@ -34,7 +34,7 @@ const viewport = shallowRef<OverlayViewport>({
 });
 
 watchEffect((onCleanup) => {
-  const target = chartRef.value?.root?.value as HTMLElement | undefined;
+  const target = chartRef.value?.root as HTMLElement | undefined;
   if (!target || typeof ResizeObserver === "undefined") {
     return;
   }
