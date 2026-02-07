@@ -332,9 +332,15 @@ export default {
 
 ### 插槽&nbsp;<sup><a href="#插槽"><img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能" align="middle" height="16"></a></sup>
 
-Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter) 和 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent) 回调，而无需在 `option` 对象中定义它们。你可以使用熟悉的 Vue 模板语法来编写自定义提示框或数据视图中的内容。
+Vue ECharts 当前支持三类插槽：
 
-#### 插槽命名约定
+- 回调类插槽：用于 [`tooltip.formatter`](https://echarts.apache.org/zh/option.html#tooltip.formatter)。
+- 回调类插槽：用于 [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/zh/option.html#toolbox.feature.dataView.optionToContent)。
+- 可选 `#graphic` 插槽（需引入 `vue-echarts/graphic`）：通过 `G*` 组件声明式构建 [`option.graphic`](https://echarts.apache.org/zh/option.html#graphic)。
+
+#### 回调插槽命名约定（`tooltip*` / `dataView*`）
+
+下面的命名规则只适用于回调类插槽，`graphic` 插槽固定使用 `#graphic`。
 
 - 插槽名称以 `tooltip`/`dataView` 开头，后面跟随用连字符分隔的路径片段，用于定位目标。
 - 每个路径片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
@@ -399,6 +405,68 @@ Vue ECharts 允许你通过 Vue 插槽来定义 ECharts 配置中的 [`tooltip.f
 
 > [!NOTE]
 > 插槽会优先于 `props.option` 中对应的回调函数。
+
+#### Graphic 插槽（可选入口）
+
+基于模板语法的 graphic API 以可选入口提供，避免增加主包体积。引入 `vue-echarts/graphic` 会注册该插槽处理，并导出 `G*` 组件：
+
+```ts
+import { GGroup, GRect, GText, GCircle } from "vue-echarts/graphic";
+```
+
+如果只需要注册插槽能力（不直接导入 `G*` 组件），也可以只做副作用导入：
+
+```ts
+import "vue-echarts/graphic";
+```
+
+用法示例：
+
+```vue
+<template>
+  <VChart :option="option">
+    <template #graphic>
+      <GGroup>
+        <GRect left="center" top="8%" :width="200" :height="40" :r="10" fill="rgba(0,0,0,.25)" />
+        <GText
+          left="center"
+          top="12%"
+          text="Template graphic"
+          font="12px sans-serif"
+          text-fill="#fff"
+        />
+      </GGroup>
+    </template>
+  </VChart>
+</template>
+```
+
+Graphic 参考文档：[ECharts `option.graphic` →](https://echarts.apache.org/zh/option.html#graphic)
+
+注意事项：
+
+- 只有在引入 `vue-echarts/graphic` 后，`#graphic` 才会生效；否则会给出警告并跳过该插槽。
+- 在 TypeScript 项目中，引入 `vue-echarts/graphic` 还会为 `VChart` 增强 `graphic` 插槽类型。
+- `#graphic` 与 `option.graphic` 实际上互斥；两者同时提供时，以插槽内容为准。
+- 自动更新模式下，`#graphic` 的响应式变更会自动应用；`manual-update` 模式下需手动调用 `chartRef.setOption(...)` 提交变更。
+- 如果有动态节点（`v-for`）或绑定 graphic 事件（例如 `onClick`、`onMousemove`），请提供稳定的 `id`（或 `:key`）。
+- 请避免在 `#graphic` 里放普通 HTML 节点，应使用 `G*` 组件以便正确转换为 ECharts graphic 配置。
+
+可用组件：
+
+- `GGroup`
+- `GRect`
+- `GCircle`
+- `GText`
+- `GLine`
+- `GPolyline`
+- `GPolygon`
+- `GImage`
+- `GSector`
+- `GRing`
+- `GArc`
+- `GBezierCurve`
+- `GCompoundPath`
 
 ### 静态方法
 

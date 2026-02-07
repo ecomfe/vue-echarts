@@ -1,0 +1,27 @@
+import type { PropType } from "vue";
+
+export const graphicShapeProps = {
+  x: Number,
+  y: Number,
+  cx: Number,
+  cy: Number,
+  r: Number,
+  r0: Number,
+  x1: Number,
+  y1: Number,
+  x2: Number,
+  y2: Number,
+  cpx1: Number,
+  cpy1: Number,
+  cpx2: Number,
+  cpy2: Number,
+  startAngle: Number,
+  endAngle: Number,
+  percent: Number,
+  points: Array as PropType<Array<[number, number]>>,
+  smooth: [Boolean, Number] as PropType<boolean | number>,
+  smoothConstraint: Boolean,
+  paths: Array as PropType<unknown[]>,
+  clockwise: Boolean,
+  cornerRadius: [Number, Array] as PropType<number | number[]>,
+} as const;

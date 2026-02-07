@@ -26,6 +26,18 @@ export function withConsoleWarn<T>(callback: (warnSpy: ReturnType<typeof vi.spyO
   }
 }
 
+export async function withConsoleWarnAsync<T>(
+  callback: (warnSpy: ReturnType<typeof vi.spyOn>) => Promise<T>,
+): Promise<T> {
+  const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+  try {
+    return await callback(warnSpy);
+  } finally {
+    warnSpy.mockRestore();
+  }
+}
+
 export function resetDocumentBody(): void {
   document.body.innerHTML = "";
 }
