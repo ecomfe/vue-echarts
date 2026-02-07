@@ -3,7 +3,10 @@ import raw from "unplugin-raw/rollup";
 
 export default defineConfig([
   {
-    entry: "src/index.ts",
+    entry: {
+      index: "src/index.ts",
+      graphic: "src/graphic/index.ts",
+    },
     platform: "browser",
     sourcemap: true,
     copy: ["src/style.css"],

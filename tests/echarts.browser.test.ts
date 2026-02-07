@@ -240,6 +240,30 @@ describe("ECharts component", () => {
     expect(currentStub.setTheme).toHaveBeenCalledWith({});
   });
 
+  it("ignores theme updates when chart ref is missing", async () => {
+    const option = ref({ title: { text: "brew" } });
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const instance = getExposed(exposed);
+    setExposedField(instance, "chart", undefined);
+
+    const callsBefore = chartStub.setTheme.mock.calls.length;
+    theme.value = { palette: ["#22d3ee"] };
+    await nextTick();
+
+    expect(chartStub.setTheme.mock.calls.length).toBe(callsBefore);
+  });
+
   it("re-initializes when initOptions change", async () => {
     const option = ref({ title: { text: "coffee" } });
     const initOptions = ref({ useDirtyRect: true });
