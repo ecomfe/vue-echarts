@@ -97,6 +97,7 @@ describe("graphic extension", () => {
     const vnode = extensions.render()[0] as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
+      unregister: (id: string) => void;
     };
 
     const onClickA = vi.fn();
@@ -172,6 +173,11 @@ describe("graphic extension", () => {
 
     expect(chart1.off).toHaveBeenCalled();
     expect(chart2.on).toHaveBeenCalledWith("mouseenter", expect.any(Function));
+
+    collector.unregister("n1");
+    await flushMicrotasks();
+    expect(chart2.off).toHaveBeenCalledWith("mouseenter", expect.any(Function));
+
     expect(warn).not.toHaveBeenCalled();
 
     scope.stop();

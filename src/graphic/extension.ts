@@ -1,10 +1,10 @@
-import { h, watch } from "vue";
+import { h, onScopeDispose, watch } from "vue";
 
 import type { VChartExtensionContext } from "../extensions";
 import { registerVChartExtension } from "../extensions";
 import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
-import { createGraphicCollector } from "./collector";
+import { createGraphicCollector, createStableSerializer } from "./collector";
 import { GraphicMount } from "./mount";
 import { warnManualUpdateIgnored, warnOptionGraphicOverride } from "./warn";
 
@@ -13,8 +13,9 @@ const GRAPHIC_EXTENSION_KEY = "vue-echarts/graphic";
 
 type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 
+const stringifyOption = createStableSerializer();
 function optionSignature(option: unknown): string {
-  return JSON.stringify(option);
+  return stringifyOption(option);
 }
 
 function isSameHandlers(a: NormalizedHandlers | undefined, b: NormalizedHandlers): boolean {
@@ -220,6 +221,17 @@ export function registerGraphicExtension(): void {
             collector.warnOnce("manual-update-graphic", warnManualUpdateIgnored());
           }
         },
+      });
+
+      onScopeDispose(() => {
+        collector.dispose();
+        if (boundChart && boundEvents.size > 0) {
+          boundEvents.forEach((handler, event) => boundChart?.off(event, handler as any));
+        }
+        boundEvents.clear();
+        eventRefCount.clear();
+        handlersById.clear();
+        boundChart = null;
       });
 
       return {

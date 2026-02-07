@@ -35,10 +35,44 @@ export type GraphicCollector = {
   dispose: () => void;
 };
 
-function createStableSerializer() {
+export function createStableSerializer() {
   type UnknownFn = (...args: unknown[]) => unknown;
   const functionIds = new WeakMap<UnknownFn, number>();
+  const symbolIds = new Map<symbol, number>();
+  const objectIds = new WeakMap<object, number>();
   let functionCursor = 0;
+  let symbolCursor = 0;
+  let objectCursor = 0;
+
+  const ensureFunctionId = (fn: UnknownFn): number => {
+    let id = functionIds.get(fn);
+    if (id == null) {
+      functionCursor += 1;
+      id = functionCursor;
+      functionIds.set(fn, id);
+    }
+    return id;
+  };
+
+  const ensureSymbolId = (symbol: symbol): number => {
+    let id = symbolIds.get(symbol);
+    if (id == null) {
+      symbolCursor += 1;
+      id = symbolCursor;
+      symbolIds.set(symbol, id);
+    }
+    return id;
+  };
+
+  const ensureObjectId = (object: object): number => {
+    let id = objectIds.get(object);
+    if (id == null) {
+      objectCursor += 1;
+      id = objectCursor;
+      objectIds.set(object, id);
+    }
+    return id;
+  };
 
   const stringify = (value: unknown): string => {
     if (value === undefined) {
@@ -62,24 +96,23 @@ function createStableSerializer() {
       return `g:${String(value)}`;
     }
     if (valueType === "symbol") {
-      return `y:${String(value)}`;
+      return `y:${ensureSymbolId(value as symbol)}`;
     }
     if (valueType === "function") {
-      const fn = value as UnknownFn;
-      let id = functionIds.get(fn);
-      if (id == null) {
-        functionCursor += 1;
-        id = functionCursor;
-        functionIds.set(fn, id);
-      }
-      return `f:${id}`;
+      return `f:${ensureFunctionId(value as UnknownFn)}`;
     }
 
     if (Array.isArray(value)) {
       return `[${value.map((item) => stringify(item)).join(",")}]`;
     }
 
-    const record = value as Record<string, unknown>;
+    const objectValue = value as object;
+    const prototype = Object.getPrototypeOf(objectValue);
+    if (prototype !== Object.prototype && prototype !== null) {
+      return `o:${ensureObjectId(objectValue)}`;
+    }
+
+    const record = objectValue as Record<string, unknown>;
     const keys = Object.keys(record).sort();
     return `{${keys.map((key) => `${key}:${stringify(record[key])}`).join(",")}}`;
   };

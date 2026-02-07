@@ -99,7 +99,6 @@ export default defineComponent({
     });
 
     let lastSignature: Signature | undefined;
-    let warnedMissingGraphicEntry = false;
 
     const requestUpdate = (options?: {
       force?: boolean;
@@ -126,9 +125,8 @@ export default defineComponent({
     const patchOptionFromExtensions = extensions.patchOption;
     const renderExtensions = extensions.render;
 
-    if (hasGraphicSlot() && extensions.count === 0 && !warnedMissingGraphicEntry) {
+    if (hasGraphicSlot() && extensions.count === 0) {
       warn(warnMissingGraphicEntry());
-      warnedMissingGraphicEntry = true;
     }
 
     function resolveUpdateOptions(plan: UpdatePlan): UpdateOptions {

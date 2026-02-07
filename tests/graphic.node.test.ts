@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 import { buildGraphicOption } from "../src/graphic/build";
-import { createGraphicCollector } from "../src/graphic/collector";
+import { createGraphicCollector, createStableSerializer } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
@@ -80,6 +80,9 @@ describe("graphic", () => {
 
     const { option } = buildGraphicOption(nodes, "root");
     const root = (option as any).graphic?.elements?.[0] as any;
+    if (!root) {
+      throw new Error("Expected root graphic element to exist.");
+    }
     const info = root.children?.[0]?.info as Record<string, unknown>;
 
     expect(info).toMatchObject({ name: "marker", __veGraphicId: "hit" });
@@ -193,7 +196,13 @@ describe("graphic", () => {
 
     const { option, snapshot } = buildGraphicOption(nodes, "root");
     const root = (option as any).graphic?.elements?.[0] as any;
+    if (!root) {
+      throw new Error("Expected root graphic element to exist.");
+    }
     const group = root.children.find((item: any) => item.id === "group");
+    if (!group) {
+      throw new Error("Expected group node to exist.");
+    }
     const image = group.children.find((item: any) => item.id === "img");
     const line = group.children.find((item: any) => item.id === "line");
     const imageHit = group.children.find((item: any) => item.id === "img-hit");
@@ -256,6 +265,20 @@ describe("graphic", () => {
     expect(onFlush).toHaveBeenCalledTimes(2);
   });
 
+  it("generates stable identities for symbols and non-plain objects", () => {
+    const stringify = createStableSerializer();
+    const symbolA = Symbol("marker");
+    const symbolB = Symbol("marker");
+    const imageA = new URL("https://example.com/a.png");
+    const imageB = new URL("https://example.com/a.png");
+
+    expect(stringify({ value: symbolA })).toBe(stringify({ value: symbolA }));
+    expect(stringify({ value: symbolA })).not.toBe(stringify({ value: symbolB }));
+
+    expect(stringify({ image: imageA })).toBe(stringify({ image: imageA }));
+    expect(stringify({ image: imageA })).not.toBe(stringify({ image: imageB }));
+  });
+
   it("returns live snapshot of collector nodes", () => {
     const collector = createGraphicCollector({
       onFlush: () => void 0,
@@ -301,6 +324,8 @@ describe("graphic", () => {
     });
 
     collector.unregister("x", 2);
+    expect(collector.getSnapshot().ids.has("x")).toBe(true);
+    collector.unregister("missing", 1);
     expect(collector.getSnapshot().ids.has("x")).toBe(true);
 
     collector.unregister("x", 1);
