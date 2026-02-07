@@ -4,7 +4,7 @@ import type { VChartExtensionContext } from "../extensions";
 import { registerVChartExtension } from "../extensions";
 import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
-import { createGraphicCollector, createStableSerializer } from "./collector";
+import { createGraphicCollector } from "./collector";
 import { GraphicMount } from "./mount";
 import { warnManualUpdateIgnored, warnOptionGraphicOverride } from "./warn";
 
@@ -13,49 +13,13 @@ const GRAPHIC_EXTENSION_KEY = "vue-echarts/graphic";
 
 type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 
-const stringifyOption = createStableSerializer();
-function optionSignature(option: unknown): string {
-  return stringifyOption(option);
-}
-
-function isSameHandlers(a: NormalizedHandlers | undefined, b: NormalizedHandlers): boolean {
-  if (!a) {
-    return Object.keys(b).length === 0;
-  }
-
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-  for (const key of keysA) {
-    if (!(key in b)) {
-      return false;
-    }
-    const listA = a[key];
-    const listB = b[key];
-    if (listA.length !== listB.length) {
-      return false;
-    }
-    for (let i = 0; i < listA.length; i++) {
-      if (listA[i] !== listB[i]) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 export function registerGraphicExtension(): void {
   registerVChartExtension(
     (ctx: VChartExtensionContext) => {
       const handlersById = new Map<string, NormalizedHandlers>();
-      const eventRefCount = new Map<string, number>();
       const boundEvents = new Map<string, (params: unknown) => void>();
       let boundChart: EChartsType | null = null;
       let warnedOptionGraphicOverride = false;
-      let lastGraphicOptionSignature = "";
       let lastHandledStructureVersion = -1;
 
       const normalizeEvent = (key: string): string | null => {
@@ -101,53 +65,16 @@ export function registerGraphicExtension(): void {
         handlers.forEach((handler) => handler(params));
       };
 
-      const incrementEventRefs = (handlers: NormalizedHandlers, delta: 1 | -1) => {
-        Object.keys(handlers).forEach((event) => {
-          const next = (eventRefCount.get(event) ?? 0) + delta;
-          if (next <= 0) {
-            eventRefCount.delete(event);
-          } else {
-            eventRefCount.set(event, next);
-          }
-        });
-      };
-
-      const setNodeHandlers = (id: string, next: NormalizedHandlers) => {
-        const prev = handlersById.get(id);
-        if (isSameHandlers(prev, next)) {
-          return;
-        }
-
-        if (prev) {
-          incrementEventRefs(prev, -1);
-        }
-
-        if (Object.keys(next).length > 0) {
-          handlersById.set(id, next);
-          incrementEventRefs(next, 1);
-        } else {
-          handlersById.delete(id);
-        }
-      };
-
-      const removeNodeHandlers = (id: string) => {
-        const prev = handlersById.get(id);
-        if (prev) {
-          incrementEventRefs(prev, -1);
-        }
-        handlersById.delete(id);
-      };
-
-      const syncEventBindings = (chart: EChartsType) => {
+      const syncEventBindings = (chart: EChartsType, activeEvents: Set<string>) => {
         boundEvents.forEach((handler, event) => {
-          if (!eventRefCount.has(event)) {
+          if (!activeEvents.has(event)) {
             chart.off(event, handler as any);
             boundEvents.delete(event);
           }
         });
 
-        eventRefCount.forEach((count, event) => {
-          if (count <= 0 || boundEvents.has(event)) {
+        activeEvents.forEach((event) => {
+          if (boundEvents.has(event)) {
             return;
           }
           const handler = (params: unknown) => dispatchEvent(event, params);
@@ -165,7 +92,11 @@ export function registerGraphicExtension(): void {
           }
           boundChart = chart ?? null;
           if (boundChart) {
-            syncEventBindings(boundChart);
+            const activeEvents = new Set<string>();
+            handlersById.forEach((handlers) => {
+              Object.keys(handlers).forEach((event) => activeEvents.add(event));
+            });
+            syncEventBindings(boundChart, activeEvents);
           }
         },
         { immediate: true },
@@ -181,35 +112,30 @@ export function registerGraphicExtension(): void {
           lastHandledStructureVersion = structureVersion;
 
           const nodes = Array.from(collector.getNodes());
-          const seenIds = new Set<string>();
+          const nextHandlersById = new Map<string, NormalizedHandlers>();
+          const activeEvents = new Set<string>();
+
           for (const node of nodes) {
-            seenIds.add(node.id);
-            setNodeHandlers(node.id, normalizeHandlers(node.handlers));
-          }
-          Array.from(handlersById.keys()).forEach((id) => {
-            if (!seenIds.has(id)) {
-              removeNodeHandlers(id);
+            const handlers = normalizeHandlers(node.handlers);
+            if (Object.keys(handlers).length > 0) {
+              nextHandlersById.set(node.id, handlers);
+              Object.keys(handlers).forEach((event) => activeEvents.add(event));
             }
+          }
+
+          handlersById.clear();
+          nextHandlersById.forEach((handlers, id) => {
+            handlersById.set(id, handlers);
           });
 
           if (boundChart) {
-            syncEventBindings(boundChart);
+            syncEventBindings(boundChart, activeEvents);
           }
 
           const { option, snapshot } = buildGraphicOption(nodes, ROOT_ID);
-          const signature = optionSignature(option.graphic);
-          const graphicChanged = signature !== lastGraphicOptionSignature;
 
           collector.optionRef.value = option;
           collector.setSnapshot(snapshot);
-          lastGraphicOptionSignature = signature;
-
-          if (!graphicChanged) {
-            if (ctx.manualUpdate.value) {
-              collector.warnOnce("manual-update-graphic", warnManualUpdateIgnored());
-            }
-            return;
-          }
 
           const updated = ctx.requestUpdate({
             updateOptions: {
@@ -229,7 +155,6 @@ export function registerGraphicExtension(): void {
           boundEvents.forEach((handler, event) => boundChart?.off(event, handler as any));
         }
         boundEvents.clear();
-        eventRefCount.clear();
         handlersById.clear();
         boundChart = null;
       });
@@ -250,7 +175,6 @@ export function registerGraphicExtension(): void {
             );
             collector.optionRef.value = initialOption;
             collector.setSnapshot(snapshot);
-            lastGraphicOptionSignature = optionSignature(initialOption.graphic);
           }
           const graphicOption = collector.optionRef.value!;
           return {
