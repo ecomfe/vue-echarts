@@ -12,10 +12,12 @@ type CollectorMock = {
   unregister: ReturnType<typeof vi.fn>;
   warnOnce: ReturnType<typeof vi.fn>;
   requestFlush: ReturnType<typeof vi.fn>;
+  dispose: ReturnType<typeof vi.fn>;
   optionRef: { value: unknown };
   getNodes: () => Iterable<unknown>;
   getSnapshot: () => unknown;
   setSnapshot: ReturnType<typeof vi.fn>;
+  getStructureVersion: () => number;
 };
 
 function createCollectorMock(): CollectorMock {
@@ -25,10 +27,12 @@ function createCollectorMock(): CollectorMock {
     unregister: vi.fn(),
     warnOnce: vi.fn(),
     requestFlush: vi.fn(),
+    dispose: vi.fn(),
     optionRef: { value: null },
     getNodes: () => [],
     getSnapshot: () => ({}),
     setSnapshot: vi.fn(),
+    getStructureVersion: () => 0,
   };
 }
 

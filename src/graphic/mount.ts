@@ -4,6 +4,7 @@ import type { VNode } from "vue";
 import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
+import { GRAPHIC_COMPONENT_MARKER } from "./marker";
 
 function getGraphicIdentity(vnode: VNode): string | null {
   const props = vnode.props as Record<string, unknown> | null;
@@ -18,18 +19,14 @@ function getGraphicIdentity(vnode: VNode): string | null {
 
 function isGraphicComponent(vnode: VNode): boolean {
   const type = vnode.type as Record<string, unknown> | string | symbol;
-  return Boolean(
-    type &&
-    typeof type === "object" &&
-    typeof (type as Record<string, unknown>).name === "string" &&
-    ((type as Record<string, unknown>).name as string).startsWith("G"),
-  );
+  return Boolean(type && typeof type === "object" && GRAPHIC_COMPONENT_MARKER in type);
 }
 
 function isGraphicGroup(vnode: VNode): boolean {
   const type = vnode.type as Record<string, unknown> | string | symbol;
   return (
-    Boolean(type && typeof type === "object") && (type as Record<string, unknown>).name === "GGroup"
+    Boolean(type && typeof type === "object") &&
+    (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER] === "group"
   );
 }
 
@@ -93,7 +90,6 @@ export const GraphicMount = defineComponent({
       const orderMap = new Map<string, number>();
       collectGraphicOrder(content, orderMap, { value: 0 });
       orderMapRef.value = orderMap;
-      props.collector.requestFlush();
 
       return detachedRoot
         ? h(Teleport, { to: detachedRoot }, h("div", { style: { display: "contents" } }, content))

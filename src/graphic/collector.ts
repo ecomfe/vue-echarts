@@ -3,6 +3,7 @@ import { shallowRef } from "vue";
 
 import type { Option } from "../types";
 import { COMMON_PROP_KEYS } from "./constants";
+import { warnDuplicateId } from "./warn";
 
 export type GraphicNode = {
   id: string;
@@ -30,7 +31,74 @@ export type GraphicCollector = {
   getSnapshot: () => GraphicSnapshot;
   setSnapshot: (snapshot: GraphicSnapshot) => void;
   requestFlush: () => void;
+  getStructureVersion: () => number;
+  dispose: () => void;
 };
+
+function createStableSerializer() {
+  type UnknownFn = (...args: unknown[]) => unknown;
+  const functionIds = new WeakMap<UnknownFn, number>();
+  let functionCursor = 0;
+
+  const stringify = (value: unknown): string => {
+    if (value === undefined) {
+      return "u";
+    }
+    if (value === null) {
+      return "n";
+    }
+
+    const valueType = typeof value;
+    if (valueType === "string") {
+      return `s:${JSON.stringify(value)}`;
+    }
+    if (valueType === "number") {
+      return `d:${value}`;
+    }
+    if (valueType === "boolean") {
+      return value ? "b:1" : "b:0";
+    }
+    if (valueType === "bigint") {
+      return `g:${String(value)}`;
+    }
+    if (valueType === "symbol") {
+      return `y:${String(value)}`;
+    }
+    if (valueType === "function") {
+      const fn = value as UnknownFn;
+      let id = functionIds.get(fn);
+      if (id == null) {
+        functionCursor += 1;
+        id = functionCursor;
+        functionIds.set(fn, id);
+      }
+      return `f:${id}`;
+    }
+
+    if (Array.isArray(value)) {
+      return `[${value.map((item) => stringify(item)).join(",")}]`;
+    }
+
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record).sort();
+    return `{${keys.map((key) => `${key}:${stringify(record[key])}`).join(",")}}`;
+  };
+
+  return stringify;
+}
+
+function buildNodeFingerprint(
+  stringify: (value: unknown) => string,
+  node: Omit<GraphicNode, "order"> & { order: number },
+): string {
+  return [
+    node.type,
+    node.parentId ?? "null",
+    String(node.order),
+    stringify(node.props),
+    stringify(node.handlers),
+  ].join("|");
+}
 
 export function createGraphicCollector(options: {
   onFlush: () => void;
@@ -39,11 +107,15 @@ export function createGraphicCollector(options: {
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
   const optionRef = shallowRef<Option | null>(null);
+  const fingerprintById = new Map<string, string>();
+  const passById = new Map<string, number>();
+  const stringify = createStableSerializer();
 
   let order = 0;
   let currentPass = 0;
   let pending = false;
-  const passById = new Map<string, number>();
+  let disposed = false;
+  let structureVersion = 0;
 
   const snapshot: GraphicSnapshot = {
     ids: new Set(),
@@ -65,14 +137,15 @@ export function createGraphicCollector(options: {
   }
 
   function register(node: Omit<GraphicNode, "order"> & { order?: number }): void {
+    if (disposed) {
+      return;
+    }
+
     const existing = nodes.get(node.id);
     const existingPass = passById.get(node.id);
     if (existing && existing.sourceId !== node.sourceId && existingPass === currentPass) {
       snapshot.hasDuplicateId = true;
-      warnOnce(
-        `duplicate-id:${node.id}`,
-        `Duplicate graphic id "${node.id}" detected. Updates may be unstable.`,
-      );
+      warnOnce(`duplicate-id:${node.id}`, warnDuplicateId(node.id));
     }
 
     const nextOrder = node.order ?? order++;
@@ -80,16 +153,33 @@ export function createGraphicCollector(options: {
       order = node.order + 1;
     }
 
+    const fingerprint = buildNodeFingerprint(stringify, { ...node, order: nextOrder });
+    if (
+      existing &&
+      existing.sourceId === node.sourceId &&
+      existing.order === nextOrder &&
+      fingerprintById.get(node.id) === fingerprint
+    ) {
+      passById.set(node.id, currentPass);
+      return;
+    }
+
     nodes.set(node.id, {
       ...existing,
       ...node,
       order: nextOrder,
     });
+    fingerprintById.set(node.id, fingerprint);
     passById.set(node.id, currentPass);
+    structureVersion += 1;
     requestFlush();
   }
 
   function unregister(id: string, sourceId?: number): void {
+    if (disposed) {
+      return;
+    }
+
     const existing = nodes.get(id);
     if (!existing) {
       return;
@@ -99,16 +189,21 @@ export function createGraphicCollector(options: {
     }
     nodes.delete(id);
     passById.delete(id);
+    fingerprintById.delete(id);
+    structureVersion += 1;
     requestFlush();
   }
 
   function requestFlush(): void {
-    if (pending) {
+    if (disposed || pending) {
       return;
     }
     pending = true;
     queueMicrotask(() => {
       pending = false;
+      if (disposed) {
+        return;
+      }
       options.onFlush();
     });
   }
@@ -135,6 +230,20 @@ export function createGraphicCollector(options: {
     snapshot.hasDuplicateId = next.hasDuplicateId;
   }
 
+  function getStructureVersion(): number {
+    return structureVersion;
+  }
+
+  function dispose(): void {
+    disposed = true;
+    pending = false;
+    nodes.clear();
+    passById.clear();
+    fingerprintById.clear();
+    warnedKeys.clear();
+    optionRef.value = null;
+  }
+
   return {
     beginPass,
     register,
@@ -145,6 +254,8 @@ export function createGraphicCollector(options: {
     getSnapshot,
     setSnapshot,
     requestFlush,
+    getStructureVersion,
+    dispose,
   };
 }
 
