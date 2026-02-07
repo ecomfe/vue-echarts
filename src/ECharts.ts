@@ -27,6 +27,7 @@ import { isOn, omitOn, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
 import type { Signature, UpdatePlan } from "./update";
+import { useVChartExtensions } from "./extensions";
 
 import type { PropType, InjectionKey } from "vue";
 import type {
@@ -72,6 +73,7 @@ export default defineComponent({
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chart = shallowRef<EChartsType>();
+    const isReady = shallowRef(false);
     const defaultTheme = inject(THEME_KEY, null);
     const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
     const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
@@ -87,6 +89,7 @@ export default defineComponent({
     const nativeListeners: Record<string, unknown> = {};
 
     const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> = new Map();
+    const hasGraphicSlot = () => Boolean((slots as Record<string, unknown>).graphic);
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
@@ -95,6 +98,39 @@ export default defineComponent({
     });
 
     let lastSignature: Signature | undefined;
+    let warnedMissingGraphicEntry = false;
+
+    const requestUpdate = (options?: {
+      force?: boolean;
+      updateOptions?: UpdateOptions;
+    }): boolean => {
+      if (!chart.value || !props.option) {
+        return false;
+      }
+      if (!options?.force && manualUpdate.value) {
+        return false;
+      }
+      applyOption(chart.value, props.option, options?.updateOptions);
+      return true;
+    };
+
+    const extensions = useVChartExtensions({
+      chart,
+      slots,
+      manualUpdate,
+      requestUpdate,
+      warn,
+    });
+
+    const patchOptionFromExtensions = extensions.patchOption;
+    const renderExtensions = extensions.render;
+
+    if (hasGraphicSlot() && extensions.count === 0 && !warnedMissingGraphicEntry) {
+      warn(
+        "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
+      );
+      warnedMissingGraphicEntry = true;
+    }
 
     function resolveUpdateOptions(plan: UpdatePlan): UpdateOptions {
       const result: UpdateOptions = {};
@@ -115,7 +151,7 @@ export default defineComponent({
       override?: UpdateOptions,
       manual = false,
     ) {
-      const patched = patchOption(option);
+      const patched = patchOptionFromExtensions(patchOption(option));
 
       if (manual) {
         instance.setOption(patched, override ?? {});
@@ -123,9 +159,14 @@ export default defineComponent({
         return;
       }
 
+      if (override) {
+        instance.setOption(patched, override);
+        lastSignature = undefined;
+        return;
+      }
+
       if (realUpdateOptions.value) {
-        const updateOptions = override ?? realUpdateOptions.value;
-        instance.setOption(patched, updateOptions);
+        instance.setOption(patched, realUpdateOptions.value);
         lastSignature = undefined;
         return;
       }
@@ -173,6 +214,7 @@ export default defineComponent({
       });
 
     function init() {
+      isReady.value = false;
       const instance = (chart.value = initChart(
         root.value,
         realTheme.value,
@@ -237,9 +279,11 @@ export default defineComponent({
         nextTick(() => {
           resize();
           commit();
+          isReady.value = true;
         });
       } else {
         commit();
+        isReady.value = true;
       }
     }
     const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {
@@ -262,6 +306,7 @@ export default defineComponent({
         chart.value.dispose();
         chart.value = undefined;
       }
+      isReady.value = false;
       lastSignature = undefined;
     }
 
@@ -301,7 +346,14 @@ export default defineComponent({
     watch(
       realTheme,
       (theme) => {
-        chart.value?.setTheme(theme || {});
+        const instance = chart.value;
+        if (instance) {
+          instance.setTheme(theme || {});
+
+          if (hasGraphicSlot() && props.option && !manualUpdate.value) {
+            applyOption(instance, props.option, { replaceMerge: ["graphic"] });
+          }
+        }
       },
       {
         deep: true,
@@ -356,7 +408,7 @@ export default defineComponent({
           ref: root,
           class: ["echarts", nonEventAttrs.value.class],
         },
-        teleportedSlots(),
+        [isReady.value ? teleportedSlots() : undefined, ...renderExtensions()],
       )) as unknown as typeof exposed & PublicMethods;
   },
 });

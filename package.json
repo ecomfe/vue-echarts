@@ -18,7 +18,11 @@
   "jsdelivr": "dist/index.min.js",
   "exports": {
     ".": "./dist/index.js",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./graphic": {
+      "types": "./dist/graphic.d.ts",
+      "default": "./dist/graphic.js"
+    }
   },
   "scripts": {
     "dev": "vite",

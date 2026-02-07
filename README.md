@@ -332,9 +332,15 @@ export default {
 
 ### Slots&nbsp;<sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
 
-Vue ECharts allows you to define ECharts option's [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter) and [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent) callbacks via Vue slots instead of defining them in your `option` object. This simplifies custom HTMLElement rendering using familiar Vue templating.
+Vue ECharts supports three slot categories:
 
-#### Slot naming convention
+- Callback slots for [`tooltip.formatter`](https://echarts.apache.org/en/option.html#tooltip.formatter).
+- Callback slots for [`toolbox.feature.dataView.optionToContent`](https://echarts.apache.org/en/option.html#toolbox.feature.dataView.optionToContent).
+- Optional `#graphic` slot (enabled by importing `vue-echarts/graphic`) for building [`option.graphic`](https://echarts.apache.org/en/option.html#graphic) declaratively with `G*` components.
+
+#### Callback slot naming convention (`tooltip*` / `dataView*`)
+
+These naming rules apply to callback slots only. The graphic slot name is always `#graphic`.
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
 - Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
@@ -399,6 +405,68 @@ The slot props correspond to the first parameter of the callback function.
 
 > [!NOTE]
 > Slots take precedence over the corresponding callback defined in `props.option`.
+
+#### Graphic slot (optional entry)
+
+Template-based graphic API is provided as an opt-in entry to avoid increasing the main bundle size. Importing from `vue-echarts/graphic` registers the slot handler and exposes `G*` components:
+
+```ts
+import { GGroup, GRect, GText, GCircle } from "vue-echarts/graphic";
+```
+
+If you only need slot registration (no direct `G*` imports), side-effect import also works:
+
+```ts
+import "vue-echarts/graphic";
+```
+
+Usage:
+
+```vue
+<template>
+  <VChart :option="option">
+    <template #graphic>
+      <GGroup>
+        <GRect left="center" top="8%" :width="200" :height="40" :r="10" fill="rgba(0,0,0,.25)" />
+        <GText
+          left="center"
+          top="12%"
+          text="Template graphic"
+          font="12px sans-serif"
+          text-fill="#fff"
+        />
+      </GGroup>
+    </template>
+  </VChart>
+</template>
+```
+
+Graphic reference: [ECharts `option.graphic` →](https://echarts.apache.org/en/option.html#graphic)
+
+Notes:
+
+- `#graphic` is only enabled after importing `vue-echarts/graphic`. Otherwise Vue ECharts warns and skips this slot.
+- In TypeScript projects, importing `vue-echarts/graphic` also augments `VChart` slot types to include `graphic`.
+- `#graphic` and `option.graphic` are mutually exclusive in practice. If both are provided, slot content wins.
+- In auto-update mode, reactive `#graphic` changes are applied automatically. In `manual-update` mode, call `chartRef.setOption(...)` to commit changes.
+- If you render dynamic nodes (`v-for`) or bind graphic events (for example `onClick`, `onMousemove`), provide a stable `id` (or `:key`).
+- Avoid plain HTML nodes inside `#graphic`; use `G*` components so the slot can be converted into ECharts graphic option.
+
+Available components:
+
+- `GGroup`
+- `GRect`
+- `GCircle`
+- `GText`
+- `GLine`
+- `GPolyline`
+- `GPolygon`
+- `GImage`
+- `GSector`
+- `GRing`
+- `GArc`
+- `GBezierCurve`
+- `GCompoundPath`
 
 ### Static methods
 

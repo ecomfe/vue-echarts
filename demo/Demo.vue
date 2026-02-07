@@ -19,6 +19,7 @@ import RadarChart from "./examples/RadarChart.vue";
 import ConnectChart from "./examples/ConnectChart.vue";
 import GlChart from "./examples/GlChart.vue";
 import ManualChart from "./examples/ManualChart.vue";
+import GraphicOverlay from "./examples/GraphicOverlay.vue";
 
 import CodeGen from "./CodeGen.vue";
 import { useDemoDark } from "./composables/useDemoDark";
@@ -125,6 +126,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
     <ConnectChart />
     <GlChart />
     <ManualChart />
+    <GraphicOverlay />
 
     <footer class="site-footer" aria-label="Footer">
       <small class="footer-links">
