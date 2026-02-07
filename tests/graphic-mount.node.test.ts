@@ -9,6 +9,7 @@ describe("GraphicMount (node)", () => {
     const collector = {
       beginPass: vi.fn(),
       requestFlush: vi.fn(),
+      dispose: vi.fn(),
     } as any;
 
     const app = createSSRApp({
@@ -25,13 +26,14 @@ describe("GraphicMount (node)", () => {
     const html = await renderToString(app);
     expect(html).toBe("<!---->");
     expect(collector.beginPass).toHaveBeenCalledTimes(1);
-    expect(collector.requestFlush).toHaveBeenCalledTimes(1);
+    expect(collector.requestFlush).toHaveBeenCalledTimes(0);
   });
 
   it("ignores non-vnode slot entries when collecting order", async () => {
     const collector = {
       beginPass: vi.fn(),
       requestFlush: vi.fn(),
+      dispose: vi.fn(),
     } as any;
 
     const app = createSSRApp({
@@ -48,6 +50,6 @@ describe("GraphicMount (node)", () => {
     const html = await renderToString(app);
     expect(html).toBe("<!---->");
     expect(collector.beginPass).toHaveBeenCalledTimes(1);
-    expect(collector.requestFlush).toHaveBeenCalledTimes(1);
+    expect(collector.requestFlush).toHaveBeenCalledTimes(0);
   });
 });

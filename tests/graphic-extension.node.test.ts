@@ -3,6 +3,7 @@ import { effectScope, nextTick, ref } from "vue";
 
 import {
   __resetVChartExtensions,
+  registerVChartExtension,
   useVChartExtensions,
   type VChartExtensionContext,
 } from "../src/extensions";
@@ -26,6 +27,35 @@ afterEach(() => {
 });
 
 describe("graphic extension", () => {
+  it("deduplicates direct extension factory registration without key", () => {
+    const factory = () => ({});
+    registerVChartExtension(factory);
+    registerVChartExtension(factory);
+
+    const scope = effectScope();
+    const extensions = scope.run(() => useVChartExtensions(createContext()));
+    if (!extensions) {
+      throw new Error("Expected extensions to be initialized.");
+    }
+
+    expect(extensions.count).toBe(1);
+    scope.stop();
+  });
+
+  it("registers only once when called repeatedly", () => {
+    registerGraphicExtension();
+    registerGraphicExtension();
+
+    const scope = effectScope();
+    const extensions = scope.run(() => useVChartExtensions(createContext()));
+    if (!extensions) {
+      throw new Error("Expected extensions to be initialized.");
+    }
+
+    expect(extensions.count).toBe(1);
+    scope.stop();
+  });
+
   it("keeps option untouched and renders nothing when graphic slot is absent", () => {
     registerGraphicExtension();
 
@@ -256,6 +286,68 @@ describe("graphic extension", () => {
     clickHandler({ info: { __veGraphicId: "b" } });
     expect(onClickA).not.toHaveBeenCalled();
     expect(onClickB).toHaveBeenCalledTimes(1);
+
+    scope.stop();
+  });
+
+  it("keeps event bindings stable when handlers are unchanged and skips no-op flush", async () => {
+    registerGraphicExtension();
+
+    const requestUpdate = vi.fn(() => true);
+    const chartRef = ref<any>(undefined);
+    const scope = effectScope();
+
+    const context = createContext({
+      chart: chartRef as any,
+      slots: { graphic: () => null } as any,
+      requestUpdate,
+    });
+
+    const extensions = scope.run(() => useVChartExtensions(context));
+    if (!extensions) {
+      throw new Error("Expected extensions to be initialized.");
+    }
+
+    const vnode = extensions.render()[0] as any;
+    const collector = vnode.props.collector as {
+      register: (node: any) => void;
+      requestFlush: () => void;
+    };
+    const onClick = vi.fn();
+
+    collector.register({
+      id: "n1",
+      type: "rect",
+      parentId: null,
+      props: { x: 1 },
+      handlers: { onClick },
+      sourceId: 1,
+    });
+    await flushMicrotasks();
+
+    const chart = {
+      on: vi.fn(),
+      off: vi.fn(),
+    };
+    chartRef.value = chart;
+    await nextTick();
+
+    collector.register({
+      id: "n1",
+      type: "rect",
+      parentId: null,
+      props: { x: 2 },
+      handlers: { onClick },
+      sourceId: 1,
+    });
+    await flushMicrotasks();
+
+    collector.requestFlush();
+    await flushMicrotasks();
+
+    expect(requestUpdate).toHaveBeenCalledTimes(2);
+    expect(chart.on).toHaveBeenCalledTimes(1);
+    expect(chart.off).not.toHaveBeenCalled();
 
     scope.stop();
   });

@@ -336,4 +336,108 @@ describe("graphic", () => {
 
     expect(warn).not.toHaveBeenCalled();
   });
+
+  it("skips pending flush callback and ignores operations after dispose", async () => {
+    const onFlush = vi.fn();
+    const collector = createGraphicCollector({
+      onFlush,
+      warn: () => void 0,
+    });
+
+    collector.register({
+      id: "node",
+      type: "rect",
+      parentId: null,
+      props: {},
+      handlers: {},
+      sourceId: 1,
+    });
+
+    collector.dispose();
+    await flushMicrotasks();
+
+    expect(onFlush).toHaveBeenCalledTimes(0);
+
+    const versionAfterDispose = collector.getStructureVersion();
+
+    collector.register({
+      id: "after-dispose",
+      type: "rect",
+      parentId: null,
+      props: {},
+      handlers: {},
+      sourceId: 2,
+    });
+    collector.unregister("node");
+    collector.requestFlush();
+    await flushMicrotasks();
+
+    expect(collector.getStructureVersion()).toBe(versionAfterDispose);
+    expect(Array.from(collector.getNodes())).toEqual([]);
+    expect(collector.optionRef.value).toBeNull();
+  });
+
+  it("stably fingerprints null, bigint, and symbol values", async () => {
+    const onFlush = vi.fn();
+    const collector = createGraphicCollector({
+      onFlush,
+      warn: () => void 0,
+    });
+    const onClick = () => void 0;
+    const marker = Symbol("marker");
+
+    collector.register({
+      id: "typed-node",
+      type: "rect",
+      parentId: null,
+      props: {
+        nullable: null,
+        amount: 10n,
+        marker,
+        enabled: true,
+        archived: false,
+        nested: {
+          a: null,
+          b: 20n,
+          c: marker,
+        },
+        list: [null, 30n, marker],
+      },
+      handlers: {
+        onClick,
+      },
+      order: 0,
+      sourceId: 1,
+    });
+
+    await flushMicrotasks();
+    expect(onFlush).toHaveBeenCalledTimes(1);
+
+    collector.register({
+      id: "typed-node",
+      type: "rect",
+      parentId: null,
+      props: {
+        nullable: null,
+        amount: 10n,
+        marker,
+        enabled: true,
+        archived: false,
+        nested: {
+          a: null,
+          b: 20n,
+          c: marker,
+        },
+        list: [null, 30n, marker],
+      },
+      handlers: {
+        onClick,
+      },
+      order: 0,
+      sourceId: 1,
+    });
+
+    await flushMicrotasks();
+    expect(onFlush).toHaveBeenCalledTimes(1);
+  });
 });

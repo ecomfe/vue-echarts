@@ -11,6 +11,7 @@
 - `plans/graphic-template/01-discussions.md`：需求讨论纪要与关键决策
 - `plans/graphic-template/02-rfc.md`：RFC（对外 API 与内部语义）
 - `plans/graphic-template/03-execution-plan.md`：执行计划（工作包、验收、风险）
+- `plans/graphic-template/04-optimization-baseline.md`：优化前行为基线（测试/警告/视觉）
 
 ## 关键决策（摘要）
 

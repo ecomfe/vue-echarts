@@ -28,6 +28,7 @@ import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
 import type { Signature, UpdatePlan } from "./update";
 import { useVChartExtensions } from "./extensions";
+import { warnMissingGraphicEntry } from "./graphic/warn";
 
 import type { PropType, InjectionKey } from "vue";
 import type {
@@ -89,7 +90,7 @@ export default defineComponent({
     const nativeListeners: Record<string, unknown> = {};
 
     const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> = new Map();
-    const hasGraphicSlot = () => Boolean((slots as Record<string, unknown>).graphic);
+    const hasGraphicSlot = (): boolean => Boolean((slots as Record<string, unknown>).graphic);
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
@@ -126,9 +127,7 @@ export default defineComponent({
     const renderExtensions = extensions.render;
 
     if (hasGraphicSlot() && extensions.count === 0 && !warnedMissingGraphicEntry) {
-      warn(
-        "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
-      );
+      warn(warnMissingGraphicEntry());
       warnedMissingGraphicEntry = true;
     }
 

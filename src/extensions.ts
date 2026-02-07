@@ -29,9 +29,14 @@ export interface VChartExtensionSlots {}
 
 const REGISTRY_KEY = Symbol.for("vue-echarts.extensions");
 
-function getRegistry(): VChartExtensionFactory[] {
+type ExtensionRegistryEntry = {
+  factory: VChartExtensionFactory;
+  key?: string;
+};
+
+function getRegistry(): ExtensionRegistryEntry[] {
   const target = globalThis as typeof globalThis & {
-    [REGISTRY_KEY]?: VChartExtensionFactory[];
+    [REGISTRY_KEY]?: ExtensionRegistryEntry[];
   };
   if (!target[REGISTRY_KEY]) {
     target[REGISTRY_KEY] = [];
@@ -39,12 +44,28 @@ function getRegistry(): VChartExtensionFactory[] {
   return target[REGISTRY_KEY]!;
 }
 
-export function registerVChartExtension(factory: VChartExtensionFactory): void {
-  getRegistry().push(factory);
+export function registerVChartExtension(
+  factory: VChartExtensionFactory,
+  options?: { key?: string },
+): void {
+  const registry = getRegistry();
+
+  if (options?.key && registry.some((entry) => entry.key === options.key)) {
+    return;
+  }
+
+  if (registry.some((entry) => entry.factory === factory)) {
+    return;
+  }
+
+  registry.push({
+    factory,
+    key: options?.key,
+  });
 }
 
 export function useVChartExtensions(ctx: VChartExtensionContext) {
-  const extensions = getRegistry().map((factory) => factory(ctx));
+  const extensions = getRegistry().map((entry) => entry.factory(ctx));
 
   function patchOption(option: Option): Option {
     let result = option;
@@ -66,7 +87,7 @@ export function useVChartExtensions(ctx: VChartExtensionContext) {
 // Test helper to reset cached registry.
 export function __resetVChartExtensions(): void {
   const target = globalThis as typeof globalThis & {
-    [REGISTRY_KEY]?: VChartExtensionFactory[];
+    [REGISTRY_KEY]?: ExtensionRegistryEntry[];
   };
   target[REGISTRY_KEY] = [];
 }

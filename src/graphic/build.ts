@@ -1,61 +1,20 @@
 import type { Option } from "../types";
-import {
-  BASE_STYLE_KEYS,
-  IMAGE_STYLE_KEYS,
-  SHAPE_KEYS_BY_TYPE,
-  TEXT_STYLE_KEYS,
-} from "./constants";
+import { SHAPE_KEYS_BY_TYPE } from "./constants";
 import type { GraphicNode, GraphicSnapshot } from "./collector";
 import { pickCommonProps } from "./collector";
+import {
+  buildInfo,
+  buildShape,
+  buildStyle,
+  isGroupGraphic,
+  pruneCommonPropsByType,
+  styleKeysByType,
+} from "./build-helpers";
 
 type BuildResult = {
   option: Option;
   snapshot: GraphicSnapshot;
 };
-
-function mergeProps(
-  target: Record<string, unknown>,
-  keys: readonly string[],
-  props: Record<string, unknown>,
-): void {
-  keys.forEach((key) => {
-    if (props[key] !== undefined) {
-      target[key] = props[key];
-    }
-  });
-}
-
-function buildStyle(
-  props: Record<string, unknown>,
-  extraKeys: readonly string[] = [],
-): Record<string, unknown> | undefined {
-  const style = { ...(props.style as Record<string, unknown> | undefined) };
-  mergeProps(style, BASE_STYLE_KEYS, props);
-  mergeProps(style, extraKeys, props);
-
-  if (props.styleTransition !== undefined) {
-    style.transition = props.styleTransition;
-  }
-
-  return Object.keys(style).length > 0 ? style : undefined;
-}
-
-function buildShape(
-  type: string,
-  props: Record<string, unknown>,
-): Record<string, unknown> | undefined {
-  const shape = { ...(props.shape as Record<string, unknown> | undefined) };
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[type];
-  if (shapeKeys) {
-    mergeProps(shape, shapeKeys, props);
-  }
-
-  if (props.shapeTransition !== undefined) {
-    shape.transition = props.shapeTransition;
-  }
-
-  return Object.keys(shape).length > 0 ? shape : undefined;
-}
 
 function buildElementOption(node: GraphicNode, children: Option[] | undefined): Option {
   const element: Record<string, unknown> = {
@@ -63,21 +22,10 @@ function buildElementOption(node: GraphicNode, children: Option[] | undefined): 
     id: node.id,
   };
 
-  const common = pickCommonProps(node.props);
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type];
-  if (shapeKeys) {
-    shapeKeys.forEach((key) => {
-      delete common[key];
-    });
-  }
-  if (node.type === "image") {
-    IMAGE_STYLE_KEYS.forEach((key) => {
-      delete common[key];
-    });
-  }
+  const common = pruneCommonPropsByType(node.type, pickCommonProps(node.props));
   Object.assign(element, common);
 
-  if (node.type === "group") {
+  if (isGroupGraphic(node.type)) {
     if (children) {
       element.children = children;
     }
@@ -88,36 +36,15 @@ function buildElementOption(node: GraphicNode, children: Option[] | undefined): 
     return element as Option;
   }
 
-  if (node.type === "text") {
-    const style = buildStyle(node.props, TEXT_STYLE_KEYS);
-    if (style) {
-      element.style = style;
+  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type];
+  if (shapeKeys) {
+    const shape = buildShape(node.type, node.props);
+    if (shape) {
+      element.shape = shape;
     }
-    const info = buildInfo(node);
-    if (info !== undefined) {
-      element.info = info;
-    }
-    return element as Option;
   }
 
-  if (node.type === "image") {
-    const style = buildStyle(node.props, IMAGE_STYLE_KEYS);
-    if (style) {
-      element.style = style;
-    }
-    const info = buildInfo(node);
-    if (info !== undefined) {
-      element.info = info;
-    }
-    return element as Option;
-  }
-
-  const shape = buildShape(node.type, node.props);
-  if (shape) {
-    element.shape = shape;
-  }
-
-  const style = buildStyle(node.props);
+  const style = buildStyle(node.props, styleKeysByType(node.type));
   if (style) {
     element.style = style;
   }
@@ -128,25 +55,6 @@ function buildElementOption(node: GraphicNode, children: Option[] | undefined): 
   }
 
   return element as Option;
-}
-
-function buildInfo(node: GraphicNode): unknown {
-  const hasHandlers = Object.keys(node.handlers).length > 0;
-  const raw = node.props.info;
-
-  if (!hasHandlers && raw === undefined) {
-    return undefined;
-  }
-
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    return { ...(raw as Record<string, unknown>), __veGraphicId: node.id };
-  }
-
-  if (raw !== undefined) {
-    return { value: raw, __veGraphicId: node.id };
-  }
-
-  return { __veGraphicId: node.id };
 }
 
 export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string): BuildResult {
@@ -174,8 +82,6 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
 
   const snapshot: GraphicSnapshot = { ids, parentById, hasDuplicateId };
 
-  const shouldReplace = true;
-
   const buildChildren = (parentId: string | null): Option[] => {
     const children = byParent.get(parentId) ?? [];
     return children.map((child) =>
@@ -186,12 +92,9 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
   const root: Record<string, unknown> = {
     type: "group",
     id: rootId,
+    $action: "replace",
     children: buildChildren(null),
   };
-
-  if (shouldReplace) {
-    root.$action = "replace";
-  }
 
   return {
     option: {
