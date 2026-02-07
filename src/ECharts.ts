@@ -157,8 +157,9 @@ export default defineComponent({
       }
 
       if (override) {
+        const planned = planUpdate(lastSignature, patched);
         instance.setOption(patched, override);
-        lastSignature = undefined;
+        lastSignature = planned.signature;
         return;
       }
 
