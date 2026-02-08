@@ -1,4 +1,3 @@
-import { COMMON_PROP_KEYS } from "./constants";
 import { warnDuplicateId } from "./warn";
 
 export type GraphicNode = {
@@ -120,14 +119,4 @@ export function createGraphicCollector(options: {
     requestFlush,
     dispose,
   };
-}
-
-export function pickCommonProps(props: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const key of COMMON_PROP_KEYS) {
-    if (key in props && props[key] !== undefined) {
-      result[key] = props[key];
-    }
-  }
-  return result;
 }
