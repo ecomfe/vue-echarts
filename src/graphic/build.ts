@@ -1,6 +1,6 @@
 import type { Option } from "../types";
 import { SHAPE_KEYS_BY_TYPE } from "./constants";
-import type { GraphicNode, GraphicSnapshot } from "./collector";
+import type { GraphicNode } from "./collector";
 import { pickCommonProps } from "./collector";
 import {
   buildInfo,
@@ -10,11 +10,6 @@ import {
   pruneCommonPropsByType,
   styleKeysByType,
 } from "./build-helpers";
-
-type BuildResult = {
-  option: Option;
-  snapshot: GraphicSnapshot;
-};
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const out: Record<string, unknown> = {
@@ -55,12 +50,8 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   return out as Option;
 }
 
-export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string): BuildResult {
+export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
   const byParent = new Map<string | null, GraphicNode[]>();
-  const ids = new Set<string>();
-  const parentById = new Map<string, string | null>();
-
-  let hasDuplicateId = false;
 
   for (const node of nodes) {
     const list = byParent.get(node.parentId);
@@ -69,19 +60,11 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
     } else {
       byParent.set(node.parentId, [node]);
     }
-
-    if (ids.has(node.id)) {
-      hasDuplicateId = true;
-    }
-    ids.add(node.id);
-    parentById.set(node.id, node.parentId);
   }
 
   for (const list of byParent.values()) {
     list.sort((a, b) => a.order - b.order);
   }
-
-  const snapshot: GraphicSnapshot = { ids, parentById, hasDuplicateId };
 
   const childrenOf = (parentId: string | null): Option[] => {
     const list = byParent.get(parentId) ?? [];
@@ -91,18 +74,15 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
   };
 
   return {
-    option: {
-      graphic: {
-        elements: [
-          {
-            type: "group",
-            id: rootId,
-            $action: "replace",
-            children: childrenOf(null),
-          },
-        ],
-      },
-    } as Option,
-    snapshot,
-  };
+    graphic: {
+      elements: [
+        {
+          type: "group",
+          id: rootId,
+          $action: "replace",
+          children: childrenOf(null),
+        },
+      ],
+    },
+  } as Option;
 }

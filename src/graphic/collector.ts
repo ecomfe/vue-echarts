@@ -15,12 +15,6 @@ export type GraphicNode = {
   sourceId: number;
 };
 
-export type GraphicSnapshot = {
-  ids: Set<string>;
-  parentById: Map<string, string | null>;
-  hasDuplicateId: boolean;
-};
-
 export type GraphicCollector = {
   beginPass: () => void;
   register: (node: Omit<GraphicNode, "order"> & { order?: number }) => void;
@@ -28,7 +22,6 @@ export type GraphicCollector = {
   warnOnce: (key: string, message: string) => void;
   optionRef: Ref<Option | null>;
   getNodes: () => Iterable<GraphicNode>;
-  getSnapshot: () => GraphicSnapshot;
   requestFlush: () => void;
   dispose: () => void;
 };
@@ -220,18 +213,6 @@ export function createGraphicCollector(options: {
     });
   }
 
-  function getSnapshot(): GraphicSnapshot {
-    const ids = new Set<string>();
-    const parentById = new Map<string, string | null>();
-
-    for (const node of nodes.values()) {
-      ids.add(node.id);
-      parentById.set(node.id, node.parentId);
-    }
-
-    return { ids, parentById, hasDuplicateId: false };
-  }
-
   function getNodes(): Iterable<GraphicNode> {
     return nodes.values();
   }
@@ -253,7 +234,6 @@ export function createGraphicCollector(options: {
     warnOnce,
     optionRef,
     getNodes,
-    getSnapshot,
     requestFlush,
     dispose,
   };

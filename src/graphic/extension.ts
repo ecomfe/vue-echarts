@@ -121,9 +121,7 @@ export function registerGraphicExtension(): void {
           syncEvents(chart, active);
         }
 
-        const { option } = buildGraphicOption(nodes, ROOT_ID);
-
-        collector.optionRef.value = option;
+        collector.optionRef.value = buildGraphicOption(nodes, ROOT_ID);
 
         const updated = ctx.requestUpdate({
           updateOptions: {
@@ -157,8 +155,7 @@ export function registerGraphicExtension(): void {
           warnedOverride = true;
         }
         if (!collector.optionRef.value) {
-          const { option: initialOption } = buildGraphicOption(collector.getNodes(), ROOT_ID);
-          collector.optionRef.value = initialOption;
+          collector.optionRef.value = buildGraphicOption(collector.getNodes(), ROOT_ID);
         }
         const graphicOption = collector.optionRef.value!;
         return {
