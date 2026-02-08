@@ -90,7 +90,7 @@ export default defineComponent({
     const nativeListeners: Record<string, unknown> = {};
 
     const listeners: Array<{ event: string; once?: boolean; zr?: boolean; handler: any }> = [];
-    const hasGraphicSlot = (): boolean => Boolean((slots as Record<string, unknown>).graphic);
+    const hasGraphicSlot = Boolean((slots as Record<string, unknown>).graphic);
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
@@ -100,14 +100,14 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
 
-    const requestUpdate = (options?: { updateOptions?: UpdateOptions }): boolean => {
+    const requestUpdate = (updateOptions?: UpdateOptions): boolean => {
       if (!chart.value || !props.option) {
         return false;
       }
       if (manualUpdate.value) {
         return false;
       }
-      applyOption(chart.value, props.option, options?.updateOptions);
+      applyOption(chart.value, props.option, updateOptions);
       return true;
     };
 
@@ -119,7 +119,7 @@ export default defineComponent({
       warn,
     });
 
-    if (hasGraphicSlot() && !graphicRuntime) {
+    if (hasGraphicSlot && !graphicRuntime) {
       warn(warnMissingGraphicEntry());
     }
 
@@ -338,7 +338,7 @@ export default defineComponent({
         if (instance) {
           instance.setTheme(theme || {});
 
-          if (hasGraphicSlot() && props.option && !manualUpdate.value) {
+          if (hasGraphicSlot && props.option && !manualUpdate.value) {
             applyOption(instance, props.option, { replaceMerge: ["graphic"] });
           }
         }

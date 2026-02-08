@@ -16,7 +16,6 @@ export type GraphicCollector = {
   unregister: (id: string, sourceId?: number) => void;
   warnOnce: (key: string, message: string) => void;
   getNodes: () => Iterable<GraphicNode>;
-  requestFlush: () => void;
   dispose: () => void;
 };
 
@@ -116,7 +115,6 @@ export function createGraphicCollector(options: {
     unregister,
     warnOnce,
     getNodes,
-    requestFlush,
     dispose,
   };
 }

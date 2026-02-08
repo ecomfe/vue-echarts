@@ -376,7 +376,6 @@ describe("graphic", () => {
       sourceId: 2,
     });
     collector.unregister("node");
-    collector.requestFlush();
     await flushMicrotasks();
 
     expect(Array.from(collector.getNodes())).toEqual([]);

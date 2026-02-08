@@ -127,9 +127,7 @@ export function registerGraphicExtension(): void {
         graphicOption = buildGraphicOption(nodes, ROOT_ID);
 
         const updated = ctx.requestUpdate({
-          updateOptions: {
-            replaceMerge: ["graphic"],
-          },
+          replaceMerge: ["graphic"],
         });
 
         if (!updated && ctx.manualUpdate.value) {
