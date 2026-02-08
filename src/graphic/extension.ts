@@ -3,7 +3,6 @@ import { h, onScopeDispose, watch } from "vue";
 import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
 import { createGraphicCollector } from "./collector";
-import type { GraphicNode } from "./collector";
 import { GraphicMount } from "./mount";
 import type { GraphicRuntimeContext } from "./runtime";
 import { registerGraphicRuntime } from "./runtime";
@@ -16,6 +15,7 @@ type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 export function registerGraphicExtension(): void {
   registerGraphicRuntime((ctx: GraphicRuntimeContext) => {
     let handlers = new Map<string, NormalizedHandlers>();
+    let activeEvents = new Set<string>();
     const eventFns = new Map<string, (params: unknown) => void>();
     let chart: EChartsType | null = null;
     let graphicOption: ReturnType<typeof buildGraphicOption> | null = null;
@@ -48,31 +48,6 @@ export function registerGraphicExtension(): void {
         }
       }
       return out;
-    };
-
-    const collectHandlers = (nodes: Iterable<GraphicNode>) => {
-      const map = new Map<string, NormalizedHandlers>();
-      const active = new Set<string>();
-
-      for (const node of nodes) {
-        const nodeHandlers = toHandlers(node.handlers);
-        const events = Object.keys(nodeHandlers);
-        if (events.length === 0) {
-          continue;
-        }
-        map.set(node.id, nodeHandlers);
-        events.forEach((event) => active.add(event));
-      }
-
-      return { map, active };
-    };
-
-    const collectActiveEvents = (source: Map<string, NormalizedHandlers>) => {
-      const active = new Set<string>();
-      for (const entry of source.values()) {
-        Object.keys(entry).forEach((event) => active.add(event));
-      }
-      return active;
     };
 
     const unbindAllEvents = (target: EChartsType | null) => {
@@ -119,7 +94,7 @@ export function registerGraphicExtension(): void {
         unbindAllEvents(prev ?? null);
         chart = next ?? null;
         if (chart) {
-          syncEvents(chart, collectActiveEvents(handlers));
+          syncEvents(chart, activeEvents);
         }
       },
       { immediate: true },
@@ -129,11 +104,24 @@ export function registerGraphicExtension(): void {
       warn: ctx.warn,
       onFlush: () => {
         const nodes = Array.from(collector.getNodes());
-        const { map, active } = collectHandlers(nodes);
-        handlers = map;
+        const nextHandlers = new Map<string, NormalizedHandlers>();
+        const nextActiveEvents = new Set<string>();
+
+        for (const node of nodes) {
+          const nodeHandlers = toHandlers(node.handlers);
+          const events = Object.keys(nodeHandlers);
+          if (events.length === 0) {
+            continue;
+          }
+          nextHandlers.set(node.id, nodeHandlers);
+          events.forEach((event) => nextActiveEvents.add(event));
+        }
+
+        handlers = nextHandlers;
+        activeEvents = nextActiveEvents;
 
         if (chart) {
-          syncEvents(chart, active);
+          syncEvents(chart, activeEvents);
         }
 
         graphicOption = buildGraphicOption(nodes, ROOT_ID);
@@ -154,6 +142,7 @@ export function registerGraphicExtension(): void {
       collector.dispose();
       unbindAllEvents(chart);
       handlers = new Map<string, NormalizedHandlers>();
+      activeEvents = new Set<string>();
       graphicOption = null;
       chart = null;
     });

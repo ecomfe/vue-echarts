@@ -1,9 +1,4 @@
-import {
-  BASE_STYLE_KEYS,
-  IMAGE_STYLE_KEYS,
-  SHAPE_KEYS_BY_TYPE,
-  TEXT_STYLE_KEYS,
-} from "./constants";
+import { BASE_STYLE_KEYS, SHAPE_KEYS_BY_TYPE } from "./constants";
 import type { GraphicNode } from "./collector";
 
 export function mergeProps(
@@ -67,44 +62,4 @@ export function buildInfo(node: GraphicNode): unknown {
   }
 
   return { __veGraphicId: node.id };
-}
-
-export function isTextGraphic(type: string): boolean {
-  return type === "text";
-}
-
-export function isImageGraphic(type: string): boolean {
-  return type === "image";
-}
-
-export function isGroupGraphic(type: string): boolean {
-  return type === "group";
-}
-
-export function pruneCommonPropsByType(
-  type: string,
-  common: Record<string, unknown>,
-): Record<string, unknown> {
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[type];
-  if (shapeKeys) {
-    shapeKeys.forEach((key) => {
-      delete common[key];
-    });
-  }
-  if (isImageGraphic(type)) {
-    IMAGE_STYLE_KEYS.forEach((key) => {
-      delete common[key];
-    });
-  }
-  return common;
-}
-
-export function styleKeysByType(type: string): readonly string[] {
-  if (isTextGraphic(type)) {
-    return TEXT_STYLE_KEYS;
-  }
-  if (isImageGraphic(type)) {
-    return IMAGE_STYLE_KEYS;
-  }
-  return [];
 }

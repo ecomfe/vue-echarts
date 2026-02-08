@@ -1,15 +1,12 @@
 import type { Option } from "../types";
-import { COMMON_PROP_KEYS } from "./constants";
-import type { GraphicNode } from "./collector";
 import {
-  buildInfo,
-  mergeProps,
-  buildShape,
-  buildStyle,
-  isGroupGraphic,
-  pruneCommonPropsByType,
-  styleKeysByType,
-} from "./build-helpers";
+  COMMON_PROP_KEYS,
+  IMAGE_STYLE_KEYS,
+  SHAPE_KEYS_BY_TYPE,
+  TEXT_STYLE_KEYS,
+} from "./constants";
+import type { GraphicNode } from "./collector";
+import { buildInfo, mergeProps, buildShape, buildStyle } from "./build-helpers";
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const out: Record<string, unknown> = {
@@ -19,10 +16,23 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
   const common: Record<string, unknown> = {};
   mergeProps(common, COMMON_PROP_KEYS, node.props);
-  Object.assign(out, pruneCommonPropsByType(node.type, common));
+
+  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type];
+  if (shapeKeys) {
+    shapeKeys.forEach((key) => {
+      delete common[key];
+    });
+  }
+  if (node.type === "image") {
+    IMAGE_STYLE_KEYS.forEach((key) => {
+      delete common[key];
+    });
+  }
+
+  Object.assign(out, common);
   const info = buildInfo(node);
 
-  if (isGroupGraphic(node.type)) {
+  if (node.type === "group") {
     if (children?.length) {
       out.children = children;
     }
@@ -37,7 +47,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     out.shape = shape;
   }
 
-  const style = buildStyle(node.props, styleKeysByType(node.type));
+  const styleKeys =
+    node.type === "text" ? TEXT_STYLE_KEYS : node.type === "image" ? IMAGE_STYLE_KEYS : [];
+  const style = buildStyle(node.props, styleKeys);
   if (style) {
     out.style = style;
   }
