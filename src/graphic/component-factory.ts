@@ -5,7 +5,6 @@ import {
   onUnmounted,
   provide,
   shallowRef,
-  toRaw,
   unref,
 } from "vue";
 
@@ -37,28 +36,6 @@ function parseIdentity(
     return { id, key: `key:${id}`, missing: false };
   }
   return { id: `__ve_graphic_${instance.uid}`, key: null, missing: true };
-}
-
-function copyProps(props: AnyProps): AnyProps {
-  const raw = toRaw(props) as AnyProps;
-  const clone: AnyProps = { ...raw };
-  if (raw.shape && typeof raw.shape === "object") {
-    clone.shape = toRaw(raw.shape as AnyProps);
-  }
-  if (raw.style && typeof raw.style === "object") {
-    clone.style = toRaw(raw.style as AnyProps);
-  }
-  return clone;
-}
-
-function extractHandlers(attrs: AnyProps): AnyProps {
-  const out: AnyProps = {};
-  for (const key of Object.keys(attrs)) {
-    if (key.startsWith("on")) {
-      out[key] = attrs[key];
-    }
-  }
-  return out;
 }
 
 export function createGraphicComponent(name: string, type: string) {
@@ -96,8 +73,8 @@ export function createGraphicComponent(name: string, type: string) {
           type,
           parentId: parentIdRef ? unref(parentIdRef) : null,
           order: hintedOrder,
-          props: copyProps(props as AnyProps),
-          handlers: extractHandlers(attrs as AnyProps),
+          props: props as AnyProps,
+          handlers: attrs as AnyProps,
           sourceId: instance.uid,
         });
       }
