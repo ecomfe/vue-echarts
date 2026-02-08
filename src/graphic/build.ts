@@ -1,11 +1,11 @@
 import type { Option } from "../types";
 import type { GraphicNode } from "./collector";
-import { pickCommonProps } from "./collector";
 import {
   buildInfo,
   buildShape,
   buildStyle,
   isGroupGraphic,
+  pickCommonProps,
   pruneCommonPropsByType,
   styleKeysByType,
 } from "./build-helpers";

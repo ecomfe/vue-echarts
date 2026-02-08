@@ -1,5 +1,6 @@
 import {
   BASE_STYLE_KEYS,
+  COMMON_PROP_KEYS,
   IMAGE_STYLE_KEYS,
   SHAPE_KEYS_BY_TYPE,
   TEXT_STYLE_KEYS,
@@ -16,6 +17,12 @@ export function mergeProps(
       target[key] = props[key];
     }
   }
+}
+
+export function pickCommonProps(props: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  mergeProps(out, COMMON_PROP_KEYS, props);
+  return out;
 }
 
 export function buildStyle(
