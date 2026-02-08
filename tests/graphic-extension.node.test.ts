@@ -296,7 +296,7 @@ describe("graphic extension", () => {
     scope.stop();
   });
 
-  it("keeps event bindings stable when handlers are unchanged and skips no-op flush", async () => {
+  it("keeps event bindings stable when handlers are unchanged", async () => {
     registerGraphicExtension();
 
     const requestUpdate = vi.fn(() => true);
@@ -317,7 +317,6 @@ describe("graphic extension", () => {
     const vnode = extensions.render()[0] as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
-      requestFlush: () => void;
     };
     const onClick = vi.fn();
 
@@ -346,9 +345,6 @@ describe("graphic extension", () => {
       handlers: { onClick },
       sourceId: 1,
     });
-    await flushMicrotasks();
-
-    collector.requestFlush();
     await flushMicrotasks();
 
     expect(requestUpdate).toHaveBeenCalledTimes(2);

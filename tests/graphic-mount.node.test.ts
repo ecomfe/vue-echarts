@@ -3,6 +3,7 @@ import { createSSRApp, h } from "vue";
 import { renderToString } from "@vue/server-renderer";
 
 import { GraphicMount } from "../src/graphic/mount";
+import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
 
 describe("GraphicMount (node)", () => {
   it("returns null without browser root but still drives collector pass", async () => {
@@ -42,7 +43,14 @@ describe("GraphicMount (node)", () => {
           GraphicMount as any,
           { collector },
           {
-            default: () => [42 as any, "text" as any],
+            default: () => [
+              42 as any,
+              "text" as any,
+              h({
+                [GRAPHIC_COMPONENT_MARKER]: 1,
+                render: () => null,
+              } as any),
+            ],
           },
         ),
     });

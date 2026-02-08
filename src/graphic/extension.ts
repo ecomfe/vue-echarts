@@ -16,13 +16,12 @@ type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 export function registerGraphicExtension(): void {
   registerVChartExtension(
     (ctx: VChartExtensionContext) => {
-      const handlersById = new Map<string, NormalizedHandlers>();
-      const boundEvents = new Map<string, (params: unknown) => void>();
-      let boundChart: EChartsType | null = null;
-      let warnedOptionGraphicOverride = false;
-      let lastHandledStructureVersion = -1;
+      const handlers = new Map<string, NormalizedHandlers>();
+      const eventFns = new Map<string, (params: unknown) => void>();
+      let chart: EChartsType | null = null;
+      let warnedOverride = false;
 
-      const normalizeEvent = (key: string): string | null => {
+      const toEventName = (key: string): string | null => {
         if (!key.startsWith("on") || key.length <= 2) {
           return null;
         }
@@ -30,73 +29,71 @@ export function registerGraphicExtension(): void {
         return raw.charAt(0).toLowerCase() + raw.slice(1);
       };
 
-      const normalizeHandlers = (
-        rawHandlers: Record<string, unknown>,
-      ): Record<string, Array<(...args: unknown[]) => void>> => {
-        const result: Record<string, Array<(...args: unknown[]) => void>> = {};
-        for (const [key, value] of Object.entries(rawHandlers)) {
-          const event = normalizeEvent(key);
+      const toHandlers = (input: Record<string, unknown>): NormalizedHandlers => {
+        const out: NormalizedHandlers = {};
+        for (const [key, value] of Object.entries(input)) {
+          const event = toEventName(key);
           if (!event) {
             continue;
           }
-          const handlers: Array<(...args: unknown[]) => void> = Array.isArray(value)
+          const list: Array<(...args: unknown[]) => void> = Array.isArray(value)
             ? (value as unknown[]).filter(
                 (item): item is (...args: unknown[]) => void => typeof item === "function",
               )
             : typeof value === "function"
               ? [value as (...args: unknown[]) => void]
               : [];
-          if (handlers.length > 0) {
-            result[event] = handlers;
+          if (list.length > 0) {
+            out[event] = list;
           }
         }
-        return result;
+        return out;
       };
 
-      const dispatchEvent = (event: string, params: any) => {
+      const emit = (event: string, params: any) => {
         const id = params?.info?.__veGraphicId;
         if (!id) {
           return;
         }
-        const handlers = handlersById.get(String(id))?.[event];
-        if (!handlers) {
+        const list = handlers.get(String(id))?.[event];
+        if (!list) {
           return;
         }
-        handlers.forEach((handler) => handler(params));
+        list.forEach((fn) => fn(params));
       };
 
-      const syncEventBindings = (chart: EChartsType, activeEvents: Set<string>) => {
-        boundEvents.forEach((handler, event) => {
-          if (!activeEvents.has(event)) {
-            chart.off(event, handler as any);
-            boundEvents.delete(event);
+      const syncEvents = (chartInst: EChartsType, active: Set<string>) => {
+        eventFns.forEach((fn, event) => {
+          if (!active.has(event)) {
+            chartInst.off(event, fn as any);
+            eventFns.delete(event);
           }
         });
 
-        activeEvents.forEach((event) => {
-          if (boundEvents.has(event)) {
+        active.forEach((event) => {
+          if (eventFns.has(event)) {
             return;
           }
-          const handler = (params: unknown) => dispatchEvent(event, params);
-          chart.on(event, handler as any);
-          boundEvents.set(event, handler);
+          const fn = (params: unknown) => emit(event, params);
+          chartInst.on(event, fn as any);
+          eventFns.set(event, fn);
         });
       };
 
       watch(
         () => ctx.chart.value,
-        (chart, prev) => {
-          if (prev && boundEvents.size > 0) {
-            boundEvents.forEach((handler, event) => prev.off(event, handler as any));
-            boundEvents.clear();
+        (next, prev) => {
+          if (prev && eventFns.size > 0) {
+            eventFns.forEach((fn, event) => prev.off(event, fn as any));
+            eventFns.clear();
           }
-          boundChart = chart ?? null;
-          if (boundChart) {
-            const activeEvents = new Set<string>();
-            handlersById.forEach((handlers) => {
-              Object.keys(handlers).forEach((event) => activeEvents.add(event));
+          chart = next ?? null;
+          if (chart) {
+            const active = new Set<string>();
+            handlers.forEach((entry) => {
+              Object.keys(entry).forEach((event) => active.add(event));
             });
-            syncEventBindings(boundChart, activeEvents);
+            syncEvents(chart, active);
           }
         },
         { immediate: true },
@@ -105,37 +102,30 @@ export function registerGraphicExtension(): void {
       const collector = createGraphicCollector({
         warn: ctx.warn,
         onFlush: () => {
-          const structureVersion = collector.getStructureVersion();
-          if (structureVersion === lastHandledStructureVersion) {
-            return;
-          }
-          lastHandledStructureVersion = structureVersion;
-
           const nodes = Array.from(collector.getNodes());
-          const nextHandlersById = new Map<string, NormalizedHandlers>();
-          const activeEvents = new Set<string>();
+          const next = new Map<string, NormalizedHandlers>();
+          const active = new Set<string>();
 
           for (const node of nodes) {
-            const handlers = normalizeHandlers(node.handlers);
-            if (Object.keys(handlers).length > 0) {
-              nextHandlersById.set(node.id, handlers);
-              Object.keys(handlers).forEach((event) => activeEvents.add(event));
+            const nodeHandlers = toHandlers(node.handlers);
+            if (Object.keys(nodeHandlers).length > 0) {
+              next.set(node.id, nodeHandlers);
+              Object.keys(nodeHandlers).forEach((event) => active.add(event));
             }
           }
 
-          handlersById.clear();
-          nextHandlersById.forEach((handlers, id) => {
-            handlersById.set(id, handlers);
+          handlers.clear();
+          next.forEach((entry, id) => {
+            handlers.set(id, entry);
           });
 
-          if (boundChart) {
-            syncEventBindings(boundChart, activeEvents);
+          if (chart) {
+            syncEvents(chart, active);
           }
 
-          const { option, snapshot } = buildGraphicOption(nodes, ROOT_ID);
+          const { option } = buildGraphicOption(nodes, ROOT_ID);
 
           collector.optionRef.value = option;
-          collector.setSnapshot(snapshot);
 
           const updated = ctx.requestUpdate({
             updateOptions: {
@@ -151,12 +141,12 @@ export function registerGraphicExtension(): void {
 
       onScopeDispose(() => {
         collector.dispose();
-        if (boundChart && boundEvents.size > 0) {
-          boundEvents.forEach((handler, event) => boundChart?.off(event, handler as any));
+        if (chart && eventFns.size > 0) {
+          eventFns.forEach((fn, event) => chart?.off(event, fn as any));
         }
-        boundEvents.clear();
-        handlersById.clear();
-        boundChart = null;
+        eventFns.clear();
+        handlers.clear();
+        chart = null;
       });
 
       return {
@@ -164,17 +154,13 @@ export function registerGraphicExtension(): void {
           if (!ctx.slots.graphic) {
             return option;
           }
-          if (option.graphic && !warnedOptionGraphicOverride) {
+          if (option.graphic && !warnedOverride) {
             ctx.warn(warnOptionGraphicOverride());
-            warnedOptionGraphicOverride = true;
+            warnedOverride = true;
           }
           if (!collector.optionRef.value) {
-            const { option: initialOption, snapshot } = buildGraphicOption(
-              collector.getNodes(),
-              ROOT_ID,
-            );
+            const { option: initialOption } = buildGraphicOption(collector.getNodes(), ROOT_ID);
             collector.optionRef.value = initialOption;
-            collector.setSnapshot(snapshot);
           }
           const graphicOption = collector.optionRef.value!;
           return {

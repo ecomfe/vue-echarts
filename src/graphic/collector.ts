@@ -29,49 +29,39 @@ export type GraphicCollector = {
   optionRef: Ref<Option | null>;
   getNodes: () => Iterable<GraphicNode>;
   getSnapshot: () => GraphicSnapshot;
-  setSnapshot: (snapshot: GraphicSnapshot) => void;
   requestFlush: () => void;
-  getStructureVersion: () => number;
   dispose: () => void;
 };
 
 export function createStableSerializer() {
-  type UnknownFn = (...args: unknown[]) => unknown;
-  const functionIds = new WeakMap<UnknownFn, number>();
   const symbolIds = new Map<symbol, number>();
   const objectIds = new WeakMap<object, number>();
-  let functionCursor = 0;
-  let symbolCursor = 0;
-  let objectCursor = 0;
+  let symbolId = 0;
+  let objectId = 0;
 
-  const ensureFunctionId = (fn: UnknownFn): number => {
-    let id = functionIds.get(fn);
+  const getSymbolId = (value: symbol): number => {
+    let id = symbolIds.get(value);
     if (id == null) {
-      functionCursor += 1;
-      id = functionCursor;
-      functionIds.set(fn, id);
+      symbolId += 1;
+      id = symbolId;
+      symbolIds.set(value, id);
     }
     return id;
   };
 
-  const ensureSymbolId = (symbol: symbol): number => {
-    let id = symbolIds.get(symbol);
+  const getObjectId = (value: object): number => {
+    let id = objectIds.get(value);
     if (id == null) {
-      symbolCursor += 1;
-      id = symbolCursor;
-      symbolIds.set(symbol, id);
+      objectId += 1;
+      id = objectId;
+      objectIds.set(value, id);
     }
     return id;
   };
 
-  const ensureObjectId = (object: object): number => {
-    let id = objectIds.get(object);
-    if (id == null) {
-      objectCursor += 1;
-      id = objectCursor;
-      objectIds.set(object, id);
-    }
-    return id;
+  const isPlainObject = (value: object): boolean => {
+    const prototype = Object.getPrototypeOf(value);
+    return prototype === Object.prototype || prototype === null;
   };
 
   const stringify = (value: unknown): string => {
@@ -82,37 +72,36 @@ export function createStableSerializer() {
       return "n";
     }
 
-    const valueType = typeof value;
-    if (valueType === "string") {
+    const t = typeof value;
+    if (t === "string") {
       return `s:${JSON.stringify(value)}`;
     }
-    if (valueType === "number") {
+    if (t === "number") {
       return `d:${value}`;
     }
-    if (valueType === "boolean") {
+    if (t === "boolean") {
       return value ? "b:1" : "b:0";
     }
-    if (valueType === "bigint") {
+    if (t === "bigint") {
       return `g:${String(value)}`;
     }
-    if (valueType === "symbol") {
-      return `y:${ensureSymbolId(value as symbol)}`;
+    if (t === "symbol") {
+      return `y:${getSymbolId(value as symbol)}`;
     }
-    if (valueType === "function") {
-      return `f:${ensureFunctionId(value as UnknownFn)}`;
+    if (t === "function") {
+      return `o:${getObjectId(value as object)}`;
     }
 
     if (Array.isArray(value)) {
       return `[${value.map((item) => stringify(item)).join(",")}]`;
     }
 
-    const objectValue = value as object;
-    const prototype = Object.getPrototypeOf(objectValue);
-    if (prototype !== Object.prototype && prototype !== null) {
-      return `o:${ensureObjectId(objectValue)}`;
+    const obj = value as object;
+    if (!isPlainObject(obj)) {
+      return `o:${getObjectId(obj)}`;
     }
 
-    const record = objectValue as Record<string, unknown>;
+    const record = obj as Record<string, unknown>;
     const keys = Object.keys(record).sort();
     return `{${keys.map((key) => `${key}:${stringify(record[key])}`).join(",")}}`;
   };
@@ -120,7 +109,7 @@ export function createStableSerializer() {
   return stringify;
 }
 
-function buildNodeFingerprint(
+function nodeSig(
   stringify: (value: unknown) => string,
   node: Omit<GraphicNode, "order"> & { order: number },
 ): string {
@@ -140,25 +129,18 @@ export function createGraphicCollector(options: {
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
   const optionRef = shallowRef<Option | null>(null);
-  const fingerprintById = new Map<string, string>();
+  const sigById = new Map<string, string>();
   const passById = new Map<string, number>();
   const stringify = createStableSerializer();
 
   let order = 0;
-  let currentPass = 0;
+  let pass = 0;
   let pending = false;
   let disposed = false;
-  let structureVersion = 0;
-
-  const snapshot: GraphicSnapshot = {
-    ids: new Set(),
-    parentById: new Map(),
-    hasDuplicateId: false,
-  };
 
   function beginPass(): void {
     order = 0;
-    currentPass += 1;
+    pass += 1;
   }
 
   function warnOnce(key: string, message: string): void {
@@ -176,8 +158,7 @@ export function createGraphicCollector(options: {
 
     const existing = nodes.get(node.id);
     const existingPass = passById.get(node.id);
-    if (existing && existing.sourceId !== node.sourceId && existingPass === currentPass) {
-      snapshot.hasDuplicateId = true;
+    if (existing && existing.sourceId !== node.sourceId && existingPass === pass) {
       warnOnce(`duplicate-id:${node.id}`, warnDuplicateId(node.id));
     }
 
@@ -186,14 +167,14 @@ export function createGraphicCollector(options: {
       order = node.order + 1;
     }
 
-    const fingerprint = buildNodeFingerprint(stringify, { ...node, order: nextOrder });
+    const sig = nodeSig(stringify, { ...node, order: nextOrder });
     if (
       existing &&
       existing.sourceId === node.sourceId &&
       existing.order === nextOrder &&
-      fingerprintById.get(node.id) === fingerprint
+      sigById.get(node.id) === sig
     ) {
-      passById.set(node.id, currentPass);
+      passById.set(node.id, pass);
       return;
     }
 
@@ -202,9 +183,8 @@ export function createGraphicCollector(options: {
       ...node,
       order: nextOrder,
     });
-    fingerprintById.set(node.id, fingerprint);
-    passById.set(node.id, currentPass);
-    structureVersion += 1;
+    sigById.set(node.id, sig);
+    passById.set(node.id, pass);
     requestFlush();
   }
 
@@ -222,8 +202,7 @@ export function createGraphicCollector(options: {
     }
     nodes.delete(id);
     passById.delete(id);
-    fingerprintById.delete(id);
-    structureVersion += 1;
+    sigById.delete(id);
     requestFlush();
   }
 
@@ -257,22 +236,12 @@ export function createGraphicCollector(options: {
     return nodes.values();
   }
 
-  function setSnapshot(next: GraphicSnapshot): void {
-    snapshot.ids = next.ids;
-    snapshot.parentById = next.parentById;
-    snapshot.hasDuplicateId = next.hasDuplicateId;
-  }
-
-  function getStructureVersion(): number {
-    return structureVersion;
-  }
-
   function dispose(): void {
     disposed = true;
     pending = false;
     nodes.clear();
     passById.clear();
-    fingerprintById.clear();
+    sigById.clear();
     warnedKeys.clear();
     optionRef.value = null;
   }
@@ -285,9 +254,7 @@ export function createGraphicCollector(options: {
     optionRef,
     getNodes,
     getSnapshot,
-    setSnapshot,
     requestFlush,
-    getStructureVersion,
     dispose,
   };
 }

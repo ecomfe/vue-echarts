@@ -23,35 +23,23 @@ const graphicProps = {
   ...graphicShapeProps,
 } as const;
 
-function resolveId(
+function parseIdentity(
   props: { id?: string | number },
-  instance: NonNullable<ReturnType<typeof getCurrentInstance>>,
-): string {
+  instance: { uid: number; vnode: { key: unknown } },
+): { id: string; key: string | null; missing: boolean } {
   if (props.id != null) {
-    return String(props.id);
+    const id = String(props.id);
+    return { id, key: `id:${id}`, missing: false };
   }
-  const key = instance?.vnode.key;
-  if (key != null) {
-    return String(key);
+  const vnodeKey = instance.vnode.key;
+  if (vnodeKey != null) {
+    const id = String(vnodeKey);
+    return { id, key: `key:${id}`, missing: false };
   }
-  return `__ve_graphic_${instance.uid}`;
+  return { id: `__ve_graphic_${instance.uid}`, key: null, missing: true };
 }
 
-function resolveIdentity(
-  props: { id?: string | number },
-  instance: NonNullable<ReturnType<typeof getCurrentInstance>>,
-): string | null {
-  if (props.id != null) {
-    return `id:${String(props.id)}`;
-  }
-  const key = instance.vnode.key;
-  if (key != null) {
-    return `key:${String(key)}`;
-  }
-  return null;
-}
-
-function cloneProps(props: AnyProps): AnyProps {
+function copyProps(props: AnyProps): AnyProps {
   const raw = toRaw(props) as AnyProps;
   const clone: AnyProps = { ...raw };
   if (raw.shape && typeof raw.shape === "object") {
@@ -64,13 +52,13 @@ function cloneProps(props: AnyProps): AnyProps {
 }
 
 function extractHandlers(attrs: AnyProps): AnyProps {
-  const handlers: AnyProps = {};
+  const out: AnyProps = {};
   for (const key of Object.keys(attrs)) {
     if (key.startsWith("on")) {
-      handlers[key] = attrs[key];
+      out[key] = attrs[key];
     }
   }
-  return handlers;
+  return out;
 }
 
 export function createGraphicComponent(name: string, type: string) {
@@ -93,23 +81,22 @@ export function createGraphicComponent(name: string, type: string) {
       const currentId = shallowRef<string | null>(null);
 
       function register(): void {
-        const nextId = resolveId(props, instance);
-        if (!props.id && instance.vnode.key == null) {
+        const next = parseIdentity(props, instance);
+        if (next.missing) {
           graphicCollector.warnOnce(`missing-id:${instance.uid}`, warnMissingIdentity(name));
         }
-        if (currentId.value && currentId.value !== nextId) {
+        if (currentId.value && currentId.value !== next.id) {
           graphicCollector.unregister(currentId.value, instance.uid);
         }
-        currentId.value = nextId;
-        const identity = resolveIdentity(props, instance);
-        const hintedOrder = identity != null ? unref(orderRef)?.get(identity) : undefined;
+        currentId.value = next.id;
+        const hintedOrder = next.key ? unref(orderRef)?.get(next.key) : undefined;
 
         graphicCollector.register({
-          id: nextId,
+          id: next.id,
           type,
           parentId: parentIdRef ? unref(parentIdRef) : null,
           order: hintedOrder,
-          props: cloneProps(props as AnyProps),
+          props: copyProps(props as AnyProps),
           handlers: extractHandlers(attrs as AnyProps),
           sourceId: instance.uid,
         });
