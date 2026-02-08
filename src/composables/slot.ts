@@ -3,7 +3,7 @@ import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
 import { isBrowser, isPlainObject, isValidArrayIndex, isSameSet, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
-import type { VChartExtensionSlots } from "../extensions";
+import type { VChartSlotsExtension } from "../slots";
 
 const SLOT_OPTION_PATHS = {
   tooltip: ["tooltip", "formatter"],
@@ -180,5 +180,5 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 export type SlotsTypes = SlotsType<
   Record<"tooltip" | `tooltip-${string}`, TooltipComponentFormatterCallbackParams> &
     Record<"dataView" | `dataView-${string}`, Option> &
-    VChartExtensionSlots
+    VChartSlotsExtension
 >;

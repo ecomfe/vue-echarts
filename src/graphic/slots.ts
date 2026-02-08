@@ -1,9 +1,9 @@
-import type { VChartExtensionSlots } from "../extensions";
+import type { VChartSlotsExtension } from "../slots";
 
-declare module "../extensions" {
-  interface VChartExtensionSlots {
+declare module "../slots" {
+  interface VChartSlotsExtension {
     graphic?: unknown;
   }
 }
 
-export type __VChartGraphicSlot = VChartExtensionSlots;
+export type __VChartGraphicSlot = VChartSlotsExtension;
