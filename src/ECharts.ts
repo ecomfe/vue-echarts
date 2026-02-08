@@ -399,9 +399,15 @@ export default defineComponent({
     // via template refs at runtime, it doesn't contribute to TypeScript types.
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
-    const renderGraphic = () => (graphicRuntime ? [graphicRuntime.render()] : []);
-    return (() =>
-      h(
+    return (() => {
+      const children = [];
+      if (isReady.value) {
+        children.push(teleportedSlots());
+      }
+      if (graphicRuntime) {
+        children.push(graphicRuntime.render());
+      }
+      return h(
         TAG_NAME,
         {
           ...nonEventAttrs.value,
@@ -409,7 +415,8 @@ export default defineComponent({
           ref: root,
           class: ["echarts", nonEventAttrs.value.class],
         },
-        [isReady.value ? teleportedSlots() : undefined, ...renderGraphic()],
-      )) as unknown as typeof exposed & PublicMethods;
+        children,
+      );
+    }) as unknown as typeof exposed & PublicMethods;
   },
 });
