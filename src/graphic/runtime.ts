@@ -2,7 +2,7 @@ import type { Ref, Slots, VNodeChild } from "vue";
 
 import type { EChartsType, Option, UpdateOptions } from "../types";
 
-export type GraphicRequestUpdate = (options?: { updateOptions?: UpdateOptions }) => boolean;
+export type GraphicRequestUpdate = (updateOptions?: UpdateOptions) => boolean;
 
 export type GraphicRuntimeContext = {
   chart: Ref<EChartsType | undefined>;

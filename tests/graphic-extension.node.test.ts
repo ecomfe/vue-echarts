@@ -126,9 +126,7 @@ describe("graphic runtime", () => {
     await flushMicrotasks();
 
     expect(requestUpdate).toHaveBeenCalledWith({
-      updateOptions: {
-        replaceMerge: ["graphic"],
-      },
+      replaceMerge: ["graphic"],
     });
 
     const chart1 = {
