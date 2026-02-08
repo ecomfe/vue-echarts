@@ -139,14 +139,18 @@ export default defineComponent({
       return result;
     }
 
+    function patchRuntimeOption(option: Option): Option {
+      const slotted = patchOption(option);
+      return graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
+    }
+
     function applyOption(
       instance: EChartsType,
       option: Option,
       override?: UpdateOptions,
       manual = false,
     ) {
-      const slotted = patchOption(option);
-      const patched = graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
+      const patched = patchRuntimeOption(option);
 
       if (manual) {
         instance.setOption(patched, override ?? {});
