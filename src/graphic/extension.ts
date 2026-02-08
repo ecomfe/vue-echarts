@@ -3,6 +3,7 @@ import { h, onScopeDispose, watch } from "vue";
 import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
 import { createGraphicCollector } from "./collector";
+import type { GraphicNode } from "./collector";
 import { GraphicMount } from "./mount";
 import type { GraphicRuntimeContext } from "./runtime";
 import { registerGraphicRuntime } from "./runtime";
@@ -14,7 +15,7 @@ type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 
 export function registerGraphicExtension(): void {
   registerGraphicRuntime((ctx: GraphicRuntimeContext) => {
-    const handlers = new Map<string, NormalizedHandlers>();
+    let handlers = new Map<string, NormalizedHandlers>();
     const eventFns = new Map<string, (params: unknown) => void>();
     let chart: EChartsType | null = null;
     let graphicOption: ReturnType<typeof buildGraphicOption> | null = null;
@@ -47,6 +48,39 @@ export function registerGraphicExtension(): void {
         }
       }
       return out;
+    };
+
+    const collectHandlers = (nodes: Iterable<GraphicNode>) => {
+      const map = new Map<string, NormalizedHandlers>();
+      const active = new Set<string>();
+
+      for (const node of nodes) {
+        const nodeHandlers = toHandlers(node.handlers);
+        const events = Object.keys(nodeHandlers);
+        if (events.length === 0) {
+          continue;
+        }
+        map.set(node.id, nodeHandlers);
+        events.forEach((event) => active.add(event));
+      }
+
+      return { map, active };
+    };
+
+    const collectActiveEvents = (source: Map<string, NormalizedHandlers>) => {
+      const active = new Set<string>();
+      for (const entry of source.values()) {
+        Object.keys(entry).forEach((event) => active.add(event));
+      }
+      return active;
+    };
+
+    const unbindAllEvents = (target: EChartsType | null) => {
+      if (!target || eventFns.size === 0) {
+        return;
+      }
+      eventFns.forEach((fn, event) => target.off(event, fn as any));
+      eventFns.clear();
     };
 
     const emit = (event: string, params: any) => {
@@ -82,17 +116,10 @@ export function registerGraphicExtension(): void {
     watch(
       () => ctx.chart.value,
       (next, prev) => {
-        if (prev && eventFns.size > 0) {
-          eventFns.forEach((fn, event) => prev.off(event, fn as any));
-          eventFns.clear();
-        }
+        unbindAllEvents(prev ?? null);
         chart = next ?? null;
         if (chart) {
-          const active = new Set<string>();
-          handlers.forEach((entry) => {
-            Object.keys(entry).forEach((event) => active.add(event));
-          });
-          syncEvents(chart, active);
+          syncEvents(chart, collectActiveEvents(handlers));
         }
       },
       { immediate: true },
@@ -102,22 +129,8 @@ export function registerGraphicExtension(): void {
       warn: ctx.warn,
       onFlush: () => {
         const nodes = Array.from(collector.getNodes());
-        const next = new Map<string, NormalizedHandlers>();
-        const active = new Set<string>();
-
-        for (const node of nodes) {
-          const nodeHandlers = toHandlers(node.handlers);
-          const events = Object.keys(nodeHandlers);
-          if (events.length > 0) {
-            next.set(node.id, nodeHandlers);
-            events.forEach((event) => active.add(event));
-          }
-        }
-
-        handlers.clear();
-        next.forEach((entry, id) => {
-          handlers.set(id, entry);
-        });
+        const { map, active } = collectHandlers(nodes);
+        handlers = map;
 
         if (chart) {
           syncEvents(chart, active);
@@ -139,11 +152,8 @@ export function registerGraphicExtension(): void {
 
     onScopeDispose(() => {
       collector.dispose();
-      if (chart && eventFns.size > 0) {
-        eventFns.forEach((fn, event) => chart?.off(event, fn as any));
-      }
-      eventFns.clear();
-      handlers.clear();
+      unbindAllEvents(chart);
+      handlers = new Map<string, NormalizedHandlers>();
       graphicOption = null;
       chart = null;
     });
