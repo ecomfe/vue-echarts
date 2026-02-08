@@ -82,17 +82,16 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   };
 
   let slotNames = collectSlotNames(false);
-  let renderSlotNames = slotNames;
 
   // Teleport the slots to a detached root
   const teleportedSlots = () => {
-    renderSlotNames = collectSlotNames(false);
+    const names = collectSlotNames(false);
     // Make slots client-side only to avoid SSR hydration mismatch
     return isMounted.value && detachedRoot
       ? h(
           Teleport,
           { to: detachedRoot },
-          renderSlotNames.map((slotName) => {
+          names.map((slotName) => {
             const slot = slots[slotName];
             const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
             return h(
@@ -115,9 +114,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   // Shallow-clone the option along each path and override the target callback
   function patchOption(src: Option): Option {
     const root: Option = { ...src };
-    renderSlotNames = collectSlotNames(true);
+    const names = collectSlotNames(true);
 
-    renderSlotNames.forEach((key) => {
+    names.forEach((key) => {
       const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
       const rest = key.slice(prefix.length);
       const parts = rest ? rest.slice(1).split("-") : [];
@@ -158,7 +157,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
         }
       });
       slotNames = newSlotNames;
-      renderSlotNames = newSlotNames;
       onSlotsChange();
     }
   });
