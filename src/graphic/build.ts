@@ -1,5 +1,4 @@
 import type { Option } from "../types";
-import { SHAPE_KEYS_BY_TYPE } from "./constants";
 import type { GraphicNode } from "./collector";
 import { pickCommonProps } from "./collector";
 import {
@@ -30,11 +29,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     return out as Option;
   }
 
-  if (SHAPE_KEYS_BY_TYPE[node.type]) {
-    const shape = buildShape(node.type, node.props);
-    if (shape) {
-      out.shape = shape;
-    }
+  const shape = buildShape(node.type, node.props);
+  if (shape) {
+    out.shape = shape;
   }
 
   const style = buildStyle(node.props, styleKeysByType(node.type));

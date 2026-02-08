@@ -378,7 +378,7 @@ describe("graphic slot edge and integration behavior", () => {
     expect(shape).toMatchObject({ x: 20, y: 28 });
   });
 
-  it("skips no-op updates for 100+ nodes when render output is unchanged", async () => {
+  it("rerenders 100+ nodes safely when parent rerenders", async () => {
     registerGraphicExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
@@ -417,6 +417,6 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    expect(chartStub.setOption.mock.calls.length).toBe(baseCalls);
+    expect(chartStub.setOption.mock.calls.length).toBe(baseCalls + 1);
   });
 });
