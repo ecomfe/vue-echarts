@@ -1,11 +1,12 @@
 import type { Option } from "../types";
+import { COMMON_PROP_KEYS } from "./constants";
 import type { GraphicNode } from "./collector";
 import {
   buildInfo,
+  mergeProps,
   buildShape,
   buildStyle,
   isGroupGraphic,
-  pickCommonProps,
   pruneCommonPropsByType,
   styleKeysByType,
 } from "./build-helpers";
@@ -16,7 +17,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     id: node.id,
   };
 
-  Object.assign(out, pruneCommonPropsByType(node.type, pickCommonProps(node.props)));
+  const common: Record<string, unknown> = {};
+  mergeProps(common, COMMON_PROP_KEYS, node.props);
+  Object.assign(out, pruneCommonPropsByType(node.type, common));
 
   if (isGroupGraphic(node.type)) {
     if (children?.length) {
