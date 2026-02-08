@@ -39,7 +39,7 @@ describe("graphic", () => {
       },
     ];
 
-    const { option, snapshot } = buildGraphicOption(nodes, "root");
+    const option = buildGraphicOption(nodes, "root");
     const root = (option as any).graphic?.elements?.[0] as any;
 
     expect(root.id).toBe("root");
@@ -56,8 +56,7 @@ describe("graphic", () => {
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });
     expect(rect.style).toMatchObject({ fill: "#f00" });
 
-    expect(snapshot.ids.has("rect")).toBe(true);
-    expect(snapshot.parentById.get("rect")).toBe(null);
+    expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
   it("injects info for elements with handlers", () => {
@@ -78,7 +77,7 @@ describe("graphic", () => {
       },
     ];
 
-    const { option } = buildGraphicOption(nodes, "root");
+    const option = buildGraphicOption(nodes, "root");
     const root = (option as any).graphic?.elements?.[0] as any;
     if (!root) {
       throw new Error("Expected root graphic element to exist.");
@@ -194,7 +193,7 @@ describe("graphic", () => {
       },
     ];
 
-    const { option, snapshot } = buildGraphicOption(nodes, "root");
+    const option = buildGraphicOption(nodes, "root");
     const root = (option as any).graphic?.elements?.[0] as any;
     if (!root) {
       throw new Error("Expected root graphic element to exist.");
@@ -227,7 +226,7 @@ describe("graphic", () => {
     expect(text.info).toMatchObject({ __veGraphicId: "txt" });
     expect(custom.shape).toBeUndefined();
 
-    expect(snapshot.hasDuplicateId).toBe(true);
+    expect(root.children.filter((item: any) => item.id === "dup")).toHaveLength(2);
   });
 
   it("coalesces flushes and warns on duplicate ids", async () => {
@@ -279,7 +278,7 @@ describe("graphic", () => {
     expect(stringify({ image: imageA })).not.toBe(stringify({ image: imageB }));
   });
 
-  it("returns live snapshot of collector nodes", () => {
+  it("exposes current collector nodes", () => {
     const collector = createGraphicCollector({
       onFlush: () => void 0,
       warn: () => void 0,
@@ -302,10 +301,9 @@ describe("graphic", () => {
       sourceId: 2,
     });
 
-    const snapshot = collector.getSnapshot();
-    expect(snapshot.ids.has("a")).toBe(true);
-    expect(snapshot.parentById.get("b")).toBe("a");
-    expect(snapshot.hasDuplicateId).toBe(false);
+    const nodes = Array.from(collector.getNodes());
+    expect(nodes.some((item) => item.id === "a")).toBe(true);
+    expect(nodes.find((item) => item.id === "b")?.parentId).toBe("a");
   });
 
   it("ignores unregister from mismatched source and removes with matched source", () => {
@@ -324,12 +322,12 @@ describe("graphic", () => {
     });
 
     collector.unregister("x", 2);
-    expect(collector.getSnapshot().ids.has("x")).toBe(true);
+    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(true);
     collector.unregister("missing", 1);
-    expect(collector.getSnapshot().ids.has("x")).toBe(true);
+    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(true);
 
     collector.unregister("x", 1);
-    expect(collector.getSnapshot().ids.has("x")).toBe(false);
+    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(false);
   });
 
   it("does not mark duplicate when same id appears across different passes", () => {

@@ -15,7 +15,6 @@ type CollectorMock = {
   dispose: ReturnType<typeof vi.fn>;
   optionRef: { value: unknown };
   getNodes: () => Iterable<unknown>;
-  getSnapshot: () => unknown;
 };
 
 function createCollectorMock(): CollectorMock {
@@ -28,7 +27,6 @@ function createCollectorMock(): CollectorMock {
     dispose: vi.fn(),
     optionRef: { value: null },
     getNodes: () => [],
-    getSnapshot: () => ({}),
   };
 }
 
