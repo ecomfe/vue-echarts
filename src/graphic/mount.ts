@@ -47,13 +47,8 @@ function collectGraphicOrder(
   }
 
   const children = vnode.children;
-  if (
-    graphicType === "group" &&
-    children &&
-    typeof children === "object" &&
-    "default" in children
-  ) {
-    const slot = (children as { default?: () => unknown }).default;
+  if (graphicType === "group") {
+    const slot = (children as { default?: () => unknown } | null)?.default;
     if (slot) {
       collectGraphicOrder(slot(), orderMap, cursor);
       return;
