@@ -56,10 +56,8 @@ export function createGraphicCollector(options: {
       warnOnce(`duplicate-id:${node.id}`, warnDuplicateId(node.id));
     }
 
-    const nextOrder = node.order ?? order++;
-    if (node.order != null && node.order >= order) {
-      order = node.order + 1;
-    }
+    const nextOrder = node.order ?? order;
+    order = Math.max(order, nextOrder + 1);
 
     const existing = nodes.get(node.id);
     nodes.set(node.id, {
