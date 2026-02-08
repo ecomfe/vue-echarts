@@ -2,16 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
 
 import {
-  __resetVChartExtensions,
-  registerVChartExtension,
-  useVChartExtensions,
-  type VChartExtensionContext,
-} from "../src/extensions";
+  __resetGraphicRuntime,
+  registerGraphicRuntime,
+  useGraphicRuntime,
+  type GraphicRuntimeContext,
+} from "../src/graphic/runtime";
 import { registerGraphicExtension } from "../src/graphic/extension";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
-function createContext(overrides: Partial<VChartExtensionContext> = {}): VChartExtensionContext {
+function createContext(overrides: Partial<GraphicRuntimeContext> = {}): GraphicRuntimeContext {
   return {
     chart: ref(),
     slots: {},
@@ -19,26 +19,34 @@ function createContext(overrides: Partial<VChartExtensionContext> = {}): VChartE
     requestUpdate: () => true,
     warn: () => void 0,
     ...overrides,
-  } as VChartExtensionContext;
+  } as GraphicRuntimeContext;
 }
 
 afterEach(() => {
-  __resetVChartExtensions();
+  __resetGraphicRuntime();
 });
 
-describe("graphic extension", () => {
-  it("deduplicates direct extension factory registration without key", () => {
-    const factory = () => ({});
-    registerVChartExtension(factory);
-    registerVChartExtension(factory);
+describe("graphic runtime", () => {
+  it("keeps first runtime registration", () => {
+    const first = () => ({
+      patchOption: (option: any) => ({ ...option, tag: "first" }),
+      render: () => null,
+    });
+    const second = () => ({
+      patchOption: (option: any) => ({ ...option, tag: "second" }),
+      render: () => null,
+    });
+
+    registerGraphicRuntime(first as any);
+    registerGraphicRuntime(second as any);
 
     const scope = effectScope();
-    const extensions = scope.run(() => useVChartExtensions(createContext()));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(createContext()));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    expect(extensions.count).toBe(1);
+    expect(runtime.patchOption({}).tag).toBe("first");
     scope.stop();
   });
 
@@ -47,12 +55,8 @@ describe("graphic extension", () => {
     registerGraphicExtension();
 
     const scope = effectScope();
-    const extensions = scope.run(() => useVChartExtensions(createContext()));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
-    }
-
-    expect(extensions.count).toBe(1);
+    const runtime = scope.run(() => useGraphicRuntime(createContext()));
+    expect(runtime).toBeTruthy();
     scope.stop();
   });
 
@@ -62,14 +66,14 @@ describe("graphic extension", () => {
     const scope = effectScope();
     const context = createContext();
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
     const option = { title: { text: "no-graphic" } } as any;
-    expect(extensions.patchOption(option)).toBe(option);
-    expect(extensions.render()).toEqual([]);
+    expect(runtime.patchOption(option)).toBe(option);
+    expect(runtime.render()).toBeNull();
 
     scope.stop();
   });
@@ -89,12 +93,12 @@ describe("graphic extension", () => {
       requestUpdate,
     });
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    const vnode = extensions.render()[0] as any;
+    const vnode = runtime.render() as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
       unregister: (id: string) => void;
@@ -194,12 +198,12 @@ describe("graphic extension", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    const vnode = extensions.render()[0] as any;
+    const vnode = runtime.render() as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
     };
@@ -244,12 +248,12 @@ describe("graphic extension", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    const vnode = extensions.render()[0] as any;
+    const vnode = runtime.render() as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
     };
@@ -309,12 +313,12 @@ describe("graphic extension", () => {
       requestUpdate,
     });
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    const vnode = extensions.render()[0] as any;
+    const vnode = runtime.render() as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
     };
@@ -367,12 +371,12 @@ describe("graphic extension", () => {
       warn,
     });
 
-    const extensions = scope.run(() => useVChartExtensions(context));
-    if (!extensions) {
-      throw new Error("Expected extensions to be initialized.");
+    const runtime = scope.run(() => useGraphicRuntime(context));
+    if (!runtime) {
+      throw new Error("Expected runtime to be initialized.");
     }
 
-    const vnode = extensions.render()[0] as any;
+    const vnode = runtime.render() as any;
     const collector = vnode.props.collector as {
       register: (node: any) => void;
     };
@@ -388,8 +392,8 @@ describe("graphic extension", () => {
 
     await flushMicrotasks();
 
-    const patchedA = extensions.patchOption({ graphic: { elements: [{ id: "a" }] } } as any);
-    const patchedB = extensions.patchOption({ graphic: { elements: [{ id: "b" }] } } as any);
+    const patchedA = runtime.patchOption({ graphic: { elements: [{ id: "a" }] } } as any);
+    const patchedB = runtime.patchOption({ graphic: { elements: [{ id: "b" }] } } as any);
 
     expect(
       warn.mock.calls.filter((call: unknown[]) => String(call[0]).includes("option.graphic"))
@@ -404,7 +408,7 @@ describe("graphic extension", () => {
     scope.stop();
   });
 
-  it("registers extension via graphic entry side effect", async () => {
+  it("registers runtime via graphic entry side effect", async () => {
     const originalImage = (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement;
     const originalCanvas = (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement;
     const originalVideo = (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement;
@@ -417,12 +421,8 @@ describe("graphic extension", () => {
       await import("../src/graphic/index");
 
       const scope = effectScope();
-      const extensions = scope.run(() => useVChartExtensions(createContext()));
-      if (!extensions) {
-        throw new Error("Expected extensions to be initialized.");
-      }
-
-      expect(extensions.count).toBeGreaterThan(0);
+      const runtime = scope.run(() => useGraphicRuntime(createContext()));
+      expect(runtime).toBeTruthy();
       scope.stop();
     } finally {
       (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = originalImage;

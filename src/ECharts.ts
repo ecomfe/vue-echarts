@@ -27,7 +27,7 @@ import { isOn, omitOn, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
 import type { Signature, UpdatePlan } from "./update";
-import { useVChartExtensions } from "./extensions";
+import { useGraphicRuntime } from "./graphic/runtime";
 import { warnMissingGraphicEntry } from "./graphic/warn";
 
 import type { PropType, InjectionKey } from "vue";
@@ -114,7 +114,7 @@ export default defineComponent({
       return true;
     };
 
-    const extensions = useVChartExtensions({
+    const graphicRuntime = useGraphicRuntime({
       chart,
       slots,
       manualUpdate,
@@ -122,10 +122,7 @@ export default defineComponent({
       warn,
     });
 
-    const patchOptionFromExtensions = extensions.patchOption;
-    const renderExtensions = extensions.render;
-
-    if (hasGraphicSlot() && extensions.count === 0) {
+    if (hasGraphicSlot() && !graphicRuntime) {
       warn(warnMissingGraphicEntry());
     }
 
@@ -148,7 +145,8 @@ export default defineComponent({
       override?: UpdateOptions,
       manual = false,
     ) {
-      const patched = patchOptionFromExtensions(patchOption(option));
+      const slotted = patchOption(option);
+      const patched = graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
 
       if (manual) {
         instance.setOption(patched, override ?? {});
@@ -397,6 +395,7 @@ export default defineComponent({
     // via template refs at runtime, it doesn't contribute to TypeScript types.
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
+    const renderGraphic = () => (graphicRuntime ? [graphicRuntime.render()] : []);
     return (() =>
       h(
         TAG_NAME,
@@ -406,7 +405,7 @@ export default defineComponent({
           ref: root,
           class: ["echarts", nonEventAttrs.value.class],
         },
-        [isReady.value ? teleportedSlots() : undefined, ...renderExtensions()],
+        [isReady.value ? teleportedSlots() : undefined, ...renderGraphic()],
       )) as unknown as typeof exposed & PublicMethods;
   },
 });
