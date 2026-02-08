@@ -100,14 +100,11 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
 
-    const requestUpdate = (options?: {
-      force?: boolean;
-      updateOptions?: UpdateOptions;
-    }): boolean => {
+    const requestUpdate = (options?: { updateOptions?: UpdateOptions }): boolean => {
       if (!chart.value || !props.option) {
         return false;
       }
-      if (!options?.force && manualUpdate.value) {
+      if (manualUpdate.value) {
         return false;
       }
       applyOption(chart.value, props.option, options?.updateOptions);

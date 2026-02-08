@@ -20,12 +20,12 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const common: Record<string, unknown> = {};
   mergeProps(common, COMMON_PROP_KEYS, node.props);
   Object.assign(out, pruneCommonPropsByType(node.type, common));
+  const info = buildInfo(node);
 
   if (isGroupGraphic(node.type)) {
     if (children?.length) {
       out.children = children;
     }
-    const info = buildInfo(node);
     if (info !== undefined) {
       out.info = info;
     }
@@ -42,7 +42,6 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     out.style = style;
   }
 
-  const info = buildInfo(node);
   if (info !== undefined) {
     out.info = info;
   }
