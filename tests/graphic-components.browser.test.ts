@@ -13,7 +13,6 @@ type CollectorMock = {
   warnOnce: ReturnType<typeof vi.fn>;
   requestFlush: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
-  optionRef: { value: unknown };
   getNodes: () => Iterable<unknown>;
 };
 
@@ -25,7 +24,6 @@ function createCollectorMock(): CollectorMock {
     warnOnce: vi.fn(),
     requestFlush: vi.fn(),
     dispose: vi.fn(),
-    optionRef: { value: null },
     getNodes: () => [],
   };
 }

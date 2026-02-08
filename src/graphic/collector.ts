@@ -1,7 +1,3 @@
-import type { Ref } from "vue";
-import { shallowRef } from "vue";
-
-import type { Option } from "../types";
 import { COMMON_PROP_KEYS } from "./constants";
 import { warnDuplicateId } from "./warn";
 
@@ -20,100 +16,10 @@ export type GraphicCollector = {
   register: (node: Omit<GraphicNode, "order"> & { order?: number }) => void;
   unregister: (id: string, sourceId?: number) => void;
   warnOnce: (key: string, message: string) => void;
-  optionRef: Ref<Option | null>;
   getNodes: () => Iterable<GraphicNode>;
   requestFlush: () => void;
   dispose: () => void;
 };
-
-export function createStableSerializer() {
-  const symbolIds = new Map<symbol, number>();
-  const objectIds = new WeakMap<object, number>();
-  let symbolId = 0;
-  let objectId = 0;
-
-  const getSymbolId = (value: symbol): number => {
-    let id = symbolIds.get(value);
-    if (id == null) {
-      symbolId += 1;
-      id = symbolId;
-      symbolIds.set(value, id);
-    }
-    return id;
-  };
-
-  const getObjectId = (value: object): number => {
-    let id = objectIds.get(value);
-    if (id == null) {
-      objectId += 1;
-      id = objectId;
-      objectIds.set(value, id);
-    }
-    return id;
-  };
-
-  const isPlainObject = (value: object): boolean => {
-    const prototype = Object.getPrototypeOf(value);
-    return prototype === Object.prototype || prototype === null;
-  };
-
-  const stringify = (value: unknown): string => {
-    if (value === undefined) {
-      return "u";
-    }
-    if (value === null) {
-      return "n";
-    }
-
-    const t = typeof value;
-    if (t === "string") {
-      return `s:${JSON.stringify(value)}`;
-    }
-    if (t === "number") {
-      return `d:${value}`;
-    }
-    if (t === "boolean") {
-      return value ? "b:1" : "b:0";
-    }
-    if (t === "bigint") {
-      return `g:${String(value)}`;
-    }
-    if (t === "symbol") {
-      return `y:${getSymbolId(value as symbol)}`;
-    }
-    if (t === "function") {
-      return `o:${getObjectId(value as object)}`;
-    }
-
-    if (Array.isArray(value)) {
-      return `[${value.map((item) => stringify(item)).join(",")}]`;
-    }
-
-    const obj = value as object;
-    if (!isPlainObject(obj)) {
-      return `o:${getObjectId(obj)}`;
-    }
-
-    const record = obj as Record<string, unknown>;
-    const keys = Object.keys(record).sort();
-    return `{${keys.map((key) => `${key}:${stringify(record[key])}`).join(",")}}`;
-  };
-
-  return stringify;
-}
-
-function nodeSig(
-  stringify: (value: unknown) => string,
-  node: Omit<GraphicNode, "order"> & { order: number },
-): string {
-  return [
-    node.type,
-    node.parentId ?? "null",
-    String(node.order),
-    stringify(node.props),
-    stringify(node.handlers),
-  ].join("|");
-}
 
 export function createGraphicCollector(options: {
   onFlush: () => void;
@@ -121,10 +27,7 @@ export function createGraphicCollector(options: {
 }): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
-  const optionRef = shallowRef<Option | null>(null);
-  const sigById = new Map<string, string>();
   const passById = new Map<string, number>();
-  const stringify = createStableSerializer();
 
   let order = 0;
   let pass = 0;
@@ -160,23 +63,11 @@ export function createGraphicCollector(options: {
       order = node.order + 1;
     }
 
-    const sig = nodeSig(stringify, { ...node, order: nextOrder });
-    if (
-      existing &&
-      existing.sourceId === node.sourceId &&
-      existing.order === nextOrder &&
-      sigById.get(node.id) === sig
-    ) {
-      passById.set(node.id, pass);
-      return;
-    }
-
     nodes.set(node.id, {
       ...existing,
       ...node,
       order: nextOrder,
     });
-    sigById.set(node.id, sig);
     passById.set(node.id, pass);
     requestFlush();
   }
@@ -195,7 +86,6 @@ export function createGraphicCollector(options: {
     }
     nodes.delete(id);
     passById.delete(id);
-    sigById.delete(id);
     requestFlush();
   }
 
@@ -222,9 +112,7 @@ export function createGraphicCollector(options: {
     pending = false;
     nodes.clear();
     passById.clear();
-    sigById.clear();
     warnedKeys.clear();
-    optionRef.value = null;
   }
 
   return {
@@ -232,7 +120,6 @@ export function createGraphicCollector(options: {
     register,
     unregister,
     warnOnce,
-    optionRef,
     getNodes,
     requestFlush,
     dispose,

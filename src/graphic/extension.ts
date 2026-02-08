@@ -17,6 +17,7 @@ export function registerGraphicExtension(): void {
     const handlers = new Map<string, NormalizedHandlers>();
     const eventFns = new Map<string, (params: unknown) => void>();
     let chart: EChartsType | null = null;
+    let graphicOption: ReturnType<typeof buildGraphicOption> | null = null;
     let warnedOverride = false;
 
     const toEventName = (key: string): string | null => {
@@ -106,9 +107,10 @@ export function registerGraphicExtension(): void {
 
         for (const node of nodes) {
           const nodeHandlers = toHandlers(node.handlers);
-          if (Object.keys(nodeHandlers).length > 0) {
+          const events = Object.keys(nodeHandlers);
+          if (events.length > 0) {
             next.set(node.id, nodeHandlers);
-            Object.keys(nodeHandlers).forEach((event) => active.add(event));
+            events.forEach((event) => active.add(event));
           }
         }
 
@@ -121,7 +123,7 @@ export function registerGraphicExtension(): void {
           syncEvents(chart, active);
         }
 
-        collector.optionRef.value = buildGraphicOption(nodes, ROOT_ID);
+        graphicOption = buildGraphicOption(nodes, ROOT_ID);
 
         const updated = ctx.requestUpdate({
           updateOptions: {
@@ -142,6 +144,7 @@ export function registerGraphicExtension(): void {
       }
       eventFns.clear();
       handlers.clear();
+      graphicOption = null;
       chart = null;
     });
 
@@ -154,10 +157,9 @@ export function registerGraphicExtension(): void {
           ctx.warn(warnOptionGraphicOverride());
           warnedOverride = true;
         }
-        if (!collector.optionRef.value) {
-          collector.optionRef.value = buildGraphicOption(collector.getNodes(), ROOT_ID);
+        if (!graphicOption) {
+          graphicOption = buildGraphicOption(collector.getNodes(), ROOT_ID);
         }
-        const graphicOption = collector.optionRef.value!;
         return {
           ...option,
           graphic: graphicOption.graphic,

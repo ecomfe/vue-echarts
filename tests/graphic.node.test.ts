@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 import { buildGraphicOption } from "../src/graphic/build";
-import { createGraphicCollector, createStableSerializer } from "../src/graphic/collector";
+import { createGraphicCollector } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
@@ -264,20 +264,6 @@ describe("graphic", () => {
     expect(onFlush).toHaveBeenCalledTimes(2);
   });
 
-  it("generates stable identities for symbols and non-plain objects", () => {
-    const stringify = createStableSerializer();
-    const symbolA = Symbol("marker");
-    const symbolB = Symbol("marker");
-    const imageA = new URL("https://example.com/a.png");
-    const imageB = new URL("https://example.com/a.png");
-
-    expect(stringify({ value: symbolA })).toBe(stringify({ value: symbolA }));
-    expect(stringify({ value: symbolA })).not.toBe(stringify({ value: symbolB }));
-
-    expect(stringify({ image: imageA })).toBe(stringify({ image: imageA }));
-    expect(stringify({ image: imageA })).not.toBe(stringify({ image: imageB }));
-  });
-
   it("exposes current collector nodes", () => {
     const collector = createGraphicCollector({
       onFlush: () => void 0,
@@ -394,10 +380,9 @@ describe("graphic", () => {
     await flushMicrotasks();
 
     expect(Array.from(collector.getNodes())).toEqual([]);
-    expect(collector.optionRef.value).toBeNull();
   });
 
-  it("stably fingerprints null, bigint, and symbol values", async () => {
+  it("accepts null, bigint, and symbol values", async () => {
     const onFlush = vi.fn();
     const collector = createGraphicCollector({
       onFlush,
@@ -458,6 +443,6 @@ describe("graphic", () => {
     });
 
     await flushMicrotasks();
-    expect(onFlush).toHaveBeenCalledTimes(1);
+    expect(onFlush).toHaveBeenCalledTimes(2);
   });
 });
