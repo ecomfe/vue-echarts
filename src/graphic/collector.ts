@@ -27,16 +27,15 @@ export function createGraphicCollector(options: {
 }): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
-  const passById = new Map<string, number>();
+  let seenInPass = new Map<string, number>();
 
   let order = 0;
-  let pass = 0;
   let pending = false;
   let disposed = false;
 
   function beginPass(): void {
     order = 0;
-    pass += 1;
+    seenInPass = new Map<string, number>();
   }
 
   function warnOnce(key: string, message: string): void {
@@ -52,9 +51,8 @@ export function createGraphicCollector(options: {
       return;
     }
 
-    const existing = nodes.get(node.id);
-    const existingPass = passById.get(node.id);
-    if (existing && existing.sourceId !== node.sourceId && existingPass === pass) {
+    const seenSource = seenInPass.get(node.id);
+    if (seenSource != null && seenSource !== node.sourceId) {
       warnOnce(`duplicate-id:${node.id}`, warnDuplicateId(node.id));
     }
 
@@ -63,12 +61,13 @@ export function createGraphicCollector(options: {
       order = node.order + 1;
     }
 
+    const existing = nodes.get(node.id);
     nodes.set(node.id, {
       ...existing,
       ...node,
       order: nextOrder,
     });
-    passById.set(node.id, pass);
+    seenInPass.set(node.id, node.sourceId);
     requestFlush();
   }
 
@@ -85,7 +84,6 @@ export function createGraphicCollector(options: {
       return;
     }
     nodes.delete(id);
-    passById.delete(id);
     requestFlush();
   }
 
@@ -111,7 +109,7 @@ export function createGraphicCollector(options: {
     disposed = true;
     pending = false;
     nodes.clear();
-    passById.clear();
+    seenInPass.clear();
     warnedKeys.clear();
   }
 
