@@ -22,25 +22,19 @@ export type GraphicRuntime = {
 
 export type GraphicRuntimeFactory = (ctx: GraphicRuntimeContext) => GraphicRuntime;
 
-const GRAPHIC_RUNTIME_KEY = Symbol.for("vue-echarts.graphic-runtime");
-
-type GlobalRuntime = typeof globalThis & {
-  [GRAPHIC_RUNTIME_KEY]?: GraphicRuntimeFactory;
-};
+let factoryRef: GraphicRuntimeFactory | null = null;
 
 export function registerGraphicRuntime(factory: GraphicRuntimeFactory): void {
-  const target = globalThis as GlobalRuntime;
-  if (target[GRAPHIC_RUNTIME_KEY]) {
+  if (factoryRef) {
     return;
   }
-  target[GRAPHIC_RUNTIME_KEY] = factory;
+  factoryRef = factory;
 }
 
 export function useGraphicRuntime(ctx: GraphicRuntimeContext): GraphicRuntime | null {
-  const factory = (globalThis as GlobalRuntime)[GRAPHIC_RUNTIME_KEY];
-  return factory ? factory(ctx) : null;
+  return factoryRef ? factoryRef(ctx) : null;
 }
 
 export function __resetGraphicRuntime(): void {
-  (globalThis as GlobalRuntime)[GRAPHIC_RUNTIME_KEY] = undefined;
+  factoryRef = null;
 }
