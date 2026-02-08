@@ -26,7 +26,7 @@ import type { PublicMethods, SlotsTypes } from "./composables";
 import { isOn, omitOn, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
-import type { Signature, UpdatePlan } from "./update";
+import type { Signature } from "./update";
 import { useGraphicRuntime } from "./graphic/runtime";
 import { warnMissingGraphicEntry } from "./graphic/warn";
 
@@ -123,31 +123,14 @@ export default defineComponent({
       warn(warnMissingGraphicEntry());
     }
 
-    function resolveUpdateOptions(plan: UpdatePlan): UpdateOptions {
-      const result: UpdateOptions = {};
-
-      const replacements = (plan.replaceMerge ?? []).filter((key): key is string => key != null);
-      if (replacements.length > 0) {
-        result.replaceMerge = [...new Set(replacements)];
-      }
-
-      result.notMerge = plan.notMerge;
-
-      return result;
-    }
-
-    function patchRuntimeOption(option: Option): Option {
-      const slotted = patchOption(option);
-      return graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
-    }
-
     function applyOption(
       instance: EChartsType,
       option: Option,
       override?: UpdateOptions,
       manual = false,
     ) {
-      const patched = patchRuntimeOption(option);
+      const slotted = patchOption(option);
+      const patched = graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
 
       if (manual) {
         instance.setOption(patched, override ?? {});
@@ -169,8 +152,15 @@ export default defineComponent({
       }
 
       const planned = planUpdate(lastSignature, patched);
-
-      const updateOptions = resolveUpdateOptions(planned.plan);
+      const updateOptions: UpdateOptions = {
+        notMerge: planned.plan.notMerge,
+      };
+      const replacements = (planned.plan.replaceMerge ?? []).filter(
+        (key): key is string => key != null,
+      );
+      if (replacements.length > 0) {
+        updateOptions.replaceMerge = [...new Set(replacements)];
+      }
       instance.setOption(planned.option, updateOptions);
       lastSignature = planned.signature;
     }
