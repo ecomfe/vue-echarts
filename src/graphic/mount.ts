@@ -17,17 +17,13 @@ function getGraphicIdentity(vnode: VNode): string | null {
   return null;
 }
 
-function isGraphicComponent(vnode: VNode): boolean {
+function getGraphicType(vnode: VNode): string | null {
   const type = vnode.type as Record<string, unknown> | string | symbol;
-  return Boolean(type && typeof type === "object" && GRAPHIC_COMPONENT_MARKER in type);
-}
-
-function isGraphicGroup(vnode: VNode): boolean {
-  const type = vnode.type as Record<string, unknown> | string | symbol;
-  return (
-    Boolean(type && typeof type === "object") &&
-    (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER] === "group"
-  );
+  if (!type || typeof type !== "object") {
+    return null;
+  }
+  const mark = (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER];
+  return typeof mark === "string" ? mark : null;
 }
 
 function collectGraphicOrder(
@@ -41,7 +37,8 @@ function collectGraphicOrder(
   }
 
   const vnode = value as VNode;
-  if (isGraphicComponent(vnode)) {
+  const graphicType = getGraphicType(vnode);
+  if (graphicType) {
     const identity = getGraphicIdentity(vnode);
     if (identity) {
       orderMap.set(identity, cursor.value);
@@ -50,7 +47,12 @@ function collectGraphicOrder(
   }
 
   const children = vnode.children;
-  if (isGraphicGroup(vnode) && children && typeof children === "object" && "default" in children) {
+  if (
+    graphicType === "group" &&
+    children &&
+    typeof children === "object" &&
+    "default" in children
+  ) {
     const slot = (children as { default?: () => unknown }).default;
     if (slot) {
       collectGraphicOrder(slot(), orderMap, cursor);

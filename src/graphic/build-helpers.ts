@@ -11,43 +11,43 @@ export function mergeProps(
   keys: readonly string[],
   props: Record<string, unknown>,
 ): void {
-  keys.forEach((key) => {
+  for (const key of keys) {
     if (props[key] !== undefined) {
       target[key] = props[key];
     }
-  });
+  }
 }
 
 export function buildStyle(
   props: Record<string, unknown>,
   extraKeys: readonly string[],
 ): Record<string, unknown> | undefined {
-  const style = { ...(props.style as Record<string, unknown> | undefined) };
-  mergeProps(style, BASE_STYLE_KEYS, props);
-  mergeProps(style, extraKeys, props);
+  const out = { ...(props.style as Record<string, unknown> | undefined) };
+  mergeProps(out, BASE_STYLE_KEYS, props);
+  mergeProps(out, extraKeys, props);
 
   if (props.styleTransition !== undefined) {
-    style.transition = props.styleTransition;
+    out.transition = props.styleTransition;
   }
 
-  return Object.keys(style).length > 0 ? style : undefined;
+  return Object.keys(out).length ? out : undefined;
 }
 
 export function buildShape(
   type: string,
   props: Record<string, unknown>,
 ): Record<string, unknown> | undefined {
-  const shape = { ...(props.shape as Record<string, unknown> | undefined) };
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[type];
-  if (shapeKeys) {
-    mergeProps(shape, shapeKeys, props);
+  const out = { ...(props.shape as Record<string, unknown> | undefined) };
+  const keys = SHAPE_KEYS_BY_TYPE[type];
+  if (keys) {
+    mergeProps(out, keys, props);
   }
 
   if (props.shapeTransition !== undefined) {
-    shape.transition = props.shapeTransition;
+    out.transition = props.shapeTransition;
   }
 
-  return Object.keys(shape).length > 0 ? shape : undefined;
+  return Object.keys(out).length ? out : undefined;
 }
 
 export function buildInfo(node: GraphicNode): unknown {

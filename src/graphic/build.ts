@@ -16,45 +16,43 @@ type BuildResult = {
   snapshot: GraphicSnapshot;
 };
 
-function buildElementOption(node: GraphicNode, children: Option[] | undefined): Option {
-  const element: Record<string, unknown> = {
+function toElement(node: GraphicNode, children?: Option[]): Option {
+  const out: Record<string, unknown> = {
     type: node.type,
     id: node.id,
   };
 
-  const common = pruneCommonPropsByType(node.type, pickCommonProps(node.props));
-  Object.assign(element, common);
+  Object.assign(out, pruneCommonPropsByType(node.type, pickCommonProps(node.props)));
 
   if (isGroupGraphic(node.type)) {
-    if (children) {
-      element.children = children;
+    if (children?.length) {
+      out.children = children;
     }
     const info = buildInfo(node);
     if (info !== undefined) {
-      element.info = info;
+      out.info = info;
     }
-    return element as Option;
+    return out as Option;
   }
 
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type];
-  if (shapeKeys) {
+  if (SHAPE_KEYS_BY_TYPE[node.type]) {
     const shape = buildShape(node.type, node.props);
     if (shape) {
-      element.shape = shape;
+      out.shape = shape;
     }
   }
 
   const style = buildStyle(node.props, styleKeysByType(node.type));
   if (style) {
-    element.style = style;
+    out.style = style;
   }
 
   const info = buildInfo(node);
   if (info !== undefined) {
-    element.info = info;
+    out.info = info;
   }
 
-  return element as Option;
+  return out as Option;
 }
 
 export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string): BuildResult {
@@ -65,9 +63,12 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
   let hasDuplicateId = false;
 
   for (const node of nodes) {
-    const list = byParent.get(node.parentId) ?? [];
-    list.push(node);
-    byParent.set(node.parentId, list);
+    const list = byParent.get(node.parentId);
+    if (list) {
+      list.push(node);
+    } else {
+      byParent.set(node.parentId, [node]);
+    }
 
     if (ids.has(node.id)) {
       hasDuplicateId = true;
@@ -82,24 +83,24 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
 
   const snapshot: GraphicSnapshot = { ids, parentById, hasDuplicateId };
 
-  const buildChildren = (parentId: string | null): Option[] => {
-    const children = byParent.get(parentId) ?? [];
-    return children.map((child) =>
-      buildElementOption(child, child.type === "group" ? buildChildren(child.id) : undefined),
+  const childrenOf = (parentId: string | null): Option[] => {
+    const list = byParent.get(parentId) ?? [];
+    return list.map((node) =>
+      toElement(node, node.type === "group" ? childrenOf(node.id) : undefined),
     );
-  };
-
-  const root: Record<string, unknown> = {
-    type: "group",
-    id: rootId,
-    $action: "replace",
-    children: buildChildren(null),
   };
 
   return {
     option: {
       graphic: {
-        elements: [root],
+        elements: [
+          {
+            type: "group",
+            id: rootId,
+            $action: "replace",
+            children: childrenOf(null),
+          },
+        ],
       },
     } as Option,
     snapshot,

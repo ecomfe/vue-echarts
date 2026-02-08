@@ -383,8 +383,6 @@ describe("graphic", () => {
 
     expect(onFlush).toHaveBeenCalledTimes(0);
 
-    const versionAfterDispose = collector.getStructureVersion();
-
     collector.register({
       id: "after-dispose",
       type: "rect",
@@ -397,7 +395,6 @@ describe("graphic", () => {
     collector.requestFlush();
     await flushMicrotasks();
 
-    expect(collector.getStructureVersion()).toBe(versionAfterDispose);
     expect(Array.from(collector.getNodes())).toEqual([]);
     expect(collector.optionRef.value).toBeNull();
   });

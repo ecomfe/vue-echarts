@@ -16,8 +16,6 @@ type CollectorMock = {
   optionRef: { value: unknown };
   getNodes: () => Iterable<unknown>;
   getSnapshot: () => unknown;
-  setSnapshot: ReturnType<typeof vi.fn>;
-  getStructureVersion: () => number;
 };
 
 function createCollectorMock(): CollectorMock {
@@ -31,8 +29,6 @@ function createCollectorMock(): CollectorMock {
     optionRef: { value: null },
     getNodes: () => [],
     getSnapshot: () => ({}),
-    setSnapshot: vi.fn(),
-    getStructureVersion: () => 0,
   };
 }
 
