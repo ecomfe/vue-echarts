@@ -89,7 +89,7 @@ export default defineComponent({
     const nonEventAttrs = computed(() => omitOn(attrs));
     const nativeListeners: Record<string, unknown> = {};
 
-    const listeners: Map<{ event: string; once?: boolean; zr?: boolean }, any> = new Map();
+    const listeners: Array<{ event: string; once?: boolean; zr?: boolean; handler: any }> = [];
     const hasGraphicSlot = (): boolean => Boolean((slots as Record<string, unknown>).graphic);
 
     const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
@@ -210,7 +210,7 @@ export default defineComponent({
           event = event.substring(0, event.length - 4);
         }
 
-        listeners.set({ event, zr, once }, attrs[key]);
+        listeners.push({ event, zr, once, handler: attrs[key] });
       });
 
     function init() {
@@ -225,35 +225,36 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      listeners.forEach((handler, { zr, once, event }) => {
+      listeners.forEach(({ zr, once, event, handler }) => {
         if (!handler) {
           return;
         }
 
         const target = zr ? instance.getZr() : instance;
 
+        let bound = handler;
         if (once) {
-          const raw = handler;
+          const raw = bound;
           let called = false;
 
-          handler = (...args: any[]) => {
+          bound = (...args: any[]) => {
             if (called) {
               return;
             }
             called = true;
             raw(...args);
-            target.off(event, handler);
+            target.off(event, bound);
           };
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore EChartsType["on"] is not compatible with ZRenderType["on"]
         // but it's okay here
-        target.on(event, handler);
+        target.on(event, bound);
       });
 
       function resize() {
-        if (instance && !instance.isDisposed()) {
+        if (!instance.isDisposed()) {
           instance.resize();
         }
       }
