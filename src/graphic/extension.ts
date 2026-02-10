@@ -4,8 +4,8 @@ import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
 import { createGraphicCollector } from "./collector";
 import { GraphicMount } from "./mount";
-import type { GraphicRuntimeContext } from "./runtime";
-import { registerGraphicRuntime } from "./runtime";
+import type { GraphicComposableContext } from "./runtime";
+import { registerGraphicComposable } from "./runtime";
 import { warnManualUpdateIgnored, warnOptionGraphicOverride } from "./warn";
 
 const ROOT_ID = "__ve_graphic_root__";
@@ -13,7 +13,7 @@ const ROOT_ID = "__ve_graphic_root__";
 type NormalizedHandlers = Record<string, Array<(...args: unknown[]) => void>>;
 
 export function registerGraphicExtension(): void {
-  registerGraphicRuntime((ctx: GraphicRuntimeContext) => {
+  registerGraphicComposable((ctx: GraphicComposableContext) => {
     let handlers = new Map<string, NormalizedHandlers>();
     let activeEvents = new Set<string>();
     const eventFns = new Map<string, (params: unknown) => void>();

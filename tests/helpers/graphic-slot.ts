@@ -1,7 +1,7 @@
 import { beforeEach } from "vitest";
 import type { ChartStub } from "./mock";
 import { enqueueChart, resetECharts } from "./mock";
-import { __resetGraphicRuntime } from "../../src/graphic/runtime";
+import { __resetGraphicComposable } from "../../src/graphic/runtime";
 
 export function setupGraphicSlotSuite() {
   let chartStub: ChartStub;
@@ -9,7 +9,7 @@ export function setupGraphicSlotSuite() {
   beforeEach(() => {
     resetECharts();
     chartStub = enqueueChart();
-    __resetGraphicRuntime();
+    __resetGraphicComposable();
   });
 
   return {

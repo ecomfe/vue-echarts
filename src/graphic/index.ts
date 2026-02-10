@@ -3,6 +3,8 @@ import "./slots";
 
 registerGraphicExtension();
 
+export type { VChartSlotsExtension } from "../index";
+
 export {
   GGroup,
   GRect,
