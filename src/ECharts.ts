@@ -28,7 +28,7 @@ import { isOn, omitOn, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
-import { useGraphicRuntime } from "./graphic/runtime";
+import { useGraphicComposable } from "./graphic/runtime";
 import { warnMissingGraphicEntry } from "./graphic/warn";
 
 import type { PropType, InjectionKey } from "vue";
@@ -94,7 +94,7 @@ export default defineComponent({
     const listeners: Array<{ event: string; once?: boolean; zr?: boolean; handler: any }> = [];
     const hasGraphicSlot = Boolean((slots as Record<string, unknown>).graphic);
 
-    const { teleportSlots, patchOption } = useSlotOption(slots, () => {
+    const { render: renderSlot, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
         applyOption(chart.value, props.option);
       }
@@ -114,7 +114,7 @@ export default defineComponent({
     };
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
-      useGraphicRuntime({
+      useGraphicComposable({
         chart,
         slots,
         manualUpdate,
@@ -410,7 +410,7 @@ export default defineComponent({
         }),
       ];
       if (isReady.value) {
-        const teleported = teleportSlots();
+        const teleported = renderSlot();
         if (teleported) {
           children.push(teleported);
         }

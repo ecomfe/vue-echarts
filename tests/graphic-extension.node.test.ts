@@ -2,16 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
 
 import {
-  __resetGraphicRuntime,
-  registerGraphicRuntime,
-  useGraphicRuntime,
-  type GraphicRuntimeContext,
+  __resetGraphicComposable,
+  registerGraphicComposable,
+  useGraphicComposable,
+  type GraphicComposableContext,
 } from "../src/graphic/runtime";
 import { registerGraphicExtension } from "../src/graphic/extension";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
-function createContext(overrides: Partial<GraphicRuntimeContext> = {}): GraphicRuntimeContext {
+function createContext(
+  overrides: Partial<GraphicComposableContext> = {},
+): GraphicComposableContext {
   return {
     chart: ref(),
     slots: {},
@@ -19,11 +21,11 @@ function createContext(overrides: Partial<GraphicRuntimeContext> = {}): GraphicR
     requestUpdate: () => true,
     warn: () => void 0,
     ...overrides,
-  } as GraphicRuntimeContext;
+  } as GraphicComposableContext;
 }
 
 afterEach(() => {
-  __resetGraphicRuntime();
+  __resetGraphicComposable();
 });
 
 describe("graphic runtime", () => {
@@ -37,11 +39,11 @@ describe("graphic runtime", () => {
       render: () => null,
     });
 
-    registerGraphicRuntime(first as any);
-    registerGraphicRuntime(second as any);
+    registerGraphicComposable(first as any);
+    registerGraphicComposable(second as any);
 
     const scope = effectScope();
-    const runtime = scope.run(() => useGraphicRuntime(createContext()));
+    const runtime = scope.run(() => useGraphicComposable(createContext()));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -55,7 +57,7 @@ describe("graphic runtime", () => {
     registerGraphicExtension();
 
     const scope = effectScope();
-    const runtime = scope.run(() => useGraphicRuntime(createContext()));
+    const runtime = scope.run(() => useGraphicComposable(createContext()));
     expect(runtime).toBeTruthy();
     scope.stop();
   });
@@ -66,7 +68,7 @@ describe("graphic runtime", () => {
     const scope = effectScope();
     const context = createContext();
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -93,7 +95,7 @@ describe("graphic runtime", () => {
       requestUpdate,
     });
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -196,7 +198,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -246,7 +248,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -311,7 +313,7 @@ describe("graphic runtime", () => {
       requestUpdate,
     });
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -369,7 +371,7 @@ describe("graphic runtime", () => {
       warn,
     });
 
-    const runtime = scope.run(() => useGraphicRuntime(context));
+    const runtime = scope.run(() => useGraphicComposable(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -419,7 +421,7 @@ describe("graphic runtime", () => {
       await import("../src/graphic/index");
 
       const scope = effectScope();
-      const runtime = scope.run(() => useGraphicRuntime(createContext()));
+      const runtime = scope.run(() => useGraphicComposable(createContext()));
       expect(runtime).toBeTruthy();
       scope.stop();
     } finally {

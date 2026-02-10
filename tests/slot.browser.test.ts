@@ -16,7 +16,7 @@ import type {
 
 type SlotTestHandle = {
   patchOption: ReturnType<typeof useSlotOption>["patchOption"];
-  teleportSlots: ReturnType<typeof useSlotOption>["teleportSlots"];
+  render: ReturnType<typeof useSlotOption>["render"];
 };
 
 const SlotTestComponent = defineComponent({
@@ -27,11 +27,11 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { teleportSlots, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
+    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
 
-    ctx.expose({ patchOption, teleportSlots });
+    ctx.expose({ patchOption, render });
 
-    return () => h("div", teleportSlots());
+    return () => h("div", render());
   },
 });
 
@@ -49,12 +49,7 @@ function getExposed(exposed: Ref<SlotTestHandle | undefined>): SlotTestHandle {
 }
 
 function isSlotTestHandle(value: unknown): value is SlotTestHandle {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "patchOption" in value &&
-    "teleportSlots" in value
-  );
+  return typeof value === "object" && value !== null && "patchOption" in value && "render" in value;
 }
 
 function renderSlotComponent(

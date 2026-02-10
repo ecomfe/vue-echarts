@@ -3,7 +3,7 @@ import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
 import { isBrowser, isPlainObject, isValidArrayIndex, isSameSet, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
-import type { VChartSlotsExtension } from "../slots";
+import type { VChartSlotsExtension } from "../index";
 
 const SLOT_OPTION_PATHS = {
   tooltip: ["tooltip", "formatter"],
@@ -83,8 +83,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
   let slotNames = collectSlotNames(false);
 
-  // Teleport the slots to a detached root
-  const teleportSlots = () => {
+  // Render slots via Teleport to a detached root
+  const render = () => {
     const names = collectSlotNames(false);
     if (names.length === 0) {
       return undefined;
@@ -174,7 +174,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   });
 
   return {
-    teleportSlots,
+    render,
     patchOption,
   };
 }

@@ -1,9 +1,7 @@
-import type { VChartSlotsExtension } from "../slots";
+import type { Slot } from "vue";
 
-declare module "../slots" {
+declare module "./index" {
   interface VChartSlotsExtension {
-    graphic?: unknown;
+    graphic?: Slot;
   }
 }
-
-export type __VChartGraphicSlot = VChartSlotsExtension;

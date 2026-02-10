@@ -2,36 +2,36 @@ import type { Ref, Slots, VNodeChild } from "vue";
 
 import type { EChartsType, Option, UpdateOptions } from "../types";
 
-export type GraphicRequestUpdate = (updateOptions?: UpdateOptions) => boolean;
-
-export type GraphicRuntimeContext = {
+export type GraphicComposableContext = {
   chart: Ref<EChartsType | undefined>;
   slots: Slots;
   manualUpdate: Ref<boolean>;
-  requestUpdate: GraphicRequestUpdate;
+  requestUpdate: (updateOptions?: UpdateOptions) => boolean;
   warn: (message: string) => void;
 };
 
-export type GraphicRuntime = {
+export type GraphicComposableResult = {
   patchOption: (option: Option) => Option;
   render: () => VNodeChild;
 };
 
-export type GraphicRuntimeFactory = (ctx: GraphicRuntimeContext) => GraphicRuntime;
+export type GraphicComposable = (context: GraphicComposableContext) => GraphicComposableResult;
 
-let factoryRef: GraphicRuntimeFactory | null = null;
+let graphicComposable: GraphicComposable | null = null;
 
-export function registerGraphicRuntime(factory: GraphicRuntimeFactory): void {
-  if (factoryRef) {
+export function registerGraphicComposable(composable: GraphicComposable): void {
+  if (graphicComposable) {
     return;
   }
-  factoryRef = factory;
+  graphicComposable = composable;
 }
 
-export function useGraphicRuntime(ctx: GraphicRuntimeContext): GraphicRuntime | null {
-  return factoryRef ? factoryRef(ctx) : null;
+export function useGraphicComposable(
+  context: GraphicComposableContext,
+): GraphicComposableResult | null {
+  return graphicComposable ? graphicComposable(context) : null;
 }
 
-export function __resetGraphicRuntime(): void {
-  factoryRef = null;
+export function __resetGraphicComposable(): void {
+  graphicComposable = null;
 }
