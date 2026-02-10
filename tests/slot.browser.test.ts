@@ -16,7 +16,7 @@ import type {
 
 type SlotTestHandle = {
   patchOption: ReturnType<typeof useSlotOption>["patchOption"];
-  teleportedSlots: ReturnType<typeof useSlotOption>["teleportedSlots"];
+  teleportSlots: ReturnType<typeof useSlotOption>["teleportSlots"];
 };
 
 const SlotTestComponent = defineComponent({
@@ -27,11 +27,11 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { teleportedSlots, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
+    const { teleportSlots, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
 
-    ctx.expose({ patchOption, teleportedSlots });
+    ctx.expose({ patchOption, teleportSlots });
 
-    return () => h("div", teleportedSlots());
+    return () => h("div", teleportSlots());
   },
 });
 
@@ -53,7 +53,7 @@ function isSlotTestHandle(value: unknown): value is SlotTestHandle {
     typeof value === "object" &&
     value !== null &&
     "patchOption" in value &&
-    "teleportedSlots" in value
+    "teleportSlots" in value
   );
 }
 

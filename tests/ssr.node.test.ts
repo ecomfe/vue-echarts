@@ -8,17 +8,17 @@ import { makeTooltipParams } from "./helpers/tooltip";
 import type { TooltipComponentOption } from "echarts";
 
 describe("SSR environment", () => {
-  it("slot: teleportedSlots undefined and formatter returns undefined", async () => {
+  it("slot: teleportSlots undefined and formatter returns undefined", async () => {
     const exposed = shallowRef<{
-      teleportedSlots: () => unknown;
+      teleportSlots: () => unknown;
       patchOption: (option: Option) => Option;
     }>();
 
     const Probe = defineComponent({
       setup(_, ctx) {
-        const { teleportedSlots, patchOption } = useSlotOption(ctx.slots, () => {});
-        exposed.value = { teleportedSlots, patchOption };
-        return () => h("div", teleportedSlots());
+        const { teleportSlots, patchOption } = useSlotOption(ctx.slots, () => {});
+        exposed.value = { teleportSlots, patchOption };
+        return () => h("div", teleportSlots());
       },
     });
 
@@ -33,7 +33,7 @@ describe("SSR environment", () => {
       throw new Error("Expected slot helpers to be exposed.");
     }
 
-    const vnode = instance.teleportedSlots();
+    const vnode = instance.teleportSlots();
     expect(vnode).toBeUndefined();
 
     const patched = instance.patchOption({});

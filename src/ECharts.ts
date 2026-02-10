@@ -94,7 +94,7 @@ export default defineComponent({
     const listeners: Array<{ event: string; once?: boolean; zr?: boolean; handler: any }> = [];
     const hasGraphicSlot = Boolean((slots as Record<string, unknown>).graphic);
 
-    const { teleportedSlots, patchOption } = useSlotOption(slots, () => {
+    const { teleportSlots, patchOption } = useSlotOption(slots, () => {
       if (!manualUpdate.value && props.option && chart.value) {
         applyOption(chart.value, props.option);
       }
@@ -113,16 +113,17 @@ export default defineComponent({
       return true;
     };
 
-    const graphicRuntime = useGraphicRuntime({
-      chart,
-      slots,
-      manualUpdate,
-      requestUpdate,
-      warn,
-    });
+    const { patchOption: patchGraphicOption, render: renderGraphic } =
+      useGraphicRuntime({
+        chart,
+        slots,
+        manualUpdate,
+        requestUpdate,
+        warn,
+      }) ?? {};
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
-      if (!hasGraphicSlot || !graphicRuntime) {
+      if (!hasGraphicSlot || !patchGraphicOption) {
         return updateOptions;
       }
 
@@ -133,7 +134,7 @@ export default defineComponent({
       };
     }
 
-    if (hasGraphicSlot && !graphicRuntime) {
+    if (hasGraphicSlot && !patchGraphicOption) {
       warn(warnMissingGraphicEntry());
     }
 
@@ -144,7 +145,7 @@ export default defineComponent({
       manual = false,
     ) {
       const slotted = patchOption(option);
-      const patched = graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
+      const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
       if (manual) {
         instance.setOption(patched, withGraphicReplaceMerge(override) ?? {});
@@ -409,13 +410,13 @@ export default defineComponent({
         }),
       ];
       if (isReady.value) {
-        const teleported = teleportedSlots();
+        const teleported = teleportSlots();
         if (teleported) {
           children.push(teleported);
         }
       }
-      if (graphicRuntime) {
-        const graphic = graphicRuntime.render();
+      if (renderGraphic) {
+        const graphic = renderGraphic();
         if (graphic) {
           children.push(graphic);
         }

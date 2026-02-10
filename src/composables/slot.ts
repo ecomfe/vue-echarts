@@ -84,7 +84,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   let slotNames = collectSlotNames(false);
 
   // Teleport the slots to a detached root
-  const teleportedSlots = () => {
+  const teleportSlots = () => {
     const names = collectSlotNames(false);
     if (names.length === 0) {
       return undefined;
@@ -174,7 +174,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   });
 
   return {
-    teleportedSlots,
+    teleportSlots,
     patchOption,
   };
 }
