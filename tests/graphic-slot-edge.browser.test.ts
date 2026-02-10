@@ -341,6 +341,41 @@ describe("graphic slot edge and integration behavior", () => {
     expect(markerBg.shape).toMatchObject({ x: 34 });
   });
 
+  it("keeps graphic replaceMerge when option and graphic update together", async () => {
+    registerGraphicExtension();
+
+    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
+    const x = ref(10);
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: option.value },
+            {
+              graphic: () => h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    option.value = { series: [{ type: "line", data: [3, 2, 1] }] };
+    x.value = 36;
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    const [, updateArg] = chartStub.setOption.mock.calls.at(-1) as [any, any];
+    expect(updateArg?.replaceMerge).toContain("graphic");
+    const marker = getLastGraphicOption(chartStub).graphic.elements[0].children[0];
+    expect(marker.shape).toMatchObject({ x: 36 });
+  });
+
   it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {
     registerGraphicExtension();
 

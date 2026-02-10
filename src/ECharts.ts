@@ -119,6 +119,18 @@ export default defineComponent({
       warn,
     });
 
+    function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
+      if (!hasGraphicSlot || !graphicRuntime) {
+        return updateOptions;
+      }
+
+      const replaceMerge = [...(updateOptions?.replaceMerge ?? []), "graphic"];
+      return {
+        ...updateOptions,
+        replaceMerge: [...new Set(replaceMerge)],
+      };
+    }
+
     if (hasGraphicSlot && !graphicRuntime) {
       warn(warnMissingGraphicEntry());
     }
@@ -133,20 +145,20 @@ export default defineComponent({
       const patched = graphicRuntime ? graphicRuntime.patchOption(slotted) : slotted;
 
       if (manual) {
-        instance.setOption(patched, override ?? {});
+        instance.setOption(patched, withGraphicReplaceMerge(override) ?? {});
         lastSignature = undefined;
         return;
       }
 
       if (override) {
         const planned = planUpdate(lastSignature, patched);
-        instance.setOption(patched, override);
+        instance.setOption(patched, withGraphicReplaceMerge(override));
         lastSignature = planned.signature;
         return;
       }
 
       if (realUpdateOptions.value) {
-        instance.setOption(patched, realUpdateOptions.value);
+        instance.setOption(patched, withGraphicReplaceMerge(realUpdateOptions.value));
         lastSignature = undefined;
         return;
       }
@@ -161,7 +173,7 @@ export default defineComponent({
       if (replacements.length > 0) {
         updateOptions.replaceMerge = [...new Set(replacements)];
       }
-      instance.setOption(planned.option, updateOptions);
+      instance.setOption(planned.option, withGraphicReplaceMerge(updateOptions));
       lastSignature = planned.signature;
     }
 
