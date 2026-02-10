@@ -97,6 +97,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
             return h(
               "div",
               {
+                key: slotName,
                 ref: (el) => {
                   if (el instanceof HTMLElement) {
                     containers[slotName] = el;
