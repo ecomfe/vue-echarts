@@ -1,5 +1,4 @@
 import {
-  Fragment,
   defineComponent,
   shallowRef,
   toRefs,
@@ -426,7 +425,7 @@ export default defineComponent({
         return chartNode;
       }
 
-      return h(Fragment, null, [chartNode, ...extras]);
+      return h("div", { style: { display: "contents" } }, [chartNode, ...extras]);
     }) as unknown as typeof exposed & PublicMethods;
   },
 });
