@@ -12,6 +12,7 @@ import {
   watchEffect,
   toValue,
 } from "vue";
+import type { VNodeChild } from "vue";
 import { init as initChart } from "echarts/core";
 
 import {
@@ -73,6 +74,7 @@ export default defineComponent({
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
+    const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
     const isReady = shallowRef(false);
     const defaultTheme = inject(THEME_KEY, null);
@@ -214,11 +216,11 @@ export default defineComponent({
 
     function init() {
       isReady.value = false;
-      const instance = (chart.value = initChart(
-        root.value,
-        realTheme.value,
-        realInitOptions.value,
-      ));
+      const host = chartHost.value;
+      if (!host) {
+        return;
+      }
+      const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
 
       if (props.group) {
         instance.group = props.group;
@@ -400,32 +402,34 @@ export default defineComponent({
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
     return (() => {
-      const chartNode = h(TAG_NAME, {
-        ...nonEventAttrs.value,
-        ...nativeListeners,
-        ref: root,
-        class: ["echarts", nonEventAttrs.value.class],
-      });
-
-      const extras = [];
+      const children: VNodeChild[] = [
+        h("div", {
+          ref: chartHost,
+          class: "echarts-host",
+        }),
+      ];
       if (isReady.value) {
         const teleported = teleportedSlots();
         if (teleported) {
-          extras.push(teleported);
+          children.push(teleported);
         }
       }
       if (graphicRuntime) {
         const graphic = graphicRuntime.render();
         if (graphic) {
-          extras.push(graphic);
+          children.push(graphic);
         }
       }
-
-      if (extras.length === 0) {
-        return chartNode;
-      }
-
-      return h("div", { style: { display: "contents" } }, [chartNode, ...extras]);
+      return h(
+        TAG_NAME,
+        {
+          ...nonEventAttrs.value,
+          ...nativeListeners,
+          ref: root,
+          class: ["echarts", nonEventAttrs.value.class],
+        },
+        children,
+      );
     }) as unknown as typeof exposed & PublicMethods;
   },
 });
