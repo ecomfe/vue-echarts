@@ -1,4 +1,5 @@
 import {
+  Fragment,
   defineComponent,
   shallowRef,
   toRefs,
@@ -400,23 +401,32 @@ export default defineComponent({
     // This type casting ensures TypeScript correctly types the exposed members
     // that will be available when using this component.
     return (() => {
-      const children = [];
+      const chartNode = h(TAG_NAME, {
+        ...nonEventAttrs.value,
+        ...nativeListeners,
+        ref: root,
+        class: ["echarts", nonEventAttrs.value.class],
+      });
+
+      const extras = [];
       if (isReady.value) {
-        children.push(teleportedSlots());
+        const teleported = teleportedSlots();
+        if (teleported) {
+          extras.push(teleported);
+        }
       }
       if (graphicRuntime) {
-        children.push(graphicRuntime.render());
+        const graphic = graphicRuntime.render();
+        if (graphic) {
+          extras.push(graphic);
+        }
       }
-      return h(
-        TAG_NAME,
-        {
-          ...nonEventAttrs.value,
-          ...nativeListeners,
-          ref: root,
-          class: ["echarts", nonEventAttrs.value.class],
-        },
-        children,
-      );
+
+      if (extras.length === 0) {
+        return chartNode;
+      }
+
+      return h(Fragment, null, [chartNode, ...extras]);
     }) as unknown as typeof exposed & PublicMethods;
   },
 });

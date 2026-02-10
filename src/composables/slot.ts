@@ -86,6 +86,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   // Teleport the slots to a detached root
   const teleportedSlots = () => {
     const names = collectSlotNames(false);
+    if (names.length === 0) {
+      return undefined;
+    }
     // Make slots client-side only to avoid SSR hydration mismatch
     return isMounted.value && detachedRoot
       ? h(
