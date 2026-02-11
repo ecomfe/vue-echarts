@@ -4,7 +4,7 @@ import type { VNode } from "vue";
 import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
-import { GRAPHIC_COMPONENT_MARKER } from "./marker";
+import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 
 function getGraphicIdentity(vnode: VNode): string | null {
   const props = vnode.props as Record<string, unknown> | null;
@@ -17,23 +17,28 @@ function getGraphicIdentity(vnode: VNode): string | null {
   return null;
 }
 
-function getGraphicType(vnode: VNode): string | null {
-  const type = vnode.type as Record<string, unknown> | string | symbol;
+function getGraphicType(vnode: unknown): GraphicComponentType | null {
+  if (!vnode || typeof vnode !== "object") {
+    return null;
+  }
+  const type = (vnode as VNode).type as Record<string, unknown> | string | symbol;
   if (!type || typeof type !== "object") {
     return null;
   }
   const mark = (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER];
-  return typeof mark === "string" ? mark : null;
+  return typeof mark === "string" ? (mark as GraphicComponentType) : null;
 }
 
-function collectGraphicOrder(
-  value: unknown,
-  orderMap: Map<string, number>,
-  cursor: { value: number },
-): void {
+function collectGraphicOrder(value: unknown, orderMap: Map<string, number>, order: number): number {
   if (Array.isArray(value)) {
-    value.forEach((item) => collectGraphicOrder(item, orderMap, cursor));
-    return;
+    for (const item of value) {
+      order = collectGraphicOrder(item, orderMap, order);
+    }
+    return order;
+  }
+
+  if (!value || typeof value !== "object") {
+    return order;
   }
 
   const vnode = value as VNode;
@@ -41,23 +46,26 @@ function collectGraphicOrder(
   if (graphicType) {
     const identity = getGraphicIdentity(vnode);
     if (identity) {
-      orderMap.set(identity, cursor.value);
+      orderMap.set(identity, order);
     }
-    cursor.value += 1;
+    order += 1;
   }
 
   const children = vnode.children;
   if (graphicType === "group") {
     const slot = (children as { default?: () => unknown } | null)?.default;
     if (slot) {
-      collectGraphicOrder(slot(), orderMap, cursor);
-      return;
+      return collectGraphicOrder(slot(), orderMap, order);
     }
   }
 
   if (Array.isArray(children)) {
-    children.forEach((child) => collectGraphicOrder(child, orderMap, cursor));
+    for (const child of children) {
+      order = collectGraphicOrder(child, orderMap, order);
+    }
   }
+
+  return order;
 }
 
 export const GraphicMount = defineComponent({
@@ -85,7 +93,7 @@ export const GraphicMount = defineComponent({
       props.collector.beginPass();
       const content = slots.default?.();
       const orderMap = new Map<string, number>();
-      collectGraphicOrder(content, orderMap, { value: 0 });
+      collectGraphicOrder(content, orderMap, 0);
       orderMapRef.value = orderMap;
 
       return detachedRoot

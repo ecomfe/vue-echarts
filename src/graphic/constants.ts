@@ -1,3 +1,5 @@
+import type { GraphicComponentType } from "./marker";
+
 export const COMMON_PROP_KEYS = [
   "id",
   "x",
@@ -67,7 +69,7 @@ export const TEXT_STYLE_KEYS = [
 
 export const IMAGE_STYLE_KEYS = ["image", "x", "y", "width", "height"] as const;
 
-export const SHAPE_KEYS_BY_TYPE: Record<string, readonly string[]> = {
+export const SHAPE_KEYS_BY_TYPE = {
   rect: ["x", "y", "width", "height", "r"],
   circle: ["cx", "cy", "r"],
   sector: ["cx", "cy", "r", "r0", "startAngle", "endAngle", "clockwise", "cornerRadius"],
@@ -78,4 +80,4 @@ export const SHAPE_KEYS_BY_TYPE: Record<string, readonly string[]> = {
   polygon: ["points", "smooth", "smoothConstraint"],
   bezierCurve: ["x1", "y1", "x2", "y2", "cpx1", "cpy1", "cpx2", "cpy2", "percent"],
   compoundPath: ["paths"],
-};
+} as const satisfies Partial<Record<GraphicComponentType, readonly string[]>>;
