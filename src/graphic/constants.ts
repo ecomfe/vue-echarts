@@ -1,5 +1,7 @@
 import type { GraphicComponentType } from "./marker";
 
+export const GRAPHIC_INFO_ID_KEY = "__veGraphicId";
+
 export const COMMON_PROP_KEYS = [
   "id",
   "x",
