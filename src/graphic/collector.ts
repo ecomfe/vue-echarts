@@ -12,12 +12,14 @@ export type GraphicNode = {
 
 export type GraphicCollector = {
   beginPass: () => void;
-  register: (node: Omit<GraphicNode, "order"> & { order?: number }) => void;
+  register: (node: GraphicRegisterNode) => void;
   unregister: (id: string, sourceId?: number) => void;
   warnOnce: (key: string, message: string) => void;
   getNodes: () => Iterable<GraphicNode>;
   dispose: () => void;
 };
+
+export type GraphicRegisterNode = Omit<GraphicNode, "order"> & { order?: number };
 
 export function createGraphicCollector(options: {
   onFlush: () => void;
@@ -25,7 +27,7 @@ export function createGraphicCollector(options: {
 }): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
-  let seenInPass = new Map<string, number>();
+  const seenInPass = new Map<string, number>();
 
   let order = 0;
   let pending = false;
@@ -33,7 +35,7 @@ export function createGraphicCollector(options: {
 
   function beginPass(): void {
     order = 0;
-    seenInPass = new Map<string, number>();
+    seenInPass.clear();
   }
 
   function warnOnce(key: string, message: string): void {
@@ -44,7 +46,7 @@ export function createGraphicCollector(options: {
     options.warn(message);
   }
 
-  function register(node: Omit<GraphicNode, "order"> & { order?: number }): void {
+  function register(node: GraphicRegisterNode): void {
     if (disposed) {
       return;
     }
@@ -57,12 +59,7 @@ export function createGraphicCollector(options: {
     const nextOrder = node.order ?? order;
     order = Math.max(order, nextOrder + 1);
 
-    const existing = nodes.get(node.id);
-    nodes.set(node.id, {
-      ...existing,
-      ...node,
-      order: nextOrder,
-    });
+    nodes.set(node.id, { ...node, order: nextOrder });
     seenInPass.set(node.id, node.sourceId);
     requestFlush();
   }

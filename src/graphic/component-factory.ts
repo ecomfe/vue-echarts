@@ -1,44 +1,40 @@
-import {
-  defineComponent,
-  getCurrentInstance,
-  inject,
-  onUnmounted,
-  provide,
-  shallowRef,
-  unref,
-} from "vue";
+import { defineComponent, getCurrentInstance, inject, onUnmounted, provide, shallowRef } from "vue";
 
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
-import { GRAPHIC_COMPONENT_MARKER } from "./marker";
+import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { graphicCommonProps } from "./props-common";
 import { graphicShapeProps } from "./props-shape";
 import { warnOutsideGraphicSlot, warnMissingIdentity } from "./warn";
-
-type AnyProps = Record<string, unknown>;
 
 const graphicProps = {
   ...graphicCommonProps,
   ...graphicShapeProps,
 } as const;
 
-function parseIdentity(
-  props: { id?: string | number },
-  instance: { uid: number; vnode: { key: unknown } },
-): { id: string; key: string | null; missing: boolean } {
-  if (props.id != null) {
-    const id = String(props.id);
-    return { id, key: `id:${id}`, missing: false };
+type GraphicIdentity = {
+  id: string;
+  orderKey: string | undefined;
+  missing: boolean;
+};
+
+function resolveIdentity(
+  propsId: string | number | undefined,
+  vnodeKey: unknown,
+  uid: number,
+): GraphicIdentity {
+  if (propsId != null) {
+    const id = String(propsId);
+    return { id, orderKey: `id:${id}`, missing: false };
   }
-  const vnodeKey = instance.vnode.key;
   if (vnodeKey != null) {
     const id = String(vnodeKey);
-    return { id, key: `key:${id}`, missing: false };
+    return { id, orderKey: `key:${id}`, missing: false };
   }
-  return { id: `__ve_graphic_${instance.uid}`, key: null, missing: true };
+  return { id: `__ve_graphic_${uid}`, orderKey: undefined, missing: true };
 }
 
-export function createGraphicComponent(name: string, type: string) {
+export function createGraphicComponent(name: string, type: GraphicComponentType) {
   const component = defineComponent({
     name,
     inheritAttrs: false,
@@ -53,28 +49,28 @@ export function createGraphicComponent(name: string, type: string) {
         warn(warnOutsideGraphicSlot(name));
         return () => null;
       }
-
       const graphicCollector = collector;
+
       const currentId = shallowRef<string | null>(null);
 
       function register(): void {
-        const next = parseIdentity(props, instance);
-        if (next.missing) {
+        const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);
+        if (identity.missing) {
           graphicCollector.warnOnce(`missing-id:${instance.uid}`, warnMissingIdentity(name));
         }
-        if (currentId.value && currentId.value !== next.id) {
+        if (currentId.value && currentId.value !== identity.id) {
           graphicCollector.unregister(currentId.value, instance.uid);
         }
-        currentId.value = next.id;
-        const hintedOrder = next.key ? unref(orderRef)?.get(next.key) : undefined;
+        currentId.value = identity.id;
+        const hintedOrder = identity.orderKey ? orderRef?.value.get(identity.orderKey) : undefined;
 
         graphicCollector.register({
-          id: next.id,
+          id: identity.id,
           type,
-          parentId: parentIdRef ? unref(parentIdRef) : null,
+          parentId: parentIdRef?.value ?? null,
           order: hintedOrder,
-          props: props as AnyProps,
-          handlers: attrs as AnyProps,
+          props: props as Record<string, unknown>,
+          handlers: attrs as Record<string, unknown>,
           sourceId: instance.uid,
         });
       }

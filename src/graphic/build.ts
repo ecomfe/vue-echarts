@@ -4,9 +4,72 @@ import {
   IMAGE_STYLE_KEYS,
   SHAPE_KEYS_BY_TYPE,
   TEXT_STYLE_KEYS,
+  BASE_STYLE_KEYS,
 } from "./constants";
 import type { GraphicNode } from "./collector";
-import { buildInfo, mergeProps, buildShape, buildStyle } from "./build-helpers";
+
+function mergeProps(
+  target: Record<string, unknown>,
+  keys: readonly string[],
+  props: Record<string, unknown>,
+): void {
+  for (const key of keys) {
+    if (props[key] !== undefined) {
+      target[key] = props[key];
+    }
+  }
+}
+
+function buildStyle(
+  props: Record<string, unknown>,
+  extraKeys: readonly string[],
+): Record<string, unknown> | undefined {
+  const style = { ...(props.style as Record<string, unknown> | undefined) };
+  mergeProps(style, BASE_STYLE_KEYS, props);
+  mergeProps(style, extraKeys, props);
+
+  if (props.styleTransition !== undefined) {
+    style.transition = props.styleTransition;
+  }
+
+  return Object.keys(style).length ? style : undefined;
+}
+
+function buildShape(
+  type: string,
+  props: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  const shape = { ...(props.shape as Record<string, unknown> | undefined) };
+  const keys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
+  if (keys) {
+    mergeProps(shape, keys, props);
+  }
+
+  if (props.shapeTransition !== undefined) {
+    shape.transition = props.shapeTransition;
+  }
+
+  return Object.keys(shape).length ? shape : undefined;
+}
+
+function buildInfo(node: GraphicNode): unknown {
+  const hasHandlers = Object.keys(node.handlers).length > 0;
+  const raw = node.props.info;
+
+  if (!hasHandlers && raw === undefined) {
+    return undefined;
+  }
+
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return { ...(raw as Record<string, unknown>), __veGraphicId: node.id };
+  }
+
+  if (raw !== undefined) {
+    return { value: raw, __veGraphicId: node.id };
+  }
+
+  return { __veGraphicId: node.id };
+}
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const out: Record<string, unknown> = {
@@ -17,7 +80,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const common: Record<string, unknown> = {};
   mergeProps(common, COMMON_PROP_KEYS, node.props);
 
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type];
+  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type as keyof typeof SHAPE_KEYS_BY_TYPE];
   if (shapeKeys) {
     shapeKeys.forEach((key) => {
       delete common[key];
