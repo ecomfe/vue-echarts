@@ -1,6 +1,6 @@
 import type { PropType } from "vue";
 
-export const graphicShapeProps = {
+export const shapeProps = {
   x: Number,
   y: Number,
   cx: Number,

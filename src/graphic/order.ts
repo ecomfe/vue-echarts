@@ -31,8 +31,8 @@ export function collectGraphicOrder(
     return order;
   }
   const vnode = value as VNode;
-  const graphicType = getGraphicType(vnode);
-  if (graphicType) {
+  const type = getGraphicType(vnode);
+  if (type) {
     const props = vnode.props as Record<string, unknown> | null;
     const identity = resolveGraphicOrderKey(props?.id, vnode.key);
     if (identity) {
@@ -41,7 +41,7 @@ export function collectGraphicOrder(
     order += 1;
   }
 
-  if (graphicType === "group") {
+  if (type === "group") {
     const slot = (vnode.children as { default?: () => unknown } | null)?.default;
     if (slot) {
       return collectGraphicOrder(slot(), orderMap, order);

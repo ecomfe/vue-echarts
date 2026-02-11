@@ -14,11 +14,13 @@ export const GraphicMount = defineComponent({
     },
   },
   setup(props, { slots }) {
+    const { collector } = props;
+    const { beginPass } = collector;
     const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
     const parentId = shallowRef<string | null>(null);
     const orderMapRef = shallowRef<Map<string, number>>(new Map());
 
-    provide(GRAPHIC_COLLECTOR_KEY, props.collector);
+    provide(GRAPHIC_COLLECTOR_KEY, collector);
     provide(GRAPHIC_PARENT_ID_KEY, parentId);
     provide(GRAPHIC_ORDER_KEY, orderMapRef);
 
@@ -27,7 +29,7 @@ export const GraphicMount = defineComponent({
     });
 
     return () => {
-      props.collector.beginPass();
+      beginPass();
       const content = slots.default?.();
       const orderMap = new Map<string, number>();
       collectGraphicOrder(content, orderMap, 0);

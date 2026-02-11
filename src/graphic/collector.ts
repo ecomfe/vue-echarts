@@ -25,6 +25,7 @@ export function createGraphicCollector(options: {
   onFlush: () => void;
   warn: (message: string) => void;
 }): GraphicCollector {
+  const { onFlush, warn } = options;
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
   const seenInPass = new Map<string, number>();
@@ -43,7 +44,7 @@ export function createGraphicCollector(options: {
       return;
     }
     warnedKeys.add(key);
-    options.warn(message);
+    warn(message);
   }
 
   function register(node: GraphicRegisterNode): void {
@@ -90,7 +91,7 @@ export function createGraphicCollector(options: {
       if (disposed) {
         return;
       }
-      options.onFlush();
+      onFlush();
     });
   }
 
