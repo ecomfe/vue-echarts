@@ -13,28 +13,17 @@ const DEFAULT_VIEWPORT: OverlayViewport = {
 };
 
 const GRID_PERCENT = {
-  left: 9,
-  right: 6,
-  top: 30,
-  bottom: 14,
-};
-
-const PANEL = {
-  margin: 14,
-  minWidth: 228,
-  maxWidth: 284,
-  height: 132,
-  paddingX: 16,
-  titleOffsetY: 24,
-  firstRowOffsetY: 52,
-  rowGap: 20,
+  left: 8,
+  right: 5,
+  top: 18,
+  bottom: 12,
 };
 
 const BUBBLE = {
-  height: 30,
-  minWidth: 126,
-  maxWidth: 210,
-  padX: 14,
+  height: 26,
+  minWidth: 108,
+  maxWidth: 182,
+  padX: 10,
 };
 
 function clamp(value: number, min: number, max: number): number {
@@ -45,21 +34,12 @@ function intersects(a: Rect, b: Rect): boolean {
   return a.x < b.x + b.width && a.x + a.width > b.x && a.y + a.height > b.y && a.y < b.y + b.height;
 }
 
-function expandRect(rect: Rect, gap: number): Rect {
-  return {
-    x: rect.x - gap,
-    y: rect.y - gap,
-    width: rect.width + gap * 2,
-    height: rect.height + gap * 2,
-  };
-}
-
 function bubbleWidth(label: string, viewportWidth: number): number {
   const dynamicMax = Math.max(
     BUBBLE.minWidth,
-    Math.min(BUBBLE.maxWidth, Math.round(viewportWidth * 0.24)),
+    Math.min(BUBBLE.maxWidth, Math.round(viewportWidth * 0.22)),
   );
-  return clamp(Math.round(label.length * 6.7 + BUBBLE.padX * 2), BUBBLE.minWidth, dynamicMax);
+  return clamp(Math.round(label.length * 6.4 + BUBBLE.padX * 2), BUBBLE.minWidth, dynamicMax);
 }
 
 export function buildGraphicOverlayLayout(options: {
@@ -78,28 +58,16 @@ export function buildGraphicOverlayLayout(options: {
   const viewportWidth = Math.max(options.viewport.width, DEFAULT_VIEWPORT.width * 0.55);
   const viewportHeight = Math.max(options.viewport.height, DEFAULT_VIEWPORT.height * 0.58);
 
-  const panelWidth = clamp(Math.round(viewportWidth * 0.25), PANEL.minWidth, PANEL.maxWidth);
-  const summary = {
-    x: viewportWidth - panelWidth - PANEL.margin,
-    y: PANEL.margin,
-    width: panelWidth,
-    height: PANEL.height,
-    paddingX: PANEL.paddingX,
-    titleY: PANEL.margin + PANEL.titleOffsetY,
-    firstRowY: PANEL.margin + PANEL.firstRowOffsetY,
-    rowGap: PANEL.rowGap,
-  };
-
   const plotLeft = (viewportWidth * GRID_PERCENT.left) / 100;
   const plotRight = viewportWidth - (viewportWidth * GRID_PERCENT.right) / 100;
   const plotTop = (viewportHeight * GRID_PERCENT.top) / 100;
   const plotBottom = viewportHeight - (viewportHeight * GRID_PERCENT.bottom) / 100;
   const plotWidth = plotRight - plotLeft;
   const plotHeight = plotBottom - plotTop;
-  const maxBubbleY = plotBottom - BUBBLE.height - 6;
+  const maxBubbleY = plotBottom - BUBBLE.height - 4;
 
   const placedRects: Rect[] = [];
-  const reservedRects: Rect[] = [expandRect({ ...summary }, 8)];
+  const reservedRects: Rect[] = [];
   const laneBySide = { left: 0, right: 0 };
 
   const overlayMarkers = markers.map((marker) => {
@@ -112,14 +80,14 @@ export function buildGraphicOverlayLayout(options: {
     const y = Math.round(plotTop + plotHeight * (1 - value / options.yMax));
 
     const bubbleWidthPx = bubbleWidth(label, plotWidth);
-    const side = x > summary.x - 22 ? "left" : "right";
+    const side = x > plotLeft + plotWidth * 0.58 ? "left" : "right";
     const lane = side === "left" ? laneBySide.left++ : laneBySide.right++;
-    const laneOffset = lane * 28;
+    const laneOffset = lane * 22;
 
-    const preferredLeftX = x - bubbleWidthPx - 16;
-    const preferredRightX = x + 16;
-    const preferredAboveY = y - 42 - laneOffset;
-    const preferredBelowY = y + 10 + laneOffset;
+    const preferredLeftX = x - bubbleWidthPx - 12;
+    const preferredRightX = x + 12;
+    const preferredAboveY = y - 36 - laneOffset;
+    const preferredBelowY = y + 7 + laneOffset;
 
     const rawCandidates =
       side === "left"
@@ -137,8 +105,8 @@ export function buildGraphicOverlayLayout(options: {
           ];
 
     const candidates = rawCandidates.map((candidate) => {
-      const bubbleX = clamp(candidate.x, 8, Math.max(8, viewportWidth - bubbleWidthPx - 8));
-      const bubbleY = clamp(candidate.y, 8, maxBubbleY);
+      const bubbleX = clamp(candidate.x, 6, Math.max(6, viewportWidth - bubbleWidthPx - 6));
+      const bubbleY = clamp(candidate.y, 6, maxBubbleY);
       return {
         bubbleX,
         bubbleY,
@@ -158,6 +126,12 @@ export function buildGraphicOverlayLayout(options: {
     const anchorX =
       picked.bubbleX + bubbleWidthPx / 2 < x ? picked.bubbleX + bubbleWidthPx : picked.bubbleX;
     const anchorY = clamp(y, picked.bubbleY + 4, picked.bubbleY + BUBBLE.height - 4);
+    const bubbleCenterY = picked.bubbleY + BUBBLE.height / 2;
+    const direction = anchorX >= x ? 1 : -1;
+    const cpx1 = Math.round(x + direction * 10);
+    const cpy1 = Math.round(y + (bubbleCenterY > y ? 7 : -7));
+    const cpx2 = Math.round(anchorX - direction * 14);
+    const cpy2 = Math.round(anchorY + (bubbleCenterY > anchorY ? -2 : 2));
 
     return {
       ...marker,
@@ -175,11 +149,22 @@ export function buildGraphicOverlayLayout(options: {
       textY: picked.bubbleY + BUBBLE.height / 2,
       anchorX,
       anchorY,
+      cpx1,
+      cpy1,
+      cpx2,
+      cpy2,
     };
   });
 
   return {
-    summary,
+    plot: {
+      left: plotLeft,
+      right: plotRight,
+      top: plotTop,
+      bottom: plotBottom,
+      width: plotWidth,
+      height: plotHeight,
+    },
     markers: overlayMarkers,
   };
 }

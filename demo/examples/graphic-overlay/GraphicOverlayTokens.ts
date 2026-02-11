@@ -1,32 +1,22 @@
 import type { GraphicOverlayUI } from "./types";
 
 const LIGHT_TOKENS: GraphicOverlayUI = {
-  cardBg: "rgba(255,255,255,.93)",
-  cardStroke: "rgba(148,163,184,.45)",
-  cardTitle: "#0f172a",
-  cardLabel: "#64748b",
-  cardValue: "#1e293b",
-  cardFocus: "#0f766e",
-  bubbleBg: "rgba(255,255,255,.96)",
-  bubbleStroke: "rgba(148,163,184,.56)",
+  bubbleBg: "rgba(255,255,255,.94)",
+  bubbleStroke: "rgba(148,163,184,.48)",
   bubbleText: "#334155",
   bubbleTextFocus: "#0f172a",
-  focusLine: "#0f172a",
+  focusLine: "rgba(15,23,42,.62)",
+  lineSoft: "rgba(100,116,139,.52)",
   dotStroke: "#ffffff",
 };
 
 const DARK_TOKENS: GraphicOverlayUI = {
-  cardBg: "rgba(5,12,27,.92)",
-  cardStroke: "rgba(71,85,105,.56)",
-  cardTitle: "#e2e8f0",
-  cardLabel: "#94a3b8",
-  cardValue: "#e2e8f0",
-  cardFocus: "#99f6e4",
-  bubbleBg: "rgba(7,16,34,.92)",
-  bubbleStroke: "rgba(71,85,105,.64)",
+  bubbleBg: "rgba(15,23,42,.92)",
+  bubbleStroke: "rgba(71,85,105,.6)",
   bubbleText: "#cbd5e1",
   bubbleTextFocus: "#f8fafc",
-  focusLine: "#e2e8f0",
+  focusLine: "rgba(226,232,240,.76)",
+  lineSoft: "rgba(148,163,184,.52)",
   dotStroke: "#0b1220",
 };
 
