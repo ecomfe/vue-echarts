@@ -17,21 +17,21 @@ export type GraphicComposableResult = {
 
 export type GraphicComposable = (context: GraphicComposableContext) => GraphicComposableResult;
 
-let graphicComposable: GraphicComposable | null = null;
+let registeredComposable: GraphicComposable | null = null;
 
 export function registerGraphicComposable(composable: GraphicComposable): void {
-  if (graphicComposable) {
+  if (registeredComposable) {
     return;
   }
-  graphicComposable = composable;
+  registeredComposable = composable;
 }
 
 export function useGraphicComposable(
   context: GraphicComposableContext,
 ): GraphicComposableResult | null {
-  return graphicComposable ? graphicComposable(context) : null;
+  return registeredComposable ? registeredComposable(context) : null;
 }
 
 export function __resetGraphicComposable(): void {
-  graphicComposable = null;
+  registeredComposable = null;
 }

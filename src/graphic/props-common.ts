@@ -1,6 +1,6 @@
 import type { PropType } from "vue";
 
-export const graphicCommonProps = {
+export const commonProps = {
   id: [String, Number] as PropType<string | number>,
   left: [String, Number] as PropType<string | number>,
   right: [String, Number] as PropType<string | number>,

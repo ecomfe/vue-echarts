@@ -76,55 +76,57 @@ function buildCommon(type: string, props: Record<string, unknown>): Record<strin
 }
 
 function buildInfo(node: GraphicNode): unknown {
-  const hasHandlers = Object.keys(node.handlers).length > 0;
-  const raw = node.props.info;
+  const { handlers, props, id } = node;
+  const hasHandlers = Object.keys(handlers).length > 0;
+  const raw = props.info;
 
   if (!hasHandlers && raw === undefined) {
     return undefined;
   }
 
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    return { ...(raw as Record<string, unknown>), [GRAPHIC_INFO_ID_KEY]: node.id };
+    return { ...(raw as Record<string, unknown>), [GRAPHIC_INFO_ID_KEY]: id };
   }
 
   if (raw !== undefined) {
-    return { value: raw, [GRAPHIC_INFO_ID_KEY]: node.id };
+    return { value: raw, [GRAPHIC_INFO_ID_KEY]: id };
   }
 
-  return { [GRAPHIC_INFO_ID_KEY]: node.id };
+  return { [GRAPHIC_INFO_ID_KEY]: id };
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
+  const { type, id, props } = node;
   const out: Record<string, unknown> = {
-    type: node.type,
-    id: node.id,
+    type,
+    id,
   };
 
-  Object.assign(out, buildCommon(node.type, node.props));
+  Object.assign(out, buildCommon(type, props));
   const info = buildInfo(node);
   if (info !== undefined) {
     out.info = info;
   }
 
-  if (node.type === "group") {
+  if (type === "group") {
     if (children?.length) {
       out.children = children;
     }
     return out as Option;
   }
 
-  const shape = buildShape(node.type, node.props);
+  const shape = buildShape(type, props);
   if (shape) {
     out.shape = shape;
   }
 
   let styleKeys: readonly string[] = [];
-  if (node.type === "text") {
+  if (type === "text") {
     styleKeys = TEXT_STYLE_KEYS;
-  } else if (node.type === "image") {
+  } else if (type === "image") {
     styleKeys = IMAGE_STYLE_KEYS;
   }
-  const style = buildStyle(node.props, styleKeys);
+  const style = buildStyle(props, styleKeys);
   if (style) {
     out.style = style;
   }

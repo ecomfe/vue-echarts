@@ -65,6 +65,7 @@ function collectEventState(nodes: Iterable<GraphicNode>): GraphicHandlersById {
 
 export function registerGraphicExtension(): void {
   registerGraphicComposable((ctx: GraphicComposableContext) => {
+    const { chart: chartRef, slots, manualUpdate, requestUpdate, warn: warnMessage } = ctx;
     let handlersById: GraphicHandlersById = new Map();
     const boundEvents = new Map<string, (params: unknown) => void>();
     let chart: EChartsType | null = null;
@@ -125,7 +126,7 @@ export function registerGraphicExtension(): void {
     }
 
     watch(
-      () => ctx.chart.value,
+      () => chartRef.value,
       (next, prev) => {
         unbindEvents(prev ?? null);
         chart = next ?? null;
@@ -135,45 +136,48 @@ export function registerGraphicExtension(): void {
     );
 
     const collector = createGraphicCollector({
-      warn: ctx.warn,
-      onFlush: () => {
-        handlersById = collectEventState(collector.getNodes());
-        syncEvents();
-
-        const updated = ctx.requestUpdate(GRAPHIC_UPDATE_OPTIONS);
-
-        if (!updated && ctx.manualUpdate.value) {
-          collector.warnOnce("manual-update-graphic", warnManualUpdateIgnored());
-        }
-      },
+      warn: warnMessage,
+      onFlush: handleFlush,
     });
+    const { dispose, getNodes, warnOnce } = collector;
+
+    function handleFlush(): void {
+      handlersById = collectEventState(getNodes());
+      syncEvents();
+
+      const updated = requestUpdate(GRAPHIC_UPDATE_OPTIONS);
+
+      if (!updated && manualUpdate.value) {
+        warnOnce("manual-update-graphic", warnManualUpdateIgnored());
+      }
+    }
 
     onScopeDispose(() => {
-      collector.dispose();
+      dispose();
       unbindEvents(chart);
       chart = null;
     });
 
     return {
       patchOption(option) {
-        if (!ctx.slots.graphic) {
+        if (!slots.graphic) {
           return option;
         }
         if (option.graphic && !warnedOverride) {
-          ctx.warn(warnOptionGraphicOverride());
+          warnMessage(warnOptionGraphicOverride());
           warnedOverride = true;
         }
-        const graphicOption = buildGraphicOption(collector.getNodes(), ROOT_ID);
+        const nextOption = buildGraphicOption(getNodes(), ROOT_ID);
         return {
           ...option,
-          graphic: graphicOption.graphic,
+          graphic: nextOption.graphic,
         };
       },
       render() {
-        if (!ctx.slots.graphic) {
+        if (!slots.graphic) {
           return null;
         }
-        return h(GraphicMount, { collector }, { default: ctx.slots.graphic });
+        return h(GraphicMount, { collector }, { default: slots.graphic });
       },
     };
   });
