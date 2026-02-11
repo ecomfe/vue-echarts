@@ -2,6 +2,7 @@ import { defineComponent, getCurrentInstance, inject, onUnmounted, provide, shal
 
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
+import { resolveGraphicIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { graphicCommonProps } from "./props-common";
 import { graphicShapeProps } from "./props-shape";
@@ -11,28 +12,6 @@ const graphicProps = {
   ...graphicCommonProps,
   ...graphicShapeProps,
 } as const;
-
-type GraphicIdentity = {
-  id: string;
-  orderKey: string | undefined;
-  missing: boolean;
-};
-
-function resolveIdentity(
-  propsId: string | number | undefined,
-  vnodeKey: unknown,
-  uid: number,
-): GraphicIdentity {
-  if (propsId != null) {
-    const id = String(propsId);
-    return { id, orderKey: `id:${id}`, missing: false };
-  }
-  if (vnodeKey != null) {
-    const id = String(vnodeKey);
-    return { id, orderKey: `key:${id}`, missing: false };
-  }
-  return { id: `__ve_graphic_${uid}`, orderKey: undefined, missing: true };
-}
 
 export function createGraphicComponent(name: string, type: GraphicComponentType) {
   const component = defineComponent({
@@ -51,21 +30,21 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
       }
       const graphicCollector = collector;
 
-      const currentId = shallowRef<string | null>(null);
+      let currentId: string | null = null;
 
-      function register(): void {
-        const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);
-        if (identity.missing) {
+      function register(): string {
+        const identity = resolveGraphicIdentity(props.id, instance.vnode.key, instance.uid);
+        if (identity.missingIdentity) {
           graphicCollector.warnOnce(`missing-id:${instance.uid}`, warnMissingIdentity(name));
         }
-        if (currentId.value && currentId.value !== identity.id) {
-          graphicCollector.unregister(currentId.value, instance.uid);
+        if (currentId && currentId !== identity.id) {
+          graphicCollector.unregister(currentId, instance.uid);
         }
-        currentId.value = identity.id;
+        currentId = identity.id;
         const hintedOrder = identity.orderKey ? orderRef?.value.get(identity.orderKey) : undefined;
 
         graphicCollector.register({
-          id: identity.id,
+          id: currentId,
           type,
           parentId: parentIdRef?.value ?? null,
           order: hintedOrder,
@@ -73,11 +52,12 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
           handlers: attrs as Record<string, unknown>,
           sourceId: instance.uid,
         });
+        return currentId;
       }
 
       onUnmounted(() => {
-        if (currentId.value) {
-          graphicCollector.unregister(currentId.value, instance.uid);
+        if (currentId) {
+          graphicCollector.unregister(currentId, instance.uid);
         }
       });
 
@@ -86,8 +66,7 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
         provide(GRAPHIC_PARENT_ID_KEY, providedParent);
 
         return () => {
-          register();
-          providedParent.value = currentId.value;
+          providedParent.value = register();
           return slots.default?.() ?? null;
         };
       }

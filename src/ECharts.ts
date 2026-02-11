@@ -217,10 +217,7 @@ export default defineComponent({
 
     function init() {
       isReady.value = false;
-      const host = chartHost.value;
-      if (!host) {
-        return;
-      }
+      const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
 
       if (props.group) {

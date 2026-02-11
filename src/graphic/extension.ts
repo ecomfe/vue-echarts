@@ -2,6 +2,7 @@ import { h, onScopeDispose, watch } from "vue";
 
 import type { EChartsType } from "../types";
 import { buildGraphicOption } from "./build";
+import { GRAPHIC_INFO_ID_KEY } from "./constants";
 import type { GraphicNode } from "./collector";
 import { createGraphicCollector } from "./collector";
 import { GraphicMount } from "./mount";
@@ -24,62 +25,52 @@ function toEventName(key: string): string | null {
   return raw.charAt(0).toLowerCase() + raw.slice(1);
 }
 
-function normalizeHandlers(input: Record<string, unknown>): GraphicEventHandlers {
-  const handlers: GraphicEventHandlers = {};
-  for (const [key, value] of Object.entries(input)) {
-    const event = toEventName(key);
-    if (!event) {
-      continue;
-    }
-
-    const list: GraphicEventHandler[] = Array.isArray(value)
-      ? (value as unknown[]).filter(
-          (item): item is GraphicEventHandler => typeof item === "function",
-        )
-      : typeof value === "function"
-        ? [value as GraphicEventHandler]
-        : [];
-
-    if (list.length > 0) {
-      handlers[event] = list;
-    }
-  }
-  return handlers;
-}
-
-function collectEventState(nodes: GraphicNode[]): {
-  handlersById: GraphicHandlersById;
-  activeEvents: Set<string>;
-} {
+function collectEventState(nodes: Iterable<GraphicNode>): GraphicHandlersById {
   const handlersById: GraphicHandlersById = new Map();
-  const activeEvents = new Set<string>();
 
   for (const node of nodes) {
-    const normalized = normalizeHandlers(node.handlers);
-    const events = Object.keys(normalized);
-    if (events.length === 0) {
-      continue;
+    let nodeHandlers: GraphicEventHandlers | null = null;
+
+    for (const [key, value] of Object.entries(node.handlers)) {
+      const event = toEventName(key);
+      if (!event) {
+        continue;
+      }
+
+      const list: GraphicEventHandler[] = [];
+      if (typeof value === "function") {
+        list.push(value as GraphicEventHandler);
+      } else if (Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === "function") {
+            list.push(item as GraphicEventHandler);
+          }
+        }
+      }
+      if (list.length === 0) {
+        continue;
+      }
+
+      nodeHandlers ||= {};
+      nodeHandlers[event] = list;
     }
 
-    handlersById.set(node.id, normalized);
-    for (const event of events) {
-      activeEvents.add(event);
+    if (nodeHandlers) {
+      handlersById.set(node.id, nodeHandlers);
     }
   }
 
-  return { handlersById, activeEvents };
+  return handlersById;
 }
 
 export function registerGraphicExtension(): void {
   registerGraphicComposable((ctx: GraphicComposableContext) => {
     let handlersById: GraphicHandlersById = new Map();
-    let activeEvents = new Set<string>();
     const boundEvents = new Map<string, (params: unknown) => void>();
     let chart: EChartsType | null = null;
-    let graphicOption: ReturnType<typeof buildGraphicOption> | null = null;
     let warnedOverride = false;
 
-    const unbindEvents = (target: EChartsType | null) => {
+    function unbindEvents(target: EChartsType | null): void {
       if (!target || boundEvents.size === 0) {
         return;
       }
@@ -87,11 +78,11 @@ export function registerGraphicExtension(): void {
         target.off(event, fn as any);
       }
       boundEvents.clear();
-    };
+    }
 
-    const emit = (event: string, params: unknown) => {
-      const id = (params as { info?: { __veGraphicId?: unknown } })?.info?.__veGraphicId;
-      if (!id) {
+    function emit(event: string, params: unknown): void {
+      const id = (params as { info?: Record<string, unknown> })?.info?.[GRAPHIC_INFO_ID_KEY];
+      if (id == null) {
         return;
       }
       const list = handlersById.get(String(id))?.[event];
@@ -101,14 +92,21 @@ export function registerGraphicExtension(): void {
       for (const fn of list) {
         fn(params);
       }
-    };
+    }
 
-    const syncEvents = () => {
+    function syncEvents(): void {
       if (!chart) {
         return;
       }
 
-      for (const [event, fn] of Array.from(boundEvents.entries())) {
+      const activeEvents = new Set<string>();
+      for (const handlers of handlersById.values()) {
+        for (const event in handlers) {
+          activeEvents.add(event);
+        }
+      }
+
+      for (const [event, fn] of boundEvents) {
         if (!activeEvents.has(event)) {
           chart.off(event, fn as any);
           boundEvents.delete(event);
@@ -124,7 +122,7 @@ export function registerGraphicExtension(): void {
         chart.on(event, fn as any);
         boundEvents.set(event, fn);
       }
-    };
+    }
 
     watch(
       () => ctx.chart.value,
@@ -139,13 +137,8 @@ export function registerGraphicExtension(): void {
     const collector = createGraphicCollector({
       warn: ctx.warn,
       onFlush: () => {
-        const nodes = Array.from(collector.getNodes());
-        const eventState = collectEventState(nodes);
-        handlersById = eventState.handlersById;
-        activeEvents = eventState.activeEvents;
+        handlersById = collectEventState(collector.getNodes());
         syncEvents();
-
-        graphicOption = buildGraphicOption(nodes, ROOT_ID);
 
         const updated = ctx.requestUpdate(GRAPHIC_UPDATE_OPTIONS);
 
@@ -158,9 +151,6 @@ export function registerGraphicExtension(): void {
     onScopeDispose(() => {
       collector.dispose();
       unbindEvents(chart);
-      handlersById = new Map();
-      activeEvents = new Set<string>();
-      graphicOption = null;
       chart = null;
     });
 
@@ -173,9 +163,7 @@ export function registerGraphicExtension(): void {
           ctx.warn(warnOptionGraphicOverride());
           warnedOverride = true;
         }
-        if (!graphicOption) {
-          graphicOption = buildGraphicOption(collector.getNodes(), ROOT_ID);
-        }
+        const graphicOption = buildGraphicOption(collector.getNodes(), ROOT_ID);
         return {
           ...option,
           graphic: graphicOption.graphic,

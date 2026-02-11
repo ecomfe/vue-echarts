@@ -2,6 +2,7 @@ import type { Option } from "../types";
 import {
   COMMON_PROP_KEYS,
   IMAGE_STYLE_KEYS,
+  GRAPHIC_INFO_ID_KEY,
   SHAPE_KEYS_BY_TYPE,
   TEXT_STYLE_KEYS,
   BASE_STYLE_KEYS,
@@ -52,6 +53,28 @@ function buildShape(
   return Object.keys(shape).length ? shape : undefined;
 }
 
+function buildCommon(type: string, props: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const shapeKeys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] as
+    | readonly string[]
+    | undefined;
+  const imageStyleKeys = IMAGE_STYLE_KEYS as readonly string[];
+
+  for (const key of COMMON_PROP_KEYS) {
+    if (shapeKeys?.includes(key)) {
+      continue;
+    }
+    if (type === "image" && imageStyleKeys.includes(key)) {
+      continue;
+    }
+    if (props[key] !== undefined) {
+      out[key] = props[key];
+    }
+  }
+
+  return out;
+}
+
 function buildInfo(node: GraphicNode): unknown {
   const hasHandlers = Object.keys(node.handlers).length > 0;
   const raw = node.props.info;
@@ -61,14 +84,14 @@ function buildInfo(node: GraphicNode): unknown {
   }
 
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    return { ...(raw as Record<string, unknown>), __veGraphicId: node.id };
+    return { ...(raw as Record<string, unknown>), [GRAPHIC_INFO_ID_KEY]: node.id };
   }
 
   if (raw !== undefined) {
-    return { value: raw, __veGraphicId: node.id };
+    return { value: raw, [GRAPHIC_INFO_ID_KEY]: node.id };
   }
 
-  return { __veGraphicId: node.id };
+  return { [GRAPHIC_INFO_ID_KEY]: node.id };
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
@@ -77,30 +100,15 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     id: node.id,
   };
 
-  const common: Record<string, unknown> = {};
-  mergeProps(common, COMMON_PROP_KEYS, node.props);
-
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[node.type as keyof typeof SHAPE_KEYS_BY_TYPE];
-  if (shapeKeys) {
-    shapeKeys.forEach((key) => {
-      delete common[key];
-    });
-  }
-  if (node.type === "image") {
-    IMAGE_STYLE_KEYS.forEach((key) => {
-      delete common[key];
-    });
-  }
-
-  Object.assign(out, common);
+  Object.assign(out, buildCommon(node.type, node.props));
   const info = buildInfo(node);
+  if (info !== undefined) {
+    out.info = info;
+  }
 
   if (node.type === "group") {
     if (children?.length) {
       out.children = children;
-    }
-    if (info !== undefined) {
-      out.info = info;
     }
     return out as Option;
   }
@@ -110,15 +118,15 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     out.shape = shape;
   }
 
-  const styleKeys =
-    node.type === "text" ? TEXT_STYLE_KEYS : node.type === "image" ? IMAGE_STYLE_KEYS : [];
+  let styleKeys: readonly string[] = [];
+  if (node.type === "text") {
+    styleKeys = TEXT_STYLE_KEYS;
+  } else if (node.type === "image") {
+    styleKeys = IMAGE_STYLE_KEYS;
+  }
   const style = buildStyle(node.props, styleKeys);
   if (style) {
     out.style = style;
-  }
-
-  if (info !== undefined) {
-    out.info = info;
   }
 
   return out as Option;
