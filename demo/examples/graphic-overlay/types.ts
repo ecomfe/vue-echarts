@@ -20,27 +20,19 @@ export type OverlayMarker = EventMarker & {
   textY: number;
   anchorX: number;
   anchorY: number;
-};
-
-export type SummaryData = {
-  peak: string;
-  low: string;
-  delta: string;
-  focus: string;
+  cpx1: number;
+  cpy1: number;
+  cpx2: number;
+  cpy2: number;
 };
 
 export type GraphicOverlayUI = {
-  cardBg: string;
-  cardStroke: string;
-  cardTitle: string;
-  cardLabel: string;
-  cardValue: string;
-  cardFocus: string;
   bubbleBg: string;
   bubbleStroke: string;
   bubbleText: string;
   bubbleTextFocus: string;
   focusLine: string;
+  lineSoft: string;
   dotStroke: string;
 };
 
@@ -49,18 +41,16 @@ export type OverlayViewport = {
   height: number;
 };
 
-export type SummaryPanelLayout = {
-  x: number;
-  y: number;
+export type OverlayPlotLayout = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
   width: number;
   height: number;
-  paddingX: number;
-  titleY: number;
-  firstRowY: number;
-  rowGap: number;
 };
 
 export type GraphicOverlayLayout = {
-  summary: SummaryPanelLayout;
+  plot: OverlayPlotLayout;
   markers: OverlayMarker[];
 };
