@@ -330,7 +330,7 @@ export default {
 > - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
 > - [`setTheme`](https://echarts.apache.org/en/api.html#echartsInstance.setTheme): use the `theme` prop instead.
 
-### Slots&nbsp;<sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
+### Slots
 
 Vue ECharts supports three slot categories:
 
@@ -406,51 +406,11 @@ The slot props correspond to the first parameter of the callback function.
 > [!NOTE]
 > Slots take precedence over the corresponding callback defined in `props.option`.
 
-#### Graphic slot (optional entry)
-
-Template-based graphic API is provided as an opt-in entry to avoid increasing the main bundle size. Importing from `vue-echarts/graphic` registers the slot handler and exposes `G*` components:
+#### Graphic slot&nbsp;<sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
 
 ```ts
-import { GGroup, GRect, GText, GCircle } from "vue-echarts/graphic";
+import { GGroup, GRect, GText } from "vue-echarts/graphic";
 ```
-
-If you only need slot registration (no direct `G*` imports), side-effect import also works:
-
-```ts
-import "vue-echarts/graphic";
-```
-
-Usage:
-
-```vue
-<template>
-  <VChart :option="option">
-    <template #graphic>
-      <GGroup>
-        <GRect left="center" top="8%" :width="200" :height="40" :r="10" fill="rgba(0,0,0,.25)" />
-        <GText
-          left="center"
-          top="12%"
-          text="Template graphic"
-          font="12px sans-serif"
-          text-fill="#fff"
-        />
-      </GGroup>
-    </template>
-  </VChart>
-</template>
-```
-
-Graphic reference: [ECharts `option.graphic` →](https://echarts.apache.org/en/option.html#graphic)
-
-Notes:
-
-- `#graphic` is only enabled after importing `vue-echarts/graphic`. Otherwise Vue ECharts warns and skips this slot.
-- In TypeScript projects, importing `vue-echarts/graphic` also augments `VChart` slot types to include `graphic`.
-- `#graphic` and `option.graphic` are mutually exclusive in practice. If both are provided, slot content wins.
-- In auto-update mode, reactive `#graphic` changes are applied automatically. In `manual-update` mode, call `chartRef.setOption(...)` to commit changes.
-- If you render dynamic nodes (`v-for`) or bind graphic events (for example `onClick`, `onMousemove`), provide a stable `id` (or `:key`).
-- Avoid plain HTML nodes inside `#graphic`; use `G*` components so the slot can be converted into ECharts graphic option.
 
 Available components:
 
@@ -467,6 +427,55 @@ Available components:
 - `GArc`
 - `GBezierCurve`
 - `GCompoundPath`
+
+Read more at [ECharts `option.graphic` →](https://echarts.apache.org/en/option.html#graphic)
+
+> [!NOTE]
+>
+> - Graphic element events additionally support `dblclick` and `contextmenu`.
+> - Event listeners support the `.once` modifier.
+> - `#graphic` overrides `option.graphic`. In `manual-update` mode, call `chartRef.setOption(...)` to apply changes.
+
+<details>
+<summary>Usage</summary>
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import type { ElementEvent } from "echarts/core";
+
+const option = {
+  xAxis: { type: "category", data: ["Mon", "Tue", "Wed"] },
+  yAxis: { type: "value" },
+  series: [{ type: "line", data: [120, 200, 150] }],
+};
+
+const overlay = ref({ x: 84, y: 22 });
+
+function onDrag(event: ElementEvent) {
+  overlay.value.x = event.offsetX - 44;
+  overlay.value.y = event.offsetY - 14;
+}
+</script>
+
+<template>
+  <VChart :option="option">
+    <template #graphic>
+      <GGroup id="drag-handle" :x="overlay.x" :y="overlay.y">
+        <GRect :width="88" :height="28" :r="6" fill="#5470c6" draggable @drag="onDrag" />
+        <GText
+          :x="10"
+          :y="8"
+          :text="`x: ${Math.round(overlay.x)} y: ${Math.round(overlay.y)}`"
+          text-fill="#fff"
+        />
+      </GGroup>
+    </template>
+  </VChart>
+</template>
+```
+
+</details>
 
 ### Static methods
 

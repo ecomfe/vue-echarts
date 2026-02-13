@@ -1,13 +1,18 @@
 import type { Option } from "../types";
-import {
-  COMMON_PROP_KEYS,
-  IMAGE_STYLE_KEYS,
-  GRAPHIC_INFO_ID_KEY,
-  SHAPE_KEYS_BY_TYPE,
-  TEXT_STYLE_KEYS,
-  BASE_STYLE_KEYS,
-} from "./constants";
+import { parseOnEvent } from "../utils";
+import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-common";
+import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
+
+const EMPTY_PROP_KEYS: readonly string[] = [];
+
+function resolveShapeKeys(type: string): readonly string[] {
+  return SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+}
+
+function resolveStyleKeys(type: string): readonly string[] {
+  return STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+}
 
 function mergeProps(
   target: Record<string, unknown>,
@@ -41,10 +46,7 @@ function buildShape(
   props: Record<string, unknown>,
 ): Record<string, unknown> | undefined {
   const shape = { ...(props.shape as Record<string, unknown> | undefined) };
-  const keys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
-  if (keys) {
-    mergeProps(shape, keys, props);
-  }
+  mergeProps(shape, resolveShapeKeys(type), props);
 
   if (props.shapeTransition !== undefined) {
     shape.transition = props.shapeTransition;
@@ -53,18 +55,19 @@ function buildShape(
   return Object.keys(shape).length ? shape : undefined;
 }
 
-function buildCommon(type: string, props: Record<string, unknown>): Record<string, unknown> {
+function buildCommon(
+  type: string,
+  props: Record<string, unknown>,
+  styleKeys: readonly string[],
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] as
-    | readonly string[]
-    | undefined;
-  const imageStyleKeys = IMAGE_STYLE_KEYS as readonly string[];
+  const shapeKeys = resolveShapeKeys(type);
 
   for (const key of COMMON_PROP_KEYS) {
-    if (shapeKeys?.includes(key)) {
+    if (shapeKeys.includes(key)) {
       continue;
     }
-    if (type === "image" && imageStyleKeys.includes(key)) {
+    if (styleKeys.includes(key)) {
       continue;
     }
     if (props[key] !== undefined) {
@@ -75,35 +78,100 @@ function buildCommon(type: string, props: Record<string, unknown>): Record<strin
   return out;
 }
 
-function buildInfo(node: GraphicNode): unknown {
-  const { handlers, props, id } = node;
-  const hasHandlers = Object.keys(handlers).length > 0;
-  const raw = props.info;
+type GraphicEventHandler = (...args: unknown[]) => void;
 
-  if (!hasHandlers && raw === undefined) {
+function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | undefined {
+  const handlers: GraphicEventHandler[] = [];
+
+  if (typeof value === "function") {
+    handlers.push(value as GraphicEventHandler);
+  } else if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "function") {
+        handlers.push(item as GraphicEventHandler);
+      }
+    }
+  }
+
+  if (handlers.length === 0) {
     return undefined;
   }
 
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    return { ...(raw as Record<string, unknown>), [GRAPHIC_INFO_ID_KEY]: id };
+  let handler: GraphicEventHandler;
+  if (handlers.length === 1) {
+    handler = handlers[0];
+  } else {
+    handler = (...args: unknown[]) => {
+      for (const item of handlers) {
+        item(...args);
+      }
+    };
   }
 
-  if (raw !== undefined) {
-    return { value: raw, [GRAPHIC_INFO_ID_KEY]: id };
+  if (!once) {
+    return handler;
   }
 
-  return { [GRAPHIC_INFO_ID_KEY]: id };
+  let called = false;
+  return (...args: unknown[]) => {
+    if (called) {
+      return;
+    }
+    called = true;
+    handler(...args);
+  };
+}
+
+function buildHandlers(
+  handlers: Record<string, unknown>,
+): Record<string, GraphicEventHandler> | undefined {
+  const out: Record<string, GraphicEventHandler> = {};
+
+  for (const [key, value] of Object.entries(handlers)) {
+    const descriptor = parseOnEvent(key);
+    if (!descriptor) {
+      continue;
+    }
+
+    const handler = toEventHandler(value, descriptor.once);
+    if (!handler) {
+      continue;
+    }
+
+    const eventKey = `on${descriptor.event}`;
+    const existing = out[eventKey];
+    if (!existing) {
+      out[eventKey] = handler;
+      continue;
+    }
+
+    out[eventKey] = (...args: unknown[]) => {
+      existing(...args);
+      handler(...args);
+    };
+  }
+
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function buildInfo(props: Record<string, unknown>): unknown {
+  return props.info;
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const { type, id, props } = node;
+  const styleKeys = resolveStyleKeys(type);
   const out: Record<string, unknown> = {
     type,
     id,
   };
 
-  Object.assign(out, buildCommon(type, props));
-  const info = buildInfo(node);
+  Object.assign(out, buildCommon(type, props, styleKeys));
+  const handlers = buildHandlers(node.handlers);
+  if (handlers) {
+    Object.assign(out, handlers);
+  }
+  const info = buildInfo(props);
   if (info !== undefined) {
     out.info = info;
   }
@@ -120,12 +188,6 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     out.shape = shape;
   }
 
-  let styleKeys: readonly string[] = [];
-  if (type === "text") {
-    styleKeys = TEXT_STYLE_KEYS;
-  } else if (type === "image") {
-    styleKeys = IMAGE_STYLE_KEYS;
-  }
   const style = buildStyle(props, styleKeys);
   if (style) {
     out.style = style;
@@ -152,9 +214,12 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
 
   const childrenOf = (parentId: string | null): Option[] => {
     const list = byParent.get(parentId) ?? [];
-    return list.map((node) =>
-      toElement(node, node.type === "group" ? childrenOf(node.id) : undefined),
-    );
+    return list.map((node) => {
+      if (node.type !== "group") {
+        return toElement(node);
+      }
+      return toElement(node, childrenOf(node.id));
+    });
   };
 
   return {

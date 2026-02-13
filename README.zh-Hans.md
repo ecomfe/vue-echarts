@@ -330,7 +330,7 @@ export default {
 > - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
 > - [`setTheme`](https://echarts.apache.org/zh/api.html#echartsInstance.setTheme)：请使用 `theme` prop。
 
-### 插槽&nbsp;<sup><a href="#插槽"><img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能" align="middle" height="16"></a></sup>
+### 插槽
 
 Vue ECharts 当前支持三类插槽：
 
@@ -406,51 +406,11 @@ Vue ECharts 当前支持三类插槽：
 > [!NOTE]
 > 插槽会优先于 `props.option` 中对应的回调函数。
 
-#### Graphic 插槽（可选入口）
-
-基于模板语法的 graphic API 以可选入口提供，避免增加主包体积。引入 `vue-echarts/graphic` 会注册该插槽处理，并导出 `G*` 组件：
+#### Graphic 插槽&nbsp;<sup><a href="#插槽"><img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能" align="middle" height="16"></a></sup>
 
 ```ts
-import { GGroup, GRect, GText, GCircle } from "vue-echarts/graphic";
+import { GGroup, GRect, GText } from "vue-echarts/graphic";
 ```
-
-如果只需要注册插槽能力（不直接导入 `G*` 组件），也可以只做副作用导入：
-
-```ts
-import "vue-echarts/graphic";
-```
-
-用法示例：
-
-```vue
-<template>
-  <VChart :option="option">
-    <template #graphic>
-      <GGroup>
-        <GRect left="center" top="8%" :width="200" :height="40" :r="10" fill="rgba(0,0,0,.25)" />
-        <GText
-          left="center"
-          top="12%"
-          text="Template graphic"
-          font="12px sans-serif"
-          text-fill="#fff"
-        />
-      </GGroup>
-    </template>
-  </VChart>
-</template>
-```
-
-Graphic 参考文档：[ECharts `option.graphic` →](https://echarts.apache.org/zh/option.html#graphic)
-
-注意事项：
-
-- 只有在引入 `vue-echarts/graphic` 后，`#graphic` 才会生效；否则会给出警告并跳过该插槽。
-- 在 TypeScript 项目中，引入 `vue-echarts/graphic` 还会为 `VChart` 增强 `graphic` 插槽类型。
-- `#graphic` 与 `option.graphic` 实际上互斥；两者同时提供时，以插槽内容为准。
-- 自动更新模式下，`#graphic` 的响应式变更会自动应用；`manual-update` 模式下需手动调用 `chartRef.setOption(...)` 提交变更。
-- 如果有动态节点（`v-for`）或绑定 graphic 事件（例如 `onClick`、`onMousemove`），请提供稳定的 `id`（或 `:key`）。
-- 请避免在 `#graphic` 里放普通 HTML 节点，应使用 `G*` 组件以便正确转换为 ECharts graphic 配置。
 
 可用组件：
 
@@ -467,6 +427,55 @@ Graphic 参考文档：[ECharts `option.graphic` →](https://echarts.apache.org
 - `GArc`
 - `GBezierCurve`
 - `GCompoundPath`
+
+更多细节可参考 [ECharts `option.graphic` →](https://echarts.apache.org/zh/option.html#graphic)
+
+> [!NOTE]
+>
+> - graphic 元素事件额外支持 `dblclick`、`contextmenu`。
+> - 事件支持 `.once` 修饰符。
+> - `#graphic` 会覆盖 `option.graphic`。`manual-update` 模式下需调用 `chartRef.setOption(...)` 提交变更。
+
+<details>
+<summary>用法示例</summary>
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import type { ElementEvent } from "echarts/core";
+
+const option = {
+  xAxis: { type: "category", data: ["Mon", "Tue", "Wed"] },
+  yAxis: { type: "value" },
+  series: [{ type: "line", data: [120, 200, 150] }],
+};
+
+const overlay = ref({ x: 84, y: 22 });
+
+function onDrag(event: ElementEvent) {
+  overlay.value.x = event.offsetX - 44;
+  overlay.value.y = event.offsetY - 14;
+}
+</script>
+
+<template>
+  <VChart :option="option">
+    <template #graphic>
+      <GGroup id="drag-handle" :x="overlay.x" :y="overlay.y">
+        <GRect :width="88" :height="28" :r="6" fill="#5470c6" draggable @drag="onDrag" />
+        <GText
+          :x="10"
+          :y="8"
+          :text="`x: ${Math.round(overlay.x)} y: ${Math.round(overlay.y)}`"
+          text-fill="#fff"
+        />
+      </GGroup>
+    </template>
+  </VChart>
+</template>
+```
+
+</details>
 
 ### 静态方法
 

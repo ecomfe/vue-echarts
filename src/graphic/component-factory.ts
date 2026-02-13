@@ -6,6 +6,7 @@ import { resolveGraphicIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { commonProps } from "./props-common";
 import { shapeProps } from "./props-shape";
+import type { GraphicEmits } from "./types";
 import { warnOutsideGraphicSlot, warnMissingIdentity } from "./warn";
 
 const componentProps = {
@@ -18,6 +19,7 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
     name,
     inheritAttrs: false,
     props: componentProps,
+    emits: {} as unknown as GraphicEmits,
     setup(props, { attrs, slots }) {
       const instance = getCurrentInstance()!;
       const collector = inject(GRAPHIC_COLLECTOR_KEY, null);
@@ -31,7 +33,7 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
       const { register: registerNode, unregister, warnOnce } = collector;
       let currentId: string | null = null;
 
-      const register = (): string => {
+      function register(): string {
         const identity = resolveGraphicIdentity(props.id, instance.vnode.key, instance.uid);
         if (identity.missingIdentity) {
           warnOnce(`missing-id:${instance.uid}`, warnMissingIdentity(name));
@@ -52,7 +54,7 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
           sourceId: instance.uid,
         });
         return currentId;
-      };
+      }
 
       onUnmounted(() => {
         if (currentId) {

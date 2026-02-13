@@ -7,7 +7,7 @@ import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
 import { registerGraphicExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
-import { setupGraphicSlotSuite } from "./helpers/graphic-slot";
+import { getLastGraphicRootChildren, setupGraphicSlotSuite } from "./helpers/graphic-slot";
 
 vi.mock("echarts/core", () => createEChartsModule());
 
@@ -48,15 +48,15 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const clickBinding = chartStub.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "click",
-    )?.[1] as (params: unknown) => void;
-    if (!clickBinding) {
-      throw new Error("Expected click binding to exist.");
+    const firstNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "event-node",
+    ) as Record<string, unknown> | undefined;
+    if (!firstNode || typeof firstNode.onclick !== "function") {
+      throw new Error("Expected first click handler to exist.");
     }
 
-    const eventA = { info: { __veGraphicId: "event-node" }, value: 1 };
-    clickBinding(eventA);
+    const eventA = { value: 1 };
+    (firstNode.onclick as (params: unknown) => void)(eventA);
     expect(onClickA).toHaveBeenCalledWith(eventA);
     expect(onClickB).not.toHaveBeenCalled();
 
@@ -64,8 +64,15 @@ describe("graphic slot event handling", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    const eventB = { info: { __veGraphicId: "event-node" }, value: 2 };
-    clickBinding(eventB);
+    const secondNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "event-node",
+    ) as Record<string, unknown> | undefined;
+    if (!secondNode || typeof secondNode.onclick !== "function") {
+      throw new Error("Expected second click handler to exist.");
+    }
+
+    const eventB = { value: 2 };
+    (secondNode.onclick as (params: unknown) => void)(eventB);
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledWith(eventB);
   });
@@ -103,49 +110,46 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const clickBinding = chartStub.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "click",
-    )?.[1] as (params: unknown) => void;
-    if (!clickBinding) {
-      throw new Error("Expected click binding to exist.");
+    const firstNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "event-node",
+    ) as Record<string, unknown> | undefined;
+    if (!firstNode || typeof firstNode.onclick !== "function") {
+      throw new Error("Expected first click handler to exist.");
     }
 
-    clickBinding({ info: { __veGraphicId: "event-node" }, value: 1 });
+    (firstNode.onclick as (params: unknown) => void)({ value: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onMousemove).toHaveBeenCalledTimes(0);
-
-    chartStub.on.mockClear();
-    chartStub.off.mockClear();
 
     enableClick.value = false;
     enableMousemove.value = true;
     await nextTick();
     await flushAnimationFrame();
 
-    expect(chartStub.off.mock.calls.some((call: unknown[]) => call[0] === "click")).toBe(true);
-    expect(chartStub.on.mock.calls.some((call: unknown[]) => call[0] === "mousemove")).toBe(true);
-
-    clickBinding({ info: { __veGraphicId: "event-node" }, value: 2 });
-    expect(onClick).toHaveBeenCalledTimes(1);
-
-    const moveBinding = chartStub.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "mousemove",
-    )?.[1] as (params: unknown) => void;
-    if (!moveBinding) {
-      throw new Error("Expected mousemove binding to exist.");
+    const secondNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "event-node",
+    ) as Record<string, unknown> | undefined;
+    if (!secondNode) {
+      throw new Error("Expected second node to exist.");
     }
+    expect(secondNode.onclick).toBeUndefined();
+    expect(typeof secondNode.onmousemove).toBe("function");
 
-    moveBinding({ info: { __veGraphicId: "event-node" }, value: 3 });
+    expect(onClick).toHaveBeenCalledTimes(1);
+    (secondNode.onmousemove as (params: unknown) => void)({ value: 3 });
     expect(onMousemove).toHaveBeenCalledTimes(1);
 
-    chartStub.off.mockClear();
     enableMousemove.value = false;
     await nextTick();
     await flushAnimationFrame();
 
-    expect(chartStub.off.mock.calls.some((call: unknown[]) => call[0] === "mousemove")).toBe(true);
-
-    moveBinding({ info: { __veGraphicId: "event-node" }, value: 4 });
+    const thirdNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "event-node",
+    ) as Record<string, unknown> | undefined;
+    if (!thirdNode) {
+      throw new Error("Expected third node to exist.");
+    }
+    expect(thirdNode.onmousemove).toBeUndefined();
     expect(onMousemove).toHaveBeenCalledTimes(1);
   });
 
@@ -162,7 +166,11 @@ describe("graphic slot event handling", () => {
       setup() {
         return () => {
           const onClick =
-            stage.value === "single" ? fnA : stage.value === "array" ? [fnB, fnC] : undefined;
+            stage.value === "single"
+              ? fnA
+              : stage.value === "array"
+                ? ([fnB, fnC] as unknown as (params: unknown) => void)
+                : undefined;
           return h(
             ECharts,
             { option: option.value },
@@ -180,14 +188,14 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const clickBinding = chartStub.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "click",
-    )?.[1] as (params: unknown) => void;
-    if (!clickBinding) {
-      throw new Error("Expected click binding to exist.");
+    const singleNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "channel-node",
+    ) as Record<string, unknown> | undefined;
+    if (!singleNode || typeof singleNode.onclick !== "function") {
+      throw new Error("Expected first click handler to exist.");
     }
 
-    clickBinding({ info: { __veGraphicId: "channel-node" } });
+    (singleNode.onclick as (params: unknown) => void)({});
     expect(fnA).toHaveBeenCalledTimes(1);
     expect(fnB).toHaveBeenCalledTimes(0);
     expect(fnC).toHaveBeenCalledTimes(0);
@@ -196,19 +204,75 @@ describe("graphic slot event handling", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    clickBinding({ info: { __veGraphicId: "channel-node" } });
+    const arrayNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "channel-node",
+    ) as Record<string, unknown> | undefined;
+    if (!arrayNode || typeof arrayNode.onclick !== "function") {
+      throw new Error("Expected array click handler to exist.");
+    }
+
+    (arrayNode.onclick as (params: unknown) => void)({});
     expect(fnA).toHaveBeenCalledTimes(1);
     expect(fnB).toHaveBeenCalledTimes(1);
     expect(fnC).toHaveBeenCalledTimes(1);
 
-    chartStub.off.mockClear();
     stage.value = "none";
     await nextTick();
     await flushAnimationFrame();
 
-    expect(chartStub.off.mock.calls.some((call: unknown[]) => call[0] === "click")).toBe(true);
-    clickBinding({ info: { __veGraphicId: "channel-node" } });
+    const noneNode = getLastGraphicRootChildren(chartStub).find(
+      (item) => item.id === "channel-node",
+    ) as Record<string, unknown> | undefined;
+    if (!noneNode) {
+      throw new Error("Expected none node to exist.");
+    }
+    expect(noneNode.onclick).toBeUndefined();
     expect(fnB).toHaveBeenCalledTimes(1);
     expect(fnC).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports once handlers via onClickOnce", async () => {
+    registerGraphicExtension();
+
+    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
+    const onClickOnce = vi.fn();
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: option.value },
+            {
+              graphic: () =>
+                h(GRect, {
+                  id: "once-node",
+                  x: 10,
+                  y: 10,
+                  width: 10,
+                  height: 10,
+                  onClickOnce,
+                }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    const node = getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node") as
+      | Record<string, unknown>
+      | undefined;
+    if (!node || typeof node.onclick !== "function") {
+      throw new Error("Expected once click handler to exist.");
+    }
+
+    (node.onclick as (params: unknown) => void)({ value: 1 });
+    (node.onclick as (params: unknown) => void)({ value: 2 });
+
+    expect(onClickOnce).toHaveBeenCalledTimes(1);
   });
 });
