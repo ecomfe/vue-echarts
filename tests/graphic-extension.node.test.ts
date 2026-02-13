@@ -80,16 +80,14 @@ describe("graphic runtime", () => {
     scope.stop();
   });
 
-  it("normalizes handlers and syncs chart event bindings", async () => {
+  it("normalizes handlers into graphic onxxx fields", async () => {
     registerGraphicExtension();
 
     const warn = vi.fn();
     const requestUpdate = vi.fn(() => true);
-    const chartRef = ref<any>(undefined);
     const scope = effectScope();
 
     const context = createContext({
-      chart: chartRef as any,
       slots: { graphic: () => null } as any,
       warn,
       requestUpdate,
@@ -108,6 +106,8 @@ describe("graphic runtime", () => {
 
     const onClickA = vi.fn();
     const onClickB = vi.fn();
+    const onClickOnce = vi.fn();
+    const onMouseover = vi.fn();
     const onMouseenter = vi.fn();
 
     collector.register({
@@ -117,6 +117,8 @@ describe("graphic runtime", () => {
       props: {},
       handlers: {
         onClick: [onClickA, "invalid", onClickB],
+        onClickOnce,
+        onMouseover,
         onMouseenter,
         onDblclick: 123,
         on: () => void 0,
@@ -131,28 +133,21 @@ describe("graphic runtime", () => {
       replaceMerge: ["graphic"],
     });
 
-    const chart1 = {
-      on: vi.fn(),
-      off: vi.fn(),
-    };
-    chartRef.value = chart1;
-    await nextTick();
+    const patchedA = runtime.patchOption({} as any) as any;
+    const childA = patchedA.graphic.elements[0].children[0];
 
-    expect(chart1.on).toHaveBeenCalledWith("click", expect.any(Function));
-    expect(chart1.on).toHaveBeenCalledWith("mouseenter", expect.any(Function));
+    expect(typeof childA.onclick).toBe("function");
+    expect(typeof childA.onmouseover).toBe("function");
+    expect(typeof childA.onmouseenter).toBe("function");
+    expect(childA.ondblclick).toBeUndefined();
 
-    const clickBinding = chart1.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "click",
-    )?.[1] as (params: unknown) => void;
-    if (!clickBinding) {
-      throw new Error("Expected click binding to exist.");
-    }
-
-    clickBinding({});
-    clickBinding({ info: { __veGraphicId: "missing" } });
-    clickBinding({ info: { __veGraphicId: "n1" } });
-    expect(onClickA).toHaveBeenCalledTimes(1);
-    expect(onClickB).toHaveBeenCalledTimes(1);
+    childA.onclick({});
+    childA.onclick({ foo: 1 });
+    childA.onmouseenter({});
+    expect(onClickA).toHaveBeenCalledTimes(2);
+    expect(onClickB).toHaveBeenCalledTimes(2);
+    expect(onClickOnce).toHaveBeenCalledTimes(1);
+    expect(onMouseenter).toHaveBeenCalledTimes(1);
 
     collector.register({
       id: "n1",
@@ -160,34 +155,24 @@ describe("graphic runtime", () => {
       parentId: null,
       props: {},
       handlers: {
-        onMouseenter,
+        onMouseover,
       },
       sourceId: 1,
     });
 
     await flushMicrotasks();
-    expect(chart1.off).toHaveBeenCalledWith("click", expect.any(Function));
 
-    const chart2 = {
-      on: vi.fn(),
-      off: vi.fn(),
-    };
-    chartRef.value = chart2;
-    await nextTick();
-
-    expect(chart1.off).toHaveBeenCalled();
-    expect(chart2.on).toHaveBeenCalledWith("mouseenter", expect.any(Function));
-
-    collector.unregister("n1");
-    await flushMicrotasks();
-    expect(chart2.off).toHaveBeenCalledWith("mouseenter", expect.any(Function));
+    const patchedB = runtime.patchOption({} as any) as any;
+    const childB = patchedB.graphic.elements[0].children[0];
+    expect(childB.onclick).toBeUndefined();
+    expect(typeof childB.onmouseover).toBe("function");
 
     expect(warn).not.toHaveBeenCalled();
 
     scope.stop();
   });
 
-  it("unbinds all bound events when chart instance is cleared", async () => {
+  it("does not depend on chart instance for handler option output", async () => {
     registerGraphicExtension();
 
     const chartRef = ref<any>(undefined);
@@ -220,31 +205,35 @@ describe("graphic runtime", () => {
     });
     await flushMicrotasks();
 
+    const patchedA = runtime.patchOption({} as any) as any;
+    const childA = patchedA.graphic.elements[0].children[0];
+    expect(typeof childA.onclick).toBe("function");
+
     const chart = {
-      on: vi.fn(),
-      off: vi.fn(),
+      getZr: vi.fn(() => ({
+        on: vi.fn(),
+        off: vi.fn(),
+      })),
     };
     chartRef.value = chart;
     await nextTick();
 
-    const clickHandler = chart.on.mock.calls.find((call: unknown[]) => call[0] === "click")?.[1];
-    expect(clickHandler).toBeTypeOf("function");
-
     chartRef.value = undefined;
     await nextTick();
 
-    expect(chart.off).toHaveBeenCalledWith("click", clickHandler);
+    const patchedB = runtime.patchOption({} as any) as any;
+    const childB = patchedB.graphic.elements[0].children[0];
+    expect(typeof childB.onclick).toBe("function");
+
     scope.stop();
   });
 
-  it("dispatches events to matching graphic id only", async () => {
+  it("keeps handlers scoped per element option", async () => {
     registerGraphicExtension();
 
-    const chartRef = ref<any>(undefined);
     const scope = effectScope();
 
     const context = createContext({
-      chart: chartRef as any,
       slots: { graphic: () => null } as any,
     });
 
@@ -279,36 +268,29 @@ describe("graphic runtime", () => {
     });
     await flushMicrotasks();
 
-    const chart = {
-      on: vi.fn(),
-      off: vi.fn(),
-    };
-    chartRef.value = chart;
-    await nextTick();
-
-    const clickHandler = chart.on.mock.calls.find(
-      (call: unknown[]) => call[0] === "click",
-    )?.[1] as (params: unknown) => void;
-    if (!clickHandler) {
-      throw new Error("Expected click handler to be bound.");
+    const patched = runtime.patchOption({} as any) as any;
+    const children = patched.graphic.elements[0].children as Array<Record<string, unknown>>;
+    const elementA = children.find((item) => item.id === "a");
+    const elementB = children.find((item) => item.id === "b");
+    if (!elementA || !elementB) {
+      throw new Error("Expected graphic child elements to exist.");
     }
 
-    clickHandler({ info: { __veGraphicId: "b" } });
-    expect(onClickA).not.toHaveBeenCalled();
+    (elementA.onclick as (...args: unknown[]) => void)({ value: "a" });
+    (elementB.onclick as (...args: unknown[]) => void)({ value: "b" });
+    expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledTimes(1);
 
     scope.stop();
   });
 
-  it("keeps event bindings stable when handlers are unchanged", async () => {
+  it("keeps update scheduling stable when handlers are unchanged", async () => {
     registerGraphicExtension();
 
     const requestUpdate = vi.fn(() => true);
-    const chartRef = ref<any>(undefined);
     const scope = effectScope();
 
     const context = createContext({
-      chart: chartRef as any,
       slots: { graphic: () => null } as any,
       requestUpdate,
     });
@@ -334,13 +316,6 @@ describe("graphic runtime", () => {
     });
     await flushMicrotasks();
 
-    const chart = {
-      on: vi.fn(),
-      off: vi.fn(),
-    };
-    chartRef.value = chart;
-    await nextTick();
-
     collector.register({
       id: "n1",
       type: "rect",
@@ -352,8 +327,11 @@ describe("graphic runtime", () => {
     await flushMicrotasks();
 
     expect(requestUpdate).toHaveBeenCalledTimes(2);
-    expect(chart.on).toHaveBeenCalledTimes(1);
-    expect(chart.off).not.toHaveBeenCalled();
+
+    const patched = runtime.patchOption({} as any) as any;
+    const child = patched.graphic.elements[0].children[0];
+    expect(typeof child.onclick).toBe("function");
+    expect(child.shape).toMatchObject({ x: 2 });
 
     scope.stop();
   });

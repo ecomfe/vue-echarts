@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 
-import { isOn, omitOn, isValidArrayIndex, isSameSet, isPlainObject } from "../src/utils";
+import {
+  isOn,
+  parseOnEvent,
+  omitOn,
+  isValidArrayIndex,
+  isSameSet,
+  isPlainObject,
+} from "../src/utils";
 
 describe("utils", () => {
   describe("isOn", () => {
@@ -16,6 +23,21 @@ describe("utils", () => {
       expect(isOn("onclick")).toBe(false);
       expect(isOn("onupdate:modelValue")).toBe(false);
       expect(isOn("foo")).toBe(false);
+    });
+  });
+
+  describe("parseOnEvent", () => {
+    it("extracts event name and once flag", () => {
+      expect(parseOnEvent("onClick")).toEqual({ event: "click", once: false });
+      expect(parseOnEvent("onZr:click")).toEqual({ event: "zr:click", once: false });
+      expect(parseOnEvent("onClickOnce")).toEqual({ event: "click", once: true });
+      expect(parseOnEvent("onNative:clickOnce")).toEqual({ event: "native:click", once: true });
+    });
+
+    it("returns null for non-event attrs", () => {
+      expect(parseOnEvent("onclick")).toBeNull();
+      expect(parseOnEvent("on")).toBeNull();
+      expect(parseOnEvent("foo")).toBeNull();
     });
   });
 

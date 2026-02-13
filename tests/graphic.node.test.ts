@@ -17,6 +17,9 @@ describe("graphic", () => {
           y: 20,
           width: 30,
           height: 40,
+          progressive: 8,
+          textContent: { type: "text", style: { text: "label" } },
+          textConfig: { position: "inside" },
           fill: "#f00",
         },
         handlers: {},
@@ -30,6 +33,9 @@ describe("graphic", () => {
         props: {
           x: 2,
           y: 4,
+          width: 120,
+          overflow: "truncate",
+          ellipsis: "...",
           text: "Hi",
           textFill: "#000",
         },
@@ -50,16 +56,26 @@ describe("graphic", () => {
     expect(text.type).toBe("text");
     expect(text.x).toBe(2);
     expect(text.y).toBe(4);
-    expect(text.style).toMatchObject({ text: "Hi", textFill: "#000" });
+    expect(text.style).toMatchObject({
+      text: "Hi",
+      textFill: "#000",
+      width: 120,
+      overflow: "truncate",
+      ellipsis: "...",
+    });
+    expect(text.width).toBeUndefined();
 
     expect(rect.type).toBe("rect");
+    expect(rect.progressive).toBe(8);
+    expect(rect.textContent).toMatchObject({ type: "text" });
+    expect(rect.textConfig).toMatchObject({ position: "inside" });
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });
     expect(rect.style).toMatchObject({ fill: "#f00" });
 
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
-  it("injects info for elements with handlers", () => {
+  it("keeps user info as-is and maps handlers to graphic onxxx props", () => {
     const nodes = [
       {
         id: "hit",
@@ -82,9 +98,11 @@ describe("graphic", () => {
     if (!root) {
       throw new Error("Expected root graphic element to exist.");
     }
-    const info = root.children?.[0]?.info as Record<string, unknown>;
+    const child = root.children?.[0] as Record<string, unknown>;
+    const info = child.info as Record<string, unknown>;
 
-    expect(info).toMatchObject({ name: "marker", __veGraphicId: "hit" });
+    expect(info).toMatchObject({ name: "marker" });
+    expect(typeof child.onclick).toBe("function");
   });
 
   it("builds image/group options and covers info fallback branches", () => {
@@ -159,7 +177,7 @@ describe("graphic", () => {
         props: {
           text: "hello",
         },
-        handlers: { onMouseenter: () => void 0 },
+        handlers: { onMouseover: () => void 0 },
         order: 4,
         sourceId: 8,
       },
@@ -208,7 +226,7 @@ describe("graphic", () => {
     const custom = root.children.find((item: any) => item.id === "custom");
     const text = root.children.find((item: any) => item.id === "txt");
 
-    expect(group.info).toMatchObject({ value: "root", __veGraphicId: "group" });
+    expect(group.info).toBe("root");
     expect(image.style).toMatchObject({
       image: "https://example.com/a.png",
       transition: "all",
@@ -220,10 +238,12 @@ describe("graphic", () => {
       y2: 10,
       transition: "shape",
     });
-    expect(line.info).toMatchObject({ value: 42, __veGraphicId: "line" });
-    expect(imageHit.info).toMatchObject({ __veGraphicId: "img-hit" });
-    expect(custom.info).toMatchObject({ level: "custom", __veGraphicId: "custom" });
-    expect(text.info).toMatchObject({ __veGraphicId: "txt" });
+    expect(line.info).toBe(42);
+    expect(imageHit.info).toBeUndefined();
+    expect(custom.info).toMatchObject({ level: "custom" });
+    expect(text.info).toBeUndefined();
+    expect(typeof imageHit.onclick).toBe("function");
+    expect(typeof text.onmouseover).toBe("function");
     expect(custom.shape).toBeUndefined();
 
     expect(root.children.filter((item: any) => item.id === "dup")).toHaveLength(2);

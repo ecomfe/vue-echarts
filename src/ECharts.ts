@@ -24,7 +24,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { isOn, omitOn, warn } from "./utils";
+import { omitOn, parseOnEvent, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
@@ -184,36 +184,33 @@ export default defineComponent({
     // we can bind them to the chart instance later.
     // For `onNative:<event>` props, we just strip the `Native:` part and collect them into
     // `nativeListeners` so that we can bind them to the root element directly.
-    Object.keys(attrs)
-      .filter((key) => isOn(key))
-      .forEach((key) => {
-        // Collect native DOM events
-        if (key.indexOf("Native:") === 2) {
-          // onNative:click -> onClick
-          const nativeKey = `on${key.charAt(9).toUpperCase()}${key.slice(10)}`;
+    Object.keys(attrs).forEach((key) => {
+      const parsedEvent = parseOnEvent(key);
+      if (!parsedEvent) {
+        return;
+      }
 
-          nativeListeners[nativeKey] = attrs[key];
+      const { event: eventName, once } = parsedEvent;
+
+      // Collect native DOM events
+      if (eventName.startsWith("native:")) {
+        const nativeEvent = eventName.slice(7);
+        if (!nativeEvent) {
           return;
         }
+        const nativeKey = `on${nativeEvent.charAt(0).toUpperCase()}${nativeEvent.slice(1)}${
+          once ? "Once" : ""
+        }`;
 
-        // onClick    -> c + lick
-        // onZr:click -> z + r:click
-        let event = key.charAt(2).toLowerCase() + key.slice(3);
+        nativeListeners[nativeKey] = attrs[key];
+        return;
+      }
 
-        let zr: boolean | undefined;
-        if (event.indexOf("zr:") === 0) {
-          zr = true;
-          event = event.substring(3);
-        }
+      const zr = eventName.startsWith("zr:");
+      const event = zr ? eventName.slice(3) : eventName;
 
-        let once: boolean | undefined;
-        if (event.substring(event.length - 4) === "Once") {
-          once = true;
-          event = event.substring(0, event.length - 4);
-        }
-
-        listeners.push({ event, zr, once, handler: attrs[key] });
-      });
+      listeners.push({ event, zr, once, handler: attrs[key] });
+    });
 
     function init() {
       isReady.value = false;

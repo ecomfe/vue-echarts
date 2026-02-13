@@ -164,9 +164,10 @@ describe("graphic slot manual-update behavior", () => {
     });
   });
 
-  it("updates click handlers in manual-update mode without auto setOption", async () => {
+  it("applies click handlers only after explicit setOption in manual-update mode", async () => {
     registerGraphicExtension();
 
+    const exposed = shallowRef<Exposed>();
     const onClickA = vi.fn();
     const onClickB = vi.fn();
     const currentHandler = ref(onClickA);
@@ -176,7 +177,7 @@ describe("graphic slot manual-update behavior", () => {
         return () =>
           h(
             ECharts,
-            { manualUpdate: true },
+            { manualUpdate: true, ref: (value) => (exposed.value = value as Exposed) },
             {
               graphic: () =>
                 h(GRect, {
@@ -199,16 +200,16 @@ describe("graphic slot manual-update behavior", () => {
 
       const chartStub = suite.getChartStub();
       expect(chartStub.setOption).toHaveBeenCalledTimes(0);
+      expect(chartStub.getOption()).toBeUndefined();
 
-      const clickBinding = chartStub.on.mock.calls.find(
-        (call: unknown[]) => call[0] === "click",
-      )?.[1] as (params: unknown) => void;
-      if (!clickBinding) {
-        throw new Error("Expected click binding to exist.");
-      }
+      exposed.value?.setOption({ series: [{ type: "line", data: [1, 2, 3] }] });
+      await nextTick();
+      await flushAnimationFrame();
 
-      const eventA = { info: { __veGraphicId: "manual-event-node" }, value: 1 };
-      clickBinding(eventA);
+      let optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      const firstNode = optionArg.graphic.elements[0].children[0] as Record<string, unknown>;
+      const eventA = { value: 1 };
+      (firstNode.onclick as (params: unknown) => void)(eventA);
       expect(onClickA).toHaveBeenCalledWith(eventA);
       expect(onClickB).not.toHaveBeenCalled();
 
@@ -216,12 +217,22 @@ describe("graphic slot manual-update behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      expect(chartStub.setOption).toHaveBeenCalledTimes(0);
+      expect(chartStub.setOption).toHaveBeenCalledTimes(1);
 
-      const eventB = { info: { __veGraphicId: "manual-event-node" }, value: 2 };
-      clickBinding(eventB);
-      expect(onClickA).toHaveBeenCalledTimes(1);
-      expect(onClickB).toHaveBeenCalledWith(eventB);
+      const eventB = { value: 2 };
+      (firstNode.onclick as (params: unknown) => void)(eventB);
+      expect(onClickA).toHaveBeenCalledTimes(2);
+      expect(onClickB).not.toHaveBeenCalled();
+
+      exposed.value?.setOption({ series: [{ type: "line", data: [4, 5, 6] }] });
+      await nextTick();
+      await flushAnimationFrame();
+
+      optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      const secondNode = optionArg.graphic.elements[0].children[0] as Record<string, unknown>;
+      const eventC = { value: 3 };
+      (secondNode.onclick as (params: unknown) => void)(eventC);
+      expect(onClickB).toHaveBeenCalledWith(eventC);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) => String(call[0]).includes("manual-update")),
       ).toBe(true);

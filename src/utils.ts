@@ -11,6 +11,33 @@ export function isBrowser(): boolean {
 const onRE = /^on[^a-z]/;
 export const isOn = (key: string): boolean => onRE.test(key);
 
+export type ParsedOnEvent = {
+  event: string;
+  once: boolean;
+};
+
+export function parseOnEvent(key: string): ParsedOnEvent | null {
+  if (!isOn(key)) {
+    return null;
+  }
+
+  let event = key.charAt(2).toLowerCase() + key.slice(3);
+  if (!event) {
+    return null;
+  }
+
+  const once = event.endsWith("Once");
+  if (once) {
+    event = event.slice(0, -4);
+  }
+
+  if (!event) {
+    return null;
+  }
+
+  return { event, once };
+}
+
 export function omitOn(attrs: Attrs): Attrs {
   const result: Attrs = {};
   for (const key in attrs) {

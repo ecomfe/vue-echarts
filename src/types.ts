@@ -42,7 +42,7 @@ export type LoadingOptions = {
 };
 export type LoadingOptionsInjection = Injection<LoadingOptions>;
 
-type MouseEventName =
+export type MouseEventName =
   | "click"
   | "dblclick"
   | "mouseout"
@@ -53,7 +53,7 @@ type MouseEventName =
   | "contextmenu"
   | "globalout";
 
-type ElementEventName =
+export type ElementEventName =
   | MouseEventName
   | "mousewheel"
   | "drag"
