@@ -56,6 +56,14 @@ function setExposedField(exposed: Exposed, key: "chart" | "root", value: unknown
   (exposed as Record<"chart" | "root", unknown>)[key] = value;
 }
 
+function getLastSetOptionCall(stub: ChartStub): [Option, UpdateOptions | undefined] {
+  const lastCall = stub.setOption.mock.calls.at(-1);
+  if (!lastCall) {
+    throw new Error("Expected chart.setOption to be called at least once.");
+  }
+  return lastCall as [Option, UpdateOptions | undefined];
+}
+
 beforeEach(() => {
   resetECharts();
   chartStub = enqueueChart();
@@ -274,10 +282,7 @@ describe("ECharts component", () => {
     expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
     expect(chartStub.setOption.mock.calls.length).toBe(callsBeforeTheme + 1);
 
-    const [optionArg] = chartStub.setOption.mock.calls.at(-1) as [
-      Option,
-      UpdateOptions | undefined,
-    ];
+    const [optionArg] = getLastSetOptionCall(chartStub);
     const seriesArg = (
       Array.isArray(optionArg.series) ? optionArg.series[0] : optionArg.series
     ) as Record<string, unknown>;
@@ -365,10 +370,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({ palette: ["#22d3ee"] });
     expect(chartStub.setOption).toHaveBeenCalled();
-    const [lastOption] = chartStub.setOption.mock.calls.at(-1) as [
-      Option,
-      UpdateOptions | undefined,
-    ];
+    const [lastOption] = getLastSetOptionCall(chartStub);
     expect(lastOption).toMatchObject({
       title: { text: "second" },
       series: [{ data: [2, 4] }],
@@ -1507,10 +1509,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
     expect(chartStub.setOption).toHaveBeenCalled();
-    const [patchedOption] = chartStub.setOption.mock.calls.at(-1) as [
-      Record<string, unknown>,
-      unknown,
-    ];
+    const [patchedOption] = getLastSetOptionCall(chartStub) as [Record<string, unknown>, unknown];
     const tooltip = patchedOption.tooltip as { formatter?: unknown } | undefined;
     expect(typeof tooltip?.formatter).toBe("function");
   });

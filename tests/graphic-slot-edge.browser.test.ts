@@ -16,6 +16,16 @@ vi.mock("echarts/core", () => createEChartsModule());
 
 const suite = setupGraphicSlotSuite();
 
+function getLastSetOptionCall(chartStub: {
+  setOption: { mock: { calls: unknown[][] } };
+}): [any, any] {
+  const lastCall = chartStub.setOption.mock.calls.at(-1);
+  if (!lastCall) {
+    throw new Error("Expected chart.setOption to be called at least once.");
+  }
+  return lastCall as [any, any];
+}
+
 describe("graphic slot edge and integration behavior", () => {
   it("warns when graphic slot is used without the graphic entry", async () => {
     const option = ref({
@@ -67,7 +77,7 @@ describe("graphic slot edge and integration behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      const lastCall = suite.getChartStub().setOption.mock.calls.at(-1)?.[0] as any;
+      const [lastCall] = getLastSetOptionCall(suite.getChartStub());
       expect(lastCall.graphic.elements[0].children[0].id).toBe("slot-rect");
       expect(
         lastCall.graphic.elements[0].children.some((child: any) => child.id === "from-option"),
@@ -115,7 +125,7 @@ describe("graphic slot edge and integration behavior", () => {
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({ backgroundColor: "#111827" });
     expect(chartStub.setOption).toHaveBeenCalled();
-    const [optionArg, updateArg] = chartStub.setOption.mock.calls.at(-1) as [any, any];
+    const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 32 });
     expect(updateArg?.replaceMerge).toContain("graphic");
   });
@@ -184,7 +194,7 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    const [optionArg, updateArg] = suite.getChartStub().setOption.mock.calls.at(-1) as [any, any];
+    const [optionArg, updateArg] = getLastSetOptionCall(suite.getChartStub());
     expect(optionArg.graphic).toBeUndefined();
     expect(updateArg?.replaceMerge).toContain("graphic");
 
@@ -406,7 +416,7 @@ describe("graphic slot edge and integration behavior", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const [, updateArg] = chartStub.setOption.mock.calls.at(-1) as [any, any];
+    const [, updateArg] = getLastSetOptionCall(chartStub);
     expect(updateArg?.replaceMerge).toContain("graphic");
     const marker = getLastGraphicOption(chartStub).graphic.elements[0].children[0];
     expect(marker.shape).toMatchObject({ x: 36 });

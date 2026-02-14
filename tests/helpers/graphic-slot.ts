@@ -18,7 +18,11 @@ export function setupGraphicSlotSuite() {
 }
 
 export function getLastGraphicOption(chartStub: ChartStub): any {
-  return chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+  const lastCall = chartStub.setOption.mock.calls.at(-1);
+  if (!lastCall) {
+    throw new Error("Expected chart.setOption to be called at least once.");
+  }
+  return lastCall[0] as any;
 }
 
 export function getLastGraphicIds(chartStub: ChartStub): string[] {

@@ -48,6 +48,14 @@ function withCollectorOnly(collector: CollectorMock, renderChild: () => any) {
   });
 }
 
+function getLastRegisterPayload(collector: CollectorMock): any {
+  const lastCall = collector.register.mock.calls.at(-1);
+  if (!lastCall) {
+    throw new Error("Expected collector.register to be called at least once.");
+  }
+  return lastCall[0];
+}
+
 describe("graphic components", () => {
   it("warns when component is used outside #graphic slot", async () => {
     const Root = defineComponent({
@@ -83,7 +91,7 @@ describe("graphic components", () => {
     await nextTick();
 
     expect(collector.register).toHaveBeenCalled();
-    const payload = collector.register.mock.calls.at(-1)?.[0] as any;
+    const payload = getLastRegisterPayload(collector);
     expect(payload.id).toBe("rect-key");
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
@@ -98,7 +106,7 @@ describe("graphic components", () => {
     render(Root);
     await nextTick();
 
-    const payload = collector.register.mock.calls.at(-1)?.[0] as any;
+    const payload = getLastRegisterPayload(collector);
     expect(payload.id).toMatch(/^__ve_graphic_/);
     expect(collector.warnOnce).toHaveBeenCalledWith(
       expect.stringMatching(/^missing-id:/),
@@ -152,7 +160,7 @@ describe("graphic components", () => {
     render(Root);
     await nextTick();
 
-    const payload = collector.register.mock.calls.at(-1)?.[0] as any;
+    const payload = getLastRegisterPayload(collector);
     expect(payload.parentId).toBeNull();
   });
 

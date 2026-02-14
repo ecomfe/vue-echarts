@@ -5,6 +5,14 @@ import { createGraphicCollector } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
+function getRootGraphicElement(option: unknown): any {
+  const root = (option as any).graphic?.elements?.[0] as any;
+  if (!root) {
+    throw new Error("Expected root graphic element to exist.");
+  }
+  return root;
+}
+
 describe("graphic", () => {
   it("builds graphic option with ordered children and replace root", () => {
     const nodes = [
@@ -46,7 +54,7 @@ describe("graphic", () => {
     ];
 
     const option = buildGraphicOption(nodes, "root");
-    const root = (option as any).graphic?.elements?.[0] as any;
+    const root = getRootGraphicElement(option);
 
     expect(root.id).toBe("root");
     expect(root.$action).toBe("replace");
@@ -94,11 +102,11 @@ describe("graphic", () => {
     ];
 
     const option = buildGraphicOption(nodes, "root");
-    const root = (option as any).graphic?.elements?.[0] as any;
-    if (!root) {
-      throw new Error("Expected root graphic element to exist.");
+    const root = getRootGraphicElement(option);
+    const child = root.children?.[0] as Record<string, unknown> | undefined;
+    if (!child) {
+      throw new Error("Expected child graphic element to exist.");
     }
-    const child = root.children?.[0] as Record<string, unknown>;
     const info = child.info as Record<string, unknown>;
 
     expect(info).toMatchObject({ name: "marker" });
@@ -212,10 +220,7 @@ describe("graphic", () => {
     ];
 
     const option = buildGraphicOption(nodes, "root");
-    const root = (option as any).graphic?.elements?.[0] as any;
-    if (!root) {
-      throw new Error("Expected root graphic element to exist.");
-    }
+    const root = getRootGraphicElement(option);
     const group = root.children.find((item: any) => item.id === "group");
     if (!group) {
       throw new Error("Expected group node to exist.");
