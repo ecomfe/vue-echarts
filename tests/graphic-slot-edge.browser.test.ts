@@ -120,6 +120,42 @@ describe("graphic slot edge and integration behavior", () => {
     expect(updateArg?.replaceMerge).toContain("graphic");
   });
 
+  it("does not auto-reapply graphic option on theme changes in manual-update mode", async () => {
+    registerGraphicExtension();
+
+    const option = ref({
+      series: [{ type: "line", data: [1, 2, 3] }],
+    });
+    const theme = ref<any>("dark");
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: option.value, theme: theme.value, manualUpdate: true },
+            {
+              graphic: () => h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    chartStub.setOption.mockClear();
+
+    theme.value = undefined;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
   it("clears graphic when #graphic slot is turned off and restores when turned on again", async () => {
     registerGraphicExtension();
 

@@ -285,6 +285,241 @@ describe("ECharts component", () => {
     expect((seriesArg.links as unknown[])?.length).toBe(1);
   });
 
+  it("does not auto-apply option on theme changes in manual-update mode", async () => {
+    const option = ref<Option>({
+      series: [{ type: "line", data: [1, 2, 3] }],
+    });
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+        manualUpdate: true,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    theme.value = { palette: ["#0ea5e9"] };
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenCalledWith({ palette: ["#0ea5e9"] });
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
+  it("skips theme replay when option is absent and applies once option becomes available", async () => {
+    const option = ref<Option | undefined>(undefined);
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+
+    option.value = { title: { text: "late-option" } };
+    await nextTick();
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "late-option" },
+    });
+  });
+
+  it("applies the latest option when theme and option change in the same tick", async () => {
+    const option = ref<Option>({ title: { text: "first" } });
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    chartStub.setTheme.mockClear();
+
+    option.value = {
+      title: { text: "second" },
+      series: [{ type: "bar", data: [2, 4] }],
+    };
+    theme.value = { palette: ["#22d3ee"] };
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenCalledWith({ palette: ["#22d3ee"] });
+    expect(chartStub.setOption).toHaveBeenCalled();
+    const [lastOption] = chartStub.setOption.mock.calls.at(-1) as [
+      Option,
+      UpdateOptions | undefined,
+    ];
+    expect(lastOption).toMatchObject({
+      title: { text: "second" },
+      series: [{ data: [2, 4] }],
+    });
+  });
+
+  it("re-initializes cleanly when initOptions and theme change in the same tick", async () => {
+    const option = ref<Option>({ title: { text: "combo" } });
+    const theme = ref<Theme | undefined>("dark");
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+        initOptions: initOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+    init.mockClear();
+    firstStub.dispose.mockClear();
+
+    theme.value = { palette: ["#f97316"] };
+    initOptions.value = { renderer: "svg" };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(init).toHaveBeenCalledTimes(1);
+    const [, passedTheme, passedInit] = init.mock.calls[0];
+    expect(passedTheme).toEqual({ palette: ["#f97316"] });
+    expect(passedInit).toEqual({ renderer: "svg" });
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "combo" },
+    });
+  });
+
+  it("reapplies option with explicit updateOptions after theme changes", async () => {
+    const option = ref<Option>({ series: [{ type: "line", data: [1, 2, 3] }] });
+    const theme = ref<Theme | undefined>("dark");
+    const updateOptions = ref<UpdateOptions>({
+      notMerge: true,
+      replaceMerge: ["series"],
+    });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+        updateOptions: updateOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
+      notMerge: true,
+      replaceMerge: ["series"],
+    });
+  });
+
+  it("reapplies option with injected updateOptions after theme changes", async () => {
+    const option = ref<Option>({ series: [{ type: "line", data: [3, 2, 1] }] });
+    const theme = ref<Theme | undefined>("dark");
+    const defaults = ref<UpdateOptions>({
+      lazyUpdate: true,
+      replaceMerge: ["dataset"],
+    });
+    const exposed = shallowRef<Exposed>();
+
+    const Root = defineComponent({
+      setup() {
+        const setExposed = createExposedRef(exposed);
+        provide(UPDATE_OPTIONS_KEY, () => defaults.value);
+        return () =>
+          h(ECharts, {
+            option: option.value,
+            theme: theme.value,
+            ref: setExposed,
+          });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
+      lazyUpdate: true,
+      replaceMerge: ["dataset"],
+    });
+  });
+
+  it("reapplies slot-patched option after theme changes", async () => {
+    const option = ref<Option>({});
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    const Root = defineComponent({
+      setup() {
+        const setExposed = createExposedRef(exposed);
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              theme: theme.value,
+              ref: setExposed,
+            },
+            {
+              tooltip: (params: unknown) => [
+                h("span", String((params as { dataIndex: number }).dataIndex)),
+              ],
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    const [patchedOption] = chartStub.setOption.mock.calls[0] as [Record<string, unknown>, unknown];
+    const tooltip = patchedOption.tooltip as { formatter?: unknown } | undefined;
+    expect(typeof tooltip?.formatter).toBe("function");
+  });
+
   it("ignores theme updates when chart ref is missing", async () => {
     const option = ref({ title: { text: "brew" } });
     const theme = ref<Theme | undefined>("dark");
@@ -1129,5 +1364,182 @@ describe("ECharts component", () => {
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
 
     vi.doUnmock("../src/wc");
+  });
+
+  it("keeps a single option apply when manualUpdate and theme change in the same tick", async () => {
+    const option = ref<Option>({ title: { text: "combo" } });
+    const manualUpdate = ref(false);
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        manualUpdate: manualUpdate.value,
+        theme: theme.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+    firstStub.dispose.mockClear();
+    replacementStub.setOption.mockClear();
+    replacementStub.setTheme.mockClear();
+
+    manualUpdate.value = true;
+    theme.value = undefined;
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    const themeSetOnFirst = firstStub.setTheme.mock.calls.some((call) => call[0] != null);
+    const themeSetOnReplacement = replacementStub.setTheme.mock.calls.some(
+      (call) => call[0] != null,
+    );
+    expect(themeSetOnFirst || themeSetOnReplacement).toBe(true);
+  });
+
+  it("applies latest option to the replacement chart when option and initOptions change together", async () => {
+    const option = ref<Option>({ title: { text: "first" } });
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        initOptions: initOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+    replacementStub.setOption.mockClear();
+
+    option.value = { title: { text: "latest" } };
+    initOptions.value = { renderer: "svg" };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+    expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "latest" },
+    });
+  });
+
+  it("uses latest updateOptions when updateOptions and theme change in the same tick", async () => {
+    const option = ref<Option>({ series: [{ type: "bar", data: [1, 2] }] });
+    const theme = ref<Theme | undefined>("dark");
+    const updateOptions = ref<UpdateOptions>({ notMerge: false });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+        updateOptions: updateOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+
+    updateOptions.value = { notMerge: true, replaceMerge: ["series"] };
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
+      notMerge: true,
+      replaceMerge: ["series"],
+    });
+  });
+
+  it("keeps slot patching intact when slot set and theme change in the same tick", async () => {
+    const option = ref<Option>({});
+    const theme = ref<Theme | undefined>("dark");
+    const showExtra = ref(true);
+    const exposed = shallowRef<Exposed>();
+
+    const Root = defineComponent({
+      setup() {
+        const setExposed = createExposedRef(exposed);
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              theme: theme.value,
+              ref: setExposed,
+            },
+            showExtra.value
+              ? {
+                  tooltip: (params: unknown) => [
+                    h("span", String((params as { dataIndex: number }).dataIndex)),
+                  ],
+                  "tooltip-extra": () => [h("span", "x")],
+                }
+              : {
+                  tooltip: (params: unknown) => [
+                    h("span", String((params as { dataIndex: number }).dataIndex)),
+                  ],
+                },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await nextTick();
+
+    chartStub.setOption.mockClear();
+    showExtra.value = false;
+    theme.value = undefined;
+    await nextTick();
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption).toHaveBeenCalled();
+    const [patchedOption] = chartStub.setOption.mock.calls.at(-1) as [
+      Record<string, unknown>,
+      unknown,
+    ];
+    const tooltip = patchedOption.tooltip as { formatter?: unknown } | undefined;
+    expect(typeof tooltip?.formatter).toBe("function");
+  });
+
+  it("preserves loading state across initOptions-triggered reinit", async () => {
+    const option = ref<Option>({ title: { text: "loading-reinit" } });
+    const loading = ref(true);
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        loading: loading.value,
+        initOptions: initOptions.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstStub = chartStub;
+    const replacementStub = enqueueChart();
+    chartStub = replacementStub;
+
+    initOptions.value = { renderer: "svg" };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(replacementStub.showLoading).toHaveBeenCalled();
+    expect(replacementStub.hideLoading).not.toHaveBeenCalled();
   });
 });

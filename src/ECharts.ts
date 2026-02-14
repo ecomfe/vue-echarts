@@ -288,8 +288,8 @@ export default defineComponent({
         if (instance) {
           instance.setTheme(theme || {});
 
-          if (slots.graphic && props.option && !manualUpdate.value) {
-            applyOption(instance, props.option, { replaceMerge: ["graphic"] });
+          if (props.option && !manualUpdate.value) {
+            applyOption(instance, props.option);
           }
         }
       },
