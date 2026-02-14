@@ -1,3 +1,14 @@
+## 8.1.0-beta.1
+
+### New features
+
+- Added `vue-echarts/graphic` and `#graphic` slot support to build and update ECharts `graphic` trees with Vue components.
+
+### Fixes
+
+- Fixed theme-switch regressions by replaying the latest `option` after `setTheme`, so delayed data assignment (e.g. async graph `series.data`/`links`) no longer disappears on theme changes (#972).
+- Fixed smart-update normalization when option keys migrate across shapes (e.g. object to array/scalar), preventing valid next values from being overwritten during updates.
+
 ## 8.0.1
 
 ### Fixes
