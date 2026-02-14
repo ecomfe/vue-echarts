@@ -58,4 +58,14 @@ describe("graphic order helpers", () => {
     expect(orderMap.get("id:group-1")).toBe(0);
     expect(orderMap.get("id:child-1")).toBe(1);
   });
+
+  it("handles group vnode without default slot content", () => {
+    const orderMap = new Map<string, number>();
+    const group = h(GroupGraphic, { id: "group-empty" });
+
+    const order = collectGraphicOrder(group, orderMap, 0);
+
+    expect(order).toBe(1);
+    expect(orderMap.get("id:group-empty")).toBe(0);
+  });
 });

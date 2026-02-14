@@ -180,4 +180,21 @@ describe("graphic components", () => {
 
     expect(collector.unregister).toHaveBeenCalledWith("toggle-node", expect.any(Number));
   });
+
+  it("keeps empty-string id path stable during unmount", async () => {
+    const collector = createCollectorMock();
+    const visible = ref(true);
+
+    const Root = withGraphicProvider(collector, () =>
+      visible.value ? h(GRect, { id: "" }) : null,
+    );
+
+    render(Root);
+    await nextTick();
+
+    visible.value = false;
+    await nextTick();
+
+    expect(collector.unregister).not.toHaveBeenCalled();
+  });
 });
