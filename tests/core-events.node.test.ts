@@ -156,4 +156,62 @@ describe("core events", () => {
 
     scope.stop();
   });
+
+  it("supports once handlers declared as mixed arrays and rebinds on updates", async () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const fnA = vi.fn();
+    const fnB = vi.fn();
+    const fnC = vi.fn();
+    const attrs = reactive<Record<string, unknown>>({
+      onClickOnce: [fnA, "invalid", fnB],
+    });
+
+    const target = createChartStub();
+    const scope = effectScope();
+    scope.run(() => {
+      useReactiveChartListeners(chartRef, attrs);
+    });
+
+    chartRef.value = target.chart;
+    await nextTick();
+
+    const firstOnceBinding = findBoundHandler((target.chart as unknown as EmitterStub).on, "click");
+    firstOnceBinding("first");
+    firstOnceBinding("again");
+    expect(fnA).toHaveBeenCalledTimes(1);
+    expect(fnB).toHaveBeenCalledTimes(1);
+    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
+      "click",
+      firstOnceBinding,
+    );
+
+    (target.chart as unknown as EmitterStub).on.mockClear();
+    (target.chart as unknown as EmitterStub).off.mockClear();
+
+    attrs.onClickOnce = [fnC];
+    await nextTick();
+
+    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
+      "click",
+      firstOnceBinding,
+    );
+    expect((target.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
+      "click",
+      expect.any(Function),
+    );
+
+    const secondOnceBinding = findBoundHandler(
+      (target.chart as unknown as EmitterStub).on,
+      "click",
+    );
+    secondOnceBinding("second");
+    secondOnceBinding("second-again");
+    expect(fnC).toHaveBeenCalledTimes(1);
+    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
+      "click",
+      secondOnceBinding,
+    );
+
+    scope.stop();
+  });
 });
