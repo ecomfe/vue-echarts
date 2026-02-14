@@ -181,7 +181,12 @@ function collectObjectOverrides(prev: Signature, next: Signature): Map<string, n
 
   const missingObjects = diffKeys(prev.objects, next.objects);
   for (let i = 0; i < missingObjects.length; i++) {
-    overrides.set(missingObjects[i], null);
+    const key = missingObjects[i];
+    const movedToArray = next.arrays[key] !== undefined;
+    const movedToScalar = next.scalars.includes(key);
+    if (!movedToArray && !movedToScalar) {
+      overrides.set(key, null);
+    }
   }
 
   return overrides;
