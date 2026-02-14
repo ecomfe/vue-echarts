@@ -16,6 +16,15 @@ type Exposed = ComponentExposed<typeof ECharts>;
 
 const suite = setupGraphicSlotSuite();
 
+function getLastSetOptionArg(chartStub: { setOption: { mock: { calls: unknown[][] } } }): any {
+  const lastCall = chartStub.setOption.mock.calls.at(-1);
+  if (!lastCall) {
+    throw new Error("Expected chart.setOption to be called at least once.");
+  }
+
+  return lastCall[0];
+}
+
 describe("graphic slot manual-update behavior", () => {
   it("mounts graphic extension before first manual setOption", async () => {
     registerGraphicExtension();
@@ -138,7 +147,7 @@ describe("graphic slot manual-update behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      let optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      let optionArg = getLastSetOptionArg(chartStub);
       expect(optionArg.series[0].data).toEqual([1, 2, 3]);
       expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 10, y: 10 });
 
@@ -155,7 +164,7 @@ describe("graphic slot manual-update behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      optionArg = getLastSetOptionArg(chartStub);
       expect(optionArg.series[0].data).toEqual([7, 8, 9]);
       expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 42, y: 10 });
       expect(
@@ -206,7 +215,7 @@ describe("graphic slot manual-update behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      let optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      let optionArg = getLastSetOptionArg(chartStub);
       const firstNode = optionArg.graphic.elements[0].children[0] as Record<string, unknown>;
       const eventA = { value: 1 };
       (firstNode.onclick as (params: unknown) => void)(eventA);
@@ -228,7 +237,7 @@ describe("graphic slot manual-update behavior", () => {
       await nextTick();
       await flushAnimationFrame();
 
-      optionArg = chartStub.setOption.mock.calls.at(-1)?.[0] as any;
+      optionArg = getLastSetOptionArg(chartStub);
       const secondNode = optionArg.graphic.elements[0].children[0] as Record<string, unknown>;
       const eventC = { value: 3 };
       (secondNode.onclick as (params: unknown) => void)(eventC);
