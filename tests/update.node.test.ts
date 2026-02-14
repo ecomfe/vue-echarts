@@ -418,6 +418,67 @@ describe("smart-update", () => {
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();
       });
+
+      it("handles single-object series shape without array replacement planning", () => {
+        const base: EChartsOption = {
+          series: {
+            type: "line",
+            data: [1, 2, 3],
+          } as unknown as EChartsOption["series"],
+        };
+
+        const update: EChartsOption = {
+          series: {
+            type: "line",
+            data: [2, 3, 4],
+          } as unknown as EChartsOption["series"],
+        };
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.option.series).toEqual(update.series);
+      });
+
+      it("keeps next series array when migrating from single-object series", () => {
+        const base: EChartsOption = {
+          series: {
+            type: "bar",
+            data: [10, 20],
+          } as unknown as EChartsOption["series"],
+        };
+
+        const update: EChartsOption = {
+          series: [{ id: "latte", type: "bar", data: [12, 24] }],
+        };
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.option.series).toEqual(update.series);
+        expect(result.option.series).not.toBeNull();
+      });
+
+      it("prioritizes notMerge when scalar removal happens with array shrink", () => {
+        const base: EChartsOption = {
+          color: "#000",
+          series: [
+            { id: "a", type: "line", data: [1] },
+            { id: "b", type: "line", data: [2] },
+          ],
+        };
+
+        const update: EChartsOption = {
+          series: [{ id: "a", type: "line", data: [3] }],
+        };
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.notMerge).toBe(true);
+        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.option.series).toEqual(update.series);
+      });
     });
   });
 });
