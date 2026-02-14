@@ -2,15 +2,15 @@ import { h, onScopeDispose } from "vue";
 import { buildGraphicOption } from "./build";
 import { createGraphicCollector } from "./collector";
 import { GraphicMount } from "./mount";
-import type { GraphicComposableContext } from "./runtime";
-import { registerGraphicComposable } from "./runtime";
+import type { GraphicContext } from "./runtime";
+import { registerGraphic } from "./runtime";
 import { warnManualUpdateIgnored, warnOptionGraphicOverride } from "./warn";
 
 const ROOT_ID = "__ve_graphic_root__";
 const GRAPHIC_UPDATE_OPTIONS = { replaceMerge: ["graphic"] };
 
 export function registerGraphicExtension(): void {
-  registerGraphicComposable((ctx: GraphicComposableContext) => {
+  registerGraphic((ctx: GraphicContext) => {
     const { slots, manualUpdate, requestUpdate, warn: warnMessage } = ctx;
     let warnedOverride = false;
 
@@ -28,9 +28,7 @@ export function registerGraphicExtension(): void {
       }
     }
 
-    onScopeDispose(() => {
-      dispose();
-    });
+    onScopeDispose(dispose);
 
     return {
       patchOption(option) {

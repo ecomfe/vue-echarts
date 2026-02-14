@@ -2,7 +2,7 @@ import type { Ref, Slots, VNodeChild } from "vue";
 
 import type { EChartsType, Option, UpdateOptions } from "../types";
 
-export type GraphicComposableContext = {
+export type GraphicContext = {
   chart: Ref<EChartsType | undefined>;
   slots: Slots;
   manualUpdate: Ref<boolean>;
@@ -10,28 +10,20 @@ export type GraphicComposableContext = {
   warn: (message: string) => void;
 };
 
-export type GraphicComposableResult = {
+export type GraphicRuntime = {
   patchOption: (option: Option) => Option;
   render: () => VNodeChild;
 };
 
-export type GraphicComposable = (context: GraphicComposableContext) => GraphicComposableResult;
+let registeredGraphic: ((context: GraphicContext) => GraphicRuntime) | null = null;
 
-let registeredComposable: GraphicComposable | null = null;
-
-export function registerGraphicComposable(composable: GraphicComposable): void {
-  if (registeredComposable) {
+export function registerGraphic(factory: (context: GraphicContext) => GraphicRuntime): void {
+  if (registeredGraphic) {
     return;
   }
-  registeredComposable = composable;
+  registeredGraphic = factory;
 }
 
-export function useGraphicComposable(
-  context: GraphicComposableContext,
-): GraphicComposableResult | null {
-  return registeredComposable ? registeredComposable(context) : null;
-}
-
-export function __resetGraphicComposable(): void {
-  registeredComposable = null;
+export function useGraphic(context: GraphicContext): GraphicRuntime | null {
+  return registeredGraphic ? registeredGraphic(context) : null;
 }

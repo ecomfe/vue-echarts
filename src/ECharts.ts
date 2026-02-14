@@ -12,8 +12,9 @@ import {
   watchEffect,
   toValue,
 } from "vue";
-import type { VNodeChild } from "vue";
 import { init as initChart } from "echarts/core";
+
+import type { InjectionKey, PropType, VNodeChild } from "vue";
 
 import {
   usePublicAPI,
@@ -24,14 +25,15 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { omitOn, parseOnEvent, warn } from "./utils";
+import { warn } from "./utils";
+import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
+import { useGraphic } from "./graphic/runtime";
+import { warnMissingGraphicEntry } from "./graphic/warn";
+import { useReactiveChartListeners, useReactiveEventAttrs } from "./core/events";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
-import { useGraphicComposable } from "./graphic/runtime";
-import { warnMissingGraphicEntry } from "./graphic/warn";
 
-import type { PropType, InjectionKey } from "vue";
 import type {
   EChartsType,
   SetOptionType,
@@ -70,9 +72,10 @@ export default defineComponent({
     ...autoresizeProps,
     ...loadingProps,
   },
-  emits: {} as unknown as Emits,
+  emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
+    const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
@@ -88,33 +91,13 @@ export default defineComponent({
       () => props.initOptions || toValue(defaultInitOptions) || undefined,
     );
     const realUpdateOptions = computed(() => props.updateOptions || toValue(defaultUpdateOptions));
-    const nonEventAttrs = computed(() => omitOn(attrs));
-    const nativeListeners: Record<string, unknown> = {};
 
-    const listeners: Array<{ event: string; once?: boolean; zr?: boolean; handler: any }> = [];
-    const hasGraphicSlot = Boolean((slots as Record<string, unknown>).graphic);
+    const { nonEventAttrs, nativeListeners } = useReactiveEventAttrs(attrsMap);
 
-    const { render: renderSlot, patchOption } = useSlotOption(slots, () => {
-      if (!manualUpdate.value && props.option && chart.value) {
-        applyOption(chart.value, props.option);
-      }
-    });
-
-    let lastSignature: Signature | undefined;
-
-    const requestUpdate = (updateOptions?: UpdateOptions): boolean => {
-      if (!chart.value || !props.option) {
-        return false;
-      }
-      if (manualUpdate.value) {
-        return false;
-      }
-      applyOption(chart.value, props.option, updateOptions);
-      return true;
-    };
+    const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
-      useGraphicComposable({
+      useGraphic({
         chart,
         slots,
         manualUpdate,
@@ -122,8 +105,10 @@ export default defineComponent({
         warn,
       }) ?? {};
 
+    let lastSignature: Signature | undefined;
+
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
-      if (!hasGraphicSlot || !patchGraphicOption) {
+      if (!slots.graphic || !patchGraphicOption) {
         return updateOptions;
       }
 
@@ -134,16 +119,12 @@ export default defineComponent({
       };
     }
 
-    if (hasGraphicSlot && !patchGraphicOption) {
-      warn(warnMissingGraphicEntry());
-    }
-
     function applyOption(
       instance: EChartsType,
       option: Option,
       override?: UpdateOptions,
       manual = false,
-    ) {
+    ): void {
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
@@ -180,40 +161,36 @@ export default defineComponent({
       lastSignature = planned.signature;
     }
 
-    // We are converting all `on<Event>` props and collect them into `listeners` so that
-    // we can bind them to the chart instance later.
-    // For `onNative:<event>` props, we just strip the `Native:` part and collect them into
-    // `nativeListeners` so that we can bind them to the root element directly.
-    Object.keys(attrs).forEach((key) => {
-      const parsedEvent = parseOnEvent(key);
-      if (!parsedEvent) {
-        return;
+    function requestUpdate(updateOptions?: UpdateOptions): boolean {
+      const instance = chart.value;
+      const option = props.option;
+      if (!instance || !option || manualUpdate.value) {
+        return false;
       }
 
-      const { event: eventName, once } = parsedEvent;
+      applyOption(instance, option, updateOptions);
+      return true;
+    }
 
-      // Collect native DOM events
-      if (eventName.startsWith("native:")) {
-        const nativeEvent = eventName.slice(7);
-        if (!nativeEvent) {
-          return;
-        }
-        const nativeKey = `on${nativeEvent.charAt(0).toUpperCase()}${nativeEvent.slice(1)}${
-          once ? "Once" : ""
-        }`;
+    if (slots.graphic && !patchGraphicOption) {
+      warn(warnMissingGraphicEntry());
+    }
 
-        nativeListeners[nativeKey] = attrs[key];
-        return;
+    useReactiveChartListeners(chart, attrsMap);
+
+    function cleanup(): void {
+      const instance = chart.value;
+      if (instance) {
+        instance.dispose();
+        chart.value = undefined;
       }
-
-      const zr = eventName.startsWith("zr:");
-      const event = zr ? eventName.slice(3) : eventName;
-
-      listeners.push({ event, zr, once, handler: attrs[key] });
-    });
-
-    function init() {
       isReady.value = false;
+      lastSignature = undefined;
+    }
+
+    function init(): void {
+      isReady.value = false;
+
       const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
 
@@ -221,68 +198,39 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      listeners.forEach(({ zr, once, event, handler }) => {
-        if (!handler) {
-          return;
-        }
-
-        const target = zr ? instance.getZr() : instance;
-
-        let bound = handler;
-        if (once) {
-          const raw = bound;
-          let called = false;
-
-          bound = (...args: any[]) => {
-            if (called) {
-              return;
-            }
-            called = true;
-            raw(...args);
-            target.off(event, bound);
-          };
-        }
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore EChartsType["on"] is not compatible with ZRenderType["on"]
-        // but it's okay here
-        target.on(event, bound);
-      });
-
-      function resize() {
+      function resize(): void {
         if (!instance.isDisposed()) {
           instance.resize();
         }
       }
 
-      function commit() {
-        const { option } = props;
-
-        if (manualUpdate.value) {
-          if (option) {
-            applyOption(instance, option, undefined, true);
-          }
+      function commit(): void {
+        const option = props.option;
+        if (!option) {
           return;
         }
 
-        if (option) {
-          applyOption(instance, option);
+        if (manualUpdate.value) {
+          applyOption(instance, option, undefined, true);
+          return;
         }
+
+        applyOption(instance, option);
       }
 
       if (autoresize.value) {
-        // Try to make chart fit to container in case container size
-        // is changed synchronously or in already queued microtasks
         nextTick(() => {
           resize();
           commit();
           isReady.value = true;
         });
-      } else {
-        commit();
-        isReady.value = true;
+        return;
       }
+
+      commit();
+      isReady.value = true;
     }
+
     const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {
       if (!props.manualUpdate) {
         warn("`setOption` is only available when `manual-update` is `true`.");
@@ -291,21 +239,13 @@ export default defineComponent({
 
       const updateOptions = typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
 
-      if (!chart.value) {
+      const instance = chart.value;
+      if (!instance) {
         return;
       }
 
-      applyOption(chart.value, option, updateOptions ?? undefined, true);
+      applyOption(instance, option, updateOptions ?? undefined, true);
     };
-
-    function cleanup() {
-      if (chart.value) {
-        chart.value.dispose();
-        chart.value = undefined;
-      }
-      isReady.value = false;
-      lastSignature = undefined;
-    }
 
     watch(
       () => props.option,
@@ -320,11 +260,12 @@ export default defineComponent({
           return;
         }
 
-        if (!chart.value) {
+        const instance = chart.value;
+        if (!instance) {
           return;
         }
 
-        applyOption(chart.value, option);
+        applyOption(instance, option);
       },
       { deep: true },
     );
@@ -347,7 +288,7 @@ export default defineComponent({
         if (instance) {
           instance.setTheme(theme || {});
 
-          if (hasGraphicSlot && props.option && !manualUpdate.value) {
+          if (slots.graphic && props.option && !manualUpdate.value) {
             applyOption(instance, props.option, { replaceMerge: ["graphic"] });
           }
         }
@@ -358,8 +299,9 @@ export default defineComponent({
     );
 
     watchEffect(() => {
-      if (props.group && chart.value) {
-        chart.value.group = props.group;
+      const instance = chart.value;
+      if (props.group && instance) {
+        instance.group = props.group;
       }
     });
 
@@ -369,20 +311,15 @@ export default defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
-    onMounted(() => {
-      init();
-    });
+    onMounted(init);
 
     onBeforeUnmount(() => {
       if (wcRegistered && root.value) {
-        // For registered web component, we can leverage the
-        // `disconnectedCallback` to dispose the chart instance
-        // so that we can delay the cleanup after exsiting leaving
-        // transition.
         root.value.__dispose = cleanup;
-      } else {
-        cleanup();
+        return;
       }
+
+      cleanup();
     });
 
     const exposed = {
@@ -392,10 +329,6 @@ export default defineComponent({
     };
     expose({ ...exposed, ...publicApi });
 
-    // While `expose()` exposes methods and properties to the parent component
-    // via template refs at runtime, it doesn't contribute to TypeScript types.
-    // This type casting ensures TypeScript correctly types the exposed members
-    // that will be available when using this component.
     return (() => {
       const children: VNodeChild[] = [
         h("div", {
@@ -403,23 +336,26 @@ export default defineComponent({
           class: "echarts-host",
         }),
       ];
+
       if (isReady.value) {
         const teleported = renderSlot();
         if (teleported) {
           children.push(teleported);
         }
       }
+
       if (renderGraphic) {
         const graphic = renderGraphic();
         if (graphic) {
           children.push(graphic);
         }
       }
+
       return h(
         TAG_NAME,
         {
           ...nonEventAttrs.value,
-          ...nativeListeners,
+          ...nativeListeners.value,
           ref: root,
           class: ["echarts", nonEventAttrs.value.class],
         },

@@ -1,6 +1,6 @@
 import { warn as vueWarn } from "vue";
 
-type Attrs = Record<string, any>;
+export type AttrMap = Record<string, unknown>;
 
 export function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof document !== "undefined";
@@ -22,24 +22,16 @@ export function parseOnEvent(key: string): ParsedOnEvent | null {
   }
 
   let event = key.charAt(2).toLowerCase() + key.slice(3);
-  if (!event) {
-    return null;
-  }
-
   const once = event.endsWith("Once");
   if (once) {
     event = event.slice(0, -4);
   }
 
-  if (!event) {
-    return null;
-  }
-
   return { event, once };
 }
 
-export function omitOn(attrs: Attrs): Attrs {
-  const result: Attrs = {};
+export function omitOn(attrs: AttrMap): AttrMap {
+  const result: AttrMap = {};
   for (const key in attrs) {
     if (!isOn(key)) {
       result[key] = attrs[key];

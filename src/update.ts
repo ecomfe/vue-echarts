@@ -27,6 +27,12 @@ export interface Signature {
   scalars: string[];
 }
 
+export interface PlannedUpdate {
+  option: Option;
+  signature: Signature;
+  plan: UpdatePlan;
+}
+
 /**
  * Read an item's `id` as a string.
  * Only accept string or number. Other types are ignored to surface inconsistent data early.
@@ -35,14 +41,36 @@ function readId(item: unknown): string | undefined {
   if (!isPlainObject(item)) {
     return undefined;
   }
+
   const raw = item.id;
   if (typeof raw === "string") {
     return raw;
   }
+
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return String(raw);
   }
+
   return undefined;
+}
+
+function summarizeArray(items: unknown[]): ArraySummary {
+  const ids = new Set<string>();
+  let noIdCount = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const id = readId(items[i]);
+    if (id === undefined) {
+      noIdCount++;
+      continue;
+    }
+    ids.add(id);
+  }
+
+  return {
+    idsSorted: ids.size > 0 ? Array.from(ids).sort() : [],
+    noIdCount,
+  };
 }
 
 /**
@@ -50,7 +78,7 @@ function readId(item: unknown): string | undefined {
  * Only top-level keys are inspected.
  */
 export function buildSignature(option: Option): Signature {
-  const opt: Record<string, unknown> = option;
+  const opt = option as Record<string, unknown>;
 
   const optionsLength = Array.isArray(opt.options) ? opt.options.length : 0;
   const mediaLength = Array.isArray(opt.media) ? opt.media.length : 0;
@@ -65,31 +93,19 @@ export function buildSignature(option: Option): Signature {
     }
 
     const value = opt[key];
-
     if (Array.isArray(value)) {
-      const items = value;
-      const ids = new Set<string>();
-      let noIdCount = 0;
+      arrays[key] = summarizeArray(value);
+      continue;
+    }
 
-      for (let i = 0; i < items.length; i++) {
-        const id = readId(items[i]);
-        if (id !== undefined) {
-          ids.add(id);
-        } else {
-          noIdCount++;
-        }
-      }
-
-      const idsSorted = ids.size > 0 ? Array.from(ids).sort() : [];
-
-      arrays[key] = { idsSorted, noIdCount };
-    } else if (isPlainObject(value)) {
+    if (isPlainObject(value)) {
       objects.push(key);
-    } else {
-      // scalar: string | number | boolean | null  (undefined is treated as "absent")
-      if (value !== undefined) {
-        scalars.push(key);
-      }
+      continue;
+    }
+
+    // scalar: string | number | boolean | null  (undefined is treated as "absent")
+    if (value !== undefined) {
+      scalars.push(key);
     }
   }
 
@@ -100,7 +116,13 @@ export function buildSignature(option: Option): Signature {
     scalars.sort();
   }
 
-  return { optionsLength, mediaLength, arrays, objects, scalars };
+  return {
+    optionsLength,
+    mediaLength,
+    arrays,
+    objects,
+    scalars,
+  };
 }
 
 function diffKeys(prevKeys: readonly string[], nextKeys: readonly string[]): string[] {
@@ -138,13 +160,89 @@ function hasMissingIds(prevIds: readonly string[], nextIds: readonly string[]): 
       return true;
     }
   }
+
   return false;
 }
 
-export interface PlannedUpdate {
-  option: Option;
-  signature: Signature;
-  plan: UpdatePlan;
+function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
+  if (next.optionsLength < prev.optionsLength) {
+    return true;
+  }
+
+  if (next.mediaLength < prev.mediaLength) {
+    return true;
+  }
+
+  return diffKeys(prev.scalars, next.scalars).length > 0;
+}
+
+function collectObjectOverrides(prev: Signature, next: Signature): Map<string, null | []> {
+  const overrides = new Map<string, null | []>();
+
+  const missingObjects = diffKeys(prev.objects, next.objects);
+  for (let i = 0; i < missingObjects.length; i++) {
+    overrides.set(missingObjects[i], null);
+  }
+
+  return overrides;
+}
+
+function collectArrayChanges(
+  prev: Signature,
+  next: Signature,
+  overrides: Map<string, null | []>,
+): Set<string> {
+  const replaceMerge = new Set<string>();
+
+  for (const key of Object.keys(prev.arrays)) {
+    const prevArray = prev.arrays[key];
+    if (!prevArray) {
+      continue;
+    }
+
+    const nextArray = next.arrays[key];
+    if (!nextArray) {
+      if (prevArray.idsSorted.length > 0 || prevArray.noIdCount > 0) {
+        overrides.set(key, []);
+        replaceMerge.add(key);
+      }
+      continue;
+    }
+
+    if (hasMissingIds(prevArray.idsSorted, nextArray.idsSorted)) {
+      replaceMerge.add(key);
+      continue;
+    }
+
+    if (nextArray.noIdCount < prevArray.noIdCount) {
+      replaceMerge.add(key);
+    }
+  }
+
+  return replaceMerge;
+}
+
+function applyOverrides(
+  option: Option,
+  next: Signature,
+  overrides: Map<string, null | []>,
+): { option: Option; signature: Signature } {
+  if (overrides.size === 0) {
+    return {
+      option,
+      signature: next,
+    };
+  }
+
+  const normalizedOption: Option = { ...option };
+  overrides.forEach((value, key) => {
+    normalizedOption[key] = value;
+  });
+
+  return {
+    option: normalizedOption,
+    signature: buildSignature(normalizedOption),
+  };
 }
 
 /**
@@ -155,73 +253,30 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
   const next = buildSignature(option);
 
   if (!prev) {
-    return { option, signature: next, plan: { notMerge: false } };
+    return {
+      option,
+      signature: next,
+      plan: { notMerge: false },
+    };
   }
 
-  if (next.optionsLength < prev.optionsLength) {
-    return { option, signature: next, plan: { notMerge: true } };
-  }
-  if (next.mediaLength < prev.mediaLength) {
-    return { option, signature: next, plan: { notMerge: true } };
-  }
-
-  if (diffKeys(prev.scalars, next.scalars).length > 0) {
-    return { option, signature: next, plan: { notMerge: true } };
+  if (shouldForceNotMerge(prev, next)) {
+    return {
+      option,
+      signature: next,
+      plan: { notMerge: true },
+    };
   }
 
-  const replace = new Set<string>();
-  const overrides = new Map<string, null | []>();
+  const overrides = collectObjectOverrides(prev, next);
+  const replaceMergeSet = collectArrayChanges(prev, next, overrides);
+  const normalized = applyOverrides(option, next, overrides);
 
-  const missingObjects = diffKeys(prev.objects, next.objects);
-  for (let i = 0; i < missingObjects.length; i++) {
-    overrides.set(missingObjects[i], null);
-  }
-
-  for (const key of Object.keys(prev.arrays)) {
-    const prevArray = prev.arrays[key];
-    if (!prevArray) {
-      continue;
-    }
-
-    const nextArray = next.arrays[key];
-
-    if (!nextArray) {
-      if (prevArray.idsSorted.length > 0 || prevArray.noIdCount > 0) {
-        overrides.set(key, []);
-        replace.add(key);
-      }
-      continue;
-    }
-
-    if (hasMissingIds(prevArray.idsSorted, nextArray.idsSorted)) {
-      replace.add(key);
-      continue;
-    }
-
-    if (nextArray.noIdCount < prevArray.noIdCount) {
-      replace.add(key);
-    }
-  }
-
-  let normalizedOption = option;
-  let signature = next;
-
-  if (overrides.size > 0) {
-    const clone: Option = { ...option };
-    overrides.forEach((value, key) => {
-      clone[key] = value;
-    });
-    normalizedOption = clone;
-    signature = buildSignature(normalizedOption);
-  }
-
-  const replaceMerge = replace.size > 0 ? Array.from(replace).sort() : undefined;
-
-  const plan = replaceMerge ? { notMerge: false, replaceMerge } : { notMerge: false };
+  const replaceMerge = replaceMergeSet.size > 0 ? Array.from(replaceMergeSet).sort() : undefined;
 
   return {
-    option: normalizedOption,
-    signature,
-    plan,
+    option: normalized.option,
+    signature: normalized.signature,
+    plan: replaceMerge ? { notMerge: false, replaceMerge } : { notMerge: false },
   };
 }
