@@ -6,6 +6,8 @@ import type { GraphicNode } from "./collector";
 
 const EMPTY_PROP_KEYS: readonly string[] = [];
 
+type GraphicEventHandler = (...args: unknown[]) => void;
+
 function resolveShapeKeys(type: string): readonly string[] {
   return SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
 }
@@ -38,7 +40,7 @@ function buildStyle(
     style.transition = props.styleTransition;
   }
 
-  return Object.keys(style).length ? style : undefined;
+  return Object.keys(style).length > 0 ? style : undefined;
 }
 
 function buildShape(
@@ -52,24 +54,19 @@ function buildShape(
     shape.transition = props.shapeTransition;
   }
 
-  return Object.keys(shape).length ? shape : undefined;
+  return Object.keys(shape).length > 0 ? shape : undefined;
 }
 
-function buildCommon(
-  type: string,
-  props: Record<string, unknown>,
-  styleKeys: readonly string[],
-): Record<string, unknown> {
+function buildCommon(type: string, props: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const shapeKeys = resolveShapeKeys(type);
+  const styleKeys = resolveStyleKeys(type);
 
   for (const key of COMMON_PROP_KEYS) {
-    if (shapeKeys.includes(key)) {
+    if (shapeKeys.includes(key) || styleKeys.includes(key)) {
       continue;
     }
-    if (styleKeys.includes(key)) {
-      continue;
-    }
+
     if (props[key] !== undefined) {
       out[key] = props[key];
     }
@@ -77,8 +74,6 @@ function buildCommon(
 
   return out;
 }
-
-type GraphicEventHandler = (...args: unknown[]) => void;
 
 function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | undefined {
   const handlers: GraphicEventHandler[] = [];
@@ -97,28 +92,23 @@ function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | un
     return undefined;
   }
 
-  let handler: GraphicEventHandler;
-  if (handlers.length === 1) {
-    handler = handlers[0];
-  } else {
-    handler = (...args: unknown[]) => {
-      for (const item of handlers) {
-        item(...args);
-      }
-    };
-  }
+  const invoke = (...args: unknown[]): void => {
+    for (const handler of handlers) {
+      handler(...args);
+    }
+  };
 
   if (!once) {
-    return handler;
+    return invoke;
   }
 
   let called = false;
-  return (...args: unknown[]) => {
+  return (...args: unknown[]): void => {
     if (called) {
       return;
     }
     called = true;
-    handler(...args);
+    invoke(...args);
   };
 }
 
@@ -145,17 +135,13 @@ function buildHandlers(
       continue;
     }
 
-    out[eventKey] = (...args: unknown[]) => {
+    out[eventKey] = (...args: unknown[]): void => {
       existing(...args);
       handler(...args);
     };
   }
 
   return Object.keys(out).length > 0 ? out : undefined;
-}
-
-function buildInfo(props: Record<string, unknown>): unknown {
-  return props.info;
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
@@ -166,14 +152,15 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     id,
   };
 
-  Object.assign(out, buildCommon(type, props, styleKeys));
+  Object.assign(out, buildCommon(type, props));
+
   const handlers = buildHandlers(node.handlers);
   if (handlers) {
     Object.assign(out, handlers);
   }
-  const info = buildInfo(props);
-  if (info !== undefined) {
-    out.info = info;
+
+  if (props.info !== undefined) {
+    out.info = props.info;
   }
 
   if (type === "group") {
@@ -203,9 +190,9 @@ export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string)
     const list = byParent.get(node.parentId);
     if (list) {
       list.push(node);
-    } else {
-      byParent.set(node.parentId, [node]);
+      continue;
     }
+    byParent.set(node.parentId, [node]);
   }
 
   for (const list of byParent.values()) {

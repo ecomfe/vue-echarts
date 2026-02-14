@@ -252,6 +252,8 @@ As Vue ECharts binds events to the ECharts instance by default, there is some ca
 </template>
 ```
 
+Event handlers passed via attrs are reactive by default. Updating `onClick`, `onZr:*`, or `onNative:*` handlers will rebind them automatically.
+
 ### Provide / inject
 
 Vue ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:

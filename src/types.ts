@@ -104,7 +104,7 @@ type ZRenderEmits = {
 };
 
 type OtherEmits = {
-  [key in OtherEventName]: (params: any) => void;
+  [key in OtherEventName]: (params: unknown) => void;
 };
 
 export type Emits = MouseEmits &

@@ -240,6 +240,51 @@ describe("ECharts component", () => {
     expect(currentStub.setTheme).toHaveBeenCalledWith({});
   });
 
+  it("reapplies latest graph option after theme changes when data is assigned later", async () => {
+    const option = ref<Option>({
+      series: {
+        type: "graph",
+        layout: "none",
+      } as Option["series"],
+    });
+    const theme = ref<Theme | undefined>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        theme: theme.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const series = option.value.series as Record<string, unknown>;
+    series.data = [
+      { id: "root", x: 0, y: 0 },
+      { id: "child", x: 100, y: 0 },
+    ];
+    series.links = [{ source: "root", target: "child" }];
+    await nextTick();
+
+    const callsBeforeTheme = chartStub.setOption.mock.calls.length;
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setOption.mock.calls.length).toBe(callsBeforeTheme + 1);
+
+    const [optionArg] = chartStub.setOption.mock.calls.at(-1) as [
+      Option,
+      UpdateOptions | undefined,
+    ];
+    const seriesArg = (
+      Array.isArray(optionArg.series) ? optionArg.series[0] : optionArg.series
+    ) as Record<string, unknown>;
+    expect((seriesArg.data as unknown[])?.length).toBe(2);
+    expect((seriesArg.links as unknown[])?.length).toBe(1);
+  });
+
   it("ignores theme updates when chart ref is missing", async () => {
     const option = ref({ title: { text: "brew" } });
     const theme = ref<Theme | undefined>("dark");
@@ -524,6 +569,156 @@ describe("ECharts component", () => {
     }
     rootEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(nativeClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("reactively rebinds chart and zr handlers when attrs change", async () => {
+    const option = ref({});
+    const onClickA = vi.fn();
+    const onClickB = vi.fn();
+    const onZrMoveA = vi.fn();
+    const onZrMoveB = vi.fn();
+    const clickHandler = ref(onClickA);
+    const zrHandler = ref(onZrMoveA);
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        onClick: clickHandler.value,
+        "onZr:mousemove": zrHandler.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstChartBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
+    if (!firstChartBinding) {
+      throw new Error("Expected chart click handler to be bound.");
+    }
+    const firstChartListener = firstChartBinding[1];
+    firstChartListener("first");
+    expect(onClickA).toHaveBeenCalledWith("first");
+    expect(onClickB).toHaveBeenCalledTimes(0);
+
+    const zr = chartStub.getZr();
+    const firstZrBinding = zr.on.mock.calls.find((call) => call[0] === "mousemove");
+    if (!firstZrBinding) {
+      throw new Error("Expected ZRender mousemove handler to be bound.");
+    }
+    const firstZrListener = firstZrBinding[1];
+    firstZrListener("zr-first");
+    expect(onZrMoveA).toHaveBeenCalledWith("zr-first");
+    expect(onZrMoveB).toHaveBeenCalledTimes(0);
+
+    chartStub.on.mockClear();
+    chartStub.off.mockClear();
+    zr.on.mockClear();
+    zr.off.mockClear();
+
+    clickHandler.value = onClickB;
+    zrHandler.value = onZrMoveB;
+    await nextTick();
+
+    expect(chartStub.off).toHaveBeenCalledWith("click", firstChartListener);
+    expect(zr.off).toHaveBeenCalledWith("mousemove", firstZrListener);
+    expect(chartStub.on).toHaveBeenCalledWith("click", expect.any(Function));
+    expect(zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+
+    const secondChartBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
+    if (!secondChartBinding) {
+      throw new Error("Expected rebound chart click handler.");
+    }
+    const secondChartListener = secondChartBinding[1];
+    secondChartListener("second");
+    expect(onClickA).toHaveBeenCalledTimes(1);
+    expect(onClickB).toHaveBeenCalledWith("second");
+
+    const secondZrBinding = zr.on.mock.calls.find((call) => call[0] === "mousemove");
+    if (!secondZrBinding) {
+      throw new Error("Expected rebound ZRender mousemove handler.");
+    }
+    const secondZrListener = secondZrBinding[1];
+    secondZrListener("zr-second");
+    expect(onZrMoveA).toHaveBeenCalledTimes(1);
+    expect(onZrMoveB).toHaveBeenCalledWith("zr-second");
+  });
+
+  it("reactively updates native DOM handlers", async () => {
+    const option = ref({});
+    const nativeA = vi.fn();
+    const nativeB = vi.fn();
+    const nativeHandler = ref(nativeA);
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        "onNative:click": nativeHandler.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const rootEl =
+      getExposedField<HTMLElement>(getExposed(exposed), "root") ??
+      document.querySelector<HTMLElement>("x-vue-echarts");
+    if (!rootEl) {
+      throw new Error("Expected root element to be available.");
+    }
+
+    rootEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(nativeA).toHaveBeenCalledTimes(1);
+    expect(nativeB).toHaveBeenCalledTimes(0);
+
+    nativeHandler.value = nativeB;
+    await nextTick();
+
+    rootEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(nativeA).toHaveBeenCalledTimes(1);
+    expect(nativeB).toHaveBeenCalledTimes(1);
+  });
+
+  it("rebinds once handlers when attrs change and keeps one-shot behavior", async () => {
+    const option = ref({});
+    const onceA = vi.fn();
+    const onceB = vi.fn();
+    const onceHandler = ref(onceA);
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: option.value,
+        onClickOnce: onceHandler.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const firstBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
+    if (!firstBinding) {
+      throw new Error("Expected first once handler binding.");
+    }
+    const firstListener = firstBinding[1];
+    firstListener("first");
+    firstListener("first-again");
+    expect(onceA).toHaveBeenCalledTimes(1);
+
+    chartStub.on.mockClear();
+    chartStub.off.mockClear();
+
+    onceHandler.value = onceB;
+    await nextTick();
+
+    expect(chartStub.off).toHaveBeenCalledWith("click", firstListener);
+
+    const secondBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
+    if (!secondBinding) {
+      throw new Error("Expected second once handler binding.");
+    }
+    const secondListener = secondBinding[1];
+    secondListener("second");
+    secondListener("second-again");
+    expect(onceB).toHaveBeenCalledTimes(1);
   });
 
   it("plans replaceMerge when series id is removed", async () => {

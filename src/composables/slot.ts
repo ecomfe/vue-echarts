@@ -1,7 +1,7 @@
 import { h, Teleport, onUpdated, onUnmounted, onMounted, shallowRef, shallowReactive } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
-import { isBrowser, isPlainObject, isValidArrayIndex, isSameSet, warn } from "../utils";
+import { isBrowser, isPlainObject, isSameSet, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
 
@@ -11,7 +11,9 @@ const SLOT_OPTION_PATHS = {
 } as const;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
-type SlotRecord<T> = Partial<Record<SlotName, T>>;
+type SlotContainerMap = Partial<Record<SlotName, HTMLElement>>;
+type SlotInitMap = Partial<Record<SlotName, boolean>>;
+type SlotParamMap = Partial<Record<SlotName, unknown>>;
 const SLOT_PREFIXES: SlotPrefix[] = ["tooltip", "dataView"];
 
 function isValidSlotName(key: string): key is SlotName {
@@ -38,7 +40,6 @@ function ensureChild(parent: Container, seg: string, nextSeg?: string): Containe
     writeSegment(parent, seg, created);
     return created;
   }
-  // Blocked by a non-container value
   return undefined;
 }
 
@@ -59,9 +60,9 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
 
 export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
-  const containers = shallowReactive<SlotRecord<HTMLElement>>({});
-  const initialized = shallowReactive<SlotRecord<boolean>>({});
-  const params = shallowReactive<SlotRecord<unknown>>({});
+  const containers = shallowReactive<SlotContainerMap>({});
+  const initialized = shallowReactive<SlotInitMap>({});
+  const params = shallowReactive<SlotParamMap>({});
   const isMounted = shallowRef(false);
   const warnedInvalidSlots = new Set<string>();
 
@@ -83,84 +84,81 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
   let slotNames = collectSlotNames(false);
 
-  // Render slots via Teleport to a detached root
   const render = () => {
     const names = collectSlotNames(false);
-    if (names.length === 0) {
+    if (names.length === 0 || !isMounted.value || !detachedRoot) {
       return undefined;
     }
-    // Make slots client-side only to avoid SSR hydration mismatch
-    return isMounted.value && detachedRoot
-      ? h(
-          Teleport,
-          { to: detachedRoot },
-          names.map((slotName) => {
-            const slot = slots[slotName];
-            const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
-            return h(
-              "div",
-              {
-                key: slotName,
-                ref: (el) => {
-                  if (el instanceof HTMLElement) {
-                    containers[slotName] = el;
-                  }
-                },
-                style: { display: "contents" },
-              },
-              slotContent,
-            );
-          }),
-        )
-      : undefined;
+
+    return h(
+      Teleport,
+      { to: detachedRoot },
+      names.map((slotName) => {
+        const slot = slots[slotName];
+        const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
+        return h(
+          "div",
+          {
+            key: slotName,
+            ref: (el) => {
+              if (el instanceof HTMLElement) {
+                containers[slotName] = el;
+              }
+            },
+            style: { display: "contents" },
+          },
+          slotContent,
+        );
+      }),
+    );
   };
 
-  // Shallow-clone the option along each path and override the target callback
   function patchOption(src: Option): Option {
     const root: Option = { ...src };
     const names = collectSlotNames(true);
 
-    names.forEach((key) => {
+    for (const key of names) {
       const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
       const rest = key.slice(prefix.length);
       const parts = rest ? rest.slice(1).split("-") : [];
       const tail = SLOT_OPTION_PATHS[prefix];
       const path = [...parts, ...tail];
 
-      // Traverse to the parent of the leaf, cloning or creating along the way
-      let cur: Container | undefined = root;
+      let current: Container | undefined = root;
       for (let i = 0; i < path.length - 1; i++) {
-        cur = ensureChild(cur, path[i], path[i + 1]);
-        if (!cur) {
-          return; // Blocked by a primitive — skip this key
+        current = ensureChild(current, path[i], path[i + 1]);
+        if (!current) {
+          break;
         }
+      }
+      if (!current) {
+        continue;
       }
 
       const leaf = path[path.length - 1];
-      const formatter = (p: unknown) => {
+      const formatter = (payload: unknown): HTMLElement | undefined => {
         initialized[key] = true;
-        params[key] = p;
+        params[key] = payload;
         return containers[key];
       };
-      writeSegment(cur, leaf, formatter);
-    });
+      writeSegment(current, leaf, formatter);
+    }
 
     return root;
   }
 
-  // `slots` is not reactive, so we need to watch it manually
   onUpdated(() => {
-    const newSlotNames = collectSlotNames(false);
-    if (!isSameSet(newSlotNames, slotNames)) {
-      // Clean up states for removed slots
-      slotNames.forEach((key) => {
-        if (!newSlotNames.includes(key)) {
+    const nextSlotNames = collectSlotNames(false);
+    if (!isSameSet(nextSlotNames, slotNames)) {
+      const nextSlotNameSet = new Set(nextSlotNames);
+      for (const key of slotNames) {
+        if (!nextSlotNameSet.has(key)) {
           delete params[key];
           delete initialized[key];
           delete containers[key];
         }
-      });
-      slotNames = newSlotNames;
+      }
+      slotNames = nextSlotNames;
       onSlotsChange();
     }
   });

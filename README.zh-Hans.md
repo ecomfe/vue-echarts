@@ -252,6 +252,8 @@ Vue ECharts 支持如下事件：
 </template>
 ```
 
+通过 attrs 传入的事件处理器默认是响应式的。更新 `onClick`、`onZr:*` 或 `onNative:*` 后会自动重新绑定。
+
 ### Provide / Inject
 
 Vue ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `theme` 提供上下文配置：

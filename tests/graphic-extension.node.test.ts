@@ -1,19 +1,16 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { effectScope, nextTick, ref } from "vue";
-
-import {
-  __resetGraphicComposable,
-  registerGraphicComposable,
-  useGraphicComposable,
-  type GraphicComposableContext,
-} from "../src/graphic/runtime";
-import { registerGraphicExtension } from "../src/graphic/extension";
+import type { GraphicContext } from "../src/graphic/runtime";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
-function createContext(
-  overrides: Partial<GraphicComposableContext> = {},
-): GraphicComposableContext {
+type RuntimeModule = typeof import("../src/graphic/runtime");
+type ExtensionModule = typeof import("../src/graphic/extension");
+
+let runtimeModule: RuntimeModule;
+let extensionModule: ExtensionModule;
+
+function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext {
   return {
     chart: ref(),
     slots: {},
@@ -21,11 +18,13 @@ function createContext(
     requestUpdate: () => true,
     warn: () => void 0,
     ...overrides,
-  } as GraphicComposableContext;
+  } as GraphicContext;
 }
 
-afterEach(() => {
-  __resetGraphicComposable();
+beforeEach(async () => {
+  vi.resetModules();
+  runtimeModule = await import("../src/graphic/runtime");
+  extensionModule = await import("../src/graphic/extension");
 });
 
 describe("graphic runtime", () => {
@@ -39,11 +38,11 @@ describe("graphic runtime", () => {
       render: () => null,
     });
 
-    registerGraphicComposable(first as any);
-    registerGraphicComposable(second as any);
+    runtimeModule.registerGraphic(first as any);
+    runtimeModule.registerGraphic(second as any);
 
     const scope = effectScope();
-    const runtime = scope.run(() => useGraphicComposable(createContext()));
+    const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -53,22 +52,22 @@ describe("graphic runtime", () => {
   });
 
   it("registers only once when called repeatedly", () => {
-    registerGraphicExtension();
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const scope = effectScope();
-    const runtime = scope.run(() => useGraphicComposable(createContext()));
+    const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
     expect(runtime).toBeTruthy();
     scope.stop();
   });
 
   it("keeps option untouched and renders nothing when graphic slot is absent", () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const scope = effectScope();
     const context = createContext();
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -81,7 +80,7 @@ describe("graphic runtime", () => {
   });
 
   it("normalizes handlers into graphic onxxx fields", async () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const warn = vi.fn();
     const requestUpdate = vi.fn(() => true);
@@ -93,7 +92,7 @@ describe("graphic runtime", () => {
       requestUpdate,
     });
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -173,7 +172,7 @@ describe("graphic runtime", () => {
   });
 
   it("does not depend on chart instance for handler option output", async () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const chartRef = ref<any>(undefined);
     const scope = effectScope();
@@ -183,7 +182,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -229,7 +228,7 @@ describe("graphic runtime", () => {
   });
 
   it("keeps handlers scoped per element option", async () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const scope = effectScope();
 
@@ -237,7 +236,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -285,7 +284,7 @@ describe("graphic runtime", () => {
   });
 
   it("keeps update scheduling stable when handlers are unchanged", async () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const requestUpdate = vi.fn(() => true);
     const scope = effectScope();
@@ -295,7 +294,7 @@ describe("graphic runtime", () => {
       requestUpdate,
     });
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -337,7 +336,7 @@ describe("graphic runtime", () => {
   });
 
   it("warns once for manual-update graphic auto refresh and option.graphic override", async () => {
-    registerGraphicExtension();
+    extensionModule.registerGraphicExtension();
 
     const warn = vi.fn();
     const scope = effectScope();
@@ -349,7 +348,7 @@ describe("graphic runtime", () => {
       warn,
     });
 
-    const runtime = scope.run(() => useGraphicComposable(context));
+    const runtime = scope.run(() => runtimeModule.useGraphic(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -399,7 +398,7 @@ describe("graphic runtime", () => {
       await import("../src/graphic/index");
 
       const scope = effectScope();
-      const runtime = scope.run(() => useGraphicComposable(createContext()));
+      const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
       expect(runtime).toBeTruthy();
       scope.stop();
     } finally {
