@@ -140,4 +140,30 @@ describe("useLoading", () => {
     expect(hideLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).not.toHaveBeenCalledTimes(2);
   });
+
+  it("applies loading state to a new chart instance after chart ref switches", async () => {
+    const firstShow = vi.fn();
+    const firstHide = vi.fn();
+    const secondShow = vi.fn();
+    const secondHide = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const loading = ref<boolean | undefined>(true);
+    const loadingOptions = ref<LoadingOptions | undefined>({ text: "Switching" });
+
+    renderUseLoading(chart, loading, loadingOptions);
+
+    chart.value = { showLoading: firstShow, hideLoading: firstHide } as unknown as EChartsType;
+    await nextTick();
+
+    expect(firstShow).toHaveBeenCalledTimes(1);
+    expect(firstShow).toHaveBeenLastCalledWith({ text: "Switching" });
+    expect(firstHide).not.toHaveBeenCalled();
+
+    chart.value = { showLoading: secondShow, hideLoading: secondHide } as unknown as EChartsType;
+    await nextTick();
+
+    expect(secondShow).toHaveBeenCalledTimes(1);
+    expect(secondShow).toHaveBeenLastCalledWith({ text: "Switching" });
+    expect(secondHide).not.toHaveBeenCalled();
+  });
 });

@@ -234,6 +234,63 @@ describe("useSlotOption", () => {
     expect("tooltip-extra" in patchedAfterRemoval).toBe(false);
   });
 
+  it("cleans formatter containers when dynamic tooltip/dataView slot paths are removed", async () => {
+    const changeSpy = vi.fn();
+    const showNested = ref(true);
+
+    const { exposed } = renderSlotComponent(() => {
+      const slots: SlotDictionary = {};
+      if (showNested.value) {
+        slots["tooltip-series-0"] = () => [h("span", "nested-tooltip")];
+        slots["dataView-panel"] = () => [h("span", "nested-data-view")];
+      }
+      return slots;
+    }, changeSpy);
+
+    await nextTick();
+    changeSpy.mockClear();
+
+    const patched = getExposed(exposed).patchOption({});
+    const tooltip = getSeriesOption(patched, 0);
+    if (typeof tooltip.formatter !== "function") {
+      throw new Error("Expected nested series tooltip formatter to be injected.");
+    }
+
+    const tooltipContainer = tooltip.formatter(makeTooltipParams(9), "");
+    if (!(tooltipContainer instanceof HTMLElement)) {
+      throw new Error("Expected nested tooltip formatter to return an HTMLElement.");
+    }
+
+    const panel = (patched as Record<string, unknown>).panel as
+      | {
+          toolbox?: { feature?: { dataView?: { optionToContent?: (option: unknown) => unknown } } };
+        }
+      | undefined;
+    const optionToContent = panel?.toolbox?.feature?.dataView?.optionToContent;
+    if (typeof optionToContent !== "function") {
+      throw new Error("Expected nested dataView optionToContent to be injected.");
+    }
+    const dataViewContainer = optionToContent({});
+    if (!(dataViewContainer instanceof HTMLElement)) {
+      throw new Error("Expected nested dataView optionToContent to return an HTMLElement.");
+    }
+
+    await nextTick();
+    expect(tooltipContainer.textContent).toBe("nested-tooltip");
+    expect(dataViewContainer.textContent).toBe("nested-data-view");
+
+    showNested.value = false;
+    await nextTick();
+
+    expect(changeSpy).toHaveBeenCalledTimes(1);
+    expect(tooltip.formatter(makeTooltipParams(10), "")).toBeUndefined();
+    expect(optionToContent({})).toBeUndefined();
+
+    const patchedAfterRemoval = getExposed(exposed).patchOption({});
+    expect(patchedAfterRemoval.series).toBeUndefined();
+    expect((patchedAfterRemoval as Record<string, unknown>).panel).toBeUndefined();
+  });
+
   it("warns and skips invalid slot names", async () => {
     const changeSpy = vi.fn();
     const { exposed } = renderSlotComponent(

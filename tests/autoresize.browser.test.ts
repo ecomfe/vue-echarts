@@ -162,6 +162,76 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("rebinds observer when root element changes", async () => {
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+
+    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
+
+    const firstContainer = createSizedContainer(120, 80);
+    const secondContainer = createSizedContainer(200, 120);
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = { resize } as unknown as EChartsType;
+    root.value = firstContainer;
+    await nextTick();
+
+    expect(observeSpy).toHaveBeenCalledWith(firstContainer);
+
+    root.value = secondContainer;
+    await nextTick();
+
+    expect(disconnectSpy).toHaveBeenCalledTimes(1);
+    expect(observeSpy).toHaveBeenCalledWith(secondContainer);
+
+    secondContainer.style.width = "240px";
+    await flushAnimationFrame();
+    expect(resize).toHaveBeenCalledTimes(1);
+
+    scope.stop();
+  });
+
+  it("targets the latest chart instance after chart ref switches", async () => {
+    const firstResize = vi.fn();
+    const secondResize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+
+    const container = createSizedContainer(160, 90);
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = { resize: firstResize } as unknown as EChartsType;
+    root.value = container;
+    await nextTick();
+
+    container.style.height = "120px";
+    await flushAnimationFrame();
+    expect(firstResize).toHaveBeenCalledTimes(1);
+    expect(secondResize).not.toHaveBeenCalled();
+
+    chart.value = { resize: secondResize } as unknown as EChartsType;
+    await nextTick();
+
+    container.style.width = "220px";
+    await flushAnimationFrame();
+    expect(firstResize).toHaveBeenCalledTimes(1);
+    expect(secondResize).toHaveBeenCalledTimes(1);
+
+    scope.stop();
+  });
+
   it("skips the initial resize callback when dimensions are unchanged", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
