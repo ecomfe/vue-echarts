@@ -20,12 +20,6 @@
       "matchPackageNames": ["vue", "echarts"],
       "matchUpdateTypes": ["minor"],
       "automerge": false
-    },
-    {
-      "matchPackageNames": ["eslint"],
-      "matchCurrentVersion": ">=9.0.0 <10.0.0",
-      "enabled": false,
-      "description": "Block ESLint v10 until @vue/eslint-config-typescript supports it (see https://github.com/vuejs/eslint-config-typescript/issues/251)"
     }
   ]
 }
