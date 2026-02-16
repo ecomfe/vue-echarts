@@ -60,7 +60,7 @@
     "comment-mark": "^2.0.1",
     "echarts": "^6.0.0",
     "echarts-gl": "^2.0.9",
-    "eslint": "^9.33.0",
+    "eslint": "^10.0.0",
     "eslint-plugin-vue": "^10.4.0",
     "jiti": "^2.5.1",
     "lefthook": "^2.0.13",
