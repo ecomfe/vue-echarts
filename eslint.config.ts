@@ -11,6 +11,9 @@ export default tseslint.config(
   { ignores: ["**/dist/**", "**/coverage/**"] },
   pluginVue.configs["flat/essential"],
   ...tseslint.configs.recommended,
+  // Manual Vue parser configuration required because @vue/eslint-config-typescript
+  // doesn't support ESLint v10 yet. This configures the parser for .vue files
+  // to use vue-eslint-parser with typescript-eslint as the script parser.
   {
     files: ["**/*.vue"],
     languageOptions: {
