@@ -46,11 +46,13 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@typescript-eslint/utils": "^8.39.1",
     "@vercel/analytics": "^1.5.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/browser-playwright": "^4.0.16",
     "@vitest/coverage-istanbul": "^4.0.16",
     "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.7.0",
     "@vue/server-renderer": "^3.5.18",
     "@vue/tsconfig": "^0.8.0",
     "@vueuse/core": "^14.0.0",
@@ -71,14 +73,12 @@
     "releaselog": "^7.0.0",
     "tsdown": "^0.20.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "8.55.1-alpha.4",
     "unplugin-raw": "^0.6.0",
     "vite": "beta",
     "vitest": "^4.0.16",
     "vitest-browser-vue": "^2.0.1",
     "vue": "^3.5.18",
     "vue-component-type-helpers": "^3.0.0",
-    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {

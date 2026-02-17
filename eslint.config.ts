@@ -1,31 +1,25 @@
-import tseslint from "typescript-eslint";
+import {
+  defineConfigWithVueTs,
+  vueTsConfigs,
+  configureVueProject,
+} from "@vue/eslint-config-typescript";
 import pluginVue from "eslint-plugin-vue";
-import vueParser from "vue-eslint-parser";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
+// The inferred type of 'default' cannot be named without a reference to "@typescript-eslint/utils"
+import type {} from "@typescript-eslint/utils";
 
-export default tseslint.config(
+// To allow more languages other than `ts` in `.vue` files
+// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+configureVueProject({ scriptLangs: ["ts", "js"] });
+
+export default defineConfigWithVueTs(
   {
     name: "app/files-to-lint",
     files: ["**/*.{ts,mts,tsx,vue}"],
   },
   { ignores: ["**/dist/**", "**/coverage/**"] },
   pluginVue.configs["flat/essential"],
-  ...tseslint.configs.recommended,
-  // Manual Vue parser configuration required because @vue/eslint-config-typescript
-  // doesn't support ESLint v10 yet. This configures the parser for .vue files
-  // to use vue-eslint-parser with typescript-eslint as the script parser.
-  {
-    files: ["**/*.vue"],
-    languageOptions: {
-      parser: vueParser,
-      parserOptions: {
-        parser: tseslint.parser,
-        ecmaVersion: "latest",
-        sourceType: "module",
-        extraFileExtensions: [".vue"],
-      },
-    },
-  },
+  vueTsConfigs.recommended,
   skipFormatting,
   {
     rules: {
