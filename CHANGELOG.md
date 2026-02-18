@@ -1,3 +1,9 @@
+## 8.1.0-beta.2
+
+### Fixes
+
+- Fixed an update regression in `vue-echarts/graphic` slot behavior that could break some demos and runtime updates (#976).
+
 ## 8.1.0-beta.1
 
 ### New features
