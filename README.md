@@ -113,8 +113,8 @@ Drop `<script>` inside your HTML file and access the component via `window.VueEC
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue@3.5.26"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.1.0-beta.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.27"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@8.1.0-beta.2"></script>
 ```
 
 <!-- scripts:end -->
