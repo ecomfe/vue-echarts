@@ -4,7 +4,7 @@ import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
-import { registerGraphicExtension } from "../src/graphic/extension";
+import { registerExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
 import {
   getLastGraphicIds,
@@ -53,7 +53,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("overrides option.graphic when the graphic entry is registered", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({
       graphic: { elements: [{ type: "rect", id: "from-option", shape: { x: 0, y: 0 } }] },
@@ -89,7 +89,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("reapplies graphic option after theme changes", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({
       series: [{ type: "line", data: [1, 2, 3] }],
@@ -131,7 +131,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("does not auto-reapply graphic option on theme changes in manual-update mode", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({
       series: [{ type: "line", data: [1, 2, 3] }],
@@ -167,7 +167,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("clears graphic when #graphic slot is turned off and restores when turned on again", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const showGraphic = ref(true);
@@ -205,7 +205,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("warns once when duplicate graphic ids are rendered", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const tick = ref(0);
@@ -249,7 +249,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("handles primitive slot children and wrapped vnode arrays", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
 
@@ -277,7 +277,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("handles anonymous graphic node without id/key", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
 
@@ -308,7 +308,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("supports empty graphic slot content", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
 
@@ -332,7 +332,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("updates graphic shape/style from reactive bindings in auto mode", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const x = ref(10);
@@ -388,7 +388,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("keeps graphic replaceMerge when option and graphic update together", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const x = ref(10);
@@ -423,7 +423,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const x = ref(8);
@@ -460,7 +460,7 @@ describe("graphic slot edge and integration behavior", () => {
   });
 
   it("rerenders 100+ nodes safely when parent rerenders", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const rerenderTick = ref(0);

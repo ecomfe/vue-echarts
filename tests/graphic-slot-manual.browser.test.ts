@@ -6,7 +6,7 @@ import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
-import { registerGraphicExtension } from "../src/graphic/extension";
+import { registerExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
 import { setupGraphicSlotSuite } from "./helpers/graphic-slot";
 
@@ -27,7 +27,7 @@ function getLastSetOptionArg(chartStub: { setOption: { mock: { calls: unknown[][
 
 describe("graphic slot manual-update behavior", () => {
   it("mounts graphic extension before first manual setOption", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const exposed = shallowRef<Exposed>();
     const manualOption = ref({
@@ -68,7 +68,7 @@ describe("graphic slot manual-update behavior", () => {
   });
 
   it("hits manual-update guard when option prop exists", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({
       series: [{ type: "line", data: [1, 2, 3] }],
@@ -109,7 +109,7 @@ describe("graphic slot manual-update behavior", () => {
   });
 
   it("applies latest graphic state on explicit setOption in manual-update mode", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const exposed = shallowRef<Exposed>();
     const x = ref(10);
@@ -174,7 +174,7 @@ describe("graphic slot manual-update behavior", () => {
   });
 
   it("applies click handlers only after explicit setOption in manual-update mode", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const exposed = shallowRef<Exposed>();
     const onClickA = vi.fn();

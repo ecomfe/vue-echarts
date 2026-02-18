@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { h } from "vue";
 
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
-import { collectGraphicOrder, getGraphicType } from "../src/graphic/order";
+import { collectOrder, getType } from "../src/graphic/order";
 
 const RectGraphic = {
   [GRAPHIC_COMPONENT_MARKER]: "rect",
@@ -16,22 +16,22 @@ const GroupGraphic = {
 
 describe("graphic order helpers", () => {
   it("detects marked graphic vnode types and ignores invalid values", () => {
-    expect(getGraphicType(undefined)).toBeNull();
-    expect(getGraphicType(1)).toBeNull();
-    expect(getGraphicType({ type: "div" } as any)).toBeNull();
+    expect(getType(undefined)).toBeNull();
+    expect(getType(1)).toBeNull();
+    expect(getType({ type: "div" } as any)).toBeNull();
     expect(
-      getGraphicType(
+      getType(
         h({
           render: () => null,
         }),
       ),
     ).toBeNull();
-    expect(getGraphicType(h(RectGraphic))).toBe("rect");
+    expect(getType(h(RectGraphic))).toBe("rect");
   });
 
   it("returns current order for non-object entries", () => {
     const orderMap = new Map<string, number>();
-    const order = collectGraphicOrder(42, orderMap, 3);
+    const order = collectOrder(42, orderMap, 3);
 
     expect(order).toBe(3);
     expect(orderMap.size).toBe(0);
@@ -41,7 +41,7 @@ describe("graphic order helpers", () => {
     const orderMap = new Map<string, number>();
     const container = h("div", [h(RectGraphic, { id: "first" }), h(RectGraphic, { id: "second" })]);
 
-    const order = collectGraphicOrder(container, orderMap, 0);
+    const order = collectOrder(container, orderMap, 0);
 
     expect(order).toBe(2);
     expect(orderMap.get("id:first")).toBe(0);
@@ -52,7 +52,7 @@ describe("graphic order helpers", () => {
     const orderMap = new Map<string, number>();
     const group = h(GroupGraphic, { id: "group-1" }, () => [h(RectGraphic, { id: "child-1" })]);
 
-    const order = collectGraphicOrder(group, orderMap, 0);
+    const order = collectOrder(group, orderMap, 0);
 
     expect(order).toBe(2);
     expect(orderMap.get("id:group-1")).toBe(0);
@@ -63,7 +63,7 @@ describe("graphic order helpers", () => {
     const orderMap = new Map<string, number>();
     const group = h(GroupGraphic, { id: "group-empty" });
 
-    const order = collectGraphicOrder(group, orderMap, 0);
+    const order = collectOrder(group, orderMap, 0);
 
     expect(order).toBe(1);
     expect(orderMap.get("id:group-empty")).toBe(0);

@@ -1,30 +1,38 @@
 import { h, onScopeDispose } from "vue";
-import { buildGraphicOption } from "./build";
-import { createGraphicCollector } from "./collector";
+import { use } from "echarts/core";
+import { GraphicComponent } from "echarts/components";
+import { buildOption } from "./build";
+import { createCollector } from "./collector";
 import { GraphicMount } from "./mount";
 import type { GraphicContext } from "./runtime";
-import { registerGraphic } from "./runtime";
-import { warnManualUpdateIgnored, warnOptionGraphicOverride } from "./warn";
+import { registerRuntime } from "./runtime";
 
 const ROOT_ID = "__ve_graphic_root__";
-const GRAPHIC_UPDATE_OPTIONS = { replaceMerge: ["graphic"] };
+const UPDATE_OPTIONS = { replaceMerge: ["graphic"] };
+let componentRegistered = false;
 
-export function registerGraphicExtension(): void {
-  registerGraphic((ctx: GraphicContext) => {
-    const { slots, manualUpdate, requestUpdate, warn: warnMessage } = ctx;
+export function registerExtension(): void {
+  if (!componentRegistered) {
+    use([GraphicComponent]);
+    componentRegistered = true;
+  }
+
+  registerRuntime((ctx: GraphicContext) => {
+    const { slots, manualUpdate, requestUpdate } = ctx;
     let warnedOverride = false;
 
-    const collector = createGraphicCollector({
-      warn: warnMessage,
+    const collector = createCollector({
       onFlush: handleFlush,
     });
-    const { dispose, getNodes, warnOnce } = collector;
+    const { dispose, getNodes, warn } = collector;
 
     function handleFlush(): void {
-      const updated = requestUpdate(GRAPHIC_UPDATE_OPTIONS);
+      const updated = requestUpdate(UPDATE_OPTIONS);
 
       if (!updated && manualUpdate.value) {
-        warnOnce("manual-update-graphic", warnManualUpdateIgnored());
+        warn("`#graphic` slot updates are ignored when `manual-update` is `true`.", {
+          onceKey: "manual-update-graphic",
+        });
       }
     }
 
@@ -36,10 +44,12 @@ export function registerGraphicExtension(): void {
           return option;
         }
         if (option.graphic && !warnedOverride) {
-          warnMessage(warnOptionGraphicOverride());
+          warn(
+            "`#graphic` slot is provided, so `option.graphic` is ignored. Remove one of them to avoid ambiguity.",
+          );
           warnedOverride = true;
         }
-        const nextOption = buildGraphicOption(getNodes(), ROOT_ID);
+        const nextOption = buildOption(getNodes(), ROOT_ID);
         return {
           ...option,
           graphic: nextOption.graphic,

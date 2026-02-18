@@ -28,8 +28,7 @@ import type { PublicMethods, SlotsTypes } from "./composables";
 import { warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
-import { useGraphic } from "./graphic/runtime";
-import { warnMissingGraphicEntry } from "./graphic/warn";
+import { useRuntime as useGraphic } from "./graphic/runtime";
 import { useReactiveChartListeners, useReactiveEventAttrs } from "./core/events";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
@@ -102,7 +101,6 @@ export default defineComponent({
         slots,
         manualUpdate,
         requestUpdate,
-        warn,
       }) ?? {};
 
     let lastSignature: Signature | undefined;
@@ -173,7 +171,9 @@ export default defineComponent({
     }
 
     if (slots.graphic && !patchGraphicOption) {
-      warn(warnMissingGraphicEntry());
+      warn(
+        "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
+      );
     }
 
     useReactiveChartListeners(chart, attrsMap);

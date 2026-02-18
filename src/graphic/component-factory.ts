@@ -2,19 +2,18 @@ import { defineComponent, getCurrentInstance, inject, onUnmounted, provide, shal
 
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
-import { resolveGraphicIdentity } from "./identity";
+import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { commonProps } from "./props-common";
 import { shapeProps } from "./props-shape";
 import type { GraphicEmits } from "./types";
-import { warnOutsideGraphicSlot, warnMissingIdentity } from "./warn";
 
 const componentProps = {
   ...commonProps,
   ...shapeProps,
 } as const;
 
-export function createGraphicComponent(name: string, type: GraphicComponentType) {
+export function createComponent(name: string, type: GraphicComponentType) {
   const component = defineComponent({
     name,
     inheritAttrs: false,
@@ -27,16 +26,21 @@ export function createGraphicComponent(name: string, type: GraphicComponentType)
       const orderRef = inject(GRAPHIC_ORDER_KEY, null);
 
       if (!collector) {
-        warn(warnOutsideGraphicSlot(name));
+        warn(`\`${name}\` must be used inside \`#graphic\` slot.`);
         return () => null;
       }
-      const { register: registerNode, unregister, warnOnce } = collector;
+      const { register: registerNode, unregister, warn: warnScoped } = collector;
       let currentId: string | null = null;
 
       function register(): string {
-        const identity = resolveGraphicIdentity(props.id, instance.vnode.key, instance.uid);
+        const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);
         if (identity.missingIdentity) {
-          warnOnce(`missing-id:${instance.uid}`, warnMissingIdentity(name));
+          warnScoped(
+            `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
+            {
+              onceKey: `missing-id:${instance.uid}`,
+            },
+          );
         }
         if (currentId && currentId !== identity.id) {
           unregister(currentId, instance.uid);

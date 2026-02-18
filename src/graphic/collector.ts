@@ -1,4 +1,5 @@
-import { warnDuplicateId } from "./warn";
+import { warn as coreWarn } from "../utils";
+import type { Warn, WarnOptions } from "../utils";
 
 export type GraphicNode = {
   id: string;
@@ -14,18 +15,15 @@ export type GraphicCollector = {
   beginPass: () => void;
   register: (node: GraphicRegisterNode) => void;
   unregister: (id: string, sourceId?: number) => void;
-  warnOnce: (key: string, message: string) => void;
+  warn: Warn;
   getNodes: () => Iterable<GraphicNode>;
   dispose: () => void;
 };
 
 export type GraphicRegisterNode = Omit<GraphicNode, "order"> & { order?: number };
 
-export function createGraphicCollector(options: {
-  onFlush: () => void;
-  warn: (message: string) => void;
-}): GraphicCollector {
-  const { onFlush, warn } = options;
+export function createCollector(options: { onFlush: () => void }): GraphicCollector {
+  const { onFlush } = options;
   const nodes = new Map<string, GraphicNode>();
   const warnedKeys = new Set<string>();
   const seenInPass = new Map<string, number>();
@@ -39,12 +37,8 @@ export function createGraphicCollector(options: {
     seenInPass.clear();
   }
 
-  function warnOnce(key: string, message: string): void {
-    if (warnedKeys.has(key)) {
-      return;
-    }
-    warnedKeys.add(key);
-    warn(message);
+  function warn(message: string, options?: WarnOptions): void {
+    coreWarn(message, options ? { ...options, onceStore: warnedKeys } : undefined);
   }
 
   function register(node: GraphicRegisterNode): void {
@@ -54,7 +48,9 @@ export function createGraphicCollector(options: {
 
     const seenSource = seenInPass.get(node.id);
     if (seenSource != null && seenSource !== node.sourceId) {
-      warnOnce(`duplicate-id:${node.id}`, warnDuplicateId(node.id));
+      warn(`Duplicate graphic id "${node.id}" detected. Updates may be unstable.`, {
+        onceKey: `duplicate-id:${node.id}`,
+      });
     }
 
     const nextOrder = node.order ?? order;
@@ -111,7 +107,7 @@ export function createGraphicCollector(options: {
     beginPass,
     register,
     unregister,
-    warnOnce,
+    warn,
     getNodes,
     dispose,
   };

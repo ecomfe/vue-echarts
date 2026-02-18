@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
-import { registerGraphicExtension } from "../src/graphic/extension";
+import { registerExtension } from "../src/graphic/extension";
 import { GGroup, GRect } from "../src/graphic/components";
 import {
   getLastGraphicIds,
@@ -19,7 +19,7 @@ const suite = setupGraphicSlotSuite();
 
 describe("graphic slot order and tree behavior", () => {
   it("preserves expected order when a middle node is toggled by v-if", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const showB = ref(false);
@@ -60,7 +60,7 @@ describe("graphic slot order and tree behavior", () => {
   });
 
   it("tracks v-for reorder and removal with stable ids", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const items = ref(["a", "b", "c"]);
@@ -105,7 +105,7 @@ describe("graphic slot order and tree behavior", () => {
   });
 
   it("moves nodes across groups when conditional parent changes", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const inLeft = ref(true);
@@ -184,7 +184,7 @@ describe("graphic slot order and tree behavior", () => {
   });
 
   it("preserves order for key-only nodes when v-for is reordered", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const items = ref(["x", "y", "z"]);
@@ -223,7 +223,7 @@ describe("graphic slot order and tree behavior", () => {
   });
 
   it("supports reorder with id-only nodes (without :key)", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const ids = ref(["a", "b", "c"]);
@@ -262,7 +262,7 @@ describe("graphic slot order and tree behavior", () => {
   });
 
   it("keeps nested group tree consistent across v-if and v-for changes", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const leftItems = ref(["a", "b"]);

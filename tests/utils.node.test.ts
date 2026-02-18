@@ -1,15 +1,29 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  __resetWarnState,
   isOn,
-  parseOnEvent,
-  omitOn,
-  isValidArrayIndex,
-  isSameSet,
   isPlainObject,
+  isSameSet,
+  isValidArrayIndex,
+  omitOn,
+  parseOnEvent,
+  warn,
 } from "../src/utils";
 
 describe("utils", () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    __resetWarnState();
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+    __resetWarnState();
+  });
+
   describe("isOn", () => {
     it("recognizes vue-style event props", () => {
       expect(isOn("onClick")).toBe(true);
@@ -97,6 +111,26 @@ describe("utils", () => {
       expect(isPlainObject([])).toBe(false);
       expect(isPlainObject(null)).toBe(false);
       expect(isPlainObject("foo")).toBe(false);
+    });
+  });
+
+  describe("warn", () => {
+    it("dedupes repeated onceKey warnings", () => {
+      warn("hello", { onceKey: "same-key" });
+      warn("hello", { onceKey: "same-key" });
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(String(warnSpy.mock.calls[0][0])).toContain("hello");
+    });
+
+    it("supports custom onceStore", () => {
+      const onceStore = new Set<string>();
+
+      warn("custom", { onceKey: "k", onceStore });
+      warn("custom", { onceKey: "k", onceStore });
+      warn("custom", { onceKey: "k" });
+
+      expect(warnSpy).toHaveBeenCalledTimes(2);
     });
   });
 });

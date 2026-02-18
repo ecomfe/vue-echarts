@@ -183,7 +183,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   return out as Option;
 }
 
-export function buildGraphicOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
+export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
   const byParent = new Map<string | null, GraphicNode[]>();
 
   for (const node of nodes) {

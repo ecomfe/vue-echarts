@@ -69,6 +69,27 @@ export function isPlainObject(v: unknown): v is Record<string, unknown> {
 
 const LOG_PREFIX = "[vue-echarts]";
 
-export function warn(message: string): void {
+const warned = new Set<string>();
+
+export type WarnOptions = {
+  onceKey?: string;
+  onceStore?: Set<string>;
+};
+
+export type Warn = (message: string, options?: WarnOptions) => void;
+
+export const warn: Warn = (message, options) => {
+  if (options?.onceKey) {
+    const store = options.onceStore ?? warned;
+    if (store.has(options.onceKey)) {
+      return;
+    }
+    store.add(options.onceKey);
+  }
+
   vueWarn(`${LOG_PREFIX} ${message}`);
+};
+
+export function __resetWarnState(): void {
+  warned.clear();
 }

@@ -1,4 +1,4 @@
-export function resolveGraphicIdentity(
+export function resolveIdentity(
   propsId: string | number | undefined,
   vnodeKey: unknown,
   uid: number,
@@ -14,7 +14,7 @@ export function resolveGraphicIdentity(
   return { id: `__ve_graphic_${uid}`, missingIdentity: true };
 }
 
-export function resolveGraphicOrderKey(propsId: unknown, vnodeKey: unknown): string | null {
+export function resolveOrderKey(propsId: unknown, vnodeKey: unknown): string | null {
   if (propsId != null) {
     return `id:${String(propsId)}`;
   }

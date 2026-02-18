@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
-import { buildGraphicOption } from "../src/graphic/build";
-import { createGraphicCollector } from "../src/graphic/collector";
+import { buildOption } from "../src/graphic/build";
+import { createCollector } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
@@ -53,7 +53,7 @@ describe("graphic", () => {
       },
     ];
 
-    const option = buildGraphicOption(nodes, "root");
+    const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
 
     expect(root.id).toBe("root");
@@ -101,7 +101,7 @@ describe("graphic", () => {
       },
     ];
 
-    const option = buildGraphicOption(nodes, "root");
+    const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
     const child = root.children?.[0] as Record<string, unknown> | undefined;
     if (!child) {
@@ -219,7 +219,7 @@ describe("graphic", () => {
       },
     ];
 
-    const option = buildGraphicOption(nodes, "root");
+    const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
     const group = root.children.find((item: any) => item.id === "group");
     if (!group) {
@@ -256,43 +256,60 @@ describe("graphic", () => {
 
   it("coalesces flushes and warns on duplicate ids", async () => {
     const onFlush = vi.fn();
-    const warn = vi.fn();
-    const collector = createGraphicCollector({ onFlush, warn });
+    const collector = createCollector({ onFlush });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
-    collector.register({
-      id: "dup",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 1,
-    });
-    collector.register({
-      id: "dup",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 2,
-    });
+    try {
+      collector.register({
+        id: "dup",
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: 1,
+      });
+      collector.register({
+        id: "dup",
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: 2,
+      });
 
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(onFlush).toHaveBeenCalledTimes(0);
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenCalledTimes(0);
 
-    await flushMicrotasks();
+      await flushMicrotasks();
 
-    expect(onFlush).toHaveBeenCalledTimes(1);
+      expect(onFlush).toHaveBeenCalledTimes(1);
 
-    collector.unregister("dup");
-    await flushMicrotasks();
+      collector.unregister("dup");
+      await flushMicrotasks();
 
-    expect(onFlush).toHaveBeenCalledTimes(2);
+      expect(onFlush).toHaveBeenCalledTimes(2);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("forwards collector.warn without options", () => {
+    const collector = createCollector({ onFlush: () => void 0 });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    try {
+      collector.warn("plain warning");
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(String(warnSpy.mock.calls[0][0])).toContain("plain warning");
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it("exposes current collector nodes", () => {
-    const collector = createGraphicCollector({
+    const collector = createCollector({
       onFlush: () => void 0,
-      warn: () => void 0,
     });
 
     collector.register({
@@ -318,9 +335,8 @@ describe("graphic", () => {
   });
 
   it("ignores unregister from mismatched source and removes with matched source", () => {
-    const collector = createGraphicCollector({
+    const collector = createCollector({
       onFlush: () => void 0,
-      warn: () => void 0,
     });
 
     collector.register({
@@ -342,40 +358,42 @@ describe("graphic", () => {
   });
 
   it("does not mark duplicate when same id appears across different passes", () => {
-    const warn = vi.fn();
-    const collector = createGraphicCollector({
+    const collector = createCollector({
       onFlush: () => void 0,
-      warn,
     });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
-    collector.beginPass();
-    collector.register({
-      id: "node",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 1,
-    });
+    try {
+      collector.beginPass();
+      collector.register({
+        id: "node",
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: 1,
+      });
 
-    collector.beginPass();
-    collector.register({
-      id: "node",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 2,
-    });
+      collector.beginPass();
+      collector.register({
+        id: "node",
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: 2,
+      });
 
-    expect(warn).not.toHaveBeenCalled();
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it("skips pending flush callback and ignores operations after dispose", async () => {
     const onFlush = vi.fn();
-    const collector = createGraphicCollector({
+    const collector = createCollector({
       onFlush,
-      warn: () => void 0,
     });
 
     collector.register({
@@ -408,9 +426,8 @@ describe("graphic", () => {
 
   it("accepts null, bigint, and symbol values", async () => {
     const onFlush = vi.fn();
-    const collector = createGraphicCollector({
+    const collector = createCollector({
       onFlush,
-      warn: () => void 0,
     });
     const onClick = () => void 0;
     const marker = Symbol("marker");

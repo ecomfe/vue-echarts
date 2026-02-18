@@ -16,7 +16,6 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
     slots: {},
     manualUpdate: ref(false),
     requestUpdate: () => true,
-    warn: () => void 0,
     ...overrides,
   } as GraphicContext;
 }
@@ -38,11 +37,11 @@ describe("graphic runtime", () => {
       render: () => null,
     });
 
-    runtimeModule.registerGraphic(first as any);
-    runtimeModule.registerGraphic(second as any);
+    runtimeModule.registerRuntime(first as any);
+    runtimeModule.registerRuntime(second as any);
 
     const scope = effectScope();
-    const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
+    const runtime = scope.run(() => runtimeModule.useRuntime(createContext()));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -52,22 +51,58 @@ describe("graphic runtime", () => {
   });
 
   it("registers only once when called repeatedly", () => {
-    extensionModule.registerGraphicExtension();
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
+    extensionModule.registerExtension();
 
     const scope = effectScope();
-    const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
+    const runtime = scope.run(() => runtimeModule.useRuntime(createContext()));
     expect(runtime).toBeTruthy();
     scope.stop();
   });
 
+  it("auto-registers GraphicComponent when extension is registered", async () => {
+    vi.resetModules();
+
+    const use = vi.fn();
+    const graphicComponent = Symbol("GraphicComponent");
+
+    vi.doMock("echarts/core", async () => {
+      const actual = await vi.importActual<typeof import("echarts/core")>("echarts/core");
+      return {
+        ...actual,
+        use,
+      };
+    });
+
+    vi.doMock("echarts/components", async () => {
+      const actual =
+        await vi.importActual<typeof import("echarts/components")>("echarts/components");
+      return {
+        ...actual,
+        GraphicComponent: graphicComponent as any,
+      };
+    });
+
+    try {
+      const mod = await import("../src/graphic/extension");
+      mod.registerExtension();
+      mod.registerExtension();
+
+      expect(use).toHaveBeenCalledTimes(1);
+      expect(use).toHaveBeenCalledWith([graphicComponent]);
+    } finally {
+      vi.doUnmock("echarts/core");
+      vi.doUnmock("echarts/components");
+    }
+  });
+
   it("keeps option untouched and renders nothing when graphic slot is absent", () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
     const scope = effectScope();
     const context = createContext();
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
+    const runtime = scope.run(() => runtimeModule.useRuntime(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -80,19 +115,17 @@ describe("graphic runtime", () => {
   });
 
   it("normalizes handlers into graphic onxxx fields", async () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
-    const warn = vi.fn();
     const requestUpdate = vi.fn(() => true);
     const scope = effectScope();
 
     const context = createContext({
       slots: { graphic: () => null } as any,
-      warn,
       requestUpdate,
     });
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
+    const runtime = scope.run(() => runtimeModule.useRuntime(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -166,13 +199,11 @@ describe("graphic runtime", () => {
     expect(childB.onclick).toBeUndefined();
     expect(typeof childB.onmouseover).toBe("function");
 
-    expect(warn).not.toHaveBeenCalled();
-
     scope.stop();
   });
 
   it("does not depend on chart instance for handler option output", async () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
     const chartRef = ref<any>(undefined);
     const scope = effectScope();
@@ -182,7 +213,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
+    const runtime = scope.run(() => runtimeModule.useRuntime(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -228,7 +259,7 @@ describe("graphic runtime", () => {
   });
 
   it("keeps handlers scoped per element option", async () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
     const scope = effectScope();
 
@@ -236,7 +267,7 @@ describe("graphic runtime", () => {
       slots: { graphic: () => null } as any,
     });
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
+    const runtime = scope.run(() => runtimeModule.useRuntime(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -284,7 +315,7 @@ describe("graphic runtime", () => {
   });
 
   it("keeps update scheduling stable when handlers are unchanged", async () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
     const requestUpdate = vi.fn(() => true);
     const scope = effectScope();
@@ -294,7 +325,7 @@ describe("graphic runtime", () => {
       requestUpdate,
     });
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
+    const runtime = scope.run(() => runtimeModule.useRuntime(context));
     if (!runtime) {
       throw new Error("Expected runtime to be initialized.");
     }
@@ -336,72 +367,98 @@ describe("graphic runtime", () => {
   });
 
   it("warns once for manual-update graphic auto refresh and option.graphic override", async () => {
-    extensionModule.registerGraphicExtension();
+    extensionModule.registerExtension();
 
-    const warn = vi.fn();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const scope = effectScope();
 
-    const context = createContext({
-      slots: { graphic: () => null } as any,
-      manualUpdate: ref(true) as any,
-      requestUpdate: () => false,
-      warn,
-    });
+    try {
+      const context = createContext({
+        slots: { graphic: () => null } as any,
+        manualUpdate: ref(true) as any,
+        requestUpdate: () => false,
+      });
 
-    const runtime = scope.run(() => runtimeModule.useGraphic(context));
-    if (!runtime) {
-      throw new Error("Expected runtime to be initialized.");
+      const runtime = scope.run(() => runtimeModule.useRuntime(context));
+      if (!runtime) {
+        throw new Error("Expected runtime to be initialized.");
+      }
+
+      const vnode = runtime.render() as any;
+      const collector = vnode.props.collector as {
+        register: (node: any) => void;
+      };
+
+      collector.register({
+        id: "n1",
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: 1,
+      });
+
+      await flushMicrotasks();
+
+      const patchedA = runtime.patchOption({ graphic: { elements: [{ id: "a" }] } } as any);
+      const patchedB = runtime.patchOption({ graphic: { elements: [{ id: "b" }] } } as any);
+
+      expect(
+        warnSpy.mock.calls.filter((call: unknown[]) => String(call[0]).includes("option.graphic"))
+          .length,
+      ).toBe(1);
+      expect(
+        warnSpy.mock.calls.filter((call: unknown[]) => String(call[0]).includes("manual-update"))
+          .length,
+      ).toBe(1);
+      expect(patchedA.graphic).toBeTruthy();
+      expect(patchedB.graphic).toBeTruthy();
+    } finally {
+      warnSpy.mockRestore();
+      scope.stop();
     }
-
-    const vnode = runtime.render() as any;
-    const collector = vnode.props.collector as {
-      register: (node: any) => void;
-    };
-
-    collector.register({
-      id: "n1",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 1,
-    });
-
-    await flushMicrotasks();
-
-    const patchedA = runtime.patchOption({ graphic: { elements: [{ id: "a" }] } } as any);
-    const patchedB = runtime.patchOption({ graphic: { elements: [{ id: "b" }] } } as any);
-
-    expect(
-      warn.mock.calls.filter((call: unknown[]) => String(call[0]).includes("option.graphic"))
-        .length,
-    ).toBe(1);
-    expect(
-      warn.mock.calls.filter((call: unknown[]) => String(call[0]).includes("manual-update")).length,
-    ).toBe(1);
-    expect(patchedA.graphic).toBeTruthy();
-    expect(patchedB.graphic).toBeTruthy();
-
-    scope.stop();
   });
 
   it("registers runtime via graphic entry side effect", async () => {
     const originalImage = (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement;
     const originalCanvas = (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement;
     const originalVideo = (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement;
+    const use = vi.fn();
+    const graphicComponent = Symbol("GraphicComponent");
 
     try {
       (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = class {};
       (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement = class {};
       (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = class {};
 
+      vi.resetModules();
+      vi.doMock("echarts/core", async () => {
+        const actual = await vi.importActual<typeof import("echarts/core")>("echarts/core");
+        return {
+          ...actual,
+          use,
+        };
+      });
+      vi.doMock("echarts/components", async () => {
+        const actual =
+          await vi.importActual<typeof import("echarts/components")>("echarts/components");
+        return {
+          ...actual,
+          GraphicComponent: graphicComponent as any,
+        };
+      });
+
+      const runtime = await import("../src/graphic/runtime");
       await import("../src/graphic/index");
 
       const scope = effectScope();
-      const runtime = scope.run(() => runtimeModule.useGraphic(createContext()));
-      expect(runtime).toBeTruthy();
+      const graphicRuntime = scope.run(() => runtime.useRuntime(createContext()));
+      expect(graphicRuntime).toBeTruthy();
+      expect(use).toHaveBeenCalledWith([graphicComponent]);
       scope.stop();
     } finally {
+      vi.doUnmock("echarts/core");
+      vi.doUnmock("echarts/components");
       (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = originalImage;
       (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement = originalCanvas;
       (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = originalVideo;

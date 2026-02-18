@@ -7,7 +7,6 @@ export type GraphicContext = {
   slots: Slots;
   manualUpdate: Ref<boolean>;
   requestUpdate: (updateOptions?: UpdateOptions) => boolean;
-  warn: (message: string) => void;
 };
 
 export type GraphicRuntime = {
@@ -15,15 +14,15 @@ export type GraphicRuntime = {
   render: () => VNodeChild;
 };
 
-let registeredGraphic: ((context: GraphicContext) => GraphicRuntime) | null = null;
+let registeredRuntime: ((context: GraphicContext) => GraphicRuntime) | null = null;
 
-export function registerGraphic(factory: (context: GraphicContext) => GraphicRuntime): void {
-  if (registeredGraphic) {
+export function registerRuntime(factory: (context: GraphicContext) => GraphicRuntime): void {
+  if (registeredRuntime) {
     return;
   }
-  registeredGraphic = factory;
+  registeredRuntime = factory;
 }
 
-export function useGraphic(context: GraphicContext): GraphicRuntime | null {
-  return registeredGraphic ? registeredGraphic(context) : null;
+export function useRuntime(context: GraphicContext): GraphicRuntime | null {
+  return registeredRuntime ? registeredRuntime(context) : null;
 }

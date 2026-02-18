@@ -1,7 +1,7 @@
-import { registerGraphicExtension } from "./extension";
+import { registerExtension } from "./extension";
 import "./slots";
 
-registerGraphicExtension();
+registerExtension();
 
 export type { VChartSlotsExtension } from "../index";
 export type { GraphicEmits, GraphicEventName, GraphicOnEventName } from "./types";

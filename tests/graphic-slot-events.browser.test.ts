@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
-import { registerGraphicExtension } from "../src/graphic/extension";
+import { registerExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
 import { getLastGraphicRootChildren, setupGraphicSlotSuite } from "./helpers/graphic-slot";
 
@@ -15,7 +15,7 @@ const suite = setupGraphicSlotSuite();
 
 describe("graphic slot event handling", () => {
   it("dispatches chart click events to latest reactive handlers", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const onClickA = vi.fn();
@@ -78,7 +78,7 @@ describe("graphic slot event handling", () => {
   });
 
   it("rebinds chart events when handler channels are added or removed", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const onClick = vi.fn();
@@ -154,7 +154,7 @@ describe("graphic slot event handling", () => {
   });
 
   it("supports handler transitions: function to array to empty", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const fnA = vi.fn();
@@ -232,7 +232,7 @@ describe("graphic slot event handling", () => {
   });
 
   it("supports once handlers via onClickOnce", async () => {
-    registerGraphicExtension();
+    registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const onClickOnce = vi.fn();

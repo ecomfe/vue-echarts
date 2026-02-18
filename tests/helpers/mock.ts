@@ -15,11 +15,15 @@ type ThrottleControls = {
 
 export const init = vi.fn<InitFn>();
 export const throttle = vi.fn<ThrottleFn>();
+export const use = vi.fn((modules?: unknown[]) => {
+  void modules;
+});
 
 export function createEChartsModule() {
   return {
     init,
     throttle,
+    use,
   } satisfies Partial<Record<string, unknown>>;
 }
 
@@ -104,12 +108,16 @@ export function resetECharts(): void {
 
   init.mockReset();
   throttle.mockReset();
+  use.mockReset();
 
   init.mockImplementation((...args: Parameters<InitFn>) => {
     void args;
     return ensureStub() as unknown as ReturnType<InitFn>;
   });
   throttle.mockImplementation(defaultThrottleImplementation);
+  use.mockImplementation((modules?: unknown[]) => {
+    void modules;
+  });
 }
 
 export function enqueueChart(): ChartStub {

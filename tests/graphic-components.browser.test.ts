@@ -10,7 +10,7 @@ type CollectorMock = {
   beginPass: ReturnType<typeof vi.fn>;
   register: ReturnType<typeof vi.fn>;
   unregister: ReturnType<typeof vi.fn>;
-  warnOnce: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
   requestFlush: ReturnType<typeof vi.fn>;
   dispose: ReturnType<typeof vi.fn>;
   getNodes: () => Iterable<unknown>;
@@ -21,7 +21,7 @@ function createCollectorMock(): CollectorMock {
     beginPass: vi.fn(),
     register: vi.fn(),
     unregister: vi.fn(),
-    warnOnce: vi.fn(),
+    warn: vi.fn(),
     requestFlush: vi.fn(),
     dispose: vi.fn(),
     getNodes: () => [],
@@ -108,9 +108,11 @@ describe("graphic components", () => {
 
     const payload = getLastRegisterPayload(collector);
     expect(payload.id).toMatch(/^__ve_graphic_/);
-    expect(collector.warnOnce).toHaveBeenCalledWith(
-      expect.stringMatching(/^missing-id:/),
+    expect(collector.warn).toHaveBeenCalledWith(
       expect.stringContaining("missing `id` and `key`"),
+      expect.objectContaining({
+        onceKey: expect.stringMatching(/^missing-id:/),
+      }),
     );
   });
 

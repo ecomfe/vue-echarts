@@ -6,6 +6,8 @@ import { GraphicComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import type { EChartsType } from "../src/types";
 import ECharts from "../src/ECharts";
+import { registerExtension } from "../src/graphic/extension";
+import { GGroup, GRect } from "../src/graphic/components";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
 import type { ComponentExposed } from "vue-component-type-helpers";
@@ -149,5 +151,50 @@ describe("graphic update behavior (real echarts)", () => {
     ids = collectGraphicIds(chart);
     expect(ids.has("a")).toBe(false);
     expect(ids.has("b")).toBe(true);
+  });
+
+  it("reparents slotted graphic nodes safely", async () => {
+    registerExtension();
+
+    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
+    const grouped = ref(true);
+
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              style: "width: 220px; height: 140px;",
+              ref: createExposeSetter(exposed),
+            },
+            {
+              graphic: () =>
+                grouped.value
+                  ? h(GGroup, { id: "g" }, () =>
+                      h(GRect, { id: "moving", x: 12, y: 10, width: 18, height: 10 }),
+                    )
+                  : h(GRect, { id: "moving", x: 42, y: 10, width: 18, height: 10 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chart = getChart(exposed.value);
+    let ids = collectGraphicIds(chart);
+    expect(ids.has("moving")).toBe(true);
+
+    grouped.value = false;
+    await nextTick();
+    await flushAnimationFrame();
+
+    ids = collectGraphicIds(chart);
+    expect(ids.has("moving")).toBe(true);
   });
 });
