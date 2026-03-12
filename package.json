@@ -97,6 +97,9 @@
       "allowedVersions": {
         "echarts": "6"
       }
-    }
+    },
+    "onlyBuiltDependencies": [
+      "lefthook"
+    ]
   }
 }
