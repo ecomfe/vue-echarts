@@ -74,7 +74,7 @@
     "tsdown": "^0.20.0",
     "typescript": "^5.9.2",
     "unplugin-raw": "^0.6.0",
-    "vite": "beta",
+    "vite": "8.0.0",
     "vitest": "^4.0.16",
     "vitest-browser-vue": "^2.0.1",
     "vue": "^3.5.18",
@@ -88,7 +88,7 @@
   "packageManager": "pnpm@10.22.0",
   "pnpm": {
     "overrides": {
-      "vite": "8.0.0-beta.7",
+      "vite": "8.0.0",
       "dompurify": "3.3.2",
       "minimatch@9": "9.0.7",
       "minimatch@10": "10.2.4"
