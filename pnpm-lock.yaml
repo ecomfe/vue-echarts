@@ -5,10 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: 8.0.0
   dompurify: 3.3.2
   minimatch@9: 9.0.7
-  minimatch@10: 10.2.4
 
 importers:
 
