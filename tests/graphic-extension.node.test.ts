@@ -3,6 +3,17 @@ import { effectScope, nextTick, ref } from "vue";
 import type { GraphicContext } from "../src/graphic/runtime";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
+const mockState = vi.hoisted(() => ({
+  use: vi.fn(),
+}));
+
+vi.mock("echarts/core", async () => {
+  const actual = await vi.importActual<typeof import("echarts/core")>("echarts/core");
+  return {
+    ...actual,
+    use: mockState.use,
+  };
+});
 
 type RuntimeModule = typeof import("../src/graphic/runtime");
 type ExtensionModule = typeof import("../src/graphic/extension");
@@ -21,6 +32,7 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
 }
 
 beforeEach(async () => {
+  mockState.use.mockReset();
   vi.resetModules();
   runtimeModule = await import("../src/graphic/runtime");
   extensionModule = await import("../src/graphic/extension");
@@ -62,37 +74,18 @@ describe("graphic runtime", () => {
 
   it("auto-registers GraphicComponent when extension is registered", async () => {
     vi.resetModules();
-
-    const use = vi.fn();
-    const graphicComponent = Symbol("GraphicComponent");
-
-    vi.doMock("echarts/core", async () => {
-      const actual = await vi.importActual<typeof import("echarts/core")>("echarts/core");
-      return {
-        ...actual,
-        use,
-      };
-    });
-
-    vi.doMock("echarts/components", async () => {
-      const actual =
-        await vi.importActual<typeof import("echarts/components")>("echarts/components");
-      return {
-        ...actual,
-        GraphicComponent: graphicComponent as any,
-      };
-    });
+    mockState.use.mockReset();
 
     try {
+      const { GraphicComponent } = await import("echarts/components");
       const mod = await import("../src/graphic/extension");
       mod.registerExtension();
       mod.registerExtension();
 
-      expect(use).toHaveBeenCalledTimes(1);
-      expect(use).toHaveBeenCalledWith([graphicComponent]);
+      expect(mockState.use).toHaveBeenCalledTimes(1);
+      expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
     } finally {
-      vi.doUnmock("echarts/core");
-      vi.doUnmock("echarts/components");
+      mockState.use.mockReset();
     }
   });
 
@@ -423,8 +416,6 @@ describe("graphic runtime", () => {
     const originalImage = (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement;
     const originalCanvas = (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement;
     const originalVideo = (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement;
-    const use = vi.fn();
-    const graphicComponent = Symbol("GraphicComponent");
 
     try {
       (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = class {};
@@ -432,33 +423,18 @@ describe("graphic runtime", () => {
       (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = class {};
 
       vi.resetModules();
-      vi.doMock("echarts/core", async () => {
-        const actual = await vi.importActual<typeof import("echarts/core")>("echarts/core");
-        return {
-          ...actual,
-          use,
-        };
-      });
-      vi.doMock("echarts/components", async () => {
-        const actual =
-          await vi.importActual<typeof import("echarts/components")>("echarts/components");
-        return {
-          ...actual,
-          GraphicComponent: graphicComponent as any,
-        };
-      });
+      mockState.use.mockReset();
 
       const runtime = await import("../src/graphic/runtime");
+      const { GraphicComponent } = await import("echarts/components");
       await import("../src/graphic/index");
 
       const scope = effectScope();
       const graphicRuntime = scope.run(() => runtime.useRuntime(createContext()));
       expect(graphicRuntime).toBeTruthy();
-      expect(use).toHaveBeenCalledWith([graphicComponent]);
+      expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
       scope.stop();
     } finally {
-      vi.doUnmock("echarts/core");
-      vi.doUnmock("echarts/components");
       (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = originalImage;
       (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement = originalCanvas;
       (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = originalVideo;
