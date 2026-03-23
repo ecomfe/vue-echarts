@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@typescript-eslint/utils": "^8.39.1",
-    "@vercel/analytics": "^1.5.0",
+    "@vercel/analytics": "^2.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/browser-playwright": "^4.0.16",
     "@vitest/coverage-istanbul": "^4.0.16",
