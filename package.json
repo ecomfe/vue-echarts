@@ -56,7 +56,7 @@
     "@vue/server-renderer": "^3.5.18",
     "@vue/tsconfig": "^0.9.0",
     "@vueuse/core": "^14.0.0",
-    "bumpp": "^10.2.3",
+    "bumpp": "^11.0.0",
     "comment-mark": "^2.0.1",
     "echarts": "^6.0.0",
     "echarts-gl": "^2.0.9",
