@@ -72,7 +72,7 @@
     "publint": "^0.3.12",
     "releaselog": "^7.0.0",
     "tsdown": "^0.21.0",
-    "typescript": "^5.9.2",
+    "typescript": "^6.0.0",
     "unplugin-raw": "^0.7.0",
     "vite": "8.0.0",
     "vitest": "^4.0.16",
