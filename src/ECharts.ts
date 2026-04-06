@@ -47,7 +47,7 @@ import type {
 } from "./types";
 import type { EChartsElement } from "./wc";
 
-import "./style.ts";
+import "./style";
 
 const wcRegistered = register();
 
