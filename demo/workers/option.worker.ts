@@ -87,7 +87,6 @@ const compilerOptions: ts.CompilerOptions = {
   isolatedModules: true,
   lib: ["es2020", "dom"],
   module: ts.ModuleKind.CommonJS,
-  moduleResolution: ts.ModuleResolutionKind.Node10,
   preserveConstEnums: true,
   skipLibCheck: true,
   strict: false,
