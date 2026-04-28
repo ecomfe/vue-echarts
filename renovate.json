@@ -1,24 +1,23 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "schedule:weekly"],
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Shanghai",
+  "schedule": ["* * * * 2"],
   "minimumReleaseAge": "7 days",
-  "internalChecksFilter": "strict",
-  "updatePinnedDependencies": false,
+  "automergeType": "pr",
+  "platformAutomerge": false,
+  "ignoreTests": false,
+  "separateMajorMinor": true,
+  "separateMultipleMajor": true,
   "packageRules": [
     {
-      "matchUpdateTypes": ["patch"],
-      "groupName": "patches after 7 days",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["minor"],
-      "excludePackageNames": ["vue", "echarts"],
-      "groupName": "minors after 7 days",
-      "automerge": false
-    },
-    {
-      "matchPackageNames": ["vue", "echarts"],
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": ["major"],
+      "groupName": null,
       "automerge": false
     }
   ]
