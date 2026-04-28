@@ -11,6 +11,10 @@
   "separateMultipleMajor": true,
   "packageRules": [
     {
+      "matchPackageNames": ["monaco-editor"],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dependencies",
       "automerge": true
