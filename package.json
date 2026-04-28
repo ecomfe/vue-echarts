@@ -89,7 +89,7 @@
   "pnpm": {
     "overrides": {
       "dompurify": "3.4.0",
-      "minimatch@9": "9.0.9"
+      "minimatch@9": "10.2.5"
     },
     "peerDependencyRules": {
       "allowedVersions": {
