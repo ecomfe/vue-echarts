@@ -1,0 +1,10 @@
+overrides:
+  dompurify: "3.4.2"
+  "minimatch@9": "10.2.5"
+
+peerDependencyRules:
+  allowedVersions:
+    echarts: "6"
+
+allowBuilds:
+  lefthook: true
