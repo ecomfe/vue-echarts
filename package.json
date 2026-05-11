@@ -88,7 +88,7 @@
   "packageManager": "pnpm@10.33.2",
   "pnpm": {
     "overrides": {
-      "dompurify": "3.4.1",
+      "dompurify": "3.4.2",
       "minimatch@9": "10.2.5"
     },
     "peerDependencyRules": {
