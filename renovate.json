@@ -23,6 +23,19 @@
       "enabled": false
     },
     {
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchDepTypes": ["peerDependencies"],
+      "rangeStrategy": "widen"
+    },
+    {
+      "matchPackageNames": ["echarts"],
+      "matchDepTypes": ["peerDependencies"],
+      "rangeStrategy": "bump"
+    },
+    {
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dependencies",
       "automerge": true
