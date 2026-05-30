@@ -11,6 +11,14 @@
   "separateMultipleMajor": true,
   "packageRules": [
     {
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchDepTypes": ["peerDependencies"],
+      "rangeStrategy": "widen"
+    },
+    {
       "matchPackageNames": ["monaco-editor"],
       "enabled": false
     },
