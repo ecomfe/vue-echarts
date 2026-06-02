@@ -65,7 +65,7 @@
     "jiti": "^2.7.0",
     "lefthook": "^2.1.8",
     "monaco-editor": "0.54.0",
-    "oxfmt": "^0.51.0",
+    "oxfmt": "^0.52.0",
     "pinia": "^3.0.4",
     "playwright": "^1.60.0",
     "postcss-nested": "^7.0.2",
