@@ -70,7 +70,7 @@
     "playwright": "^1.60.0",
     "postcss-nested": "^7.0.2",
     "publint": "^0.3.21",
-    "releaselog": "^7.0.2",
+    "releaselog": "^8.0.0",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
     "unplugin-raw": "^0.7.0",
