@@ -66,7 +66,7 @@
     "lefthook": "^2.1.10",
     "monaco-editor": "0.54.0",
     "oxfmt": "^0.59.0",
-    "pinia": "^3.0.4",
+    "pinia": "^4.0.2",
     "playwright": "^1.61.1",
     "postcss-nested": "^7.0.2",
     "publint": "^0.3.21",
