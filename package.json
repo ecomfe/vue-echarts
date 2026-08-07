@@ -1,6 +1,6 @@
 {
   "name": "vue-echarts",
-  "version": "8.1.0-beta.2",
+  "version": "8.1.0",
   "description": "Vue.js component for Apache ECharts™.",
   "license": "MIT",
   "author": "GU Yiling <justice360@gmail.com>",
