@@ -1,5 +1,5 @@
 overrides:
-  dompurify: "3.4.12"
+  dompurify: "3.4.13"
   "minimatch@9": "10.2.6"
 
 peerDependencyRules:
