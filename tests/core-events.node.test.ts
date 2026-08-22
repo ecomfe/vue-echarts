@@ -28,14 +28,16 @@ function findBoundHandler(mockFn: ReturnType<typeof vi.fn>, event: string): Even
 
 function createChartStub() {
   const zr = createEmitterStub();
+  const getZr = vi.fn(() => zr);
   const chart = {
     on: vi.fn(),
     off: vi.fn(),
-    getZr: vi.fn(() => zr),
+    getZr,
   } as unknown as EChartsType;
 
   return {
     chart,
+    getZr,
     zr,
   };
 }
@@ -55,15 +57,15 @@ describe("core events", () => {
       throw new Error("Expected computed attrs to be available.");
     }
 
-    expect(state.nonEventAttrs.value).toEqual({ class: "chart" });
-    expect(state.nativeListeners.value).toEqual({
+    expect(state.value.nonEventAttrs).toEqual({ class: "chart" });
+    expect(state.value.nativeListeners).toEqual({
       onClick: attrs["onNative:click"],
     });
 
     attrs["onNative:clickOnce"] = vi.fn();
     await nextTick();
 
-    expect(state.nativeListeners.value).toMatchObject({
+    expect(state.value.nativeListeners).toMatchObject({
       onClick: attrs["onNative:click"],
       onClickOnce: attrs["onNative:clickOnce"],
     });
@@ -107,7 +109,7 @@ describe("core events", () => {
     const attrs = reactive<Record<string, unknown>>({
       onClick: vi.fn(),
       "onZr:mousemove": vi.fn(),
-      onMouseup: ["invalid"],
+      "onZr:mouseup": ["invalid"],
     });
 
     const first = createChartStub();
@@ -129,9 +131,9 @@ describe("core events", () => {
 
     const firstClickBinding = findBoundHandler((first.chart as unknown as EmitterStub).on, "click");
     const firstMoveBinding = findBoundHandler(first.zr.on, "mousemove");
-
     (first.chart as unknown as EmitterStub).on.mockClear();
     (first.chart as unknown as EmitterStub).off.mockClear();
+    first.getZr.mockClear();
     first.zr.on.mockClear();
     first.zr.off.mockClear();
 
@@ -140,6 +142,7 @@ describe("core events", () => {
 
     expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
     expect((first.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
+    expect(first.getZr).not.toHaveBeenCalled();
     expect(first.zr.on).not.toHaveBeenCalled();
     expect(first.zr.off).not.toHaveBeenCalled();
 

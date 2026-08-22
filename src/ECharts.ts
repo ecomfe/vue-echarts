@@ -92,7 +92,7 @@ export default defineComponent({
     );
     const realUpdateOptions = computed(() => props.updateOptions || toValue(defaultUpdateOptions));
 
-    const { nonEventAttrs, nativeListeners } = useReactiveEventAttrs(attrsMap);
+    const eventAttrs = useReactiveEventAttrs(attrsMap);
 
     const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate);
 
@@ -360,13 +360,15 @@ export default defineComponent({
         }
       }
 
+      const { nonEventAttrs, nativeListeners } = eventAttrs.value;
+
       return h(
         TAG_NAME,
         {
-          ...nonEventAttrs.value,
-          ...nativeListeners.value,
+          ...nonEventAttrs,
+          ...nativeListeners,
           ref: root,
-          class: ["echarts", nonEventAttrs.value.class],
+          class: ["echarts", nonEventAttrs.class],
         },
         children,
       );

@@ -6,7 +6,6 @@ import {
   isPlainObject,
   isSameSet,
   isValidArrayIndex,
-  omitOn,
   parseOnEvent,
   warn,
 } from "../src/utils";
@@ -52,24 +51,6 @@ describe("utils", () => {
       expect(parseOnEvent("onclick")).toBeNull();
       expect(parseOnEvent("on")).toBeNull();
       expect(parseOnEvent("foo")).toBeNull();
-    });
-  });
-
-  describe("omitOn", () => {
-    it("returns attrs without event handlers", () => {
-      const attrs = {
-        id: "chart",
-        onClick: () => void 0,
-        onNative: () => void 0,
-        class: "foo",
-      };
-
-      const result = omitOn(attrs);
-
-      expect(result).toEqual({ id: "chart", class: "foo" });
-      expect("onClick" in result).toBe(false);
-      expect(attrs).toHaveProperty("onClick");
-      expect(result).not.toBe(attrs);
     });
   });
 

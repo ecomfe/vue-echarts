@@ -49,17 +49,6 @@ export function parseOnEvent(key: string): ParsedOnEvent | null {
   return { event, once };
 }
 
-export function omitOn(attrs: AttrMap): AttrMap {
-  const result: AttrMap = {};
-  for (const key in attrs) {
-    if (!isOn(key)) {
-      result[key] = attrs[key];
-    }
-  }
-
-  return result;
-}
-
 export function isValidArrayIndex(key: string): boolean {
   const num = Number(key);
   return Number.isInteger(num) && num >= 0 && num < Math.pow(2, 32) - 1 && String(num) === key;

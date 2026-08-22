@@ -2,7 +2,7 @@ import { computed, onScopeDispose, watchEffect } from "vue";
 
 import type { ComputedRef, Ref } from "vue";
 import type { EChartsType } from "../types";
-import { createEventInvoker, isOn, parseOnEvent } from "../utils";
+import { createEventInvoker, parseOnEvent } from "../utils";
 import type { AttrMap, EventHandler } from "../utils";
 
 type EventEmitter = {
@@ -25,14 +25,9 @@ function getEmitter(instance: EChartsType, zr: boolean): EventEmitter {
 function createBoundHandler(
   emitter: EventEmitter,
   event: string,
-  value: unknown,
+  invoke: EventHandler,
   once: boolean,
-): EventHandler | undefined {
-  const invoke = createEventInvoker(value);
-  if (!invoke) {
-    return undefined;
-  }
-
+): EventHandler {
   if (!once) {
     return invoke;
   }
@@ -103,7 +98,6 @@ export function useReactiveChartListeners(
       const zr = parsed.event.startsWith("zr:");
       const event = zr ? parsed.event.slice(3) : parsed.event;
       const source = attrs[key];
-      const emitter = getEmitter(instance, zr);
       const existing = bindings.get(key);
 
       if (
@@ -121,10 +115,13 @@ export function useReactiveChartListeners(
         bindings.delete(key);
       }
 
-      const handler = createBoundHandler(emitter, event, source, parsed.once);
-      if (!handler) {
+      const invoke = createEventInvoker(source);
+      if (!invoke) {
         continue;
       }
+
+      const emitter = getEmitter(instance, zr);
+      const handler = createBoundHandler(emitter, event, invoke, parsed.once);
 
       emitter.on(event, handler);
       bindings.set(key, {
@@ -149,29 +146,18 @@ export function useReactiveChartListeners(
   onScopeDispose(clearBindings);
 }
 
-export function useReactiveEventAttrs(attrs: AttrMap): {
-  nonEventAttrs: ComputedRef<AttrMap>;
-  nativeListeners: ComputedRef<AttrMap>;
-} {
-  const nonEventAttrs = computed(() => {
-    const result: AttrMap = {};
-
-    for (const key in attrs) {
-      if (isOn(key)) {
-        continue;
-      }
-      result[key] = attrs[key];
-    }
-
-    return result;
-  });
-
-  const nativeListeners = computed(() => {
-    const result: AttrMap = {};
+export function useReactiveEventAttrs(attrs: AttrMap): ComputedRef<{
+  nonEventAttrs: AttrMap;
+  nativeListeners: AttrMap;
+}> {
+  return computed(() => {
+    const nonEventAttrs: AttrMap = {};
+    const nativeListeners: AttrMap = {};
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
       if (!parsed) {
+        nonEventAttrs[key] = attrs[key];
         continue;
       }
 
@@ -179,14 +165,9 @@ export function useReactiveEventAttrs(attrs: AttrMap): {
       if (!nativeKey) {
         continue;
       }
-      result[nativeKey] = attrs[key];
+      nativeListeners[nativeKey] = attrs[key];
     }
 
-    return result;
+    return { nonEventAttrs, nativeListeners };
   });
-
-  return {
-    nonEventAttrs,
-    nativeListeners,
-  };
 }
