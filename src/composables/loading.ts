@@ -15,6 +15,7 @@ export function useLoading(
     ...toValue(defaultLoadingOptions),
     ...(loadingOptions.value ?? {}),
   }));
+  let activeInstance: EChartsType | undefined;
 
   watchEffect(() => {
     const instance = chart.value;
@@ -24,9 +25,14 @@ export function useLoading(
 
     if (loading.value) {
       instance.showLoading(realLoadingOptions.value);
-    } else {
+      activeInstance = instance;
+      return;
+    }
+
+    if (activeInstance === instance) {
       instance.hideLoading();
     }
+    activeInstance = undefined;
   });
 }
 

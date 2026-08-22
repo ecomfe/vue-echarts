@@ -54,8 +54,12 @@ describe("useLoading", () => {
     await nextTick();
 
     expect(showLoading).not.toHaveBeenCalled();
-    expect(hideLoading).toHaveBeenCalledTimes(1);
-    hideLoading.mockClear();
+    expect(hideLoading).not.toHaveBeenCalled();
+
+    loadingOptions.value = { text: "Ready..." };
+    await nextTick();
+    expect(showLoading).not.toHaveBeenCalled();
+    expect(hideLoading).not.toHaveBeenCalled();
 
     loading.value = true;
     await nextTick();
@@ -63,7 +67,7 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).toHaveBeenCalledWith({
       maskColor: "rgba(0,0,0,0.5)",
-      text: "Loading...",
+      text: "Ready...",
     });
 
     loading.value = false;
