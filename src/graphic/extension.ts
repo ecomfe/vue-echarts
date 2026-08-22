@@ -24,7 +24,7 @@ export function registerExtension(): void {
     const collector = createCollector({
       onFlush: handleFlush,
     });
-    const { dispose, getNodes, warn } = collector;
+    const { cancelPendingFlush, dispose, getNodes, warn } = collector;
 
     function handleFlush(): void {
       const updated = requestUpdate(UPDATE_OPTIONS);
@@ -50,6 +50,7 @@ export function registerExtension(): void {
           warnedOverride = true;
         }
         const nextOption = buildOption(getNodes(), ROOT_ID);
+        cancelPendingFlush();
         return {
           ...option,
           graphic: nextOption.graphic,

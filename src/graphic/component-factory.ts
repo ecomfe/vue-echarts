@@ -1,4 +1,11 @@
-import { defineComponent, getCurrentInstance, inject, onUnmounted, provide, shallowRef } from "vue";
+import {
+  defineComponent,
+  getCurrentInstance,
+  inject,
+  onBeforeUnmount,
+  provide,
+  shallowRef,
+} from "vue";
 
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
@@ -60,7 +67,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
         return currentId;
       }
 
-      onUnmounted(() => unregister(currentId!, instance.uid));
+      onBeforeUnmount(() => unregister(currentId!, instance.uid));
 
       if (type === "group") {
         const providedParent = shallowRef<string | null>(null);

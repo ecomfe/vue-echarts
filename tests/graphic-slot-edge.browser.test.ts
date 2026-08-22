@@ -387,11 +387,12 @@ describe("graphic slot edge and integration behavior", () => {
     expect(markerBg.shape).toMatchObject({ x: 34 });
   });
 
-  it("keeps graphic replaceMerge when option and graphic update together", async () => {
+  it("coalesces option and graphic changes with merged replaceMerge", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const x = ref(10);
+    const showMarker = ref(true);
 
     const Root = defineComponent({
       setup() {
@@ -400,7 +401,10 @@ describe("graphic slot edge and integration behavior", () => {
             ECharts,
             { option: option.value, updateOptions: { replaceMerge: "series" } },
             {
-              graphic: () => h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 }),
+              graphic: () =>
+                showMarker.value
+                  ? h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 })
+                  : null,
             },
           );
       },
@@ -418,12 +422,22 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const replacements = chartStub.setOption.mock.calls.map(
       ([, updateArg]) => updateArg?.replaceMerge,
     );
     expect(replacements).toContainEqual(["series", "graphic"]);
     const marker = getLastGraphicOption(chartStub).graphic.elements[0].children[0];
     expect(marker.shape).toMatchObject({ x: 36 });
+
+    chartStub.setOption.mockClear();
+    option.value = { series: [{ type: "line", data: [2, 1, 3] }] };
+    showMarker.value = false;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(getLastGraphicOption(chartStub).graphic.elements[0].children).toEqual([]);
   });
 
   it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {

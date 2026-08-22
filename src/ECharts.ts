@@ -257,7 +257,8 @@ export default defineComponent({
 
         applyOption(instance, option);
       },
-      { deep: true },
+      // Graphic nodes register during render, so update after the collected tree is current.
+      { deep: true, flush: patchGraphicOption ? "post" : "pre" },
     );
 
     watch(

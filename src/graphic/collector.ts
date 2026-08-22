@@ -18,6 +18,7 @@ export type GraphicCollector = {
   unregister: (id: string, sourceId?: number) => void;
   warn: Warn;
   getNodes: () => Iterable<GraphicNode>;
+  cancelPendingFlush: () => void;
   dispose: () => void;
 };
 
@@ -91,16 +92,20 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     }
     pending = true;
     queueMicrotask(() => {
-      pending = false;
-      if (disposed) {
+      if (disposed || !pending) {
         return;
       }
+      pending = false;
       onFlush();
     });
   }
 
   function getNodes(): Iterable<GraphicNode> {
     return nodes.values();
+  }
+
+  function cancelPendingFlush(): void {
+    pending = false;
   }
 
   function dispose(): void {
@@ -117,6 +122,7 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     unregister,
     warn,
     getNodes,
+    cancelPendingFlush,
     dispose,
   };
 }
