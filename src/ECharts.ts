@@ -105,6 +105,8 @@ export default defineComponent({
       }) ?? {};
 
     let lastSignature: Signature | undefined;
+    let themeUpdatePending = false;
+    const updateFlush = patchGraphicOption ? "post" : "pre";
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
       if (!slots.graphic || !patchGraphicOption) {
@@ -237,6 +239,15 @@ export default defineComponent({
       applyOption(instance, option, updateOptions ?? undefined, true);
     };
 
+    // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.
+    watch(
+      realTheme,
+      () => {
+        themeUpdatePending = true;
+      },
+      { deep: true, flush: "sync" },
+    );
+
     watch(
       () => (manualUpdate.value ? SKIP_AUTO_UPDATE : props.option),
       (option, previousOption) => {
@@ -255,10 +266,13 @@ export default defineComponent({
           return;
         }
 
+        if (themeUpdatePending) {
+          return;
+        }
         applyOption(instance, option);
       },
       // Graphic nodes register during render, so update after the collected tree is current.
-      { deep: true, flush: patchGraphicOption ? "post" : "pre" },
+      { deep: true, flush: updateFlush },
     );
 
     watch(
@@ -275,6 +289,9 @@ export default defineComponent({
     watch(
       realTheme,
       (theme) => {
+        nextTick(() => {
+          themeUpdatePending = false;
+        });
         const instance = chart.value;
         if (instance) {
           instance.setTheme(theme || {});
@@ -286,6 +303,7 @@ export default defineComponent({
       },
       {
         deep: true,
+        flush: updateFlush,
       },
     );
 

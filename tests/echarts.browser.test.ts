@@ -373,7 +373,10 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({ palette: ["#22d3ee"] });
-    expect(chartStub.setOption).toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setTheme.mock.invocationCallOrder[0]).toBeLessThan(
+      chartStub.setOption.mock.invocationCallOrder[0],
+    );
     const [lastOption] = getLastSetOptionCall(chartStub);
     expect(lastOption).toMatchObject({
       title: { text: "second" },

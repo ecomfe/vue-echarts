@@ -124,7 +124,7 @@ describe("graphic slot edge and integration behavior", () => {
     await flushAnimationFrame();
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({ backgroundColor: "#111827" });
-    expect(chartStub.setOption).toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 32 });
     expect(updateArg?.replaceMerge).toContain("graphic");
