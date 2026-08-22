@@ -9,7 +9,22 @@ const linearGradient = {
   x2: 1,
   y2: 0,
   colorStops: [],
+  global: true,
 };
+type AppliedOption = {
+  dataset?: unknown;
+  title?: Array<{ subtext?: string }>;
+  series?: Array<{ datasetId?: string; label?: { color?: string } }>;
+};
+
+function createChart() {
+  return init(null, undefined, {
+    renderer: "svg",
+    ssr: true,
+    width: 100,
+    height: 100,
+  });
+}
 
 describe("smart-update", () => {
   describe("buildSignature", () => {
@@ -24,11 +39,11 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.objects).toEqual(["title", "tooltip"]);
+      expect(Object.keys(signature.objectShapes).sort()).toEqual(["title", "tooltip"]);
       expect(signature.scalars).toEqual(["color"]);
-      expect(signature.arrays.dataset).toEqual({ idsSorted: ["ds1"], noIdCount: 1 });
-      expect(signature.arrays.series).toEqual({ idsSorted: ["a"], noIdCount: 1 });
-      expect(signature.objects).not.toContain("color");
+      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["ds1"], noIdCount: 1 });
+      expect(signature.arrays.series).toMatchObject({ idsSorted: ["a"], noIdCount: 1 });
+      expect(signature.objectShapes.color).toBeUndefined();
       expect(signature.scalars).not.toContain("title");
       expect(signature.arrays.tooltip).toBeUndefined();
     });
@@ -45,7 +60,7 @@ describe("smart-update", () => {
       };
 
       const signature = buildSignature(option);
-      expect(signature.arrays.series).toEqual({ idsSorted: ["1", "2"], noIdCount: 3 });
+      expect(signature.arrays.series).toMatchObject({ idsSorted: ["1", "2"], noIdCount: 3 });
     });
 
     it("counts primitive array items and sorts scalar keys", () => {
@@ -57,7 +72,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.arrays.dataset).toEqual({ idsSorted: ["has-id"], noIdCount: 1 });
+      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 1 });
       expect(signature.scalars).toEqual(["backgroundColor", "color"]);
     });
 
@@ -70,6 +85,29 @@ describe("smart-update", () => {
       const signature = buildSignature(option);
 
       expect(signature.scalars).toEqual(["color"]);
+    });
+
+    it("handles cyclic option objects", () => {
+      const title: Record<string, unknown> = { text: "cycle", unused: undefined };
+      title.self = title;
+
+      const signature = buildSignature({ title } as EChartsOption);
+      const serialized = JSON.stringify(signature);
+
+      expect(serialized).not.toContain("cycle");
+      expect(serialized).not.toContain("unused");
+    });
+
+    it("does not traverse nested data arrays", () => {
+      const item = {};
+      Object.defineProperty(item, "expensive", {
+        enumerable: true,
+        get: () => {
+          throw new Error("Nested data was traversed");
+        },
+      });
+
+      expect(() => buildSignature({ series: [{ type: "pie", data: [item] }] })).not.toThrow();
     });
   });
 
@@ -118,6 +156,17 @@ describe("smart-update", () => {
         expect(next.plan.replaceMerge).toBeUndefined();
       });
 
+      it("keeps merge for nested additions and value replacements", () => {
+        const prev = buildSignature({
+          title: { text: "before", backgroundColor: linearGradient },
+        });
+        const next = planUpdate(prev, {
+          title: { text: "after", subtext: "new", backgroundColor: "transparent" },
+        });
+
+        expect(next.plan).toEqual({ notMerge: false });
+      });
+
       it("keeps merge when new series IDs are added", () => {
         const base: EChartsOption = {
           series: [{ id: "latte", type: "bar", data: [10, 20] }],
@@ -137,9 +186,17 @@ describe("smart-update", () => {
       });
 
       it("keeps merge when dataset items reorder without shrink", () => {
-        const prev = buildSignature({ dataset: [{ id: "a" }, { id: "b" }] });
+        const prev = buildSignature({
+          dataset: [
+            { id: "a", source: [[1]] },
+            { id: "b", dimensions: ["value"] },
+          ],
+        });
         const update: EChartsOption = {
-          dataset: [{ id: "b" }, { id: "a" }],
+          dataset: [
+            { id: "b", dimensions: ["value"] },
+            { id: "a", source: [[1]] },
+          ],
         };
 
         const result = planUpdate(prev, update);
@@ -198,12 +255,7 @@ describe("smart-update", () => {
         const title: EChartsOption = { title: { text: "before" } };
         const series: EChartsOption = { series: [{ type: "pie", data: [1] }] };
         const empty: EChartsOption = {};
-        const chart = init(null, undefined, {
-          renderer: "svg",
-          ssr: true,
-          width: 100,
-          height: 100,
-        });
+        const chart = createChart();
 
         try {
           chart.setOption(title);
@@ -246,12 +298,7 @@ describe("smart-update", () => {
         const base: EChartsOption = { color: ["red", "blue"] };
         const update: EChartsOption = { color: ["red"] };
         const result = planUpdate(buildSignature(base), update);
-        const chart = init(null, undefined, {
-          renderer: "svg",
-          ssr: true,
-          width: 100,
-          height: 100,
-        });
+        const chart = createChart();
 
         try {
           chart.setOption(base);
@@ -265,6 +312,54 @@ describe("smart-update", () => {
 
         const gradient: EChartsOption = { color: linearGradient };
         expect(planUpdate(buildSignature(gradient), update).plan).toEqual({ notMerge: true });
+
+        const palette: EChartsOption = { color: [linearGradient] };
+        const shorterPalette: EChartsOption = {
+          color: [{ ...linearGradient, global: undefined }],
+        };
+        expect(planUpdate(buildSignature(palette), shorterPalette).plan).toEqual({
+          notMerge: true,
+        });
+      });
+
+      it("removes nested properties from object options", () => {
+        const base: EChartsOption = { title: { text: "Coffee", subtext: "Daily sales" } };
+        const update: EChartsOption = { title: { text: "Coffee" } };
+        const result = planUpdate(buildSignature(base), update);
+        const chart = createChart();
+
+        try {
+          chart.setOption(base);
+          chart.setOption(update, result.plan);
+          const applied = chart.getOption() as AppliedOption;
+          expect(applied.title?.[0]?.subtext).not.toBe("Daily sales");
+        } finally {
+          chart.dispose();
+        }
+
+        expect(result.plan).toEqual({ notMerge: true });
+      });
+
+      it("removes nested properties from retained component IDs", () => {
+        const base: EChartsOption = {
+          series: [{ id: "sales", type: "pie", data: [1], label: { show: true, color: "red" } }],
+        };
+        const update: EChartsOption = {
+          series: [{ id: "sales", type: "pie", data: [1], label: { show: true } }],
+        };
+        const result = planUpdate(buildSignature(base), update);
+        const chart = createChart();
+
+        try {
+          chart.setOption(base);
+          chart.setOption(update, result.plan);
+          const applied = chart.getOption() as AppliedOption;
+          expect(applied.series?.[0]?.label?.color).not.toBe("red");
+        } finally {
+          chart.dispose();
+        }
+
+        expect(result.plan).toEqual({ notMerge: true });
       });
     });
 
@@ -312,23 +407,32 @@ describe("smart-update", () => {
             {
               id: "sales",
               source: [
-                ["product", "2015"],
+                ["product", "value"],
                 ["Latte", 30],
               ],
             },
           ],
-          series: [{ id: "sales-series", type: "bar", datasetId: "sales" }],
+          series: [{ id: "sales-series", type: "pie", datasetId: "sales" }],
         };
 
         const update: EChartsOption = {
-          series: [{ id: "sales-series", type: "bar", data: [35] }],
+          series: [{ id: "sales-series", type: "pie", data: [35] }],
         };
 
         const result = planUpdate(buildSignature(base), update);
+        const chart = createChart();
 
-        expect(result.plan.notMerge).toBe(false);
-        expect(result.plan.replaceMerge).toContain("dataset");
-        expect(result.plan.replaceMerge).not.toContain("series");
+        try {
+          chart.setOption(base);
+          chart.setOption(update, result.plan);
+          const applied = chart.getOption() as AppliedOption;
+          expect(applied.dataset).toBeUndefined();
+          expect(applied.series?.[0]?.datasetId).toBeUndefined();
+        } finally {
+          chart.dispose();
+        }
+
+        expect(result.plan).toEqual({ notMerge: true });
       });
 
       it("tracks multiple array shrink operations", () => {
@@ -382,31 +486,6 @@ describe("smart-update", () => {
 
         expect(result.plan.notMerge).toBe(true);
         expect(result.plan.replaceMerge).toBeUndefined();
-      });
-
-      it("handles dataset to series data migration", () => {
-        const base: EChartsOption = {
-          dataset: [
-            {
-              id: "sales",
-              source: [
-                ["Latte", 30],
-                ["Mocha", 40],
-              ],
-            },
-          ],
-          series: [{ id: "sales", type: "bar", datasetId: "sales" }],
-        };
-
-        const update: EChartsOption = {
-          series: [{ id: "sales", type: "bar", data: [35, 44] }],
-        };
-
-        const result = planUpdate(buildSignature(base), update);
-
-        expect(result.plan.replaceMerge).toEqual(["dataset"]);
-        expect(result.plan.notMerge).toBe(false);
-        expect(result.plan.replaceMerge).not.toContain("series");
       });
 
       it("tracks series ID removal while keeping modifications", () => {

@@ -8,12 +8,23 @@ export interface UpdatePlan {
   replaceMerge?: string[];
 }
 
+interface ObjectShape {
+  [key: string]: Shape | undefined;
+}
+type Shape = true | ObjectShape;
+type ArrayItemShape = {
+  id: string | undefined;
+  shape: Shape;
+};
+
 /** Summary of a top-level array key for deletion detection. */
 export interface ArraySummary {
   /** Unique, sorted string ids extracted from items' `id` field. */
   idsSorted: string[];
   /** Count of items without an `id` field. */
   noIdCount: number;
+  /** Structural snapshots aligned with the original items. */
+  shapes: ArrayItemShape[];
 }
 
 /** Minimal signature of an option used to decide setOption behavior. */
@@ -23,8 +34,8 @@ export interface Signature {
   mediaLength: number;
   /** Map of array-typed top-level keys to their summaries. */
   arrays: Record<string, ArraySummary | undefined>;
-  /** Sorted list of object-typed top-level keys. */
-  objects: string[];
+  /** Structural snapshots used to detect nested property removal without retaining option values. */
+  objectShapes: Record<string, Shape | undefined>;
   /** Sorted list of scalar-typed top-level keys (string|number|boolean|null). */
   scalars: string[];
 }
@@ -55,12 +66,38 @@ function readId(item: unknown): string | undefined {
   return undefined;
 }
 
-function summarizeArray(items: unknown[]): ArraySummary {
+function isShapeObject(value: unknown): value is Record<string, unknown> {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === null || prototype === Object.prototype;
+}
+
+function buildShape(value: unknown, stack: WeakSet<object>): Shape {
+  if (!isShapeObject(value) || stack.has(value)) {
+    return true;
+  }
+
+  stack.add(value);
+  const shape: ObjectShape = Object.create(null);
+  for (const key of Object.keys(value)) {
+    if (value[key] !== undefined) {
+      shape[key] = buildShape(value[key], stack);
+    }
+  }
+  stack.delete(value);
+  return shape;
+}
+
+function analyzeArray(items: unknown[], stack: WeakSet<object>): ArraySummary {
   const ids = new Set<string>();
   let noIdCount = 0;
+  const shapes: ArrayItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const id = readId(items[i]);
+    shapes.push({ id, shape: buildShape(items[i], stack) });
     if (id === undefined) {
       noIdCount++;
       continue;
@@ -71,12 +108,13 @@ function summarizeArray(items: unknown[]): ArraySummary {
   return {
     idsSorted: ids.size > 0 ? Array.from(ids).sort() : [],
     noIdCount,
+    shapes,
   };
 }
 
 /**
- * Build a minimal signature from a full ECharts option.
- * Only top-level keys are inspected.
+ * Build a structural signature without retaining option values.
+ * Nested arrays are leaves because ECharts replaces them instead of merging their contents.
  */
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
@@ -84,8 +122,9 @@ export function buildSignature(option: Option): Signature {
   const optionsLength = Array.isArray(opt.options) ? opt.options.length : 0;
   const mediaLength = Array.isArray(opt.media) ? opt.media.length : 0;
 
+  const stack = new WeakSet<object>();
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
-  const objects: string[] = [];
+  const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const scalars: string[] = [];
 
   for (const key of Object.keys(opt)) {
@@ -95,12 +134,12 @@ export function buildSignature(option: Option): Signature {
 
     const value = opt[key];
     if (Array.isArray(value)) {
-      arrays[key] = summarizeArray(value);
+      arrays[key] = analyzeArray(value, stack);
       continue;
     }
 
     if (isPlainObject(value)) {
-      objects.push(key);
+      objectShapes[key] = buildShape(value, stack);
       continue;
     }
 
@@ -110,9 +149,6 @@ export function buildSignature(option: Option): Signature {
     }
   }
 
-  if (objects.length > 1) {
-    objects.sort();
-  }
   if (scalars.length > 1) {
     scalars.sort();
   }
@@ -121,43 +157,22 @@ export function buildSignature(option: Option): Signature {
     optionsLength,
     mediaLength,
     arrays,
-    objects,
+    objectShapes,
     scalars,
   };
 }
 
-function diffKeys(prevKeys: readonly string[], nextKeys: readonly string[]): string[] {
-  if (prevKeys.length === 0) {
-    return [];
-  }
-  if (nextKeys.length === 0) {
-    return prevKeys.slice();
-  }
-
-  const nextSet = new Set(nextKeys);
-  const missing: string[] = [];
-
-  for (let i = 0; i < prevKeys.length; i++) {
-    const key = prevKeys[i];
-    if (!nextSet.has(key)) {
-      missing.push(key);
-    }
-  }
-
-  return missing;
-}
-
-function hasMissingIds(prevIds: readonly string[], nextIds: readonly string[]): boolean {
-  if (prevIds.length === 0) {
+function hasMissing(prev: readonly string[], next: readonly string[]): boolean {
+  if (prev.length === 0) {
     return false;
   }
-  if (nextIds.length === 0) {
+  if (next.length === 0) {
     return true;
   }
 
-  const nextSet = new Set(nextIds);
-  for (let i = 0; i < prevIds.length; i++) {
-    if (!nextSet.has(prevIds[i])) {
+  const nextSet = new Set(next);
+  for (let i = 0; i < prev.length; i++) {
+    if (!nextSet.has(prev[i])) {
       return true;
     }
   }
@@ -170,7 +185,44 @@ function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): bo
     return prev.idsSorted.length > 0 || prev.noIdCount > 0;
   }
 
-  return hasMissingIds(prev.idsSorted, next.idsSorted) || next.noIdCount < prev.noIdCount;
+  return hasMissing(prev.idsSorted, next.idsSorted) || next.noIdCount < prev.noIdCount;
+}
+
+function hasShapeRemoval(prev: Shape, next: Shape): boolean {
+  if (prev === true || next === true) {
+    return false;
+  }
+
+  for (const key of Object.keys(prev)) {
+    const nextChild = next[key];
+    if (nextChild === undefined || hasShapeRemoval(prev[key] as Shape, nextChild)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): boolean {
+  const nextById = new Map<string, Shape>();
+  const nextAnonymous: Shape[] = [];
+
+  for (const item of next) {
+    if (item.id === undefined) {
+      nextAnonymous.push(item.shape);
+    } else {
+      nextById.set(item.id, item.shape);
+    }
+  }
+
+  let anonymousIndex = 0;
+  for (const item of prev) {
+    const nextShape =
+      item.id === undefined ? nextAnonymous[anonymousIndex++] : nextById.get(item.id);
+    if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
@@ -182,15 +234,21 @@ function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
     return true;
   }
 
-  const missingObjects = diffKeys(prev.objects, next.objects);
-  for (let i = 0; i < missingObjects.length; i++) {
-    const key = missingObjects[i];
+  for (const key of Object.keys(prev.objectShapes)) {
+    const prevShape = prev.objectShapes[key];
+    const nextShape = next.objectShapes[key];
+    if (prevShape && nextShape) {
+      if (hasShapeRemoval(prevShape, nextShape)) {
+        return true;
+      }
+      continue;
+    }
     if (next.arrays[key] === undefined && !next.scalars.includes(key)) {
       return true;
     }
   }
 
-  return diffKeys(prev.scalars, next.scalars).length > 0;
+  return hasMissing(prev.scalars, next.scalars);
 }
 
 /** Returns null when replaceMerge cannot represent a destructive array change. */
@@ -203,7 +261,12 @@ function collectReplacements(prev: Signature, next: Signature): Set<string> | nu
       continue;
     }
 
-    if (!hasArrayRemoval(prevArray, next.arrays[key])) {
+    const nextArray = next.arrays[key];
+    if (nextArray && hasItemShapeRemoval(prevArray.shapes, nextArray.shapes)) {
+      return null;
+    }
+
+    if (!hasArrayRemoval(prevArray, nextArray)) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {
@@ -212,8 +275,7 @@ function collectReplacements(prev: Signature, next: Signature): Set<string> | nu
     replaceMerge.add(key);
   }
 
-  for (let i = 0; i < prev.objects.length; i++) {
-    const key = prev.objects[i];
+  for (const key of Object.keys(prev.objectShapes)) {
     if (!next.arrays[key]) {
       continue;
     }
