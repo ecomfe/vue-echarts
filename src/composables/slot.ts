@@ -137,6 +137,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
       const leaf = path[path.length - 1];
       const formatter = (payload: unknown): HTMLElement | undefined => {
+        if (!slots[key]) {
+          return undefined;
+        }
         initialized[key] = true;
         params[key] = payload;
         return containers[key];

@@ -237,11 +237,12 @@ describe("useSlotOption", () => {
   it("cleans formatter containers when dynamic tooltip/dataView slot paths are removed", async () => {
     const changeSpy = vi.fn();
     const showNested = ref(true);
+    const tooltipSlot = vi.fn(() => [h("span", "nested-tooltip")]);
 
     const { exposed } = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (showNested.value) {
-        slots["tooltip-series-0"] = () => [h("span", "nested-tooltip")];
+        slots["tooltip-series-0"] = tooltipSlot;
         slots["dataView-panel"] = () => [h("span", "nested-data-view")];
       }
       return slots;
@@ -283,12 +284,16 @@ describe("useSlotOption", () => {
     await nextTick();
 
     expect(changeSpy).toHaveBeenCalledTimes(1);
+    tooltipSlot.mockClear();
     expect(tooltip.formatter(makeTooltipParams(10), "")).toBeUndefined();
     expect(optionToContent({})).toBeUndefined();
-
     const patchedAfterRemoval = getExposed(exposed).patchOption({});
     expect(patchedAfterRemoval.series).toBeUndefined();
     expect((patchedAfterRemoval as Record<string, unknown>).panel).toBeUndefined();
+
+    showNested.value = true;
+    await nextTick();
+    expect(tooltipSlot).not.toHaveBeenCalled();
   });
 
   it("warns and skips invalid slot names", async () => {
