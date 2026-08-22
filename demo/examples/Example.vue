@@ -39,7 +39,7 @@ const badges = computed<string[]>(() => {
   <div v-if="badges.length" class="badges">
     <span v-for="(b, i) in badges" :key="i" class="badge">{{ b }}</span>
   </div>
-  <section>
+  <div>
     <figure v-if="!split" class="fig hero">
       <slot />
     </figure>
@@ -52,7 +52,7 @@ const badges = computed<string[]>(() => {
       </figure>
     </div>
     <slot name="extra" />
-  </section>
+  </div>
 </template>
 
 <style>

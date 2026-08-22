@@ -121,34 +121,37 @@ watch(codeOpen, applyCodegenState, { immediate: true });
       /></a>
     </p>
 
-    <section class="examples-head" aria-label="Examples">
-      <a
-        class="examples-deco"
-        href="https://echarts.apache.org/examples/en/index.html"
-        target="_blank"
-        rel="noopener"
-        aria-label="All examples"
-        title="All examples"
-      >
-        <span class="rule" aria-hidden="true"></span>
-        <span class="dot" aria-hidden="true"></span>
-        <span class="dot" aria-hidden="true"></span>
-        <span class="dot" aria-hidden="true"></span>
-        <span class="rule" aria-hidden="true"></span>
-      </a>
-    </section>
+    <section aria-labelledby="examples-title">
+      <h2 id="examples-title" class="sr-only">Examples</h2>
+      <div class="examples-head">
+        <a
+          class="examples-deco"
+          href="https://echarts.apache.org/examples/en/index.html"
+          target="_blank"
+          rel="noopener"
+          aria-label="All examples"
+          title="All examples"
+        >
+          <span class="rule" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="rule" aria-hidden="true"></span>
+        </a>
+      </div>
 
-    <BarChart />
-    <LineChart />
-    <PieChart />
-    <PolarChart />
-    <ScatterChart />
-    <GeoChart />
-    <RadarChart />
-    <ConnectChart />
-    <GlChart />
-    <ManualChart />
-    <GraphicOverlay />
+      <BarChart />
+      <LineChart />
+      <PieChart />
+      <PolarChart />
+      <ScatterChart />
+      <GeoChart />
+      <RadarChart />
+      <ConnectChart />
+      <GlChart />
+      <ManualChart />
+      <GraphicOverlay />
+    </section>
 
     <footer class="site-footer" aria-label="Footer">
       <small class="footer-links">
@@ -236,6 +239,7 @@ watch(codeOpen, applyCodegenState, { immediate: true });
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
@@ -271,11 +275,6 @@ h3 {
   margin-top: 2rem;
   padding-top: 1rem;
   font-size: 1.2rem;
-
-  button {
-    margin-left: 1rem;
-    vertical-align: middle;
-  }
 }
 
 .desc {
@@ -473,6 +472,10 @@ textarea {
 }
 
 @media (max-width: 640px) {
+  html {
+    scroll-padding-top: var(--space-4);
+  }
+
   body {
     padding-bottom: calc(var(--space-1) * 24);
   }
@@ -561,9 +564,17 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   * {
     animation: none !important;
     transition: none !important;
+  }
+
+  #logo:hover {
+    transform: none !important;
   }
 }
 
@@ -670,16 +681,6 @@ x-vue-echarts {
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #logo {
-    transition: none;
-  }
-  #logo:hover {
-    transform: none;
-    animation: none;
   }
 }
 
