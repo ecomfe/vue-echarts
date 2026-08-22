@@ -111,10 +111,11 @@ export default defineComponent({
         return updateOptions;
       }
 
-      const replaceMerge = [...(updateOptions?.replaceMerge ?? []), "graphic"];
+      const replaceMerge = updateOptions?.replaceMerge;
+      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : (replaceMerge ?? []);
       return {
         ...updateOptions,
-        replaceMerge: [...new Set(replaceMerge)],
+        replaceMerge: [...new Set([...replacements, "graphic"])],
       };
     }
 

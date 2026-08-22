@@ -398,7 +398,7 @@ describe("graphic slot edge and integration behavior", () => {
         return () =>
           h(
             ECharts,
-            { option: option.value },
+            { option: option.value, updateOptions: { replaceMerge: "series" } },
             {
               graphic: () => h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 }),
             },
@@ -410,14 +410,18 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
+    const chartStub = suite.getChartStub();
+    chartStub.setOption.mockClear();
+
     option.value = { series: [{ type: "line", data: [3, 2, 1] }] };
     x.value = 36;
     await nextTick();
     await flushAnimationFrame();
 
-    const chartStub = suite.getChartStub();
-    const [, updateArg] = getLastSetOptionCall(chartStub);
-    expect(updateArg?.replaceMerge).toContain("graphic");
+    const replacements = chartStub.setOption.mock.calls.map(
+      ([, updateArg]) => updateArg?.replaceMerge,
+    );
+    expect(replacements).toContainEqual(["series", "graphic"]);
     const marker = getLastGraphicOption(chartStub).graphic.elements[0].children[0];
     expect(marker.shape).toMatchObject({ x: 36 });
   });
