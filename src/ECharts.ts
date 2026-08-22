@@ -297,8 +297,8 @@ export default defineComponent({
 
     watchEffect(() => {
       const instance = chart.value;
-      if (props.group && instance) {
-        instance.group = props.group;
+      if (instance) {
+        instance.group = props.group ?? "";
       }
     });
 

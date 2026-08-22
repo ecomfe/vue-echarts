@@ -72,7 +72,7 @@ beforeEach(() => {
 describe("ECharts component", () => {
   it("initializes and reacts to reactive props", async () => {
     const option = ref({ title: { text: "coffee" } });
-    const group = ref("group-a");
+    const group = ref<string | undefined>("group-a");
     const exposed = shallowRef<Exposed>();
 
     const screen = renderChart(() => ({ option: option.value, group: group.value }), exposed);
@@ -100,6 +100,10 @@ describe("ECharts component", () => {
     group.value = "group-b";
     await nextTick();
     expect(chartStub.group).toBe("group-b");
+
+    group.value = undefined;
+    await nextTick();
+    expect(chartStub.group).toBe("");
 
     screen.unmount();
     await nextTick();
