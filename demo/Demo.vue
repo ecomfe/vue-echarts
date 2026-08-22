@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, computed, ref, watch } from "vue";
+import { provide, computed, defineAsyncComponent, ref, watch } from "vue";
 import { useScrollLock, useUrlSearchParams } from "@vueuse/core";
 import { use, registerTheme } from "echarts/core";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
@@ -21,9 +21,11 @@ import GlChart from "./examples/GlChart.vue";
 import ManualChart from "./examples/ManualChart.vue";
 import GraphicOverlay from "./examples/GraphicOverlay.vue";
 
-import CodeGen from "./CodeGen.vue";
 import { useDemoDark } from "./composables/useDemoDark";
 import { getScrollLockTarget, getScrollbarWidth, isClient, setHash } from "./utils/dom";
+
+const loadCodegen = () => import("./CodeGen.vue");
+const CodeGen = defineAsyncComponent(loadCodegen);
 
 type Renderer = "canvas" | "svg";
 
@@ -53,6 +55,8 @@ const scrollLock = isClient ? useScrollLock(lockTarget, false) : ref(false);
 
 const initialCodegenOpen = isClient && window.location.hash === "#codegen";
 const codeOpen = ref(initialCodegenOpen);
+const codegenMounted = ref(initialCodegenOpen);
+const codegenLoading = ref(false);
 
 const trackCodegen = (source: "link" | "click"): void => {
   if (isClient) {
@@ -64,9 +68,24 @@ if (initialCodegenOpen) {
   trackCodegen("link");
 }
 
-function openCodegen(): void {
-  codeOpen.value = true;
+function prepareCodegen(): void {
+  void loadCodegen().catch(() => {});
+}
+
+async function openCodegen(): Promise<void> {
+  if (codeOpen.value || codegenLoading.value) {
+    return;
+  }
+
   trackCodegen("click");
+  codegenLoading.value = true;
+  try {
+    await loadCodegen();
+    codegenMounted.value = true;
+    codeOpen.value = true;
+  } finally {
+    codegenLoading.value = false;
+  }
 }
 
 const applyCodegenState = (open: boolean): void => {
@@ -187,10 +206,20 @@ watch(codeOpen, applyCodegenState, { immediate: true });
           Dark
         </button>
       </div>
-      <button class="codegen" type="button" @click="openCodegen">Generate code</button>
+      <button
+        class="codegen"
+        type="button"
+        :disabled="codegenLoading"
+        :aria-busy="codegenLoading"
+        @pointerenter="prepareCodegen"
+        @focus="prepareCodegen"
+        @click="openCodegen"
+      >
+        {{ codegenLoading ? "Loading code…" : "Generate code" }}
+      </button>
     </div>
 
-    <CodeGen v-model:open="codeOpen" :renderer="selectedRenderer" />
+    <CodeGen v-if="codegenMounted" v-model:open="codeOpen" :renderer="selectedRenderer" />
   </main>
 </template>
 
