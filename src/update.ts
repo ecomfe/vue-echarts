@@ -28,7 +28,6 @@ export interface Signature {
 }
 
 export interface PlannedUpdate {
-  option: Option;
   signature: Signature;
   plan: UpdatePlan;
 }
@@ -173,30 +172,18 @@ function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
     return true;
   }
 
-  return diffKeys(prev.scalars, next.scalars).length > 0;
-}
-
-function collectObjectOverrides(prev: Signature, next: Signature): Map<string, null | []> {
-  const overrides = new Map<string, null | []>();
-
   const missingObjects = diffKeys(prev.objects, next.objects);
   for (let i = 0; i < missingObjects.length; i++) {
     const key = missingObjects[i];
-    const movedToArray = next.arrays[key] !== undefined;
-    const movedToScalar = next.scalars.includes(key);
-    if (!movedToArray && !movedToScalar) {
-      overrides.set(key, null);
+    if (next.arrays[key] === undefined && !next.scalars.includes(key)) {
+      return true;
     }
   }
 
-  return overrides;
+  return diffKeys(prev.scalars, next.scalars).length > 0;
 }
 
-function collectArrayChanges(
-  prev: Signature,
-  next: Signature,
-  overrides: Map<string, null | []>,
-): Set<string> {
+function collectReplacements(prev: Signature, next: Signature): Set<string> {
   const replaceMerge = new Set<string>();
 
   for (const key of Object.keys(prev.arrays)) {
@@ -208,9 +195,6 @@ function collectArrayChanges(
     const nextArray = next.arrays[key];
     if (!nextArray) {
       if (prevArray.idsSorted.length > 0 || prevArray.noIdCount > 0) {
-        if (!next.objects.includes(key)) {
-          overrides.set(key, []);
-        }
         replaceMerge.add(key);
       }
       continue;
@@ -236,31 +220,8 @@ function collectArrayChanges(
   return replaceMerge;
 }
 
-function applyOverrides(
-  option: Option,
-  next: Signature,
-  overrides: Map<string, null | []>,
-): { option: Option; signature: Signature } {
-  if (overrides.size === 0) {
-    return {
-      option,
-      signature: next,
-    };
-  }
-
-  const normalizedOption: Option = { ...option };
-  overrides.forEach((value, key) => {
-    normalizedOption[key] = value;
-  });
-
-  return {
-    option: normalizedOption,
-    signature: buildSignature(normalizedOption),
-  };
-}
-
 /**
- * Produce an update plan plus a normalized option that encodes common deletions.
+ * Produce an update plan that preserves option deletions.
  * Falls back to `notMerge: true` when the change looks complex.
  */
 export function planUpdate(prev: Signature | undefined, option: Option): PlannedUpdate {
@@ -268,7 +229,6 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
 
   if (!prev) {
     return {
-      option,
       signature: next,
       plan: { notMerge: false },
     };
@@ -276,21 +236,16 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
 
   if (shouldForceNotMerge(prev, next)) {
     return {
-      option,
       signature: next,
       plan: { notMerge: true },
     };
   }
 
-  const overrides = collectObjectOverrides(prev, next);
-  const replaceMergeSet = collectArrayChanges(prev, next, overrides);
-  const normalized = applyOverrides(option, next, overrides);
-
+  const replaceMergeSet = collectReplacements(prev, next);
   const replaceMerge = replaceMergeSet.size > 0 ? Array.from(replaceMergeSet).sort() : undefined;
 
   return {
-    option: normalized.option,
-    signature: normalized.signature,
+    signature: next,
     plan: replaceMerge ? { notMerge: false, replaceMerge } : { notMerge: false },
   };
 }

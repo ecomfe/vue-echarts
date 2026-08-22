@@ -147,16 +147,7 @@ export default defineComponent({
       }
 
       const planned = planUpdate(lastSignature, patched);
-      const updateOptions: UpdateOptions = {
-        notMerge: planned.plan.notMerge,
-      };
-      const replacements = (planned.plan.replaceMerge ?? []).filter(
-        (key): key is string => key != null,
-      );
-      if (replacements.length > 0) {
-        updateOptions.replaceMerge = [...new Set(replacements)];
-      }
-      instance.setOption(planned.option, withGraphicReplaceMerge(updateOptions));
+      instance.setOption(patched, withGraphicReplaceMerge(planned.plan));
       lastSignature = planned.signature;
     }
 
