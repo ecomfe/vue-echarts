@@ -153,3 +153,43 @@ describe("ECharts theme behavior (real echarts)", () => {
     expect(getSeriesDataLength(chart)).toBe(3);
   });
 });
+
+describe("ECharts callback slots (real echarts)", () => {
+  it("restores the built-in tooltip after its slot is removed", async () => {
+    const showTooltipSlot = ref(true);
+    const option: Option = {
+      tooltip: { trigger: "item" },
+    };
+    const exposed = shallowRef<Exposed>();
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {
+              option,
+              style: "width: 640px; height: 420px;",
+              ref: createExposeSetter(exposed),
+            },
+            showTooltipSlot.value ? { tooltip: () => [h("span", "custom-tooltip")] } : undefined,
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    const chart = getChart(exposed.value);
+    const getFormatter = () =>
+      (chart.getOption() as { tooltip?: Array<{ formatter?: unknown }> }).tooltip?.[0]?.formatter;
+
+    expect(getFormatter()).toBeTypeOf("function");
+
+    showTooltipSlot.value = false;
+    await nextTick();
+    await nextTick();
+
+    expect(getFormatter()).toBeUndefined();
+  });
+});

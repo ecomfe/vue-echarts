@@ -1,6 +1,6 @@
 import { h, Teleport, onUpdated, onUnmounted, onMounted, shallowRef, shallowReactive } from "vue";
 import type { Slots, SlotsType } from "vue";
-import type { Option } from "../types";
+import type { Option, UpdateOptions } from "../types";
 import { isBrowser, isPlainObject, isSameSet, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
@@ -61,7 +61,7 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
   parent[seg] = value;
 }
 
-export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
+export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOptions) => void) {
   const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
   const containers = shallowReactive<SlotContainerMap>({});
   const initialized = shallowReactive<SlotInitMap>({});
@@ -157,15 +157,18 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     const nextSlotNames = collectSlotNames(false);
     if (!isSameSet(nextSlotNames, slotNames)) {
       const nextSlotNameSet = new Set(nextSlotNames);
+      let removed = false;
       for (const key of slotNames) {
         if (!nextSlotNameSet.has(key)) {
+          removed = true;
           delete params[key];
           delete initialized[key];
           delete containers[key];
         }
       }
       slotNames = nextSlotNames;
-      onSlotsChange();
+      // ECharts merge retains formatter fields omitted after a slot is removed.
+      onSlotsChange(removed ? { notMerge: true } : undefined);
     }
   });
 

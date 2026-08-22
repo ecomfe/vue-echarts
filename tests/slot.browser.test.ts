@@ -228,7 +228,8 @@ describe("useSlotOption", () => {
     showExtra.value = false;
     await nextTick();
 
-    expect(changeSpy).toHaveBeenCalledTimes(1);
+    expect(changeSpy).toHaveBeenCalledOnce();
+    expect(changeSpy).toHaveBeenCalledWith({ notMerge: true });
 
     const patchedAfterRemoval = getExposed(exposed).patchOption({});
     expect("tooltip-extra" in patchedAfterRemoval).toBe(false);
@@ -294,6 +295,30 @@ describe("useSlotOption", () => {
     showNested.value = true;
     await nextTick();
     expect(tooltipSlot).not.toHaveBeenCalled();
+  });
+
+  it("preserves merge updates when callback slots are added", async () => {
+    const changeSpy = vi.fn();
+    const showExtra = ref(false);
+
+    renderSlotComponent(() => {
+      const slots: SlotDictionary = {
+        tooltip: () => [h("span", "tooltip")],
+      };
+      if (showExtra.value) {
+        slots["tooltip-extra"] = () => [h("span", "extra")];
+      }
+      return slots;
+    }, changeSpy);
+
+    await nextTick();
+    changeSpy.mockClear();
+
+    showExtra.value = true;
+    await nextTick();
+
+    expect(changeSpy).toHaveBeenCalledOnce();
+    expect(changeSpy.mock.calls[0]?.[0]).toBeUndefined();
   });
 
   it("warns and skips invalid slot names", async () => {
