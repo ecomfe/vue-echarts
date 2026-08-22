@@ -441,7 +441,7 @@ describe("smart-update", () => {
         expect(result.option.series).toEqual(update.series);
       });
 
-      it("keeps next series array when migrating from single-object series", () => {
+      it("replaces series when its shape changes from an object to an array", () => {
         const base: EChartsOption = {
           series: {
             type: "bar",
@@ -456,8 +456,31 @@ describe("smart-update", () => {
         const result = planUpdate(buildSignature(base), update);
 
         expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toEqual(["series"]);
         expect(result.option.series).toEqual(update.series);
-        expect(result.option.series).not.toBeNull();
+      });
+
+      it("replaces series when its shape changes from an array to an object", () => {
+        const base: EChartsOption = {
+          series: [
+            { id: "latte", type: "bar", data: [10, 20] },
+            { id: "mocha", type: "line", data: [15, 25] },
+          ],
+        };
+
+        const update: EChartsOption = {
+          series: {
+            id: "latte",
+            type: "bar",
+            data: [12, 24],
+          } as unknown as EChartsOption["series"],
+        };
+
+        const result = planUpdate(buildSignature(base), update);
+
+        expect(result.plan.notMerge).toBe(false);
+        expect(result.plan.replaceMerge).toEqual(["series"]);
+        expect(result.option.series).toEqual(update.series);
       });
 
       it("prioritizes notMerge when scalar removal happens with array shrink", () => {

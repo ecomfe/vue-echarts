@@ -208,7 +208,9 @@ function collectArrayChanges(
     const nextArray = next.arrays[key];
     if (!nextArray) {
       if (prevArray.idsSorted.length > 0 || prevArray.noIdCount > 0) {
-        overrides.set(key, []);
+        if (!next.objects.includes(key)) {
+          overrides.set(key, []);
+        }
         replaceMerge.add(key);
       }
       continue;
@@ -220,6 +222,13 @@ function collectArrayChanges(
     }
 
     if (nextArray.noIdCount < prevArray.noIdCount) {
+      replaceMerge.add(key);
+    }
+  }
+
+  for (let i = 0; i < prev.objects.length; i++) {
+    const key = prev.objects[i];
+    if (next.arrays[key]) {
       replaceMerge.add(key);
     }
   }
