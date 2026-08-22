@@ -1,12 +1,15 @@
 import { warn as coreWarn } from "../utils";
 import type { Warn, WarnOptions } from "../utils";
 
+export type GraphicEventHandler = (...args: unknown[]) => void;
+
 export type GraphicNode = {
   id: string;
   type: string;
   parentId: string | null;
   props: Record<string, unknown>;
   handlers: Record<string, unknown>;
+  onceHandlers: Map<string, { source: unknown; handler: GraphicEventHandler }>;
   order: number;
   sourceId: number;
 };
@@ -20,7 +23,9 @@ export type GraphicCollector = {
   dispose: () => void;
 };
 
-export type GraphicRegisterNode = Omit<GraphicNode, "order"> & { order?: number };
+export type GraphicRegisterNode = Omit<GraphicNode, "onceHandlers" | "order"> & {
+  order?: number;
+};
 
 export function createCollector(options: { onFlush: () => void }): GraphicCollector {
   const { onFlush } = options;
@@ -55,8 +60,13 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
 
     const nextOrder = node.order ?? order;
     order = Math.max(order, nextOrder + 1);
+    const existing = nodes.get(node.id);
 
-    nodes.set(node.id, { ...node, order: nextOrder });
+    nodes.set(node.id, {
+      ...node,
+      onceHandlers: existing?.sourceId === node.sourceId ? existing.onceHandlers : new Map(),
+      order: nextOrder,
+    });
     seenInPass.set(node.id, node.sourceId);
     requestFlush();
   }

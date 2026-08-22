@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { defineComponent, h, nextTick, ref, shallowRef } from "vue";
 
 import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
@@ -231,11 +231,14 @@ describe("graphic slot event handling", () => {
     expect(fnC).toHaveBeenCalledTimes(1);
   });
 
-  it("supports once handlers via onClickOnce", async () => {
+  it("keeps once handlers consumed across rerenders and resets on replacement", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
-    const onClickOnce = vi.fn();
+    const x = ref(10);
+    const onClickA = vi.fn();
+    const onClickB = vi.fn();
+    const onClickOnce = shallowRef(onClickA);
 
     const Root = defineComponent({
       setup() {
@@ -247,11 +250,11 @@ describe("graphic slot event handling", () => {
               graphic: () =>
                 h(GRect, {
                   id: "once-node",
-                  x: 10,
+                  x: x.value,
                   y: 10,
                   width: 10,
                   height: 10,
-                  onClickOnce,
+                  onClickOnce: onClickOnce.value,
                 }),
             },
           );
@@ -263,16 +266,35 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const node = getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node") as
-      | Record<string, unknown>
-      | undefined;
-    if (!node || typeof node.onclick !== "function") {
-      throw new Error("Expected once click handler to exist.");
-    }
+    const getClick = (): ((params: unknown) => void) => {
+      const node = getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node");
+      if (typeof node?.onclick !== "function") {
+        throw new Error("Expected once click handler to exist.");
+      }
+      return node.onclick as (params: unknown) => void;
+    };
 
-    (node.onclick as (params: unknown) => void)({ value: 1 });
-    (node.onclick as (params: unknown) => void)({ value: 2 });
+    const click = getClick();
+    click({ value: 1 });
+    click({ value: 2 });
 
-    expect(onClickOnce).toHaveBeenCalledTimes(1);
+    expect(onClickA).toHaveBeenCalledTimes(1);
+
+    x.value = 20;
+    await nextTick();
+    await flushAnimationFrame();
+
+    getClick()({ value: 3 });
+    expect(onClickA).toHaveBeenCalledTimes(1);
+
+    onClickOnce.value = onClickB;
+    await nextTick();
+    await flushAnimationFrame();
+
+    const replacement = getClick();
+    replacement({ value: 4 });
+    replacement({ value: 5 });
+    expect(onClickA).toHaveBeenCalledTimes(1);
+    expect(onClickB).toHaveBeenCalledTimes(1);
   });
 });

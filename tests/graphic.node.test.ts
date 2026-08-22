@@ -1,9 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 
 import { buildOption } from "../src/graphic/build";
-import { createCollector } from "../src/graphic/collector";
+import { createCollector, type GraphicNode } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
+
+function withOnceHandlers(nodes: Array<Omit<GraphicNode, "onceHandlers">>): GraphicNode[] {
+  return nodes.map((node) => ({ ...node, onceHandlers: new Map() }));
+}
 
 function getRootGraphicElement(option: unknown): any {
   const root = (option as any).graphic?.elements?.[0] as any;
@@ -15,7 +19,7 @@ function getRootGraphicElement(option: unknown): any {
 
 describe("graphic", () => {
   it("builds graphic option with ordered children and replace root", () => {
-    const nodes = [
+    const nodes = withOnceHandlers([
       {
         id: "rect",
         type: "rect",
@@ -51,7 +55,7 @@ describe("graphic", () => {
         order: 0,
         sourceId: 2,
       },
-    ];
+    ]);
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
@@ -84,7 +88,7 @@ describe("graphic", () => {
   });
 
   it("keeps user info as-is and maps handlers to graphic onxxx props", () => {
-    const nodes = [
+    const nodes = withOnceHandlers([
       {
         id: "hit",
         type: "circle",
@@ -99,7 +103,7 @@ describe("graphic", () => {
         order: 0,
         sourceId: 1,
       },
-    ];
+    ]);
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
@@ -114,7 +118,7 @@ describe("graphic", () => {
   });
 
   it("builds image/group options and covers info fallback branches", () => {
-    const nodes = [
+    const nodes = withOnceHandlers([
       {
         id: "group",
         type: "group",
@@ -217,7 +221,7 @@ describe("graphic", () => {
         order: 3,
         sourceId: 6,
       },
-    ];
+    ]);
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);

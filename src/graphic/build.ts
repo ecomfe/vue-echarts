@@ -2,11 +2,9 @@ import type { Option } from "../types";
 import { parseOnEvent } from "../utils";
 import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
-import type { GraphicNode } from "./collector";
+import type { GraphicEventHandler, GraphicNode } from "./collector";
 
 const EMPTY_PROP_KEYS: readonly string[] = [];
-
-type GraphicEventHandler = (...args: unknown[]) => void;
 
 function resolveShapeKeys(type: string): readonly string[] {
   return SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
@@ -112,10 +110,15 @@ function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | un
   };
 }
 
-function buildHandlers(
-  handlers: Record<string, unknown>,
-): Record<string, GraphicEventHandler> | undefined {
+function buildHandlers(node: GraphicNode): Record<string, GraphicEventHandler> | undefined {
+  const { handlers, onceHandlers } = node;
   const out: Record<string, GraphicEventHandler> = {};
+
+  for (const key of onceHandlers.keys()) {
+    if (!(key in handlers)) {
+      onceHandlers.delete(key);
+    }
+  }
 
   for (const [key, value] of Object.entries(handlers)) {
     const descriptor = parseOnEvent(key);
@@ -123,7 +126,16 @@ function buildHandlers(
       continue;
     }
 
-    const handler = toEventHandler(value, descriptor.once);
+    const cached = descriptor.once ? onceHandlers.get(key) : undefined;
+    const handler =
+      cached && cached.source === value ? cached.handler : toEventHandler(value, descriptor.once);
+    if (descriptor.once) {
+      if (handler) {
+        onceHandlers.set(key, { source: value, handler });
+      } else {
+        onceHandlers.delete(key);
+      }
+    }
     if (!handler) {
       continue;
     }
@@ -154,7 +166,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
   Object.assign(out, buildCommon(type, props));
 
-  const handlers = buildHandlers(node.handlers);
+  const handlers = buildHandlers(node);
   if (handlers) {
     Object.assign(out, handlers);
   }
