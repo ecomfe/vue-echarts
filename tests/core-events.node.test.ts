@@ -157,11 +157,14 @@ describe("core events", () => {
     scope.stop();
   });
 
-  it("supports once handlers declared as mixed arrays and rebinds on updates", async () => {
+  it("supports mixed once handlers, detaches before invocation, and rebinds", async () => {
     const chartRef = ref<EChartsType | undefined>();
+    const error = new Error("listener failed");
     const fnA = vi.fn();
     const fnB = vi.fn();
-    const fnC = vi.fn();
+    const fnC = vi.fn(() => {
+      throw error;
+    });
     const attrs = reactive<Record<string, unknown>>({
       onClickOnce: [fnA, "invalid", fnB],
     });
@@ -204,8 +207,8 @@ describe("core events", () => {
       (target.chart as unknown as EmitterStub).on,
       "click",
     );
-    secondOnceBinding("second");
-    secondOnceBinding("second-again");
+    expect(() => secondOnceBinding("second")).toThrow(error);
+    expect(() => secondOnceBinding("second-again")).not.toThrow();
     expect(fnC).toHaveBeenCalledTimes(1);
     expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
       "click",

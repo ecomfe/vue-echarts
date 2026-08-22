@@ -68,8 +68,8 @@ function createBoundHandler(
       return;
     }
     called = true;
-    invoke(...args);
     emitter.off(event, onceHandler);
+    invoke(...args);
   };
 
   return onceHandler;
