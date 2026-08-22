@@ -699,15 +699,6 @@ x-vue-echarts {
     align-items: center;
     justify-content: center;
   }
-
-  img {
-    position: absolute;
-    background-color: var(--surface);
-    max-width: 80vw;
-    border: 1px solid var(--border);
-    border-radius: var(--r-s);
-    box-shadow: var(--shadow);
-  }
 }
 
 @media (max-width: 480px) {
