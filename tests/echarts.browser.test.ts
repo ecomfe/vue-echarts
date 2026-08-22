@@ -1217,19 +1217,21 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
   });
 
-  it("skips resize when instance is disposed in autoresize path", async () => {
+  it("abandons deferred autoresize initialization after unmount", async () => {
     const option = ref({});
     const exposed = shallowRef<Exposed>();
 
-    // Force the disposed branch in resize()
-    chartStub.isDisposed.mockReturnValue(true);
+    chartStub.dispose.mockImplementation(() => {
+      chartStub.isDisposed.mockReturnValue(true);
+    });
 
-    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    const screen = renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    screen.unmount();
     await nextTick();
 
-    // resize should be skipped, commit should still apply option
+    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
     expect(chartStub.resize).not.toHaveBeenCalled();
-    expect(chartStub.setOption).toHaveBeenCalled();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
   it("stops reactive updates after toggling manualUpdate to true", async () => {

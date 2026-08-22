@@ -198,12 +198,6 @@ export default defineComponent({
         instance.group = props.group;
       }
 
-      function resize(): void {
-        if (!instance.isDisposed()) {
-          instance.resize();
-        }
-      }
-
       function commit(): void {
         const option = props.option;
         if (!option) {
@@ -220,7 +214,10 @@ export default defineComponent({
 
       if (autoresize.value) {
         nextTick(() => {
-          resize();
+          if (instance.isDisposed()) {
+            return;
+          }
+          instance.resize();
           commit();
           isReady.value = true;
         });
