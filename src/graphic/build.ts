@@ -1,8 +1,9 @@
 import type { Option } from "../types";
-import { parseOnEvent } from "../utils";
+import { createEventInvoker, parseOnEvent } from "../utils";
+import type { EventHandler } from "../utils";
 import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
-import type { GraphicEventHandler, GraphicNode } from "./collector";
+import type { GraphicNode } from "./collector";
 
 const EMPTY_PROP_KEYS: readonly string[] = [];
 
@@ -73,30 +74,9 @@ function buildCommon(type: string, props: Record<string, unknown>): Record<strin
   return out;
 }
 
-function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | undefined {
-  const handlers: GraphicEventHandler[] = [];
-
-  if (typeof value === "function") {
-    handlers.push(value as GraphicEventHandler);
-  } else if (Array.isArray(value)) {
-    for (const item of value) {
-      if (typeof item === "function") {
-        handlers.push(item as GraphicEventHandler);
-      }
-    }
-  }
-
-  if (handlers.length === 0) {
-    return undefined;
-  }
-
-  const invoke = (...args: unknown[]): void => {
-    for (const handler of handlers) {
-      handler(...args);
-    }
-  };
-
-  if (!once) {
+function toEventHandler(value: unknown, once: boolean): EventHandler | undefined {
+  const invoke = createEventInvoker(value);
+  if (!invoke || !once) {
     return invoke;
   }
 
@@ -110,9 +90,9 @@ function toEventHandler(value: unknown, once: boolean): GraphicEventHandler | un
   };
 }
 
-function buildHandlers(node: GraphicNode): Record<string, GraphicEventHandler> | undefined {
+function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefined {
   const { handlers, onceHandlers } = node;
-  const out: Record<string, GraphicEventHandler> = {};
+  const out: Record<string, EventHandler> = {};
 
   for (const key of onceHandlers.keys()) {
     if (!(key in handlers)) {

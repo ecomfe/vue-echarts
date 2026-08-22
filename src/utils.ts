@@ -1,6 +1,25 @@
 import { warn as vueWarn } from "vue";
 
 export type AttrMap = Record<string, unknown>;
+export type EventHandler = (...args: unknown[]) => void;
+
+export function createEventInvoker(value: unknown): EventHandler | undefined {
+  if (typeof value === "function") {
+    return value as EventHandler;
+  }
+
+  if (!Array.isArray(value) || !value.some((handler) => typeof handler === "function")) {
+    return undefined;
+  }
+
+  return (...args: unknown[]): void => {
+    for (const handler of value) {
+      if (typeof handler === "function") {
+        handler(...args);
+      }
+    }
+  };
+}
 
 export function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof document !== "undefined";

@@ -2,10 +2,9 @@ import { computed, onScopeDispose, watchEffect } from "vue";
 
 import type { ComputedRef, Ref } from "vue";
 import type { EChartsType } from "../types";
-import { isOn, parseOnEvent } from "../utils";
-import type { AttrMap } from "../utils";
+import { createEventInvoker, isOn, parseOnEvent } from "../utils";
+import type { AttrMap, EventHandler } from "../utils";
 
-type EventHandler = (...args: unknown[]) => void;
 type EventEmitter = {
   on: (event: string, handler: EventHandler) => void;
   off: (event: string, handler: EventHandler) => void;
@@ -23,43 +22,16 @@ function getEmitter(instance: EChartsType, zr: boolean): EventEmitter {
   return zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
 }
 
-function resolveHandlers(value: unknown): EventHandler[] {
-  if (typeof value === "function") {
-    return [value as EventHandler];
-  }
-
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  const handlers: EventHandler[] = [];
-  for (const item of value) {
-    if (typeof item === "function") {
-      handlers.push(item as EventHandler);
-    }
-  }
-  return handlers;
-}
-
 function createBoundHandler(
   emitter: EventEmitter,
   event: string,
   value: unknown,
   once: boolean,
 ): EventHandler | undefined {
-  const handlers = resolveHandlers(value);
-  if (handlers.length === 0) {
+  const invoke = createEventInvoker(value);
+  if (!invoke) {
     return undefined;
   }
-
-  const invoke = (...args: unknown[]): void => {
-    const currentHandlers = Array.isArray(value) ? value : handlers;
-    for (const handler of currentHandlers) {
-      if (typeof handler === "function") {
-        handler(...args);
-      }
-    }
-  };
 
   if (!once) {
     return invoke;

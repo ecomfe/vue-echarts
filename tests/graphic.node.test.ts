@@ -87,7 +87,10 @@ describe("graphic", () => {
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
-  it("keeps user info as-is and maps handlers to graphic onxxx props", () => {
+  it("keeps user info and uses the latest graphic handler array", () => {
+    const onClickA = vi.fn();
+    const onClickB = vi.fn();
+    const handlers = [onClickA];
     const nodes = withOnceHandlers([
       {
         id: "hit",
@@ -99,7 +102,7 @@ describe("graphic", () => {
           r: 3,
           info: { name: "marker" },
         },
-        handlers: { onClick: () => void 0 },
+        handlers: { onClick: handlers },
         order: 0,
         sourceId: 1,
       },
@@ -112,9 +115,18 @@ describe("graphic", () => {
       throw new Error("Expected child graphic element to exist.");
     }
     const info = child.info as Record<string, unknown>;
+    const click = child.onclick;
+    if (typeof click !== "function") {
+      throw new Error("Expected click handler to exist.");
+    }
 
     expect(info).toMatchObject({ name: "marker" });
-    expect(typeof child.onclick).toBe("function");
+    click("first");
+    handlers[0] = onClickB;
+    click("second");
+    expect(onClickA).toHaveBeenCalledWith("first");
+    expect(onClickA).toHaveBeenCalledTimes(1);
+    expect(onClickB).toHaveBeenCalledWith("second");
   });
 
   it("builds image/group options and covers info fallback branches", () => {

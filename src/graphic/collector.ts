@@ -1,7 +1,5 @@
 import { warn as coreWarn } from "../utils";
-import type { Warn, WarnOptions } from "../utils";
-
-export type GraphicEventHandler = (...args: unknown[]) => void;
+import type { EventHandler, Warn, WarnOptions } from "../utils";
 
 export type GraphicNode = {
   id: string;
@@ -9,7 +7,7 @@ export type GraphicNode = {
   parentId: string | null;
   props: Record<string, unknown>;
   handlers: Record<string, unknown>;
-  onceHandlers: Map<string, { source: unknown; handler: GraphicEventHandler }>;
+  onceHandlers: Map<string, { source: unknown; handler: EventHandler }>;
   order: number;
   sourceId: number;
 };
