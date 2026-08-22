@@ -143,6 +143,7 @@ describe("useAutoresize", () => {
     await nextTick();
 
     expect(observeSpy).toHaveBeenCalledTimes(1);
+    const throttledResize = vi.mocked(throttle).mock.results[0].value;
 
     autoresize.value = false;
     await nextTick();
@@ -160,6 +161,7 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledTimes(1);
 
     scope.stop();
+    expect(throttledResize.clear).toHaveBeenCalledTimes(1);
   });
 
   it("rebinds observer when root element changes", async () => {

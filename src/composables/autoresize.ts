@@ -10,47 +10,41 @@ export function useAutoresize(
   root: Ref<HTMLElement | undefined>,
 ): void {
   watch([root, chart, autoresize], ([root, chart, autoresize], _, onCleanup) => {
-    let ro: ResizeObserver | null = null;
-
-    if (root && chart && autoresize) {
-      const { offsetWidth, offsetHeight } = root;
-      const autoresizeOptions = autoresize === true ? {} : autoresize;
-      const { throttle: wait = 100, onResize } = autoresizeOptions;
-
-      let initialResizeTriggered = false;
-
-      const callback = () => {
-        chart.resize();
-        onResize?.();
-      };
-
-      const resizeCallback = wait ? throttle(callback, wait) : callback;
-
-      ro = new ResizeObserver(() => {
-        // We just skip ResizeObserver's initial resize callback if the
-        // size has not changed since the chart is rendered.
-        if (!initialResizeTriggered) {
-          initialResizeTriggered = true;
-          if (root.offsetWidth === offsetWidth && root.offsetHeight === offsetHeight) {
-            return;
-          }
-        }
-
-        // Skip if container has zero size
-        if (root.offsetWidth === 0 || root.offsetHeight === 0) {
-          return;
-        }
-
-        resizeCallback();
-      });
-      ro.observe(root);
+    if (!root || !chart || !autoresize) {
+      return;
     }
 
-    onCleanup(() => {
-      if (ro) {
-        ro.disconnect();
-        ro = null;
+    const { offsetWidth, offsetHeight } = root;
+    const { throttle: wait = 100, onResize } = autoresize === true ? {} : autoresize;
+    let initialResizeTriggered = false;
+
+    const resize = () => {
+      chart.resize();
+      onResize?.();
+    };
+    const throttledResize = wait ? throttle(resize, wait) : undefined;
+    const runResize = throttledResize ?? resize;
+
+    const observer = new ResizeObserver(() => {
+      // ResizeObserver reports the initial dimensions even when they have not changed.
+      if (!initialResizeTriggered) {
+        initialResizeTriggered = true;
+        if (root.offsetWidth === offsetWidth && root.offsetHeight === offsetHeight) {
+          return;
+        }
       }
+
+      if (root.offsetWidth === 0 || root.offsetHeight === 0) {
+        return;
+      }
+
+      runResize();
+    });
+    observer.observe(root);
+
+    onCleanup(() => {
+      observer.disconnect();
+      throttledResize?.clear();
     });
   });
 }
