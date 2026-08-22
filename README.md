@@ -345,7 +345,7 @@ Vue ECharts supports three slot categories:
 These naming rules apply to callback slots only. The graphic slot name is always `#graphic`.
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
-- Each segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
+- Each non-empty segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
 - The constructed slot name maps directly to the nested callback it overrides.
 
 **Example mappings**:

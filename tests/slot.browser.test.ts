@@ -301,6 +301,8 @@ describe("useSlotOption", () => {
     const { exposed } = renderSlotComponent(
       () => ({
         legend: () => [h("span", "legend")],
+        "tooltip-": () => [h("span", "empty-tooltip-path")],
+        "dataView-panel--0": () => [h("span", "empty-data-view-path")],
       }),
       changeSpy,
     );
@@ -313,7 +315,9 @@ describe("useSlotOption", () => {
       const flattened = warnSpy.mock.calls.flat().join(" ");
 
       expect(flattened).toContain("[vue-echarts] Invalid slot name: legend");
-      expect(patched.legend).toBeUndefined();
+      expect(flattened).toContain("[vue-echarts] Invalid slot name: tooltip-");
+      expect(flattened).toContain("[vue-echarts] Invalid slot name: dataView-panel--0");
+      expect(patched).toEqual({});
       expect(changeSpy).not.toHaveBeenCalled();
     });
   });
