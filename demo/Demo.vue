@@ -89,13 +89,16 @@ async function openCodegen(): Promise<void> {
 }
 
 const applyCodegenState = (open: boolean): void => {
-  if (isClient) {
-    if (docRoot) {
-      docRoot.style.paddingRight = open ? `${getScrollbarWidth()}px` : "";
-    }
-    scrollLock.value = open;
+  if (!isClient) {
+    return;
   }
-  setHash(open ? "#codegen" : "");
+  if (docRoot) {
+    docRoot.style.paddingRight = open ? `${getScrollbarWidth()}px` : "";
+  }
+  scrollLock.value = open;
+  if (open || window.location.hash === "#codegen") {
+    setHash(open ? "#codegen" : "");
+  }
 };
 
 watch(codeOpen, applyCodegenState, { immediate: true });

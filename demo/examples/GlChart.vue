@@ -1,128 +1,44 @@
 <script setup lang="ts">
-import { use } from "echarts/core";
-import { Bar3DChart } from "echarts-gl/charts";
-import { VisualMapComponent } from "echarts/components";
-import { GlobeComponent } from "echarts-gl/components";
-import { shallowRef, onMounted } from "vue";
-import type { InitOptions, LoadingOptions, Option } from "../../src/types";
-import VChart from "../../src/ECharts";
+import { useIntersectionObserver } from "@vueuse/core";
+import { defineAsyncComponent, onMounted, shallowRef } from "vue";
 import VExample from "./Example.vue";
-import world from "../assets/world.jpg";
-import starfield from "../assets/starfield.jpg";
-import { DEMO_TEXT_STYLE } from "../constants";
 
-use([Bar3DChart, VisualMapComponent, GlobeComponent]);
+const stage = shallowRef<HTMLElement | null>(null);
+const shouldLoad = shallowRef(false);
+const moduleLoaded = shallowRef(false);
+const GlobeChart = defineAsyncComponent(async () => {
+  const module = await import("./GlobeChart.vue");
+  moduleLoaded.value = true;
+  return module;
+});
 
-type GlobeDatum = [number, number, number];
+const { stop } = useIntersectionObserver(
+  stage,
+  ([entry]) => {
+    if (!entry?.isIntersecting) {
+      return;
+    }
+    shouldLoad.value = true;
+    stop();
+  },
+  { rootMargin: "1000px 0px" },
+);
 
-function isGlobeData(value: unknown): value is GlobeDatum[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (entry) =>
-        Array.isArray(entry) &&
-        entry.length === 3 &&
-        typeof entry[0] === "number" &&
-        typeof entry[1] === "number" &&
-        typeof entry[2] === "number",
-    )
-  );
-}
-
-const option = shallowRef<Option | undefined>(undefined);
-const loading = shallowRef(true);
-
-const initOptions: InitOptions = {
-  renderer: "canvas",
-};
-
-const loadingOptions: LoadingOptions = {
-  text: "Loading...",
-  color: "#000",
-  textColor: "#fff",
-  maskColor: "transparent",
-};
-
-onMounted(async () => {
-  const module = await import("../data/population.json");
-  const population = module.default;
-
-  if (!isGlobeData(population)) {
-    loading.value = false;
-    return;
+onMounted(() => {
+  if (typeof IntersectionObserver === "undefined" || location.hash === "#gl") {
+    shouldLoad.value = true;
   }
-
-  const processed = population
-    .filter(([, , amount]) => amount > 0)
-    .map(([lon, lat, amount]): GlobeDatum => [lon, lat, Math.sqrt(amount)]);
-
-  option.value = {
-    textStyle: { ...DEMO_TEXT_STYLE },
-    backgroundColor: "#000",
-    globe: {
-      baseTexture: world,
-      heightTexture: world,
-      shading: "lambert",
-      environment: starfield,
-      light: {
-        main: {
-          intensity: 2,
-        },
-      },
-      viewControl: {
-        autoRotate: false,
-      },
-    },
-    visualMap: {
-      bottom: "3%",
-      left: "3%",
-      max: 40,
-      calculable: true,
-      realtime: false,
-      inRange: {
-        colorLightness: [0.2, 0.9],
-      },
-      textStyle: {
-        color: "#fff",
-      },
-      controller: {
-        inRange: {
-          color: "orange",
-        },
-      },
-      outOfRange: {
-        colorAlpha: 0,
-      },
-    },
-    series: [
-      {
-        type: "bar3D",
-        coordinateSystem: "globe",
-        data: processed,
-        barSize: 0.6,
-        minHeight: 0.2,
-        silent: true,
-        itemStyle: {
-          color: "orange",
-        },
-      },
-    ],
-  } satisfies Option;
-
-  loading.value = false;
 });
 </script>
 
 <template>
   <VExample id="gl" title="GL charts" desc="Globe · Bar3D">
-    <VChart
-      :option="option"
-      :init-options="initOptions"
-      autoresize
-      :loading="loading"
-      :loading-options="loadingOptions"
-      style="background-color: #000"
-    />
+    <div ref="stage" class="echarts gl-stage" style="background-color: #000">
+      <span v-if="shouldLoad && !moduleLoaded" class="gl-loading" role="status">
+        Loading interactive globe…
+      </span>
+      <GlobeChart v-if="shouldLoad" />
+    </div>
     <template #extra>
       <p>
         You can use extension packs like
@@ -134,3 +50,19 @@ onMounted(async () => {
     </template>
   </VExample>
 </template>
+
+<style scoped>
+.gl-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.gl-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.9rem;
+}
+</style>
