@@ -1,3 +1,5 @@
+import { ComponentModel } from "echarts/core";
+
 import type { Option } from "./types";
 import { isPlainObject } from "./utils";
 
@@ -163,6 +165,14 @@ function hasMissingIds(prevIds: readonly string[], nextIds: readonly string[]): 
   return false;
 }
 
+function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): boolean {
+  if (!next) {
+    return prev.idsSorted.length > 0 || prev.noIdCount > 0;
+  }
+
+  return hasMissingIds(prev.idsSorted, next.idsSorted) || next.noIdCount < prev.noIdCount;
+}
+
 function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
   if (next.optionsLength < prev.optionsLength) {
     return true;
@@ -183,7 +193,8 @@ function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
   return diffKeys(prev.scalars, next.scalars).length > 0;
 }
 
-function collectReplacements(prev: Signature, next: Signature): Set<string> {
+/** Returns null when replaceMerge cannot represent a destructive array change. */
+function collectReplacements(prev: Signature, next: Signature): Set<string> | null {
   const replaceMerge = new Set<string>();
 
   for (const key of Object.keys(prev.arrays)) {
@@ -192,29 +203,24 @@ function collectReplacements(prev: Signature, next: Signature): Set<string> {
       continue;
     }
 
-    const nextArray = next.arrays[key];
-    if (!nextArray) {
-      if (prevArray.idsSorted.length > 0 || prevArray.noIdCount > 0) {
-        replaceMerge.add(key);
-      }
+    if (!hasArrayRemoval(prevArray, next.arrays[key])) {
       continue;
     }
-
-    if (hasMissingIds(prevArray.idsSorted, nextArray.idsSorted)) {
-      replaceMerge.add(key);
-      continue;
+    if (!ComponentModel.hasClass(key)) {
+      return null;
     }
-
-    if (nextArray.noIdCount < prevArray.noIdCount) {
-      replaceMerge.add(key);
-    }
+    replaceMerge.add(key);
   }
 
   for (let i = 0; i < prev.objects.length; i++) {
     const key = prev.objects[i];
-    if (next.arrays[key]) {
-      replaceMerge.add(key);
+    if (!next.arrays[key]) {
+      continue;
     }
+    if (!ComponentModel.hasClass(key)) {
+      return null;
+    }
+    replaceMerge.add(key);
   }
 
   return replaceMerge;
@@ -234,14 +240,13 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
     };
   }
 
-  if (shouldForceNotMerge(prev, next)) {
+  const replaceMergeSet = shouldForceNotMerge(prev, next) ? null : collectReplacements(prev, next);
+  if (!replaceMergeSet) {
     return {
       signature: next,
       plan: { notMerge: true },
     };
   }
-
-  const replaceMergeSet = collectReplacements(prev, next);
   const replaceMerge = replaceMergeSet.size > 0 ? Array.from(replaceMergeSet).sort() : undefined;
 
   return {

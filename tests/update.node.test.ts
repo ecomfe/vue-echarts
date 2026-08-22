@@ -2,6 +2,15 @@ import { describe, it, expect } from "vitest";
 import { buildSignature, planUpdate } from "../src/update";
 import { init, type EChartsOption } from "echarts";
 
+const linearGradient = {
+  type: "linear" as const,
+  x: 0,
+  y: 0,
+  x2: 1,
+  y2: 0,
+  colorStops: [],
+};
+
 describe("smart-update", () => {
   describe("buildSignature", () => {
     it("collects scalars, objects, and array summaries", () => {
@@ -101,14 +110,7 @@ describe("smart-update", () => {
 
       it("keeps merge when an object setting becomes scalar", () => {
         const prev = buildSignature({
-          backgroundColor: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 1,
-            y2: 0,
-            colorStops: [],
-          },
+          backgroundColor: linearGradient,
         });
         const next = planUpdate(prev, { backgroundColor: "transparent" });
 
@@ -238,6 +240,31 @@ describe("smart-update", () => {
 
         expect(next.plan.replaceMerge).toEqual(["series"]);
         expect(next.plan.notMerge).toBe(false);
+      });
+
+      it("rebuilds for destructive global array changes", () => {
+        const base: EChartsOption = { color: ["red", "blue"] };
+        const update: EChartsOption = { color: ["red"] };
+        const result = planUpdate(buildSignature(base), update);
+        const chart = init(null, undefined, {
+          renderer: "svg",
+          ssr: true,
+          width: 100,
+          height: 100,
+        });
+
+        try {
+          chart.setOption(base);
+          expect(() => chart.setOption(update, result.plan)).not.toThrow();
+          expect(chart.getOption().color).toEqual(["red"]);
+        } finally {
+          chart.dispose();
+        }
+
+        expect(result.plan).toEqual({ notMerge: true });
+
+        const gradient: EChartsOption = { color: linearGradient };
+        expect(planUpdate(buildSignature(gradient), update).plan).toEqual({ notMerge: true });
       });
     });
 
