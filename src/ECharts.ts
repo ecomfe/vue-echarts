@@ -314,7 +314,7 @@ export default defineComponent({
       }
     });
 
-    const publicApi = usePublicAPI(chart);
+    const publicApi = usePublicAPI(chart, cleanup);
 
     useLoading(chart, loading, loadingOptions);
 

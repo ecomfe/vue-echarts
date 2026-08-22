@@ -16,24 +16,29 @@ const METHOD_NAMES = [
   "appendData",
   "clear",
   "isDisposed",
-  "dispose",
 ] as const;
 
 type MethodName = (typeof METHOD_NAMES)[number];
 
-export type PublicMethods = Pick<EChartsType, MethodName>;
+export type PublicMethods = Pick<EChartsType, MethodName | "dispose">;
 
-export function usePublicAPI(chart: Ref<EChartsType | undefined>): PublicMethods {
-  return Object.fromEntries(
-    METHOD_NAMES.map((name) => [
-      name,
-      (...args: unknown[]): unknown => {
-        const instance = chart.value;
-        if (!instance) {
-          throw new Error("ECharts is not initialized yet.");
-        }
-        return Reflect.apply(instance[name], instance, args);
-      },
-    ]),
-  ) as PublicMethods;
+export function usePublicAPI(
+  chart: Ref<EChartsType | undefined>,
+  dispose: () => void,
+): PublicMethods {
+  return {
+    ...Object.fromEntries(
+      METHOD_NAMES.map((name) => [
+        name,
+        (...args: unknown[]): unknown => {
+          const instance = chart.value;
+          if (!instance) {
+            throw new Error("ECharts is not initialized yet.");
+          }
+          return Reflect.apply(instance[name], instance, args);
+        },
+      ]),
+    ),
+    dispose,
+  } as PublicMethods;
 }

@@ -1107,6 +1107,29 @@ describe("ECharts component", () => {
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
+  it("stops reactive work after public disposal", async () => {
+    const option = ref<Option>({ title: { text: "before" } });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: option.value }), exposed);
+    await nextTick();
+
+    const instance = getExposed(exposed);
+    chartStub.dispose.mockClear();
+    chartStub.setOption.mockClear();
+
+    instance.dispose();
+    instance.dispose();
+
+    expect(chartStub.dispose).toHaveBeenCalledOnce();
+    expect(getExposedField<EChartsType>(instance, "chart")).toBeUndefined();
+
+    option.value = { title: { text: "after" } };
+    await nextTick();
+
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
   it("sets __dispose on root during unmount when wcRegistered and cleanup runs via disconnectedCallback", async () => {
     const option = ref({ title: { text: "wc-dispose" } });
     const exposed = shallowRef<Exposed>();

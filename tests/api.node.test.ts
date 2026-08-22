@@ -8,7 +8,7 @@ import type { EChartsType } from "../src/types";
 describe("usePublicAPI", () => {
   it("throws until chart instance is available", () => {
     const chart = shallowRef<EChartsType | undefined>(undefined);
-    const api = usePublicAPI(chart);
+    const api = usePublicAPI(chart, vi.fn());
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
 
@@ -45,7 +45,6 @@ describe("usePublicAPI", () => {
       "appendData",
       "clear",
       "isDisposed",
-      "dispose",
     ] as const;
 
     type MethodName = (typeof methodNames)[number];
@@ -64,7 +63,8 @@ describe("usePublicAPI", () => {
 
     const chart = shallowRef<EChartsType | undefined>();
     chart.value = chartImpl as unknown as EChartsType;
-    const api = usePublicAPI(chart);
+    const dispose = vi.fn();
+    const api = usePublicAPI(chart, dispose);
 
     type ArgsByName = { [K in MethodName]: Parameters<PublicMethods[K]> };
     const argsByName: ArgsByName = {
@@ -82,7 +82,6 @@ describe("usePublicAPI", () => {
       appendData: [{ seriesIndex: 0, data: [1, 2, 3] }],
       clear: [],
       isDisposed: [],
-      dispose: [],
     };
 
     function invoke<K extends MethodName>(name: K, args: ArgsByName[K]) {
@@ -96,11 +95,14 @@ describe("usePublicAPI", () => {
     methodNames.forEach((name) => {
       invoke(name, argsByName[name]);
     });
+
+    api.dispose();
+    expect(dispose).toHaveBeenCalledOnce();
   });
 
   it("throws again if the chart instance is cleared after initialization", () => {
     const chart = shallowRef<EChartsType | undefined>();
-    const api = usePublicAPI(chart);
+    const api = usePublicAPI(chart, vi.fn());
 
     const chartImpl = {
       getWidth: vi.fn(() => 240),
