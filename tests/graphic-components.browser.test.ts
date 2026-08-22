@@ -116,9 +116,9 @@ describe("graphic components", () => {
     );
   });
 
-  it("unregisters previous node when id changes", async () => {
+  it("unregisters an empty-string id when it changes", async () => {
     const collector = createCollectorMock();
-    const id = ref("rect-a");
+    const id = ref("");
 
     const Root = withGraphicProvider(collector, () => h(GRect, { id: id.value }));
 
@@ -128,7 +128,7 @@ describe("graphic components", () => {
     id.value = "rect-b";
     await nextTick();
 
-    expect(collector.unregister).toHaveBeenCalledWith("rect-a", expect.any(Number));
+    expect(collector.unregister).toHaveBeenCalledWith("", expect.any(Number));
   });
 
   it("provides group parent id to descendants and handles empty default slot", async () => {
@@ -183,7 +183,7 @@ describe("graphic components", () => {
     expect(collector.unregister).toHaveBeenCalledWith("toggle-node", expect.any(Number));
   });
 
-  it("keeps empty-string id path stable during unmount", async () => {
+  it("unregisters an empty-string id during unmount", async () => {
     const collector = createCollectorMock();
     const visible = ref(true);
 
@@ -197,6 +197,6 @@ describe("graphic components", () => {
     visible.value = false;
     await nextTick();
 
-    expect(collector.unregister).not.toHaveBeenCalled();
+    expect(collector.unregister).toHaveBeenCalledWith("", expect.any(Number));
   });
 });

@@ -42,7 +42,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
             },
           );
         }
-        if (currentId && currentId !== identity.id) {
+        if (currentId !== null && currentId !== identity.id) {
           unregister(currentId, instance.uid);
         }
         currentId = identity.id;
@@ -61,7 +61,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
       }
 
       onUnmounted(() => {
-        if (currentId) {
+        if (currentId !== null) {
           unregister(currentId, instance.uid);
         }
       });
