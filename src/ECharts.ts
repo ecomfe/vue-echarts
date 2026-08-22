@@ -50,6 +50,7 @@ import type { EChartsElement } from "./wc";
 import "./style";
 
 const wcRegistered = register();
+const SKIP_AUTO_UPDATE = Symbol();
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -245,15 +246,15 @@ export default defineComponent({
     };
 
     watch(
-      () => props.option,
-      (option) => {
-        if (!option) {
-          lastSignature = undefined;
+      () => (manualUpdate.value ? SKIP_AUTO_UPDATE : props.option),
+      (option, previousOption) => {
+        // Mode changes reinitialize the chart, so the watcher must not update the outgoing instance.
+        if (option === SKIP_AUTO_UPDATE || previousOption === SKIP_AUTO_UPDATE) {
           return;
         }
 
-        if (manualUpdate.value) {
-          warn("`option` prop changes are ignored when `manual-update` is `true`.");
+        if (!option) {
+          lastSignature = undefined;
           return;
         }
 
