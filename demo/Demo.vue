@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, computed, defineAsyncComponent, ref, watch } from "vue";
+import { provide, computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from "vue";
 import { useScrollLock, useUrlSearchParams } from "@vueuse/core";
 import { use, registerTheme } from "echarts/core";
 import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
@@ -71,6 +71,41 @@ if (initialCodegenOpen) {
 function prepareCodegen(): void {
   void loadCodegen().catch(() => {});
 }
+
+let idlePreloadId: number | undefined;
+
+function scheduleCodegenPreload(): void {
+  const connection = (
+    navigator as Navigator & { connection?: { effectiveType?: string; saveData?: boolean } }
+  ).connection;
+  // Main-thread idleness says nothing about network cost, so only speculate on a known-fast link.
+  if (
+    typeof window.requestIdleCallback !== "function" ||
+    connection?.effectiveType !== "4g" ||
+    connection.saveData
+  ) {
+    return;
+  }
+  idlePreloadId = window.requestIdleCallback(prepareCodegen);
+}
+
+if (isClient && !initialCodegenOpen) {
+  if (document.readyState === "complete") {
+    scheduleCodegenPreload();
+  } else {
+    window.addEventListener("load", scheduleCodegenPreload, { once: true });
+  }
+}
+
+onBeforeUnmount(() => {
+  if (!isClient) {
+    return;
+  }
+  window.removeEventListener("load", scheduleCodegenPreload);
+  if (idlePreloadId !== undefined) {
+    window.cancelIdleCallback(idlePreloadId);
+  }
+});
 
 async function openCodegen(): Promise<void> {
   if (codeOpen.value || codegenLoading.value) {
