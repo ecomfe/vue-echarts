@@ -238,7 +238,7 @@ describe("graphic slot event handling", () => {
     const x = ref(10);
     const onClickA = vi.fn();
     const onClickB = vi.fn();
-    const onClickOnce = shallowRef(onClickA);
+    const onClickOnce = shallowRef<typeof onClickA | undefined>(onClickA);
 
     const Root = defineComponent({
       setup() {
@@ -266,8 +266,10 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
+    const getNode = () =>
+      getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node");
     const getClick = (): ((params: unknown) => void) => {
-      const node = getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node");
+      const node = getNode();
       if (typeof node?.onclick !== "function") {
         throw new Error("Expected once click handler to exist.");
       }
@@ -296,5 +298,16 @@ describe("graphic slot event handling", () => {
     replacement({ value: 5 });
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledTimes(1);
+
+    onClickOnce.value = undefined;
+    await nextTick();
+    await flushAnimationFrame();
+    expect(getNode()?.onclick).toBeUndefined();
+
+    onClickOnce.value = onClickB;
+    await nextTick();
+    await flushAnimationFrame();
+    getClick()({ value: 6 });
+    expect(onClickB).toHaveBeenCalledTimes(2);
   });
 });

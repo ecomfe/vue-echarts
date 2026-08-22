@@ -60,11 +60,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
         return currentId;
       }
 
-      onUnmounted(() => {
-        if (currentId !== null) {
-          unregister(currentId, instance.uid);
-        }
-      });
+      onUnmounted(() => unregister(currentId!, instance.uid));
 
       if (type === "group") {
         const providedParent = shallowRef<string | null>(null);
