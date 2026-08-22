@@ -71,6 +71,37 @@ describe("core events", () => {
     scope.stop();
   });
 
+  it("uses the latest handlers when an array mutates in place", async () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const first = vi.fn();
+    const second = vi.fn();
+    const handlers = reactive<EventHandler[]>([first]);
+    const attrs = reactive<Record<string, unknown>>({ onClick: handlers });
+    const target = createChartStub();
+    const emitter = target.chart as unknown as EmitterStub;
+
+    const scope = effectScope();
+    scope.run(() => {
+      useReactiveChartListeners(chartRef, attrs);
+    });
+
+    chartRef.value = target.chart;
+    await nextTick();
+
+    const firstBinding = findBoundHandler(emitter.on, "click");
+    firstBinding("first");
+    expect(first).toHaveBeenCalledWith("first");
+
+    handlers[0] = second;
+    await nextTick();
+
+    firstBinding("second");
+    expect(first).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledWith("second");
+
+    scope.stop();
+  });
+
   it("binds, diffs, and cleans chart/zr listeners reactively", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({

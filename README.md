@@ -252,7 +252,7 @@ As Vue ECharts binds events to the ECharts instance by default, there is some ca
 </template>
 ```
 
-Event handlers passed via attrs are reactive by default. Updating `onClick`, `onZr:*`, or `onNative:*` handlers will rebind them automatically.
+Event handlers passed via attrs are reactive by default. Updates to `onClick`, `onZr:*`, or `onNative:*` handlers take effect automatically.
 
 ### Provide / inject
 

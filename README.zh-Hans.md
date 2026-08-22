@@ -252,7 +252,7 @@ Vue ECharts 支持如下事件：
 </template>
 ```
 
-通过 attrs 传入的事件处理器默认是响应式的。更新 `onClick`、`onZr:*` 或 `onNative:*` 后会自动重新绑定。
+通过 attrs 传入的事件处理器默认是响应式的。更新 `onClick`、`onZr:*` 或 `onNative:*` 后会自动生效。
 
 ### Provide / Inject
 

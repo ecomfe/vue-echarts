@@ -53,8 +53,11 @@ function createBoundHandler(
   }
 
   const invoke = (...args: unknown[]): void => {
-    for (const handler of handlers) {
-      handler(...args);
+    const currentHandlers = Array.isArray(value) ? value : handlers;
+    for (const handler of currentHandlers) {
+      if (typeof handler === "function") {
+        handler(...args);
+      }
     }
   };
 
