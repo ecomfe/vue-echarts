@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ref, effectScope, nextTick } from "vue";
+import { ref, effectScope, nextTick, reactive } from "vue";
 
 import { throttle, resetECharts, createEChartsModule } from "./helpers/mock";
 import { createSizedContainer, flushAnimationFrame } from "./helpers/dom";
@@ -86,11 +86,13 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("invokes onResize callbacks and respects throttle options", async () => {
+  it("reacts to in-place throttle and callback changes", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
-    const onResize = vi.fn();
-    const autoresize = ref<AutoResize | undefined>({ throttle: 0, onResize });
+    const onResizeA = vi.fn();
+    const onResizeB = vi.fn();
+    const settings = reactive({ throttle: 0, onResize: onResizeA });
+    const autoresize = ref<AutoResize | undefined>(settings);
     const root = ref<HTMLElement | undefined>();
 
     const container = createSizedContainer(80, 60);
@@ -110,14 +112,25 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
 
     expect(resize).toHaveBeenCalledTimes(1);
-    expect(onResize).toHaveBeenCalledTimes(1);
+    expect(onResizeA).toHaveBeenCalledTimes(1);
 
-    autoresize.value = { throttle: 150 };
+    settings.throttle = 150;
     await nextTick();
 
     expect(vi.mocked(throttle)).toHaveBeenCalledTimes(1);
     const [, wait] = vi.mocked(throttle).mock.calls[0];
     expect(wait).toBe(150);
+
+    settings.throttle = 0;
+    settings.onResize = onResizeB;
+    await nextTick();
+
+    container.style.width = "120px";
+    await flushAnimationFrame();
+
+    expect(resize).toHaveBeenCalledTimes(2);
+    expect(onResizeA).toHaveBeenCalledTimes(1);
+    expect(onResizeB).toHaveBeenCalledTimes(1);
 
     scope.stop();
   });

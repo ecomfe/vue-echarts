@@ -9,13 +9,21 @@ export function useAutoresize(
   autoresize: Ref<AutoResize | undefined>,
   root: Ref<HTMLElement | undefined>,
 ): void {
-  watch([root, chart, autoresize], ([root, chart, autoresize], _, onCleanup) => {
-    if (!root || !chart || !autoresize) {
+  const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
+  const resizeSources = [
+    root,
+    chart,
+    () => Boolean(autoresize.value),
+    () => getOptions()?.throttle ?? 100,
+    () => getOptions()?.onResize,
+  ] as const;
+
+  watch(resizeSources, ([root, chart, enabled, wait, onResize], _, onCleanup) => {
+    if (!root || !chart || !enabled) {
       return;
     }
 
     const { offsetWidth, offsetHeight } = root;
-    const { throttle: wait = 100, onResize } = autoresize === true ? {} : autoresize;
     let initialResizeTriggered = false;
 
     const resize = () => {
