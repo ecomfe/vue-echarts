@@ -26,6 +26,40 @@ function createChart() {
   });
 }
 
+const optionContainers = ["baseOption", "timeline", "media"] as const;
+
+function wrapOption(
+  container: (typeof optionContainers)[number],
+  option: EChartsOption,
+): EChartsOption {
+  if (container === "baseOption") {
+    return { baseOption: option };
+  }
+  if (container === "timeline") {
+    return {
+      baseOption: { timeline: { currentIndex: 0 }, series: [] },
+      options: [option],
+    };
+  }
+  return {
+    baseOption: { title: { text: "Base" }, series: [] },
+    media: [{ query: { maxWidth: 200 }, option }],
+  };
+}
+
+function applyPlannedUpdate(base: EChartsOption, update: EChartsOption) {
+  const { plan } = planUpdate(buildSignature(base), update);
+  const chart = createChart();
+
+  try {
+    chart.setOption(base);
+    chart.setOption(update, plan);
+    return { applied: chart.getOption() as AppliedOption, plan };
+  } finally {
+    chart.dispose();
+  }
+}
+
 describe("smart-update", () => {
   describe("buildSignature", () => {
     it("collects scalars, objects, and array summaries", () => {
@@ -76,6 +110,16 @@ describe("smart-update", () => {
       expect(signature.scalars).toEqual(["backgroundColor", "color"]);
     });
 
+    it("handles malformed option container entries", () => {
+      const signature = buildSignature({
+        options: [null],
+        media: [null, { query: {} }],
+      } as unknown as EChartsOption);
+
+      expect(signature.arrays.options?.noIdCount).toBe(1);
+      expect(signature.arrays.media?.noIdCount).toBe(2);
+    });
+
     it("ignores explicit undefined values in scalars", () => {
       const option: EChartsOption = {
         backgroundColor: undefined,
@@ -98,7 +142,7 @@ describe("smart-update", () => {
       expect(serialized).not.toContain("unused");
     });
 
-    it("does not traverse nested data arrays", () => {
+    it("does not traverse data arrays inside option containers", () => {
       const item = {};
       Object.defineProperty(item, "expensive", {
         enumerable: true,
@@ -107,7 +151,15 @@ describe("smart-update", () => {
         },
       });
 
-      expect(() => buildSignature({ series: [{ type: "pie", data: [item] }] })).not.toThrow();
+      const series = [{ type: "pie" as const, data: [item] }];
+
+      expect(() =>
+        buildSignature({
+          series,
+          options: [{ series }],
+          media: [{ option: { series } }],
+        }),
+      ).not.toThrow();
     });
   });
 
@@ -206,7 +258,7 @@ describe("smart-update", () => {
       });
     });
 
-    describe("shrink detection", () => {
+    describe("removal detection", () => {
       it("does not mark replace when previously empty array is removed", () => {
         const base: EChartsOption = {
           series: [] as EChartsOption["series"],
@@ -235,6 +287,43 @@ describe("smart-update", () => {
         expect(plan.notMerge).toBe(true);
         expect(plan.replaceMerge).toBeUndefined();
       });
+
+      it.each(optionContainers)(
+        "removes nested properties from same-length %s entries",
+        (container) => {
+          const base = wrapOption(container, { title: { text: "Sales", subtext: "stale" } });
+          const update = wrapOption(container, { title: { text: "Sales" } });
+          const { applied, plan } = applyPlannedUpdate(base, update);
+
+          expect(applied.title?.[0]?.subtext).not.toBe("stale");
+          expect(plan).toEqual({ notMerge: true });
+          expect(planUpdate(buildSignature(update), base).plan).toEqual({ notMerge: false });
+        },
+      );
+
+      it.each(optionContainers)(
+        "removes nested component properties from same-length %s entries",
+        (container) => {
+          const base = wrapOption(container, {
+            series: [
+              {
+                id: "sales",
+                type: "pie",
+                data: [1],
+                label: { show: true, color: "red" },
+              },
+            ],
+          });
+          const update = wrapOption(container, {
+            series: [{ id: "sales", type: "pie", data: [1], label: { show: true } }],
+          });
+          const { applied, plan } = applyPlannedUpdate(base, update);
+
+          expect(applied.series?.[0]?.label?.color).not.toBe("red");
+          expect(plan).toEqual({ notMerge: true });
+          expect(planUpdate(buildSignature(update), base).plan).toEqual({ notMerge: false });
+        },
+      );
 
       it("forces rebuild when scalars disappear", () => {
         const prev = buildSignature({ color: "red", title: { text: "foo" } });
@@ -286,6 +375,14 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
+      it("adds replaceMerge when an id changes without shrinking", () => {
+        const prev = buildSignature({ series: [{ id: "a" }, { id: "b" }] });
+        const next = planUpdate(prev, { series: [{ id: "a" }, { id: "c" }] });
+
+        expect(next.plan.replaceMerge).toEqual(["series"]);
+        expect(next.plan.notMerge).toBe(false);
+      });
+
       it("adds replaceMerge when anonymous count shrinks", () => {
         const prev = buildSignature({ series: [{}, {}] });
         const next = planUpdate(prev, { series: [{}] });
@@ -325,19 +422,10 @@ describe("smart-update", () => {
       it("removes nested properties from object options", () => {
         const base: EChartsOption = { title: { text: "Coffee", subtext: "Daily sales" } };
         const update: EChartsOption = { title: { text: "Coffee" } };
-        const result = planUpdate(buildSignature(base), update);
-        const chart = createChart();
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        try {
-          chart.setOption(base);
-          chart.setOption(update, result.plan);
-          const applied = chart.getOption() as AppliedOption;
-          expect(applied.title?.[0]?.subtext).not.toBe("Daily sales");
-        } finally {
-          chart.dispose();
-        }
-
-        expect(result.plan).toEqual({ notMerge: true });
+        expect(applied.title?.[0]?.subtext).not.toBe("Daily sales");
+        expect(plan).toEqual({ notMerge: true });
       });
 
       it("removes nested properties from retained component IDs", () => {
@@ -347,19 +435,10 @@ describe("smart-update", () => {
         const update: EChartsOption = {
           series: [{ id: "sales", type: "pie", data: [1], label: { show: true } }],
         };
-        const result = planUpdate(buildSignature(base), update);
-        const chart = createChart();
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        try {
-          chart.setOption(base);
-          chart.setOption(update, result.plan);
-          const applied = chart.getOption() as AppliedOption;
-          expect(applied.series?.[0]?.label?.color).not.toBe("red");
-        } finally {
-          chart.dispose();
-        }
-
-        expect(result.plan).toEqual({ notMerge: true });
+        expect(applied.series?.[0]?.label?.color).not.toBe("red");
+        expect(plan).toEqual({ notMerge: true });
       });
     });
 
@@ -419,20 +498,11 @@ describe("smart-update", () => {
           series: [{ id: "sales-series", type: "pie", data: [35] }],
         };
 
-        const result = planUpdate(buildSignature(base), update);
-        const chart = createChart();
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        try {
-          chart.setOption(base);
-          chart.setOption(update, result.plan);
-          const applied = chart.getOption() as AppliedOption;
-          expect(applied.dataset).toBeUndefined();
-          expect(applied.series?.[0]?.datasetId).toBeUndefined();
-        } finally {
-          chart.dispose();
-        }
-
-        expect(result.plan).toEqual({ notMerge: true });
+        expect(applied.dataset).toBeUndefined();
+        expect(applied.series?.[0]?.datasetId).toBeUndefined();
+        expect(plan).toEqual({ notMerge: true });
       });
 
       it("tracks multiple array shrink operations", () => {

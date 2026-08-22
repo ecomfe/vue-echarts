@@ -22,7 +22,8 @@ export const use = vi.fn((modules?: unknown[]) => {
 export function createEChartsModule() {
   return {
     ComponentModel: {
-      hasClass: (mainType: string) => mainType !== "color" && mainType !== "colorLayer",
+      hasClass: (mainType: string) =>
+        !["color", "colorLayer", "options", "media"].includes(mainType),
     },
     init,
     throttle,

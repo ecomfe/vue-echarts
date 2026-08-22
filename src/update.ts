@@ -11,13 +11,13 @@ export interface UpdatePlan {
 interface ObjectShape {
   [key: string]: Shape | undefined;
 }
-type Shape = true | ObjectShape;
+type Shape = true | ObjectShape | ArraySummary;
 type ArrayItemShape = {
   id: string | undefined;
   shape: Shape;
 };
 
-/** Summary of a top-level array key for deletion detection. */
+/** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
   /** Unique, sorted string ids extracted from items' `id` field. */
   idsSorted: string[];
@@ -29,9 +29,6 @@ export interface ArraySummary {
 
 /** Minimal signature of an option used to decide setOption behavior. */
 export interface Signature {
-  /** Lengths of `option.options` and `option.media` (0 if not arrays). */
-  optionsLength: number;
-  mediaLength: number;
   /** Map of array-typed top-level keys to their summaries. */
   arrays: Record<string, ArraySummary | undefined>;
   /** Structural snapshots used to detect nested property removal without retaining option values. */
@@ -74,7 +71,7 @@ function isShapeObject(value: unknown): value is Record<string, unknown> {
   return prototype === null || prototype === Object.prototype;
 }
 
-function buildShape(value: unknown, stack: WeakSet<object>): Shape {
+function buildShape(value: unknown, stack: WeakSet<object>): true | ObjectShape {
   if (!isShapeObject(value) || stack.has(value)) {
     return true;
   }
@@ -90,14 +87,46 @@ function buildShape(value: unknown, stack: WeakSet<object>): Shape {
   return shape;
 }
 
-function analyzeArray(items: unknown[], stack: WeakSet<object>): ArraySummary {
+function buildOptionShape(value: unknown, stack: WeakSet<object>): Shape {
+  const shape = buildShape(value, stack);
+  if (shape === true) {
+    return true;
+  }
+
+  const option = value as Record<string, unknown>;
+  for (const key of Object.keys(option)) {
+    if (Array.isArray(option[key])) {
+      shape[key] = analyzeArray(option[key], stack);
+    }
+  }
+  return shape;
+}
+
+function buildMediaShape(value: unknown, stack: WeakSet<object>): Shape {
+  const shape = buildShape(value, stack);
+  if (shape === true) {
+    return true;
+  }
+
+  const option = (value as Record<string, unknown>).option;
+  if (option !== undefined) {
+    shape.option = buildOptionShape(option, stack);
+  }
+  return shape;
+}
+
+function analyzeArray(
+  items: unknown[],
+  stack: WeakSet<object>,
+  buildItemShape: (value: unknown, stack: WeakSet<object>) => Shape = buildShape,
+): ArraySummary {
   const ids = new Set<string>();
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const id = readId(items[i]);
-    shapes.push({ id, shape: buildShape(items[i], stack) });
+    shapes.push({ id, shape: buildItemShape(items[i], stack) });
     if (id === undefined) {
       noIdCount++;
       continue;
@@ -114,13 +143,11 @@ function analyzeArray(items: unknown[], stack: WeakSet<object>): ArraySummary {
 
 /**
  * Build a structural signature without retaining option values.
- * Nested arrays are leaves because ECharts replaces them instead of merging their contents.
+ * Arrays inside component items remain leaves to avoid traversing chart data. Nested option units
+ * (`baseOption`, timeline options, and media options) reuse summaries for their component arrays.
  */
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
-
-  const optionsLength = Array.isArray(opt.options) ? opt.options.length : 0;
-  const mediaLength = Array.isArray(opt.media) ? opt.media.length : 0;
 
   const stack = new WeakSet<object>();
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
@@ -128,18 +155,17 @@ export function buildSignature(option: Option): Signature {
   const scalars: string[] = [];
 
   for (const key of Object.keys(opt)) {
-    if (key === "options" || key === "media") {
-      continue;
-    }
-
     const value = opt[key];
     if (Array.isArray(value)) {
-      arrays[key] = analyzeArray(value, stack);
+      const buildItemShape =
+        key === "options" ? buildOptionShape : key === "media" ? buildMediaShape : buildShape;
+      arrays[key] = analyzeArray(value, stack, buildItemShape);
       continue;
     }
 
     if (isPlainObject(value)) {
-      objectShapes[key] = buildShape(value, stack);
+      objectShapes[key] =
+        key === "baseOption" ? buildOptionShape(value, stack) : buildShape(value, stack);
       continue;
     }
 
@@ -154,8 +180,6 @@ export function buildSignature(option: Option): Signature {
   }
 
   return {
-    optionsLength,
-    mediaLength,
     arrays,
     objectShapes,
     scalars,
@@ -185,12 +209,31 @@ function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): bo
     return prev.idsSorted.length > 0 || prev.noIdCount > 0;
   }
 
-  return hasMissing(prev.idsSorted, next.idsSorted) || next.noIdCount < prev.noIdCount;
+  return (
+    next.shapes.length < prev.shapes.length ||
+    hasMissing(prev.idsSorted, next.idsSorted) ||
+    next.noIdCount < prev.noIdCount
+  );
+}
+
+function isArrayShape(shape: Shape): shape is ArraySummary {
+  return shape !== true && Array.isArray(shape.shapes);
 }
 
 function hasShapeRemoval(prev: Shape, next: Shape): boolean {
   if (prev === true || next === true) {
     return false;
+  }
+
+  const prevIsArray = isArrayShape(prev);
+  const nextIsArray = isArrayShape(next);
+  if (prevIsArray || nextIsArray) {
+    return (
+      !prevIsArray ||
+      !nextIsArray ||
+      hasArrayRemoval(prev, next) ||
+      hasItemShapeRemoval(prev.shapes, next.shapes)
+    );
   }
 
   for (const key of Object.keys(prev)) {
@@ -226,14 +269,6 @@ function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): bo
 }
 
 function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
-  if (next.optionsLength < prev.optionsLength) {
-    return true;
-  }
-
-  if (next.mediaLength < prev.mediaLength) {
-    return true;
-  }
-
   for (const key of Object.keys(prev.objectShapes)) {
     const prevShape = prev.objectShapes[key];
     const nextShape = next.objectShapes[key];
