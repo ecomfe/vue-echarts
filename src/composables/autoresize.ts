@@ -9,6 +9,11 @@ export function useAutoresize(
   autoresize: Ref<AutoResize | undefined>,
   root: Ref<HTMLElement | undefined>,
 ): void {
+  // Preserve the last synchronized size while observation is disabled or being rebound.
+  let sizedChart: EChartsType | undefined;
+  let sizedWidth = 0;
+  let sizedHeight = 0;
+
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
   const resizeSources = [
     root,
@@ -19,19 +24,38 @@ export function useAutoresize(
   ] as const;
 
   watch(resizeSources, ([root, chart, enabled, wait, onResize], _, onCleanup) => {
-    if (!root || !chart || !enabled) {
+    if (!root || !chart) {
       return;
     }
 
     const { offsetWidth, offsetHeight } = root;
+    if (chart !== sizedChart) {
+      sizedChart = chart;
+      sizedWidth = offsetWidth;
+      sizedHeight = offsetHeight;
+    }
+    if (!enabled) {
+      return;
+    }
+
     let initialResizeTriggered = false;
 
     const resize = () => {
       chart.resize();
+      sizedWidth = root.offsetWidth;
+      sizedHeight = root.offsetHeight;
       onResize?.();
     };
     const throttledResize = wait ? throttle(resize, wait) : undefined;
     const runResize = throttledResize ?? resize;
+
+    if (
+      offsetWidth !== 0 &&
+      offsetHeight !== 0 &&
+      (offsetWidth !== sizedWidth || offsetHeight !== sizedHeight)
+    ) {
+      runResize();
+    }
 
     const observer = new ResizeObserver(() => {
       // ResizeObserver reports the initial dimensions even when they have not changed.

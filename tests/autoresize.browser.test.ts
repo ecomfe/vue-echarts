@@ -164,12 +164,14 @@ describe("useAutoresize", () => {
     expect(disconnectSpy).toHaveBeenCalledTimes(1);
     expect(resize).not.toHaveBeenCalled();
 
+    container.style.height = "120px";
+    await flushAnimationFrame();
+    expect(resize).not.toHaveBeenCalled();
+
     autoresize.value = true;
     await nextTick();
 
     expect(observeSpy).toHaveBeenCalledTimes(2);
-
-    container.style.height = "120px";
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledTimes(1);
 
@@ -205,10 +207,11 @@ describe("useAutoresize", () => {
 
     expect(disconnectSpy).toHaveBeenCalledTimes(1);
     expect(observeSpy).toHaveBeenCalledWith(secondContainer);
+    expect(resize).toHaveBeenCalledTimes(1);
 
     secondContainer.style.width = "240px";
     await flushAnimationFrame();
-    expect(resize).toHaveBeenCalledTimes(1);
+    expect(resize).toHaveBeenCalledTimes(2);
 
     scope.stop();
   });
