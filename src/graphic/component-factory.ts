@@ -12,7 +12,7 @@ import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
-import { collectOrder } from "./order";
+import { createOrderTracker } from "./order";
 import { commonProps } from "./props-common";
 import { shapeProps } from "./props-shape";
 import type { GraphicEmits } from "./types";
@@ -77,14 +77,14 @@ export function createComponent(name: string, type: GraphicComponentType) {
 
       if (type === "group") {
         const providedParent = shallowRef<string | null>(null);
-        const childOrderRef = shallowRef<Map<string, number>>(new Map());
+        const childOrder = createOrderTracker();
         provide(GRAPHIC_PARENT_ID_KEY, providedParent);
-        provide(GRAPHIC_ORDER_KEY, childOrderRef);
+        provide(GRAPHIC_ORDER_KEY, childOrder.ref);
 
         return () => {
           providedParent.value = register();
           const content = slots.default?.() ?? null;
-          childOrderRef.value = collectOrder(content);
+          childOrder.update(content);
           return content;
         };
       }

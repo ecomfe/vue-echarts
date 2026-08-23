@@ -494,7 +494,7 @@ describe("graphic slot edge and integration behavior", () => {
     expect(shape).toMatchObject({ x: 20, y: 28 });
   });
 
-  it("rerenders 100+ nodes safely when parent rerenders", async () => {
+  it("skips reapplying 100+ unchanged nodes when parent rerenders", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
@@ -533,6 +533,7 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    expect(chartStub.setOption.mock.calls.length).toBe(baseCalls + 1);
+    expect(document.querySelector("x-vue-echarts")?.classList.contains("tick-1")).toBe(true);
+    expect(chartStub.setOption.mock.calls.length).toBe(baseCalls);
   });
 });

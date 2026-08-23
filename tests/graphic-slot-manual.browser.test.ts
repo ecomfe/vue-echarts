@@ -26,7 +26,7 @@ function getLastSetOptionArg(chartStub: { setOption: { mock: { calls: unknown[][
 }
 
 describe("graphic slot manual-update behavior", () => {
-  it("mounts graphic extension before first manual setOption", async () => {
+  it("includes mounted graphic in the first manual setOption without warning", async () => {
     registerExtension();
 
     const exposed = shallowRef<Exposed>();
@@ -63,7 +63,7 @@ describe("graphic slot manual-update behavior", () => {
       expect(optionArg.series?.[0]?.data).toEqual([3, 5, 2]);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) => String(call[0]).includes("manual-update")),
-      ).toBe(true);
+      ).toBe(false);
     });
   });
 

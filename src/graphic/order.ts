@@ -1,3 +1,4 @@
+import { shallowRef } from "vue";
 import type { VNode } from "vue";
 
 import { resolveOrderKey } from "./identity";
@@ -41,8 +42,36 @@ function collect(value: unknown, orderMap: Map<string, number>, order: number): 
   return order;
 }
 
-export function collectOrder(value: unknown): Map<string, number> {
+function isSameOrder(current: Map<string, number>, next: Map<string, number>): boolean {
+  if (current.size !== next.size) {
+    return false;
+  }
+  for (const [key, order] of current) {
+    if (next.get(key) !== order) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function collectOrder(value: unknown, current: Map<string, number>): Map<string, number> {
   const orderMap = new Map<string, number>();
   collect(value, orderMap, 0);
-  return orderMap;
+  return isSameOrder(current, orderMap) ? current : orderMap;
+}
+
+export function createOrderTracker() {
+  let current = new Map<string, number>();
+  const ref = shallowRef(current);
+
+  return {
+    ref,
+    update(value: unknown): void {
+      const next = collectOrder(value, current);
+      if (next !== current) {
+        current = next;
+        ref.value = next;
+      }
+    },
+  };
 }

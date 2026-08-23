@@ -99,10 +99,10 @@ describe("graphic components", () => {
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });
   });
 
-  it("evaluates nested group slots once per render", async () => {
+  it("evaluates nested group slots once without updating stable children", async () => {
     const collector = createCollectorMock();
-    const childId = ref("child");
-    const groupSlot = vi.fn(() => h(GRect, { id: childId.value }));
+    const renderTick = ref(0);
+    const groupSlot = vi.fn(() => [h(GRect, { id: "child" }), `tick-${renderTick.value}`]);
     const Root = defineComponent({
       setup() {
         return () =>
@@ -122,10 +122,12 @@ describe("graphic components", () => {
     expect(groupSlot).toHaveBeenCalledOnce();
 
     groupSlot.mockClear();
-    childId.value = "next-child";
+    collector.register.mockClear();
+    renderTick.value++;
     await nextTick();
 
     expect(groupSlot).toHaveBeenCalledOnce();
+    expect(collector.register.mock.calls.map(([node]) => node.id)).toEqual(["group"]);
   });
 
   it("accepts media elements from another document", async () => {

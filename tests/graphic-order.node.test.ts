@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { h } from "vue";
 
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
-import { collectOrder } from "../src/graphic/order";
+import { createOrderTracker } from "../src/graphic/order";
 
 const RectGraphic = {
   [GRAPHIC_COMPONENT_MARKER]: "rect",
@@ -16,33 +16,45 @@ const GroupGraphic = {
 
 describe("graphic order helpers", () => {
   it("ignores invalid and unmarked entries", () => {
-    expect(
-      collectOrder([
-        undefined,
-        1,
-        { type: "div" },
-        h({
-          render: () => null,
-        }),
-      ]).size,
-    ).toBe(0);
+    const order = createOrderTracker();
+    order.update([
+      undefined,
+      1,
+      { type: "div" },
+      h({
+        render: () => null,
+      }),
+    ]);
+
+    expect(order.ref.value.size).toBe(0);
   });
 
   it("collects id order from regular graphic children", () => {
+    const order = createOrderTracker();
     const container = h("div", [h(RectGraphic, { id: "first" }), h(RectGraphic, { id: "second" })]);
 
-    const orderMap = collectOrder(container);
+    order.update(container);
+    const orderMap = order.ref.value;
 
     expect(orderMap.get("id:first")).toBe(0);
     expect(orderMap.get("id:second")).toBe(1);
+    order.update(container);
+    expect(order.ref.value).toBe(orderMap);
+
+    order.update(h("div", [h(RectGraphic, { id: "second" }), h(RectGraphic, { id: "first" })]));
+    const reordered = order.ref.value;
+    expect(reordered).not.toBe(orderMap);
+    expect(reordered.get("id:second")).toBe(0);
+    expect(reordered.get("id:first")).toBe(1);
   });
 
   it("leaves group slot collection to the group render", () => {
+    const order = createOrderTracker();
     const slot = vi.fn(() => h(RectGraphic, { id: "child-1" }));
-    const orderMap = collectOrder(h(GroupGraphic, { id: "group-1" }, slot));
+    order.update(h(GroupGraphic, { id: "group-1" }, slot));
 
-    expect(orderMap.get("id:group-1")).toBe(0);
-    expect(orderMap.has("id:child-1")).toBe(false);
+    expect(order.ref.value.get("id:group-1")).toBe(0);
+    expect(order.ref.value.has("id:child-1")).toBe(false);
     expect(slot).not.toHaveBeenCalled();
   });
 });
