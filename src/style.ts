@@ -3,28 +3,40 @@ import { isBrowser } from "./utils";
 
 const STYLE_REGISTRY = Symbol.for("vue-echarts.styles");
 
-export function ensureStyles(root?: Document | ShadowRoot): void {
+export function ensureStyles(root?: Node): void {
   if (!isBrowser()) {
     return;
   }
 
-  const target = (root ?? document) as (Document | ShadowRoot) &
-    Record<symbol, Set<string> | undefined>;
+  const candidate = root ?? document;
+  const target = (
+    candidate.nodeType === Node.DOCUMENT_NODE ||
+    (candidate.nodeType === Node.DOCUMENT_FRAGMENT_NODE && "host" in candidate)
+      ? candidate
+      : candidate.ownerDocument
+  ) as (Document | ShadowRoot) & Record<symbol, Set<string> | undefined>;
   const styles = (target[STYLE_REGISTRY] ??= new Set());
 
   if (styles.has(cssRules)) {
     return;
   }
 
-  if (Array.isArray(target.adoptedStyleSheets) && "replaceSync" in CSSStyleSheet.prototype) {
-    const sheet = new CSSStyleSheet();
+  const isDocument = target.nodeType === Node.DOCUMENT_NODE;
+  const ownerDocument = isDocument ? (target as Document) : target.ownerDocument!;
+  const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
+
+  if (
+    StyleSheet &&
+    Array.isArray(target.adoptedStyleSheets) &&
+    "replaceSync" in StyleSheet.prototype
+  ) {
+    const sheet = new StyleSheet();
     sheet.replaceSync(cssRules);
     target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
   } else {
-    const ownerDocument = target instanceof Document ? target : target.ownerDocument;
     const styleEl = ownerDocument.createElement("style");
     styleEl.textContent = cssRules;
-    (target instanceof Document ? target.head : target).appendChild(styleEl);
+    (isDocument ? ownerDocument.head : target).appendChild(styleEl);
   }
   styles.add(cssRules);
 }

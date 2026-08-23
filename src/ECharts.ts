@@ -194,8 +194,7 @@ export default /* @__PURE__ */ defineComponent({
     function init(): void {
       isReady.value = false;
 
-      const styleRoot = root.value?.getRootNode();
-      ensureStyles(styleRoot instanceof ShadowRoot ? styleRoot : undefined);
+      ensureStyles(root.value?.getRootNode());
 
       const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));

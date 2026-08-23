@@ -12,6 +12,16 @@ const useFallbackStyles = (root: Document | ShadowRoot = document) =>
     value: undefined,
   });
 
+function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
+  const iframe = document.createElement("iframe");
+  document.body.appendChild(iframe);
+  const ownerDocument = iframe.contentDocument;
+  if (!ownerDocument) {
+    throw new Error("Expected iframe document to be available.");
+  }
+  return { iframe, ownerDocument };
+}
+
 describe("style entry", () => {
   const adoptedDescriptor = Object.getOwnPropertyDescriptor(
     Document.prototype,
@@ -93,6 +103,45 @@ describe("style entry", () => {
     } finally {
       app.unmount();
       host.remove();
+    }
+  });
+
+  it("injects styles into the component's owner document", async () => {
+    const { iframe, ownerDocument } = createFrame();
+    useFallbackStyles(ownerDocument);
+    const container = ownerDocument.createElement("div");
+    ownerDocument.body.appendChild(container);
+
+    const { default: ECharts } = await import("../src/ECharts");
+    const app = createApp(ECharts);
+
+    try {
+      app.mount(container);
+      expect(ownerDocument.head.querySelector("style")).not.toBeNull();
+      expect(document.head.querySelector("style")).toBeNull();
+    } finally {
+      app.unmount();
+      iframe.remove();
+    }
+  });
+
+  it("constructs adopted stylesheets in the target document's realm", async () => {
+    const { iframe, ownerDocument } = createFrame();
+    const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
+    if (!StyleSheet) {
+      throw new Error("Expected iframe CSSStyleSheet constructor to be available.");
+    }
+
+    const { ensureStyles } = await import("../src/style");
+
+    try {
+      ensureStyles(ownerDocument);
+
+      expect(ownerDocument.adoptedStyleSheets).toHaveLength(1);
+      expect(ownerDocument.adoptedStyleSheets[0]).toBeInstanceOf(StyleSheet);
+      expect(document.adoptedStyleSheets).not.toContain(ownerDocument.adoptedStyleSheets[0]);
+    } finally {
+      iframe.remove();
     }
   });
 });
