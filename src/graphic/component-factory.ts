@@ -90,3 +90,5 @@ export function createComponent(name: string, type: GraphicComponentType) {
 
   return component;
 }
+
+export type GraphicComponent = ReturnType<typeof createComponent>;
