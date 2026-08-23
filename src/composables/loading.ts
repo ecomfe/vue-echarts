@@ -15,7 +15,7 @@ export function useLoading(
     ...toValue(defaultLoadingOptions),
     ...(loadingOptions.value ?? {}),
   }));
-  let activeInstance: EChartsType | undefined;
+  const activeInstances = new WeakSet<EChartsType>();
 
   watchEffect(() => {
     const instance = chart.value;
@@ -25,14 +25,14 @@ export function useLoading(
 
     if (loading.value) {
       instance.showLoading(realLoadingOptions.value);
-      activeInstance = instance;
+      activeInstances.add(instance);
       return;
     }
 
-    if (activeInstance === instance) {
+    if (activeInstances.has(instance)) {
       instance.hideLoading();
+      activeInstances.delete(instance);
     }
-    activeInstance = undefined;
   });
 }
 
