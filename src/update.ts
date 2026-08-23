@@ -213,7 +213,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
     );
   }
 
-  for (const key of Object.keys(prev)) {
+  for (const key in prev) {
     const nextChild = next[key];
     if (nextChild === undefined || hasShapeRemoval(prev[key] as Shape, nextChild)) {
       return true;
@@ -250,7 +250,7 @@ function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): bo
 function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
   let replaceMerge: string[] | undefined;
 
-  for (const key of Object.keys(prev.objectShapes)) {
+  for (const key in prev.objectShapes) {
     const prevShape = prev.objectShapes[key];
     const nextShape = next.objectShapes[key];
     if (prevShape && nextShape) {
@@ -274,7 +274,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     return null;
   }
 
-  for (const key of Object.keys(prev.arrays)) {
+  for (const key in prev.arrays) {
     const prevArray = prev.arrays[key];
     if (!prevArray) {
       continue;
