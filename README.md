@@ -372,6 +372,7 @@ Vue ECharts supports three slot categories:
 These naming rules apply to callback slots only. The graphic slot name is always `#graphic`.
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
+- If `tooltip` or `toolbox` is an array, place its numeric component index immediately after the slot prefix; any remaining segments still locate the owning option.
 - Each non-empty segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
 - The reserved JavaScript path segment `__proto__` is rejected.
 - The constructed slot name maps directly to the nested callback it overrides.
@@ -379,10 +380,12 @@ These naming rules apply to callback slots only. The graphic slot name is always
 **Example mappings**:
 
 - `tooltip` → `option.tooltip.formatter`
+- `tooltip-0` → `option.tooltip[0].formatter`
 - `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
 - `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
 - `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
 - `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-1` → `option.toolbox[1].feature.dataView.optionToContent`
 - `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
 The slot props correspond to the first parameter of the callback function.

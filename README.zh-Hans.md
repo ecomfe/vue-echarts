@@ -372,16 +372,19 @@ Vue ECharts 当前支持三类插槽：
 下面的命名规则只适用于回调类插槽，`graphic` 插槽固定使用 `#graphic`。
 
 - 插槽名称以 `tooltip`/`dataView` 开头，后面跟随用连字符分隔的路径片段，用于定位目标。
+- 当 `tooltip` 或 `toolbox` 是数组时，紧跟在插槽前缀后的数字表示组件索引；其余片段仍用于定位所属 option。
 - 每个非空路径片段对应 `option` 对象的属性名或数组索引（数组索引使用数字形式）。
 - 拼接后的插槽名称直接映射到要覆盖的嵌套回调函数。
 
 **示例映射**：
 
 - `tooltip` → `option.tooltip.formatter`
+- `tooltip-0` → `option.tooltip[0].formatter`
 - `tooltip-baseOption` → `option.baseOption.tooltip.formatter`
 - `tooltip-xAxis-1` → `option.xAxis[1].tooltip.formatter`
 - `tooltip-series-2-data-4` → `option.series[2].data[4].tooltip.formatter`
 - `dataView` → `option.toolbox.feature.dataView.optionToContent`
+- `dataView-1` → `option.toolbox[1].feature.dataView.optionToContent`
 - `dataView-media-1-option` → `option.media[1].option.toolbox.feature.dataView.optionToContent`
 
 插槽的 props 对象对应回调函数的第一个参数。

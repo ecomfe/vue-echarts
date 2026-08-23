@@ -304,6 +304,31 @@ describe("useSlotOption", () => {
     expect(container.textContent).toBe("data-view");
   });
 
+  it("patches repeatable callback components by index", async () => {
+    const { exposed } = renderSlotComponent(() => ({
+      "tooltip-0": () => null,
+      "tooltip-0-media-1-option": () => null,
+      "dataView-1": () => null,
+    }));
+
+    await nextTick();
+
+    const patched = getExposed(exposed).patchOption({
+      tooltip: [{}, {}],
+      toolbox: [{}, { feature: {} }],
+      media: [{ option: {} }, { option: { tooltip: [{}] } }],
+    });
+    const tooltip = (patched.tooltip as TooltipComponentOption[])[0];
+    const nestedTooltip = (
+      patched.media as Array<{ option?: { tooltip?: TooltipComponentOption[] } }>
+    )[1].option?.tooltip?.[0];
+    const dataView = (patched.toolbox as ToolboxComponentOption[])[1].feature?.dataView;
+
+    expect(tooltip.formatter).toBeTypeOf("function");
+    expect(nestedTooltip?.formatter).toBeTypeOf("function");
+    expect(dataView?.optionToContent).toBeTypeOf("function");
+  });
+
   it("reuses callback formatters across slot updates", async () => {
     const changeSpy = vi.fn();
     const tooltipSlot = shallowRef(() => [h("span", "first")]);

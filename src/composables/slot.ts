@@ -166,8 +166,15 @@ export function useSlotOption(
         const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
         const rest = key.slice(prefix.length);
         const parts = rest ? rest.slice(1).split("-") : [];
+        const target = SLOT_OPTION_PATHS[prefix];
+        if (isValidArrayIndex(parts[0] ?? "")) {
+          const index = parts.shift()!;
+          parts.push(target[0], index, ...target.slice(1));
+        } else {
+          parts.push(...target);
+        }
         binding = {
-          path: [...parts, ...SLOT_OPTION_PATHS[prefix]],
+          path: parts,
           formatter: (payload: unknown): HTMLElement | undefined => {
             if (!slots[key]) {
               return undefined;
