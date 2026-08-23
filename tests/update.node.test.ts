@@ -428,6 +428,19 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
+      it("sorts multiple replaceMerge components", () => {
+        const prev = buildSignature({
+          series: [{ id: "a" }, { id: "b" }],
+          dataset: [{ id: "a" }, { id: "b" }],
+        });
+        const next = planUpdate(prev, {
+          series: [{ id: "a" }],
+          dataset: [{ id: "a" }],
+        });
+
+        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["dataset", "series"] });
+      });
+
       it("rebuilds for destructive global array changes", () => {
         const base: EChartsOption = { color: ["red", "blue"] };
         const update: EChartsOption = { color: ["red"] };

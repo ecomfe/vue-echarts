@@ -263,9 +263,9 @@ function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
   return hasMissing(prev.scalars, next.scalars);
 }
 
-/** Returns null when replaceMerge cannot represent a destructive array change. */
-function collectReplacements(prev: Signature, next: Signature): Set<string> | null {
-  const replaceMerge = new Set<string>();
+/** Returns undefined when no replacement is needed and null when one cannot be represented. */
+function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
+  let replaceMerge: string[] | undefined;
 
   for (const key of Object.keys(prev.arrays)) {
     const prevArray = prev.arrays[key];
@@ -284,7 +284,7 @@ function collectReplacements(prev: Signature, next: Signature): Set<string> | nu
     if (!ComponentModel.hasClass(key)) {
       return null;
     }
-    replaceMerge.add(key);
+    (replaceMerge ??= []).push(key);
   }
 
   for (const key of Object.keys(prev.objectShapes)) {
@@ -294,7 +294,7 @@ function collectReplacements(prev: Signature, next: Signature): Set<string> | nu
     if (!ComponentModel.hasClass(key)) {
       return null;
     }
-    replaceMerge.add(key);
+    (replaceMerge ??= []).push(key);
   }
 
   return replaceMerge;
@@ -314,14 +314,16 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
     };
   }
 
-  const replaceMergeSet = shouldForceNotMerge(prev, next) ? null : collectReplacements(prev, next);
-  if (!replaceMergeSet) {
+  const replaceMerge = shouldForceNotMerge(prev, next) ? null : collectReplacements(prev, next);
+  if (replaceMerge === null) {
     return {
       signature: next,
       plan: { notMerge: true },
     };
   }
-  const replaceMerge = replaceMergeSet.size > 0 ? Array.from(replaceMergeSet).sort() : undefined;
+  if (replaceMerge && replaceMerge.length > 1) {
+    replaceMerge.sort();
+  }
 
   return {
     signature: next,
