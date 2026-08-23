@@ -43,16 +43,8 @@ export interface PlannedUpdate {
   plan: UpdatePlan;
 }
 
-/**
- * Read an item's `id` as a string.
- * Only accept string or number. Other types are ignored to surface inconsistent data early.
- */
-function readId(item: unknown): string | undefined {
-  if (!isPlainObject(item)) {
-    return undefined;
-  }
-
-  const raw = item.id;
+/** Normalize an item's supported `id` value to a string. */
+function normalizeId(raw: unknown): string | undefined {
   if (typeof raw === "string") {
     return raw;
   }
@@ -64,15 +56,28 @@ function readId(item: unknown): string | undefined {
   return undefined;
 }
 
-function buildShape(value: unknown, stack: WeakSet<object>, mode?: ShapeMode): true | ObjectShape {
-  if (!isPlainObject(value) || stack.has(value)) {
+function buildShape(
+  value: unknown,
+  stack: WeakSet<object>,
+  mode?: ShapeMode,
+  itemShape?: ArrayItemShape,
+): true | ObjectShape {
+  if (!isPlainObject(value)) {
+    return true;
+  }
+
+  const rawId = itemShape ? value.id : undefined;
+  if (itemShape) {
+    itemShape.id = normalizeId(rawId);
+  }
+  if (stack.has(value)) {
     return true;
   }
 
   stack.add(value);
   const shape: ObjectShape = Object.create(null);
   for (const key of Object.keys(value)) {
-    const child = value[key];
+    const child = itemShape && key === "id" ? rawId : value[key];
     if (child === undefined) {
       continue;
     }
@@ -80,39 +85,28 @@ function buildShape(value: unknown, stack: WeakSet<object>, mode?: ShapeMode): t
       mode === "option" && Array.isArray(child)
         ? analyzeArray(child, stack)
         : mode === "media" && key === "option"
-          ? buildOptionShape(child, stack)
+          ? buildShape(child, stack, "option")
           : buildShape(child, stack);
   }
   stack.delete(value);
   return shape;
 }
 
-function buildOptionShape(value: unknown, stack: WeakSet<object>): Shape {
-  return buildShape(value, stack, "option");
-}
-
-function buildMediaShape(value: unknown, stack: WeakSet<object>): Shape {
-  return buildShape(value, stack, "media");
-}
-
-function analyzeArray(
-  items: unknown[],
-  stack: WeakSet<object>,
-  buildItemShape: (value: unknown, stack: WeakSet<object>) => Shape = buildShape,
-): ArraySummary {
+function analyzeArray(items: unknown[], stack: WeakSet<object>, mode?: ShapeMode): ArraySummary {
   let ids: Set<string> | undefined;
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const id = readId(item);
-    shapes.push({ id, shape: buildItemShape(item, stack) });
-    if (id === undefined) {
+    const itemShape: ArrayItemShape = { id: undefined, shape: true };
+    itemShape.shape = buildShape(item, stack, mode, itemShape);
+    shapes.push(itemShape);
+    if (itemShape.id === undefined) {
       noIdCount++;
       continue;
     }
-    (ids ??= new Set()).add(id);
+    (ids ??= new Set()).add(itemShape.id);
   }
 
   return {
@@ -138,15 +132,14 @@ export function buildSignature(option: Option): Signature {
   for (const key of Object.keys(opt)) {
     const value = opt[key];
     if (Array.isArray(value)) {
-      const buildItemShape =
-        key === "options" ? buildOptionShape : key === "media" ? buildMediaShape : buildShape;
-      arrays[key] = analyzeArray(value, stack, buildItemShape);
+      const mode = key === "options" ? "option" : key === "media" ? "media" : undefined;
+      arrays[key] = analyzeArray(value, stack, mode);
       continue;
     }
 
     if (isPlainObject(value)) {
       objectShapes[key] =
-        key === "baseOption" ? buildOptionShape(value, stack) : buildShape(value, stack);
+        key === "baseOption" ? buildShape(value, stack, "option") : buildShape(value, stack);
       continue;
     }
 

@@ -154,11 +154,8 @@ describe("smart-update", () => {
       const baseOption = Object.defineProperty({}, "title", tracked("baseTitle", {}));
       const mediaOption = Object.defineProperty({}, "title", tracked("mediaTitle", {}));
       const media = Object.defineProperty({}, "option", tracked("mediaOption", mediaOption));
-      const series = Object.defineProperty(
-        new Array(1),
-        0,
-        tracked("seriesItem", { id: "series", type: "line" }),
-      );
+      const seriesOption = Object.defineProperty({}, "id", tracked("seriesId", "series"));
+      const series = Object.defineProperty(new Array(1), 0, tracked("seriesItem", seriesOption));
 
       buildSignature({ baseOption, media: [media], series } as EChartsOption);
 
@@ -167,6 +164,7 @@ describe("smart-update", () => {
         mediaOption: 1,
         mediaTitle: 1,
         seriesItem: 1,
+        seriesId: 1,
       });
     });
 
