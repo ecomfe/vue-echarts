@@ -1148,7 +1148,7 @@ describe("ECharts component", () => {
     },
   );
 
-  it("supports boolean notMerge in manual setOption", async () => {
+  it("preserves positional options in manual setOption", async () => {
     const option = ref({ title: { text: "manual" } });
     const exposed = shallowRef<Exposed>();
 
@@ -1159,8 +1159,16 @@ describe("ECharts component", () => {
     getExposed(exposed).setOption({ title: { text: "b" } }, true, false);
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual({ notMerge: true, lazyUpdate: false });
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      notMerge: true,
+      lazyUpdate: false,
+    });
+
+    chartStub.setOption.mockClear();
+    getExposed(exposed).setOption({ title: { text: "c" } }, undefined, true);
+
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ lazyUpdate: true });
   });
 
   it("sets notMerge when options array shrinks", async () => {

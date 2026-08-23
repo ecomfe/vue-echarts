@@ -244,7 +244,10 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
-      const updateOptions = typeof notMerge === "boolean" ? { notMerge, lazyUpdate } : notMerge;
+      const updateOptions =
+        typeof notMerge === "boolean"
+          ? { notMerge, lazyUpdate }
+          : (notMerge ?? (lazyUpdate === undefined ? undefined : { lazyUpdate }));
 
       const instance = chart.value;
       if (!instance) {
