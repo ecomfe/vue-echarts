@@ -93,7 +93,7 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
       (node.handlerCache ??= new Map()).set(key, { source: value, handler });
     }
 
-    const eventKey = `on${descriptor.event}`;
+    const eventKey = `on${descriptor.event.toLowerCase()}`;
     const result = (out ??= {});
     const existing = result[eventKey];
     if (!existing) {

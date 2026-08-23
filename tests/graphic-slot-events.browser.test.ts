@@ -82,7 +82,7 @@ describe("graphic slot event handling", () => {
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const onClick = vi.fn();
-    const onMousemove = vi.fn();
+    const onMouseMove = vi.fn();
     const enableClick = ref(true);
     const enableMousemove = ref(false);
 
@@ -91,7 +91,7 @@ describe("graphic slot event handling", () => {
         return () => {
           const listeners = {
             ...(enableClick.value ? { onClick } : {}),
-            ...(enableMousemove.value ? { onMousemove } : {}),
+            ...(enableMousemove.value ? { onMouseMove } : {}),
           };
           return h(
             ECharts,
@@ -119,7 +119,7 @@ describe("graphic slot event handling", () => {
 
     (firstNode.onclick as (params: unknown) => void)({ value: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(onMousemove).toHaveBeenCalledTimes(0);
+    expect(onMouseMove).toHaveBeenCalledTimes(0);
 
     enableClick.value = false;
     enableMousemove.value = true;
@@ -137,7 +137,7 @@ describe("graphic slot event handling", () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
     (secondNode.onmousemove as (params: unknown) => void)({ value: 3 });
-    expect(onMousemove).toHaveBeenCalledTimes(1);
+    expect(onMouseMove).toHaveBeenCalledTimes(1);
 
     enableMousemove.value = false;
     await nextTick();
@@ -150,7 +150,7 @@ describe("graphic slot event handling", () => {
       throw new Error("Expected third node to exist.");
     }
     expect(thirdNode.onmousemove).toBeUndefined();
-    expect(onMousemove).toHaveBeenCalledTimes(1);
+    expect(onMouseMove).toHaveBeenCalledTimes(1);
   });
 
   it("supports handler transitions and in-place array activation", async () => {
