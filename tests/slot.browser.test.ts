@@ -268,12 +268,16 @@ describe("useSlotOption", () => {
     expect(container.textContent).toBe("data-view");
   });
 
-  it("reuses callback formatters across option patches", async () => {
+  it("reuses callback formatters across slot updates", async () => {
+    const changeSpy = vi.fn();
     const tooltipSlot = shallowRef(() => [h("span", "first")]);
-    const { exposed } = renderSlotComponent(() => ({
-      tooltip: tooltipSlot.value,
-      dataView: () => [h("span", "data-view")],
-    }));
+    const { exposed } = renderSlotComponent(
+      () => ({
+        tooltip: tooltipSlot.value,
+        dataView: () => [h("span", "data-view")],
+      }),
+      changeSpy,
+    );
 
     await nextTick();
 
@@ -291,44 +295,33 @@ describe("useSlotOption", () => {
     tooltipSlot.value = () => [h("span", "second")];
     await nextTick();
 
+    expect(changeSpy).not.toHaveBeenCalled();
     formatter(makeTooltipParams(1), "");
     await nextTick();
     expect(container.textContent).toBe("second");
   });
 
-  it("notifies when slot set changes and cleans state", async () => {
+  it("rebuilds when a slot name changes without changing the slot count", async () => {
     const changeSpy = vi.fn();
-    const showExtra = ref(true);
+    const extraName = ref<"tooltip-extra" | "tooltip-next">("tooltip-extra");
 
-    const { exposed } = renderSlotComponent(() => {
-      const slots: SlotDictionary = {
-        tooltip: (...args: unknown[]) => {
-          const params = args[0] as { dataIndex: number };
-          return [h("span", `tooltip-${params.dataIndex}`)];
-        },
-      };
-      if (showExtra.value) {
-        slots["tooltip-extra"] = () => [h("span", "extra")];
-      }
-      return slots;
-    }, changeSpy);
+    const { exposed } = renderSlotComponent(
+      () => ({ [extraName.value]: () => [h("span", "extra")] }),
+      changeSpy,
+    );
 
     await nextTick();
     changeSpy.mockClear();
 
-    const patched = getExposed(exposed).patchOption({});
-    const formatter = getTooltipFormatter(patched, "tooltip");
-    formatter(makeTooltipParams(1), "");
-    await nextTick();
-
-    showExtra.value = false;
+    extraName.value = "tooltip-next";
     await nextTick();
 
     expect(changeSpy).toHaveBeenCalledOnce();
     expect(changeSpy).toHaveBeenCalledWith({ notMerge: true });
 
     const patchedAfterRemoval = getExposed(exposed).patchOption({});
-    expect("tooltip-extra" in patchedAfterRemoval).toBe(false);
+    expect(patchedAfterRemoval).not.toHaveProperty("extra");
+    expect(patchedAfterRemoval).toHaveProperty("next.tooltip.formatter", expect.any(Function));
   });
 
   it("cleans formatter containers when dynamic tooltip/dataView slot paths are removed", async () => {

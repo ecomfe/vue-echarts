@@ -200,11 +200,17 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   onUpdated(() => {
     const nextSlotNames = collectSlotNames(false);
+    let changed = nextSlotNames.length !== slotNames.length;
+    for (let i = 0; !changed && i < slotNames.length; i++) {
+      changed = nextSlotNames[i] !== slotNames[i];
+    }
+    if (!changed) {
+      return;
+    }
+
     if (slotNames.length === 0) {
-      if (nextSlotNames.length > 0) {
-        slotNames = nextSlotNames;
-        onSlotsChange();
-      }
+      slotNames = nextSlotNames;
+      onSlotsChange();
       return;
     }
 
@@ -222,11 +228,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
       }
     }
 
-    if (removed || nextSlotNames.length !== slotNames.length) {
-      slotNames = nextSlotNames;
-      // ECharts merge retains formatter fields omitted after a slot is removed.
-      onSlotsChange(removed ? { notMerge: true } : undefined);
-    }
+    slotNames = nextSlotNames;
+    // ECharts merge retains formatter fields omitted after a slot is removed.
+    onSlotsChange(removed ? { notMerge: true } : undefined);
   });
 
   onMounted(() => {
