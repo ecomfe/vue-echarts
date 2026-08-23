@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { defineComponent, h, nextTick, provide, reactive, ref, shallowRef } from "vue";
+import { defineComponent, h, nextTick, provide, reactive, ref, shallowRef, watch } from "vue";
 import type { Ref, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { init, enqueueChart, resetECharts, createEChartsModule } from "./helpers/mock";
@@ -407,6 +407,33 @@ describe("ECharts component", () => {
       title: { text: "second" },
       series: [{ data: [2, 4] }],
     });
+  });
+
+  it("does not drop option changes derived from theme changes", async () => {
+    const option = ref<Option>({ title: { text: "before" } });
+    const theme = ref<Theme | undefined>("dark");
+
+    const Root = defineComponent(() => {
+      watch(
+        theme,
+        () => {
+          option.value = { title: { text: "after" } };
+        },
+        { flush: "post" },
+      );
+      return () => h(ECharts, { option: option.value, theme: theme.value });
+    });
+
+    render(Root);
+    await nextTick();
+    chartStub.setOption.mockClear();
+
+    theme.value = undefined;
+    await nextTick();
+    await nextTick();
+
+    const [lastOption] = getLastSetOptionCall(chartStub);
+    expect(lastOption).toMatchObject({ title: { text: "after" } });
   });
 
   it("re-initializes cleanly when initOptions and theme change in the same tick", async () => {

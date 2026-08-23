@@ -106,6 +106,7 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
     let themeUpdatePending = false;
+    let optionUpdatePending = false;
     let terminallyDisposed = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
@@ -273,6 +274,7 @@ export default defineComponent({
         }
 
         if (themeUpdatePending) {
+          optionUpdatePending = true;
           return;
         }
         applyOption(instance, option);
@@ -298,8 +300,13 @@ export default defineComponent({
     watch(
       realTheme,
       (theme) => {
+        optionUpdatePending = false;
         nextTick(() => {
           themeUpdatePending = false;
+          if (optionUpdatePending) {
+            optionUpdatePending = false;
+            requestUpdate();
+          }
         });
         const instance = chart.value;
         if (instance) {
