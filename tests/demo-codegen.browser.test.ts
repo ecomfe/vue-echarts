@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   editorChange: null as ((value: string) => void) | null,
   editorFocus: vi.fn(),
   track: vi.fn(),
+  viewerSetValue: vi.fn(),
   writeText: vi.fn<() => Promise<void>>(),
 }));
 
@@ -77,7 +78,7 @@ vi.mock("../demo/services/monaco", () => ({
   createCodeViewer() {
     return {
       editor: { layout: vi.fn() },
-      setValue: vi.fn(),
+      setValue: mocks.viewerSetValue,
       setTheme: vi.fn(),
       setLanguage: vi.fn(),
       dispose: vi.fn(),
@@ -90,6 +91,7 @@ beforeEach(() => {
   mocks.editorChange = null;
   mocks.editorFocus.mockReset();
   mocks.track.mockReset();
+  mocks.viewerSetValue.mockReset();
   mocks.writeText.mockReset().mockResolvedValue();
   vi.spyOn(navigator.clipboard, "writeText").mockImplementation(mocks.writeText);
   localStorage.removeItem("ve.codegenOptions");
@@ -226,6 +228,25 @@ describe("code generator dialog", () => {
     copyButton.click();
 
     expect(mocks.writeText).not.toHaveBeenCalled();
+  });
+
+  it("keeps renderer selection out of formatter preferences", async () => {
+    const { trigger } = renderCodegen();
+    const modal = await openCodegen(trigger);
+    const renderer = modal.querySelector<HTMLSelectElement>("select");
+    if (!renderer) {
+      throw new Error("Expected a renderer selector.");
+    }
+
+    renderer.value = "svg";
+    renderer.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await vi.waitFor(() => {
+      expect(mocks.viewerSetValue).toHaveBeenCalledWith(expect.stringContaining("SVGRenderer"));
+      expect(JSON.parse(localStorage.getItem("ve.codegenOptions") ?? "{}")).not.toHaveProperty(
+        "renderer",
+      );
+    });
   });
 
   it("closes only when a pointer gesture stays outside the dialog content", async () => {

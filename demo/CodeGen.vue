@@ -56,7 +56,6 @@ interface CodegenPreferences {
   maxLen: number;
   semi: boolean;
   includeType: boolean;
-  renderer: Renderer;
 }
 
 const codegenOptions = useLocalStorage<CodegenPreferences>("ve.codegenOptions", {
@@ -66,7 +65,6 @@ const codegenOptions = useLocalStorage<CodegenPreferences>("ve.codegenOptions", 
   maxLen: 80,
   semi: false,
   includeType: false,
-  renderer: "canvas",
 } satisfies CodegenPreferences);
 
 const props = defineProps<{
@@ -101,7 +99,6 @@ const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } = useTim
 type Renderer = "canvas" | "svg";
 
 const renderer = ref<Renderer>(props.renderer === "svg" ? "svg" : "canvas");
-codegenOptions.value.renderer = renderer.value;
 
 const isDark = useDemoDark();
 const monacoTheme = computed(() => (isDark.value ? "vs-dark" : "vs"));
@@ -114,10 +111,6 @@ watch(
     }
   },
 );
-
-watch(renderer, (value) => {
-  codegenOptions.value.renderer = value;
-});
 
 function onMousedown(event: MouseEvent) {
   mouseDownTarget = event.target instanceof Node ? event.target : null;
