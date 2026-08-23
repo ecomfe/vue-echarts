@@ -271,6 +271,10 @@ describe("ECharts component", () => {
     theme.value = undefined;
     await nextTick();
     expect(chartStub.setTheme).toHaveBeenLastCalledWith("dark");
+
+    theme.value = "";
+    await nextTick();
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith("");
   });
 
   it("reapplies latest graph option after theme changes when data is assigned later", async () => {

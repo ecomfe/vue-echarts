@@ -303,7 +303,7 @@ export default defineComponent({
         });
         const instance = chart.value;
         if (instance) {
-          instance.setTheme(theme || {});
+          instance.setTheme(theme ?? {});
 
           if (props.option && !manualUpdate.value) {
             applyOption(instance, props.option);
