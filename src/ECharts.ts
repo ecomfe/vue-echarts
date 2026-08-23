@@ -237,7 +237,11 @@ export default /* @__PURE__ */ defineComponent({
             commit();
           }
           isReady.value = true;
-          queueMicrotask(() => deferred.delete(instance));
+          queueMicrotask(() => {
+            if (deferred.delete(instance) && chart.value === instance && !terminallyDisposed) {
+              requestUpdate();
+            }
+          });
         });
         return;
       }

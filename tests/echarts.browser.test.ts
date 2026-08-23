@@ -1165,6 +1165,23 @@ describe("ECharts component", () => {
     });
   });
 
+  it("applies the first option assigned during autoresize initialization", async () => {
+    const option = ref<Option>();
+    const exposed = shallowRef<Exposed>();
+    chartStub.resize.mockImplementation(() => {
+      option.value = { title: { text: "during-resize" } };
+    });
+
+    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    await nextTick();
+    await nextTick();
+
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "during-resize" },
+    });
+  });
+
   it("keeps a manual option set during autoresize mount", async () => {
     const exposed = shallowRef<Exposed>();
     const manualOption = { title: { text: "manual" } };
