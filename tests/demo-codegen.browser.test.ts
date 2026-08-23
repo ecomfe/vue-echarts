@@ -6,6 +6,7 @@ import CodeGen from "../demo/CodeGen.vue";
 import type { OptionAnalysisState } from "../demo/composables/useOptionAnalysis";
 
 const mocks = vi.hoisted(() => ({
+  analysisPending: false,
   analysisStop: vi.fn(),
   dark: null as { value: boolean } | null,
   editorChange: null as ((value: string) => void) | null,
@@ -31,7 +32,7 @@ vi.mock("../demo/composables/useOptionAnalysis", async () => {
     useOptionAnalysis(initialCode: string) {
       const code = ref(initialCode);
       const state = reactive<OptionAnalysisState>({
-        status: "ready",
+        status: mocks.analysisPending ? "analyzing" : "ready",
         strategy: "expression",
         diagnostics: [],
         issues: [],
@@ -90,6 +91,7 @@ vi.mock("../demo/services/monaco", () => ({
 }));
 
 beforeEach(() => {
+  mocks.analysisPending = false;
   mocks.analysisStop.mockReset();
   mocks.dark!.value = false;
   mocks.editorChange = null;
@@ -203,6 +205,18 @@ describe("code generator dialog", () => {
       expect(mocks.monacoSetTheme).toHaveBeenCalledOnce();
       expect(mocks.monacoSetTheme).toHaveBeenCalledWith("vs-dark");
     });
+  });
+
+  it("shows feedback when initial analysis outlives editor setup", async () => {
+    mocks.analysisPending = true;
+    const { trigger } = renderCodegen();
+    const modal = await openCodegen(trigger);
+    const editor = modal.querySelector<HTMLElement>(".option-code");
+    if (!editor) {
+      throw new Error("Expected an option editor.");
+    }
+
+    await vi.waitFor(() => expect(editor.getAttribute("aria-busy")).toBe("true"));
   });
 
   it("reports clipboard success and failure accurately", async () => {

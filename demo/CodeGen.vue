@@ -86,7 +86,7 @@ const outputEl = ref<HTMLElement | null>(null);
 let optionEditor: OptionEditor | null = null;
 let importViewer: CodeViewer | null = null;
 let suppressNextEditorEvent = false;
-const initializing = ref<boolean>(true);
+const initializing = ref(true);
 const showAnalyzingOverlay = ref(false);
 const ON_DEMAND_TIMEOUT = { immediate: false };
 const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } = useTimeoutFn(
@@ -295,7 +295,7 @@ watch(
 watch(
   () => analysisState.status,
   (status) => {
-    if (status === "analyzing" && !initializing.value) {
+    if (status === "analyzing") {
       scheduleAnalyzingOverlay();
       return;
     }
