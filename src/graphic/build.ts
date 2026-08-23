@@ -82,13 +82,15 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
     }
 
     const cached = node.handlerCache?.get(key);
-    const handler =
-      cached && cached.source === value ? cached.handler : toEventHandler(value, descriptor.once);
+    const reused = cached !== undefined && cached.source === value;
+    const handler = reused ? cached.handler : toEventHandler(value, descriptor.once);
     if (!handler) {
       node.handlerCache?.delete(key);
       continue;
     }
-    (node.handlerCache ??= new Map()).set(key, { source: value, handler });
+    if (!reused) {
+      (node.handlerCache ??= new Map()).set(key, { source: value, handler });
+    }
 
     const eventKey = `on${descriptor.event}`;
     const result = (out ??= {});
