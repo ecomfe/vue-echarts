@@ -452,6 +452,7 @@ describe("useSlotOption", () => {
       () => ({
         legend: () => [h("span", "legend")],
         "tooltip-": () => [h("span", "empty-tooltip-path")],
+        "tooltip-__proto__": () => [h("span", "prototype-path")],
         "dataView-panel--0": () => [h("span", "empty-data-view-path")],
       }),
       changeSpy,
@@ -466,8 +467,10 @@ describe("useSlotOption", () => {
 
       expect(flattened).toContain("[vue-echarts] Invalid slot name: legend");
       expect(flattened).toContain("[vue-echarts] Invalid slot name: tooltip-");
+      expect(flattened).toContain("[vue-echarts] Invalid slot name: tooltip-__proto__");
       expect(flattened).toContain("[vue-echarts] Invalid slot name: dataView-panel--0");
       expect(patched).toEqual({});
+      expect(Object.getPrototypeOf(patched)).toBe(Object.prototype);
       expect(changeSpy).not.toHaveBeenCalled();
     });
   });

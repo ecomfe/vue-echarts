@@ -17,6 +17,7 @@ const SLOT_OPTION_PATHS = {
   tooltip: ["tooltip", "formatter"],
   dataView: ["toolbox", "feature", "dataView", "optionToContent"],
 } as const;
+const PROTOTYPE_SEGMENT_RE = /-__proto__(?:-|$)/;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
 const EMPTY_SLOT_NAMES: readonly SlotName[] = [];
@@ -33,7 +34,7 @@ type SlotState = {
 };
 
 function isValidSlotName(key: string): key is SlotName {
-  if (key.endsWith("-") || key.includes("--")) {
+  if (key.endsWith("-") || key.includes("--") || PROTOTYPE_SEGMENT_RE.test(key)) {
     return false;
   }
   return (

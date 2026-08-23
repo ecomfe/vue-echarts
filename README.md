@@ -372,6 +372,7 @@ These naming rules apply to callback slots only. The graphic slot name is always
 
 - Slot names begin with `tooltip`/`dataView`, followed by hyphen-separated path segments to the target.
 - Each non-empty segment corresponds to an `option` property name or an array index (for arrays, use the numeric index).
+- The reserved JavaScript path segment `__proto__` is rejected.
 - The constructed slot name maps directly to the nested callback it overrides.
 
 **Example mappings**:
