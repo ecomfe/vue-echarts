@@ -183,7 +183,7 @@ function hasMissing(prev: readonly string[], next: readonly string[]): boolean {
 
 function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): boolean {
   if (!next) {
-    return prev.idsSorted.length > 0 || prev.noIdCount > 0;
+    return prev.shapes.length > 0;
   }
 
   return (
