@@ -4,6 +4,8 @@ import { throttle } from "echarts/core";
 import type { Ref, PropType } from "vue";
 import type { EChartsType, AutoResize } from "../types";
 
+const isZeroSize = (width: number, height: number) => width === 0 || height === 0;
+
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<AutoResize | undefined>,
@@ -13,6 +15,7 @@ export function useAutoresize(
   let sizedChart: EChartsType | undefined;
   let sizedWidth = 0;
   let sizedHeight = 0;
+  let wasZeroSized = false;
 
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
   const resizeSources = [
@@ -36,6 +39,7 @@ export function useAutoresize(
       sizedChart = chart;
       sizedWidth = offsetWidth;
       sizedHeight = offsetHeight;
+      wasZeroSized = isZeroSize(offsetWidth, offsetHeight);
     }
     if (!enabled) {
       return;
@@ -44,30 +48,35 @@ export function useAutoresize(
     const resize = () => {
       const { offsetWidth, offsetHeight } = root;
       // Observer notifications can repeat, and throttled work can outlive its triggering size.
-      if (
-        offsetWidth === 0 ||
-        offsetHeight === 0 ||
-        (offsetWidth === sizedWidth && offsetHeight === sizedHeight)
-      ) {
+      if (isZeroSize(offsetWidth, offsetHeight)) {
+        wasZeroSized = true;
+        return;
+      }
+      if (!wasZeroSized && offsetWidth === sizedWidth && offsetHeight === sizedHeight) {
         return;
       }
       chart.resize();
       sizedWidth = offsetWidth;
       sizedHeight = offsetHeight;
+      wasZeroSized = false;
       getOptions()?.onResize?.();
     };
     const throttledResize = wait ? throttle(resize, wait) : undefined;
     const runResize = throttledResize ?? resize;
 
-    if (
-      offsetWidth !== 0 &&
-      offsetHeight !== 0 &&
-      (offsetWidth !== sizedWidth || offsetHeight !== sizedHeight)
-    ) {
-      runResize();
-    }
+    const observeResize = () => {
+      const { offsetWidth, offsetHeight } = root;
+      if (isZeroSize(offsetWidth, offsetHeight)) {
+        wasZeroSized = true;
+        return;
+      }
+      if (wasZeroSized || offsetWidth !== sizedWidth || offsetHeight !== sizedHeight) {
+        runResize();
+      }
+    };
 
-    const observer = new ResizeObserver(runResize);
+    observeResize();
+    const observer = new ResizeObserver(observeResize);
     observer.observe(root);
 
     onCleanup(() => {

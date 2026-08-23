@@ -86,7 +86,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips a throttled resize when its pending size is no longer current", async () => {
+  it("skips stale throttled work and resizes after zero-sized recovery", async () => {
     let pendingResize: (() => void) | undefined;
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
@@ -118,6 +118,13 @@ describe("useAutoresize", () => {
     expect(pendingResize).toBeTypeOf("function");
     expect(resize).not.toHaveBeenCalled();
 
+    container.style.width = "120px";
+    pendingResize?.();
+    expect(resize).not.toHaveBeenCalled();
+    expect(onResize).not.toHaveBeenCalled();
+
+    container.style.width = "180px";
+    await flushAnimationFrame();
     container.style.width = "0";
     pendingResize?.();
     expect(resize).not.toHaveBeenCalled();
@@ -127,8 +134,8 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
     container.style.width = "120px";
     pendingResize?.();
-    expect(resize).not.toHaveBeenCalled();
-    expect(onResize).not.toHaveBeenCalled();
+    expect(resize).toHaveBeenCalledOnce();
+    expect(onResize).toHaveBeenCalledOnce();
 
     scope.stop();
   });
@@ -313,7 +320,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips resize callbacks while dimensions are unchanged", async () => {
+  it("deduplicates unchanged dimensions except after zero-sized recovery", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const autoresize = ref<AutoResize | undefined>(true);
@@ -359,6 +366,15 @@ describe("useAutoresize", () => {
     callbacks[0]();
     callbacks[0]();
     expect(resize).toHaveBeenCalledTimes(1);
+
+    container.style.width = "0";
+    callbacks[0]();
+    expect(resize).toHaveBeenCalledTimes(1);
+
+    container.style.width = "200px";
+    callbacks[0]();
+    callbacks[0]();
+    expect(resize).toHaveBeenCalledTimes(2);
 
     scope.stop();
     globalWithRO.ResizeObserver = originalRO;
