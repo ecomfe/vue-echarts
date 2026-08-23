@@ -438,6 +438,7 @@ The slot props correspond to the first parameter of the callback function.
 
 > [!NOTE]
 > Slots take precedence over the corresponding callback defined in `props.option`.
+> After adding or removing a callback slot in `manual-update` mode, call `chartRef.setOption(...)` to submit the latest slot set.
 
 #### Graphic slot&nbsp;<sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>
 

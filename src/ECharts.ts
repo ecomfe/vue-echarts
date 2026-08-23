@@ -108,7 +108,11 @@ export default /* @__PURE__ */ defineComponent({
 
     const rootAttrs = useRootAttrs(attrsMap);
 
-    const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate, isReady);
+    const {
+      render: renderSlot,
+      patchOption,
+      patchUpdateOptions: patchSlotUpdateOptions,
+    } = useSlotOption(slots, requestUpdate, isReady);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
       useGraphic({
@@ -131,7 +135,8 @@ export default /* @__PURE__ */ defineComponent({
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
-    function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
+    function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
+      updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
       const replaceGraphic = graphicSlotApplied || hasGraphicSlot;
       graphicSlotApplied = hasGraphicSlot;
@@ -161,7 +166,7 @@ export default /* @__PURE__ */ defineComponent({
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
       if (mode) {
-        instance.setOption(patched, withGraphicReplaceMerge(override));
+        instance.setOption(patched, patchUpdateOptions(override));
         if (mode === "manual") {
           lastSignature = undefined;
         }
@@ -169,7 +174,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       if (!override && realUpdateOptions.value) {
-        instance.setOption(patched, withGraphicReplaceMerge(realUpdateOptions.value));
+        instance.setOption(patched, patchUpdateOptions(realUpdateOptions.value));
         lastSignature = null;
         return;
       }
@@ -179,7 +184,7 @@ export default /* @__PURE__ */ defineComponent({
       if (lastSignature === null) {
         updateOptions = { ...updateOptions, notMerge: true };
       }
-      instance.setOption(patched, withGraphicReplaceMerge(updateOptions));
+      instance.setOption(patched, patchUpdateOptions(updateOptions));
       lastSignature = planned.signature;
     }
 

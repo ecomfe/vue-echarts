@@ -1621,7 +1621,7 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBeGreaterThan(initialCalls);
   });
 
-  it("does not re-apply option on slot change in manual-update mode", async () => {
+  it("defers callback slot removal until explicit setOption in manual-update mode", async () => {
     const option = ref({ title: { text: "manual-slots" } });
     const showExtra = ref(true);
     const exposed = shallowRef<Exposed>();
@@ -1659,6 +1659,13 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
+
+    getExposed(exposed).setOption(option.value);
+    expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
+
+    chartStub.setOption.mockClear();
+    getExposed(exposed).setOption(option.value);
+    expect(chartStub.setOption.mock.calls[0][1]).toBeUndefined();
   });
 
   it("abandons deferred autoresize initialization after unmount", async () => {

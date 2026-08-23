@@ -117,6 +117,7 @@ export function useSlotOption(
 
   let slotNames = collectSlotNames(false);
   let nextSlotNames = slotNames;
+  let resetPending = false;
 
   const render = () => {
     nextSlotNames = collectSlotNames(false);
@@ -207,6 +208,14 @@ export function useSlotOption(
     return root;
   }
 
+  function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
+    if (!resetPending) {
+      return updateOptions;
+    }
+    resetPending = false;
+    return updateOptions?.notMerge ? updateOptions : { ...updateOptions, notMerge: true };
+  }
+
   onUpdated(() => {
     let changed = nextSlotNames.length !== slotNames.length;
     for (let i = 0; !changed && i < slotNames.length; i++) {
@@ -236,8 +245,11 @@ export function useSlotOption(
       }
     }
 
-    slotNames = nextSlotNames;
     // ECharts merge retains formatter fields omitted after a slot is removed.
+    if (removed) {
+      resetPending = true;
+    }
+    slotNames = nextSlotNames;
     onSlotsChange(removed ? { notMerge: true } : undefined);
   });
 
@@ -248,6 +260,7 @@ export function useSlotOption(
   return {
     render,
     patchOption,
+    patchUpdateOptions,
   };
 }
 

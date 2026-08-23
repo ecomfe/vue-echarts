@@ -437,6 +437,7 @@ Vue ECharts 当前支持三类插槽：
 
 > [!NOTE]
 > 插槽会优先于 `props.option` 中对应的回调函数。
+> 在 `manual-update` 模式下新增或移除回调插槽后，需要调用 `chartRef.setOption(...)` 提交最新的插槽集合。
 
 #### Graphic 插槽&nbsp;<sup><a href="#插槽"><img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能" align="middle" height="16"></a></sup>
 
