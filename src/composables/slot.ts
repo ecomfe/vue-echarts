@@ -19,6 +19,7 @@ const SLOT_OPTION_PATHS = {
 } as const;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
+const EMPTY_SLOT_NAMES: readonly SlotName[] = [];
 type SlotMap<T> = Partial<Record<SlotName, T>>;
 type SlotBinding = {
   path: string[];
@@ -99,20 +100,20 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
       bindings: new Map<SlotName, SlotBinding>(),
     });
 
-  const collectSlotNames = (warnInvalid: boolean): SlotName[] => {
-    const result: SlotName[] = [];
-    for (const key of Object.keys(slots)) {
+  const collectSlotNames = (warnInvalid: boolean): readonly SlotName[] => {
+    let result: SlotName[] | undefined;
+    for (const key in slots) {
       if (key === "graphic") {
         continue;
       }
       if (isValidSlotName(key)) {
-        result.push(key);
+        (result ??= []).push(key);
       } else if (warnInvalid && !warnedInvalidSlots?.has(key)) {
         warn(`Invalid slot name: ${key}`);
         (warnedInvalidSlots ??= new Set()).add(key);
       }
     }
-    return result;
+    return result ?? EMPTY_SLOT_NAMES;
   };
 
   let slotNames = collectSlotNames(false);
@@ -199,6 +200,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   onUpdated(() => {
     const nextSlotNames = collectSlotNames(false);
+    if (slotNames.length === 0) {
+      if (nextSlotNames.length > 0) {
+        slotNames = nextSlotNames;
+        onSlotsChange();
+      }
+      return;
+    }
+
     const nextSlotNameSet = new Set(nextSlotNames);
     let removed = false;
     for (const key of slotNames) {
