@@ -1,5 +1,4 @@
 import { ensureStyles } from "./style";
-import { isBrowser } from "./utils";
 
 let registered = new WeakSet<CustomElementRegistry>();
 
@@ -13,7 +12,7 @@ export function register(root?: Element): boolean {
   const realm = root?.ownerDocument.defaultView ?? globalThis;
   const registry = realm.customElements;
 
-  if (!isBrowser() || !registry?.get) {
+  if (!registry?.get) {
     return false;
   }
 
