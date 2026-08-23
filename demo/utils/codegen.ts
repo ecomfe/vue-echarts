@@ -126,15 +126,9 @@ const EXTENSIONS_MAP: Record<string, string> = {
   // dataTool: 'dataTool'
 };
 
-// Component that will be injected automatically in preprocessor
-// These should be excluded util find they were used explicitly.
+// Preprocessors inject these by default, so include them only for explicit options.
 const MARKERS: string[] = ["markLine", "markArea", "markPoint"];
-const INJECTED_COMPONENTS: string[] = [
-  ...MARKERS,
-  "grid",
-  "axisPointer",
-  "aria", // TODO aria
-];
+const INJECTED_COMPONENTS: string[] = [...MARKERS, "grid", "axisPointer"];
 
 // Component that was dependent.
 const DEPENDENT_COMPONENTS: string[] = [
