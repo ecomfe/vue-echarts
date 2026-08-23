@@ -135,6 +135,15 @@ export default /* @__PURE__ */ defineComponent({
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
+    function isActive(instance: EChartsType | undefined): instance is EChartsType {
+      return (
+        instance !== undefined &&
+        chart.value === instance &&
+        !terminallyDisposed &&
+        !instance.isDisposed()
+      );
+    }
+
     function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
       updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
@@ -257,15 +266,6 @@ export default /* @__PURE__ */ defineComponent({
         applyOption(instance, option);
       }
 
-      function markReady(): void {
-        const current = chart.value;
-        isReady.value =
-          current === instance &&
-          current !== undefined &&
-          !terminallyDisposed &&
-          !current.isDisposed();
-      }
-
       if (autoresize.value) {
         const deferred = (deferredCharts ??= new WeakSet());
         deferred.add(instance);
@@ -282,9 +282,9 @@ export default /* @__PURE__ */ defineComponent({
           if (deferred.has(instance)) {
             commit();
           }
-          markReady();
+          isReady.value = isActive(instance);
           queueMicrotask(() => {
-            if (deferred.delete(instance) && chart.value === instance && !terminallyDisposed) {
+            if (deferred.delete(instance) && isActive(instance)) {
               requestUpdate();
             }
           });
@@ -293,7 +293,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       commit();
-      markReady();
+      isReady.value = isActive(instance);
     }
 
     const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {
@@ -403,11 +403,11 @@ export default /* @__PURE__ */ defineComponent({
           }
         });
         const instance = chart.value;
-        if (instance && instance !== themedChart) {
+        if (isActive(instance) && instance !== themedChart) {
           themedChart = instance;
           instance.setTheme(theme ?? {});
 
-          if (props.option && !manualUpdate.value) {
+          if (isActive(instance) && props.option && !manualUpdate.value) {
             applyOption(instance, props.option);
           }
         }
