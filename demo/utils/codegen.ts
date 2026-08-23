@@ -126,9 +126,7 @@ const EXTENSIONS_MAP: Record<string, string> = {
   // dataTool: 'dataTool'
 };
 
-// Preprocessors inject these by default, so include them only for explicit options.
 const MARKERS: string[] = ["markLine", "markArea", "markPoint"];
-const INJECTED_COMPONENTS: string[] = [...MARKERS, "grid", "axisPointer"];
 
 // Component that was dependent.
 const DEPENDENT_COMPONENTS: string[] = [
@@ -174,7 +172,6 @@ function collectDeps(option: unknown): DependencyList {
 
   const nestedOptions = optionObject.options;
   if (Array.isArray(nestedOptions)) {
-    // TODO getOption() doesn't have baseOption and options.
     nestedOptions.forEach((opt) => {
       deps.push(...collectDeps(opt));
     });
@@ -186,9 +183,6 @@ function collectDeps(option: unknown): DependencyList {
 
   if (deps.length === 0) {
     Object.keys(optionObject).forEach((key) => {
-      if (INJECTED_COMPONENTS.includes(key)) {
-        return;
-      }
       const value = optionObject[key];
 
       if (Array.isArray(value) && value.length === 0) {

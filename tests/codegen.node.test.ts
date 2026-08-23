@@ -13,6 +13,13 @@ describe("code generator", () => {
     expect(code).toContain("use([AriaComponent, CanvasRenderer])");
   });
 
+  it("registers explicitly configured grid and axis pointer components", () => {
+    const code = getImportsFromOption({ grid: {}, axisPointer: {} });
+
+    expect(code).toContain("GridComponent");
+    expect(code).toContain("AxisPointerComponent");
+  });
+
   it("registers built-in transforms for object and array datasets", () => {
     const transformedDataset = {
       source: [[1], [2]],
