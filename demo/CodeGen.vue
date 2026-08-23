@@ -162,9 +162,9 @@ function onDialogClose() {
 }
 
 const copied = ref(false);
-const messageOpen = ref(false);
+const message = ref("");
 const { start: scheduleMessageClose, stop: cancelMessageClose } = useTimeoutFn(() => {
-  messageOpen.value = false;
+  message.value = "";
 }, 2018);
 
 function trackCopy(from: "button" | "system") {
@@ -173,6 +173,12 @@ function trackCopy(from: "button" | "system") {
   }
   copied.value = true;
   track("copy-code", { from });
+}
+
+function showMessage(text: string) {
+  message.value = text;
+  cancelMessageClose();
+  scheduleMessageClose();
 }
 
 function formatIssues(issues: readonly AnalyzerIssue[]) {
@@ -236,15 +242,15 @@ watch(importCode, (value) => {
   copied.value = false;
 });
 
-function copy() {
-  if (!navigator.clipboard) {
+async function copy() {
+  try {
+    await navigator.clipboard.writeText(importCode.value);
+  } catch {
+    showMessage("Couldn't copy to clipboard");
     return;
   }
   trackCopy("button");
-  navigator.clipboard.writeText(importCode.value);
-  messageOpen.value = true;
-  cancelMessageClose();
-  scheduleMessageClose();
+  showMessage("Copied to clipboard");
 }
 
 onMounted(async () => {
@@ -412,8 +418,8 @@ onBeforeUnmount(() => {
         <button class="copy" :disabled="analysisState.hasBlockingIssue" @click="copy">Copy</button>
       </section>
     </section>
-    <aside class="message" :class="{ open: messageOpen }" role="status" aria-live="polite">
-      Copied to clipboard
+    <aside class="message" :class="{ open: message }" role="status" aria-live="polite">
+      {{ message }}
     </aside>
   </dialog>
 </template>
