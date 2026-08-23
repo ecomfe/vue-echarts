@@ -1365,15 +1365,17 @@ describe("ECharts component", () => {
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
   });
 
-  it("falls back to direct cleanup when root ref is missing on unmount", async () => {
-    const option = ref({ title: { text: "missing-root" } });
+  it.each([
+    ["root ref is missing", () => undefined],
+    ["root has no disposal hook", () => document.createElement("x-incompatible-echarts")],
+  ])("falls back to direct cleanup when %s", async (_, createRoot) => {
     const exposed = shallowRef<Exposed>();
 
-    const screen = renderChart(() => ({ option: option.value }), exposed);
+    const screen = renderChart(() => ({ option: { title: { text: "cleanup" } } }), exposed);
     await nextTick();
 
     chartStub.dispose.mockClear();
-    setExposedField(getExposed(exposed), "root", undefined);
+    setExposedField(getExposed(exposed), "root", createRoot());
 
     screen.unmount();
     await nextTick();

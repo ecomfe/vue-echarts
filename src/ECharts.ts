@@ -332,7 +332,7 @@ export default defineComponent({
     onMounted(init);
 
     onBeforeUnmount(() => {
-      if (wcRegistered && root.value) {
+      if (wcRegistered && root.value?.__dispose === null) {
         root.value.__dispose = cleanup;
         return;
       }
