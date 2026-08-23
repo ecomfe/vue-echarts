@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   onMounted,
+  onUpdated,
   onBeforeUnmount,
   h,
   nextTick,
@@ -188,10 +189,19 @@ export default /* @__PURE__ */ defineComponent({
       return true;
     }
 
-    if (slots.graphic && !patchGraphicOption) {
-      warn(
-        "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
-      );
+    if (!patchGraphicOption) {
+      let warned = false;
+      const warnMissingGraphic = () => {
+        if (warned || !slots.graphic) {
+          return;
+        }
+        warned = true;
+        warn(
+          "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
+        );
+      };
+      warnMissingGraphic();
+      onUpdated(warnMissingGraphic);
     }
 
     useReactiveChartListeners(chart, attrsMap);
