@@ -1,6 +1,7 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
 
 import type { GraphicComponentType } from "./marker";
+import { withUndefinedDefault } from "./props-common";
 
 export const SHAPE_KEYS_BY_TYPE = {
   rect: ["x", "y", "width", "height", "r"],
@@ -34,11 +35,10 @@ export const shapeProps = {
   endAngle: Number,
   percent: Number,
   points: Array as PropType<Array<[number, number]>>,
-  smooth: [Boolean, Number] as PropType<boolean | number>,
+  smooth: withUndefinedDefault([Boolean, Number] as PropType<boolean | number>),
   smoothConstraint: Array as PropType<Array<[number, number]>>,
   paths: Array as PropType<unknown[]>,
-  // Preserve zrender's `true` default when the prop is absent.
-  clockwise: { type: Boolean, default: undefined },
+  clockwise: withUndefinedDefault(Boolean),
   cornerRadius: [Number, Array] as PropType<number | number[]>,
 } as const;
 

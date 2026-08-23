@@ -85,6 +85,11 @@ export type GraphicBaseStyleKey = (typeof BASE_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];
 export type GraphicImageStyleKey = (typeof IMAGE_STYLE_KEYS)[number];
 
+// Keep zrender defaults instead of letting Vue cast absent Boolean props to false.
+export function withUndefinedDefault<T>(type: T) {
+  return { type, default: undefined };
+}
+
 type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width">;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
 
@@ -106,11 +111,13 @@ const graphicCommonOnlyProps = {
   bounding: String,
   z: Number,
   zlevel: Number,
-  silent: Boolean,
-  draggable: [Boolean, String] as PropType<boolean | "horizontal" | "vertical">,
+  silent: withUndefinedDefault(Boolean),
+  draggable: withUndefinedDefault([Boolean, String] as PropType<
+    boolean | "horizontal" | "vertical"
+  >),
   cursor: String,
-  ignore: Boolean,
-  invisible: Boolean,
+  ignore: withUndefinedDefault(Boolean),
+  invisible: withUndefinedDefault(Boolean),
   progressive: Number,
   info: null as unknown as PropType<unknown>,
   focus: String,

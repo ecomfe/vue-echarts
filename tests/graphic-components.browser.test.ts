@@ -4,7 +4,7 @@ import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GArc, GGroup, GImage, GRect } from "../src/graphic/components";
+import { GArc, GGroup, GImage, GPolyline, GRect } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
@@ -163,10 +163,20 @@ describe("graphic components", () => {
     }
   });
 
-  it("preserves the default clockwise direction until explicitly overridden", async () => {
+  it("preserves zrender defaults until explicitly overridden", async () => {
     const collector = createCollectorMock();
 
     const Root = withGraphicProvider(collector, () => [
+      h(GRect, { id: "defaults" }),
+      h(GRect, {
+        id: "flags",
+        silent: false,
+        draggable: true,
+        ignore: false,
+        invisible: true,
+      }),
+      h(GPolyline, { id: "smooth-default" }),
+      h(GPolyline, { id: "smooth-explicit", smooth: false }),
       h(GArc, { id: "default" }),
       h(GArc, { id: "counterclockwise", clockwise: false }),
       h(GArc, { id: "clockwise", clockwise: true }),
@@ -178,6 +188,20 @@ describe("graphic components", () => {
     const propsById = Object.fromEntries(
       collector.register.mock.calls.map(([node]) => [node.id, node.props]),
     );
+    expect(propsById.defaults).toMatchObject({
+      silent: undefined,
+      draggable: undefined,
+      ignore: undefined,
+      invisible: undefined,
+    });
+    expect(propsById.flags).toMatchObject({
+      silent: false,
+      draggable: true,
+      ignore: false,
+      invisible: true,
+    });
+    expect(propsById["smooth-default"].smooth).toBeUndefined();
+    expect(propsById["smooth-explicit"].smooth).toBe(false);
     expect(propsById.default.clockwise).toBeUndefined();
     expect(propsById.counterclockwise.clockwise).toBe(false);
     expect(propsById.clockwise.clockwise).toBe(true);
