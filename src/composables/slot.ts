@@ -1,7 +1,15 @@
-import { h, Teleport, onUpdated, onMounted, shallowRef, shallowReactive } from "vue";
+import {
+  getCurrentInstance,
+  h,
+  Teleport,
+  onUpdated,
+  onMounted,
+  shallowRef,
+  shallowReactive,
+} from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
-import { isBrowser, isPlainObject, isValidArrayIndex, warn } from "../utils";
+import { isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
 
@@ -71,7 +79,8 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
 }
 
 export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOptions) => void) {
-  const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
+  const instance = getCurrentInstance()!;
+  let detachedRoot: HTMLDivElement | undefined;
   const containers = shallowReactive<SlotMap<HTMLElement>>({});
   const initialized = shallowReactive<SlotMap<boolean>>({});
   const params = shallowReactive<SlotMap<unknown>>({});
@@ -99,9 +108,11 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   const render = () => {
     const names = collectSlotNames(false);
-    if (names.length === 0 || !isMounted.value || !detachedRoot) {
+    if (names.length === 0 || !isMounted.value) {
       return undefined;
     }
+    const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
+    detachedRoot ??= ownerDocument.createElement("div");
 
     return h(
       Teleport,
@@ -114,8 +125,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
           {
             key: slotName,
             ref: (el) => {
-              if (el instanceof HTMLElement) {
-                containers[slotName] = el;
+              if (el) {
+                containers[slotName] = el as HTMLElement;
               }
             },
             style: { display: "contents" },

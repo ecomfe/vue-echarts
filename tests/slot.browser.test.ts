@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { defineComponent, h, nextTick, ref, shallowRef, watchEffect } from "vue";
+import { createApp, defineComponent, h, nextTick, ref, shallowRef, watchEffect } from "vue";
 import type { PropType, Ref, VNodeChild, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { makeTooltipParams } from "./helpers/tooltip";
@@ -150,6 +150,47 @@ describe("useSlotOption", () => {
     await nextTick();
 
     expect(getExposed(exposed).patchOption(option)).toBe(option);
+  });
+
+  it("creates callback containers in the component owner document", async () => {
+    const iframe = document.body.appendChild(document.createElement("iframe"));
+    const ownerDocument = iframe.contentDocument;
+    if (!ownerDocument) {
+      throw new Error("Expected iframe document to be available.");
+    }
+    const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
+    const exposed = shallowRef<SlotTestHandle>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            SlotTestComponent,
+            {
+              ref: (value) => {
+                exposed.value = isSlotTestHandle(value) ? value : undefined;
+              },
+            },
+            { tooltip: () => h("span", "iframe-tooltip") },
+          );
+      },
+    });
+    const app = createApp(Root);
+
+    try {
+      app.mount(container);
+      await nextTick();
+
+      const patched = getExposed(exposed).patchOption({});
+      const tooltipContainer = getTooltipFormatter(patched, "iframe")(makeTooltipParams(0), "");
+      const element = tooltipContainer as HTMLElement | undefined;
+
+      expect(element?.ownerDocument).toBe(ownerDocument);
+      await nextTick();
+      expect(element?.textContent).toBe("iframe-tooltip");
+    } finally {
+      app.unmount();
+      iframe.remove();
+    }
   });
 
   it("patches tooltip slots and renders teleported content", async () => {
