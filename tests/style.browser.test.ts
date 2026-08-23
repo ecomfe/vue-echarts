@@ -93,6 +93,29 @@ describe("style entry", () => {
     expect(document.head.querySelector("style")).not.toBeNull();
   });
 
+  it("shrinks in column layouts and passes root rounding to the renderer", async () => {
+    useFallbackStyles();
+    const { ensureStyles } = await import("../src/style");
+    ensureStyles();
+
+    const container = document.body.appendChild(document.createElement("div"));
+    container.style.cssText = "display:flex;flex-direction:column;height:100px";
+    const header = container.appendChild(document.createElement("div"));
+    header.style.cssText = "height:40px;flex:none";
+    const root = container.appendChild(document.createElement("x-vue-echarts"));
+    root.style.borderRadius = "12px";
+    const chartHost = root.appendChild(document.createElement("div"));
+    chartHost.className = "echarts-host";
+    const renderer = chartHost.appendChild(document.createElement("div"));
+    renderer.style.height = "100px";
+    const canvas = renderer.appendChild(document.createElement("canvas"));
+
+    expect(root.getBoundingClientRect().height).toBe(60);
+    expect(getComputedStyle(chartHost).borderRadius).toBe("12px");
+    expect(getComputedStyle(renderer).borderRadius).toBe("12px");
+    expect(getComputedStyle(canvas).borderRadius).toBe("12px");
+  });
+
   it("injects styles into the component's shadow root", async () => {
     const { host, root } = createShadowHost();
     const container = root.appendChild(document.createElement("div"));
