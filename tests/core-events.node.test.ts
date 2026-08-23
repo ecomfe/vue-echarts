@@ -146,24 +146,28 @@ describe("core events", () => {
     expect(first.zr.on).not.toHaveBeenCalled();
     expect(first.zr.off).not.toHaveBeenCalled();
 
-    attrs.onClick = vi.fn();
+    const nextClick = vi.fn();
+    attrs.onClick = nextClick;
     await nextTick();
 
+    expect((first.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
+    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+    firstClickBinding("updated");
+    expect(nextClick).toHaveBeenCalledWith("updated");
+
+    const mixedClick = vi.fn();
+    attrs.onClick = [mixedClick, "invalid"]; // mixed arrays: keep function entries only
+    await nextTick();
+    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+    firstClickBinding("mixed");
+    expect(mixedClick).toHaveBeenCalledWith("mixed");
+
+    attrs.onClick = ["invalid-only"]; // no valid handlers: remove binding without re-add
+    await nextTick();
     expect((first.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
       "click",
       firstClickBinding,
     );
-    expect((first.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
-      "click",
-      expect.any(Function),
-    );
-
-    attrs.onClick = [vi.fn(), "invalid"]; // mixed arrays: keep function entries only
-    await nextTick();
-    expect((first.chart as unknown as EmitterStub).on).toHaveBeenCalled();
-
-    attrs.onClick = ["invalid-only"]; // no valid handlers: remove binding without re-add
-    await nextTick();
 
     const beforeRemoveCalls = first.zr.off.mock.calls.length;
     delete attrs["onZr:mousemove"];

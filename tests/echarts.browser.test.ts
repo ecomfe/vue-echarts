@@ -888,7 +888,7 @@ describe("ECharts component", () => {
     expect(nativeClick).toHaveBeenCalledTimes(1);
   });
 
-  it("reactively rebinds chart and zr handlers when attrs change", async () => {
+  it("reactively updates chart and zr handlers without rebinding", async () => {
     const option = ref({});
     const onClickA = vi.fn();
     const onClickB = vi.fn();
@@ -936,26 +936,16 @@ describe("ECharts component", () => {
     zrHandler.value = onZrMoveB;
     await nextTick();
 
-    expect(chartStub.off).toHaveBeenCalledWith("click", firstChartListener);
-    expect(zr.off).toHaveBeenCalledWith("mousemove", firstZrListener);
-    expect(chartStub.on).toHaveBeenCalledWith("click", expect.any(Function));
-    expect(zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+    expect(chartStub.off).not.toHaveBeenCalled();
+    expect(zr.off).not.toHaveBeenCalled();
+    expect(chartStub.on).not.toHaveBeenCalled();
+    expect(zr.on).not.toHaveBeenCalled();
 
-    const secondChartBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
-    if (!secondChartBinding) {
-      throw new Error("Expected rebound chart click handler.");
-    }
-    const secondChartListener = secondChartBinding[1];
-    secondChartListener("second");
+    firstChartListener("second");
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledWith("second");
 
-    const secondZrBinding = zr.on.mock.calls.find((call) => call[0] === "mousemove");
-    if (!secondZrBinding) {
-      throw new Error("Expected rebound ZRender mousemove handler.");
-    }
-    const secondZrListener = secondZrBinding[1];
-    secondZrListener("zr-second");
+    firstZrListener("zr-second");
     expect(onZrMoveA).toHaveBeenCalledTimes(1);
     expect(onZrMoveB).toHaveBeenCalledWith("zr-second");
   });
