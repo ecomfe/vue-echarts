@@ -1,4 +1,4 @@
-import { computed, onScopeDispose, watchEffect } from "vue";
+import { computed, onScopeDispose, watchSyncEffect } from "vue";
 
 import type { ComputedRef, Ref } from "vue";
 import type { EChartsType } from "../types";
@@ -75,7 +75,7 @@ export function useReactiveChartListeners(
     bindings.clear();
   }
 
-  watchEffect(() => {
+  watchSyncEffect(() => {
     const instance = chart.value;
     if (!instance) {
       clearBindings();

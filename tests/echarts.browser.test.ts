@@ -849,6 +849,21 @@ describe("ECharts component", () => {
     expect(chartStub.hideLoading).toHaveBeenCalledTimes(1);
   });
 
+  it("binds chart listeners before the initial option commit", async () => {
+    const onRendered = vi.fn();
+    chartStub.setOption.mockImplementation(() => {
+      const binding = chartStub.on.mock.calls.find(([event]) => event === "rendered");
+      binding?.[1]({ elapsedTime: 1 });
+    });
+
+    const exposed = shallowRef<Exposed>();
+    renderChart(() => ({ option: {}, onRendered }), exposed);
+    await nextTick();
+
+    expect(onRendered).toHaveBeenCalledOnce();
+    expect(onRendered).toHaveBeenCalledWith({ elapsedTime: 1 });
+  });
+
   it("binds chart, zr, and native event listeners", async () => {
     const clickHandler = vi.fn();
     const clickOnce = vi.fn();
