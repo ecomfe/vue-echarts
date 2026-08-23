@@ -326,6 +326,8 @@ export default {
 - `clear` [→](https://echarts.apache.org/en/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
+`dispose` is terminal for the current component instance. Remount the component to initialize a new chart.
+
 > [!NOTE]
 > The following ECharts instance methods aren't exposed because their functionality is already provided by component [props](#props):
 >

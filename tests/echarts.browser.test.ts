@@ -1107,11 +1107,20 @@ describe("ECharts component", () => {
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
-  it("stops reactive work after public disposal", async () => {
+  it("stays disposed when reactive inputs change after public disposal", async () => {
     const option = ref<Option>({ title: { text: "before" } });
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const manualUpdate = ref(false);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    renderChart(
+      () => ({
+        option: option.value,
+        initOptions: initOptions.value,
+        manualUpdate: manualUpdate.value,
+      }),
+      exposed,
+    );
     await nextTick();
 
     const instance = getExposed(exposed);
@@ -1124,9 +1133,13 @@ describe("ECharts component", () => {
     expect(chartStub.dispose).toHaveBeenCalledOnce();
     expect(getExposedField<EChartsType>(instance, "chart")).toBeUndefined();
 
+    init.mockClear();
     option.value = { title: { text: "after" } };
+    initOptions.value = { renderer: "svg" };
+    manualUpdate.value = true;
     await nextTick();
 
+    expect(init).not.toHaveBeenCalled();
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 

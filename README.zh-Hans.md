@@ -326,6 +326,8 @@ export default {
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
+`dispose` 会终止当前组件实例。需要创建新图表时，请重新挂载组件。
+
 > [!NOTE]
 > 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [prop](#props) 提供了：
 >
