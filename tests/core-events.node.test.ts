@@ -164,7 +164,7 @@ describe("core events", () => {
     expect(first.zr.on).not.toHaveBeenCalled();
 
     attrs.onClick = vi.fn();
-    attrs["onZr:mousemove"] = vi.fn();
+    attrs["onZr:mouseMove"] = vi.fn();
     await nextTick();
 
     expect((first.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe("core events", () => {
     );
 
     const beforeRemoveCalls = first.zr.off.mock.calls.length;
-    delete attrs["onZr:mousemove"];
+    delete attrs["onZr:mouseMove"];
     await nextTick();
     expect(first.zr.off.mock.calls.length).toBeGreaterThan(beforeRemoveCalls);
     expect(first.zr.off).toHaveBeenCalledWith("mousemove", firstMoveBinding);
