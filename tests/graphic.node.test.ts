@@ -43,6 +43,16 @@ describe("graphic", () => {
 
   it("builds graphic option with ordered children and replace root", () => {
     const during = vi.fn();
+    const typography = {
+      fontStyle: "italic",
+      fontWeight: 600,
+      fontFamily: "sans-serif",
+      fontSize: "14px",
+      align: "center",
+      verticalAlign: "middle",
+      lineHeight: 20,
+      lineOverflow: "truncate",
+    };
     const paint = {
       fill: "#f00",
       strokeNoScale: false,
@@ -80,9 +90,11 @@ describe("graphic", () => {
           x: 2,
           y: 4,
           width: 120,
+          height: 40,
           overflow: "truncate",
           ellipsis: "...",
           text: "Hi",
+          ...typography,
           textFill: "#000",
         },
         handlers: {},
@@ -113,12 +125,15 @@ describe("graphic", () => {
     expect(text.y).toBe(4);
     expect(text.style).toMatchObject({
       text: "Hi",
+      ...typography,
       textFill: "#000",
       width: 120,
+      height: 40,
       overflow: "truncate",
       ellipsis: "...",
     });
     expect(text.width).toBeUndefined();
+    expect(text.height).toBeUndefined();
 
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");

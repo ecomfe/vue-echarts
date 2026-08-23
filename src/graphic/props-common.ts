@@ -70,6 +70,13 @@ export const BASE_STYLE_KEYS = [
 export const TEXT_STYLE_KEYS = [
   "text",
   "font",
+  "fontStyle",
+  "fontWeight",
+  "fontFamily",
+  "fontSize",
+  "align",
+  "verticalAlign",
+  "lineHeight",
   "textFill",
   "textStroke",
   "textStrokeWidth",
@@ -81,7 +88,9 @@ export const TEXT_STYLE_KEYS = [
   "textShadowOffsetY",
   "textShadowColor",
   "width",
+  "height",
   "overflow",
+  "lineOverflow",
   "ellipsis",
 ] as const;
 
@@ -112,7 +121,7 @@ export function withUndefinedDefault<T>(type: T) {
   return { type, default: undefined };
 }
 
-type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width">;
+type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width" | "height">;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
 
 const graphicCommonOnlyProps = {
@@ -184,6 +193,13 @@ const baseStyleProps = {
 const textStyleProps = {
   text: String,
   font: String,
+  fontStyle: String,
+  fontWeight: [String, Number] as PropType<string | number>,
+  fontFamily: String,
+  fontSize: [String, Number] as PropType<string | number>,
+  align: String,
+  verticalAlign: String,
+  lineHeight: Number,
   textFill: String,
   textStroke: String,
   textStrokeWidth: Number,
@@ -195,6 +211,7 @@ const textStyleProps = {
   textShadowOffsetY: Number,
   textShadowColor: String,
   overflow: String,
+  lineOverflow: String,
   ellipsis: String,
 } as const satisfies Record<GraphicTextStyleOnlyKey, unknown>;
 
