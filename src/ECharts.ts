@@ -86,11 +86,11 @@ export default defineComponent({
 
     const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
 
-    const realTheme = computed(() => props.theme || toValue(defaultTheme));
+    const realTheme = computed(() => props.theme ?? toValue(defaultTheme));
     const realInitOptions = computed(
-      () => props.initOptions || toValue(defaultInitOptions) || undefined,
+      () => props.initOptions ?? toValue(defaultInitOptions) ?? undefined,
     );
-    const realUpdateOptions = computed(() => props.updateOptions || toValue(defaultUpdateOptions));
+    const realUpdateOptions = computed(() => props.updateOptions ?? toValue(defaultUpdateOptions));
 
     const eventAttrs = useReactiveEventAttrs(attrsMap);
 

@@ -258,6 +258,8 @@ Vue ECharts 支持如下事件：
 
 Vue ECharts 为 `theme`、`init-options`、`update-options` 和 `loading-options` 提供了 provide/inject API，以通过上下文配置选项。例如：可以通过如下方式来使用 provide API 为 `theme` 提供上下文配置：
 
+显式传入的 prop 优先于对应的注入值。
+
 <details>
 <summary>组合式 API</summary>
 

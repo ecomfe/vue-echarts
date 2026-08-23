@@ -258,6 +258,8 @@ Event handlers passed via attrs are reactive by default. Updates to `onClick`, `
 
 Vue ECharts provides provide/inject API for `theme`, `init-options`, `update-options` and `loading-options` to help configuring contextual options. eg. for `theme` you can use the provide API like this:
 
+Explicit props take precedence over injected values.
+
 <details>
 <summary>Composition API</summary>
 

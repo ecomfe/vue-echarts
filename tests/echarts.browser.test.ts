@@ -13,7 +13,7 @@ import type {
   UpdateOptions,
 } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
-import ECharts, { UPDATE_OPTIONS_KEY } from "../src/ECharts";
+import ECharts, { THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
@@ -250,6 +250,27 @@ describe("ECharts component", () => {
     theme.value = undefined;
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({});
+  });
+
+  it("lets an empty theme prop override an injected theme", async () => {
+    const option: Option = {};
+    const theme = ref<Theme | undefined>("");
+
+    const Root = defineComponent({
+      setup() {
+        provide(THEME_KEY, "dark");
+        return () => h(ECharts, { option, theme: theme.value });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    expect(init.mock.calls[0][1]).toBe("");
+
+    theme.value = undefined;
+    await nextTick();
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith("dark");
   });
 
   it("reapplies latest graph option after theme changes when data is assigned later", async () => {
