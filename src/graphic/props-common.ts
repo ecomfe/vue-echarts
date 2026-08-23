@@ -1,4 +1,5 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
+import type { Color } from "echarts";
 
 export const COMMON_PROP_KEYS = [
   "id",
@@ -134,10 +135,10 @@ const graphicCommonOnlyProps = {
 } as const satisfies Record<GraphicCommonPropKey, unknown>;
 
 const baseStyleProps = {
-  fill: String,
-  stroke: String,
+  fill: [String, Object] as PropType<Color>,
+  stroke: [String, Object] as PropType<Color>,
   lineWidth: Number,
-  lineDash: [String, Array] as PropType<string | number[]>,
+  lineDash: withUndefinedDefault([String, Array, Boolean] as PropType<string | number[] | false>),
   lineDashOffset: Number,
   lineCap: String,
   lineJoin: String,

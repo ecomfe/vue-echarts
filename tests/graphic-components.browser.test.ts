@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
+import type { LinearGradientObject, PatternObject } from "echarts";
 
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
@@ -163,6 +164,40 @@ describe("graphic components", () => {
     }
   });
 
+  it("accepts native graphic paints and disabled line dashes", async () => {
+    const collector = createCollectorMock();
+    const fill: LinearGradientObject = {
+      type: "linear",
+      x: 0,
+      y: 0,
+      x2: 1,
+      y2: 0,
+      colorStops: [
+        { offset: 0, color: "#0ea5e9" },
+        { offset: 1, color: "#22c55e" },
+      ],
+    };
+    const stroke: PatternObject = { image: "pattern.png", repeat: "repeat" };
+    const Root = withGraphicProvider(collector, () =>
+      h(GRect, { id: "paint", fill, stroke, lineDash: false }),
+    );
+
+    withConsoleWarn((warnSpy) => {
+      render(Root);
+      expect(
+        warnSpy.mock.calls.some((call: unknown[]) =>
+          String(call[0]).includes("type check failed for prop"),
+        ),
+      ).toBe(false);
+    });
+    await nextTick();
+
+    const props = getLastRegisterPayload(collector).props;
+    expect(props.fill).toBe(fill);
+    expect(props.stroke).toBe(stroke);
+    expect(props.lineDash).toBe(false);
+  });
+
   it("preserves zrender defaults until explicitly overridden", async () => {
     const collector = createCollectorMock();
 
@@ -193,6 +228,7 @@ describe("graphic components", () => {
       draggable: undefined,
       ignore: undefined,
       invisible: undefined,
+      lineDash: undefined,
     });
     expect(propsById.flags).toMatchObject({
       silent: false,
