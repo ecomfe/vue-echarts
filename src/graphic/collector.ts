@@ -62,11 +62,19 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     order = Math.max(order, nextOrder + 1);
     const existing = nodes.get(node.id);
 
-    nodes.set(node.id, {
-      ...node,
-      handlerCache: existing?.sourceId === node.sourceId ? existing.handlerCache : new Map(),
-      order: nextOrder,
-    });
+    if (existing?.sourceId === node.sourceId) {
+      existing.type = node.type;
+      existing.parentId = node.parentId;
+      existing.props = node.props;
+      existing.handlers = node.handlers;
+      existing.order = nextOrder;
+    } else {
+      nodes.set(node.id, {
+        ...node,
+        handlerCache: new Map(),
+        order: nextOrder,
+      });
+    }
     seenInPass.set(node.id, node.sourceId);
     requestFlush();
   }
