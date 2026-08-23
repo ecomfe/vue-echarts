@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import type { Mock } from "vitest";
 import { ref, effectScope, nextTick, reactive } from "vue";
 
 import { throttle, resetECharts, createEChartsModule } from "./helpers/mock";
@@ -7,6 +8,27 @@ import { useAutoresize } from "../src/composables/autoresize";
 import type { AutoResize, EChartsType } from "../src/types";
 
 vi.mock("echarts/core", () => createEChartsModule());
+
+function createChart(
+  resize: Mock<() => void>,
+  root: () => HTMLElement | undefined,
+  initialRoot: HTMLElement,
+): EChartsType {
+  let width = initialRoot.offsetWidth;
+  let height = initialRoot.offsetHeight;
+  resize.mockImplementation(() => {
+    const element = root();
+    if (element) {
+      width = element.offsetWidth;
+      height = element.offsetHeight;
+    }
+  });
+  return {
+    resize,
+    getWidth: () => width,
+    getHeight: () => height,
+  } as unknown as EChartsType;
+}
 
 describe("useAutoresize", () => {
   beforeEach(() => {
@@ -29,7 +51,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
 
@@ -48,6 +70,31 @@ describe("useAutoresize", () => {
     expect(disconnectSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("does not repeat a resize completed before observer notification", async () => {
+    const container = createSizedContainer(120, 80);
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = createChart(resize, () => root.value, container);
+    root.value = container;
+    await nextTick();
+
+    container.style.width = "200px";
+    chart.value.resize();
+    await flushAnimationFrame();
+
+    expect(resize).toHaveBeenCalledOnce();
+
+    scope.stop();
+  });
+
   it("skips resize when autoresize is disabled or container is empty", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -63,7 +110,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
 
@@ -108,7 +155,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
     await flushAnimationFrame();
@@ -137,6 +184,13 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledOnce();
     expect(onResize).toHaveBeenCalledOnce();
 
+    container.style.width = "200px";
+    await flushAnimationFrame();
+    chart.value.resize();
+    pendingResize?.();
+    expect(resize).toHaveBeenCalledTimes(2);
+    expect(onResize).toHaveBeenCalledOnce();
+
     scope.stop();
   });
 
@@ -157,7 +211,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
 
@@ -208,7 +262,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
 
@@ -253,7 +307,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, firstContainer);
     root.value = firstContainer;
     await nextTick();
 
@@ -285,13 +339,14 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
 
     const container = createSizedContainer(160, 90);
+    const firstChart = createChart(firstResize, () => root.value, container);
+    const secondChart = createChart(secondResize, () => root.value, container);
 
     const scope = effectScope();
     scope.run(() => {
       useAutoresize(chart, autoresize, root);
     });
 
-    const firstChart = { resize: firstResize } as unknown as EChartsType;
     chart.value = firstChart;
     root.value = container;
     await nextTick();
@@ -309,7 +364,7 @@ describe("useAutoresize", () => {
 
     expect(firstResize).toHaveBeenCalledTimes(1);
 
-    chart.value = { resize: secondResize } as unknown as EChartsType;
+    chart.value = secondChart;
     await nextTick();
 
     container.style.width = "220px";
@@ -351,7 +406,7 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize } as unknown as EChartsType;
+    chart.value = createChart(resize, () => root.value, container);
     root.value = container;
     await nextTick();
 

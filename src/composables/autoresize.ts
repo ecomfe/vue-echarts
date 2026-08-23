@@ -45,6 +45,21 @@ export function useAutoresize(
       return;
     }
 
+    const isSynchronized = (width: number, height: number): boolean => {
+      if (wasZeroSized) {
+        return false;
+      }
+      if (width === sizedWidth && height === sizedHeight) {
+        return true;
+      }
+      if (width !== chart.getWidth() || height !== chart.getHeight()) {
+        return false;
+      }
+      sizedWidth = width;
+      sizedHeight = height;
+      return true;
+    };
+
     const resize = () => {
       const { offsetWidth, offsetHeight } = root;
       // Observer notifications can repeat, and throttled work can outlive its triggering size.
@@ -52,7 +67,7 @@ export function useAutoresize(
         wasZeroSized = true;
         return;
       }
-      if (!wasZeroSized && offsetWidth === sizedWidth && offsetHeight === sizedHeight) {
+      if (isSynchronized(offsetWidth, offsetHeight)) {
         return;
       }
       chart.resize();
@@ -70,7 +85,7 @@ export function useAutoresize(
         wasZeroSized = true;
         return;
       }
-      if (wasZeroSized || offsetWidth !== sizedWidth || offsetHeight !== sizedHeight) {
+      if (!isSynchronized(offsetWidth, offsetHeight)) {
         runResize();
       }
     };
