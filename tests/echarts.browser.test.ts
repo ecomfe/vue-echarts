@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { defineComponent, h, nextTick, provide, reactive, ref, shallowRef, watch } from "vue";
+import {
+  createApp,
+  defineComponent,
+  h,
+  nextTick,
+  provide,
+  reactive,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import type { Ref, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { init, enqueueChart, resetECharts, createEChartsModule } from "./helpers/mock";
@@ -1248,6 +1258,21 @@ describe("ECharts component", () => {
     screen.unmount();
 
     expect(instance.isDisposed()).toBe(true);
+  });
+
+  it("disposes when unmounted from a detached container", () => {
+    const container = document.createElement("div");
+    const app = createApp({
+      render: () => h(ECharts, { option: { series: [] } }),
+    });
+    app.mount(container);
+
+    expect(container.isConnected).toBe(false);
+    chartStub.dispose.mockClear();
+
+    app.unmount();
+
+    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
   });
 
   it("sets __dispose on root during unmount when wcRegistered and cleanup runs via disconnectedCallback", async () => {

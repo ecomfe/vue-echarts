@@ -346,7 +346,7 @@ export default /* @__PURE__ */ defineComponent({
 
     onBeforeUnmount(() => {
       terminallyDisposed = true;
-      if (wcRegistered && root.value?.__dispose === null) {
+      if (wcRegistered && root.value?.isConnected && root.value.__dispose === null) {
         root.value.__dispose = cleanup;
         return;
       }
