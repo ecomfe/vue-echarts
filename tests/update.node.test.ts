@@ -14,7 +14,7 @@ const linearGradient = {
 type AppliedOption = {
   dataset?: unknown;
   title?: Array<{ subtext?: string }>;
-  series?: Array<{ datasetId?: string; label?: { color?: string } }>;
+  series?: Array<{ name?: string; datasetId?: string; label?: { color?: string } }>;
 };
 
 function createChart() {
@@ -154,7 +154,13 @@ describe("smart-update", () => {
       const baseOption = Object.defineProperty({}, "title", tracked("baseTitle", {}));
       const mediaOption = Object.defineProperty({}, "title", tracked("mediaTitle", {}));
       const media = Object.defineProperty({}, "option", tracked("mediaOption", mediaOption));
-      const seriesOption = Object.defineProperty({}, "id", tracked("seriesId", "series"));
+      const seriesOption = Object.defineProperties(
+        {},
+        {
+          id: tracked("seriesId", "series"),
+          name: tracked("seriesName", "Sales"),
+        },
+      );
       const series = Object.defineProperty(new Array(1), 0, tracked("seriesItem", seriesOption));
 
       buildSignature({ baseOption, media: [media], series } as EChartsOption);
@@ -165,6 +171,7 @@ describe("smart-update", () => {
         mediaTitle: 1,
         seriesItem: 1,
         seriesId: 1,
+        seriesName: 1,
       });
     });
 
@@ -501,6 +508,80 @@ describe("smart-update", () => {
         });
 
         expect(next.plan).toEqual({ notMerge: true });
+      });
+
+      it("matches anonymous component shapes by name before index", () => {
+        const base: EChartsOption = {
+          series: [
+            {
+              name: "latte",
+              type: "pie",
+              data: [1],
+              label: { show: true, color: "red" },
+            },
+            { name: "mocha", type: "pie", data: [2], label: { show: true } },
+          ],
+        };
+        const update: EChartsOption = {
+          series: [
+            {
+              name: "mocha",
+              type: "pie",
+              data: [2],
+              label: { show: true, color: "brown" },
+            },
+            { name: "latte", type: "pie", data: [1], label: { show: true } },
+          ],
+        };
+
+        expect(
+          planUpdate(buildSignature(base), {
+            series: [
+              {
+                name: "mocha",
+                type: "pie",
+                data: [2],
+                label: { show: true, color: "brown" },
+              },
+              {
+                name: "latte",
+                type: "pie",
+                data: [1],
+                label: { show: true, color: "blue" },
+              },
+            ],
+          }).plan,
+        ).toEqual({ notMerge: false });
+
+        const { applied, plan } = applyPlannedUpdate(base, update);
+        const seriesByName = Object.fromEntries(
+          (applied.series ?? []).map((series) => [series.name, series]),
+        );
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(seriesByName.latte.label?.color).toBeUndefined();
+        expect(seriesByName.mocha.label?.color).toBe("brown");
+      });
+
+      it("keeps merge across duplicate and renamed component names", () => {
+        const prev = buildSignature({
+          series: [
+            { name: "duplicate", label: { show: true } },
+            { name: "duplicate", label: { show: true } },
+            { name: "before", label: { show: true } },
+            { id: "fixed", name: "fixed", label: { show: true } },
+          ],
+        });
+        const next = planUpdate(prev, {
+          series: [
+            { id: "fixed", name: "fixed", label: { show: true } },
+            { name: "duplicate", label: { show: true } },
+            { name: "duplicate", label: { show: true } },
+            { name: "after", label: { show: true } },
+          ],
+        });
+
+        expect(next.plan).toEqual({ notMerge: false });
       });
     });
 

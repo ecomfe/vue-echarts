@@ -14,9 +14,16 @@ interface ObjectShape {
 type Shape = true | ObjectShape | ArraySummary;
 type ArrayItemShape = {
   id: string | undefined;
+  name: string | undefined;
   shape: Shape;
 };
 type ShapeMode = "option" | "media";
+
+function toIdentity(value: unknown): string | undefined {
+  return typeof value === "string" || (typeof value === "number" && Number.isFinite(value))
+    ? String(value)
+    : undefined;
+}
 
 /** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
@@ -54,11 +61,10 @@ function buildShape(
   }
 
   const rawId = itemShape ? value.id : undefined;
-  if (
-    itemShape &&
-    (typeof rawId === "string" || (typeof rawId === "number" && Number.isFinite(rawId)))
-  ) {
-    itemShape.id = String(rawId);
+  const rawName = itemShape ? value.name : undefined;
+  if (itemShape) {
+    itemShape.id = toIdentity(rawId);
+    itemShape.name = toIdentity(rawName);
   }
   if (stack.has(value)) {
     return true;
@@ -67,7 +73,8 @@ function buildShape(
   stack.add(value);
   const shape: ObjectShape = Object.create(null);
   for (const key of Object.keys(value)) {
-    const child = itemShape && key === "id" ? rawId : value[key];
+    const child =
+      itemShape && key === "id" ? rawId : itemShape && key === "name" ? rawName : value[key];
     if (child === undefined) {
       continue;
     }
@@ -89,7 +96,7 @@ function analyzeArray(items: unknown[], stack: WeakSet<object>, mode?: ShapeMode
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const itemShape: ArrayItemShape = { id: undefined, shape: true };
+    const itemShape: ArrayItemShape = { id: undefined, name: undefined, shape: true };
     itemShape.shape = buildShape(item, stack, mode, itemShape);
     shapes.push(itemShape);
     if (itemShape.id === undefined) {
@@ -107,7 +114,7 @@ function analyzeArray(items: unknown[], stack: WeakSet<object>, mode?: ShapeMode
 }
 
 /**
- * Build a structural signature without retaining option values.
+ * Build a structural signature that retains component identities but not option payload values.
  * Arrays inside component items remain leaves to avoid traversing chart data. Nested option units
  * (`baseOption`, timeline options, and media options) reuse summaries for their component arrays.
  */
@@ -211,15 +218,11 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
 
 function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): boolean {
   let nextById: Map<string, Shape> | undefined;
-  let nextIndex = 0;
+  let nextByName: Map<string, ArrayItemShape[]> | undefined;
+  let namedMatches: Set<ArrayItemShape> | undefined;
+
   for (const item of prev) {
-    let nextShape: Shape | undefined;
-    if (item.id === undefined) {
-      while (next[nextIndex]?.id !== undefined) {
-        nextIndex++;
-      }
-      nextShape = next[nextIndex++]?.shape;
-    } else {
+    if (item.id !== undefined) {
       if (!nextById) {
         nextById = new Map();
         for (const nextItem of next) {
@@ -228,8 +231,50 @@ function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): bo
           }
         }
       }
-      nextShape = nextById.get(item.id);
+      const nextShape = nextById.get(item.id);
+      if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
+        return true;
+      }
+      continue;
     }
+
+    // ECharts matches anonymous components by name before falling back to their array order.
+    if (item.name !== undefined) {
+      if (!nextByName) {
+        nextByName = new Map();
+        for (let i = next.length - 1; i >= 0; i--) {
+          const nextItem = next[i];
+          if (nextItem.id === undefined && nextItem.name !== undefined) {
+            const matches = nextByName.get(nextItem.name);
+            if (matches) {
+              matches.push(nextItem);
+            } else {
+              nextByName.set(nextItem.name, [nextItem]);
+            }
+          }
+        }
+      }
+      const nextItem = nextByName.get(item.name)?.pop();
+      if (nextItem) {
+        const matches = (namedMatches ??= new Set());
+        matches.add(item);
+        matches.add(nextItem);
+        if (hasShapeRemoval(item.shape, nextItem.shape)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  let nextIndex = 0;
+  for (const item of prev) {
+    if (item.id !== undefined || namedMatches?.has(item)) {
+      continue;
+    }
+    while (next[nextIndex]?.id !== undefined || namedMatches?.has(next[nextIndex])) {
+      nextIndex++;
+    }
+    const nextShape = next[nextIndex++]?.shape;
     if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
       return true;
     }
