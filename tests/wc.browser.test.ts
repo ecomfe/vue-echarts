@@ -110,6 +110,20 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBeUndefined();
     });
 
+    it("recognizes an element registered during definition", async () => {
+      const competing = class extends HTMLElement {};
+      const define = registry.define.bind(registry);
+      vi.spyOn(registry, "define").mockImplementation((name) => {
+        define(name, competing);
+        throw new DOMException("already defined", "NotSupportedError");
+      });
+
+      const { register, TAG_NAME } = await loadModule();
+
+      expect(register()).toBe(true);
+      expect(registry.get(TAG_NAME)).toBe(competing);
+    });
+
     it("skips redefinition when element already registered", async () => {
       const existing = class extends HTMLElement {};
       const { register, TAG_NAME } = await loadModule();

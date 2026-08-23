@@ -36,7 +36,7 @@ export function register(): boolean {
 
       registry.define(TAG_NAME, ECElement);
     } catch {
-      registered = false;
+      registered = Boolean(registry.get(TAG_NAME));
       return registered;
     }
   }
