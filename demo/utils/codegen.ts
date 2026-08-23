@@ -265,6 +265,10 @@ function collectDeps(option: unknown): DependencyList {
     });
   }
 
+  toObjectList(optionObject.media).forEach((media) => {
+    deps.push(...collectDeps(media.option));
+  });
+
   return Array.from(new Set(deps));
 }
 

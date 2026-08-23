@@ -30,4 +30,23 @@ describe("code generator", () => {
 
     expect(getImportsFromOption({ dataset: { source: [] } })).not.toContain("TransformComponent");
   });
+
+  it("registers dependencies from direct and media options", () => {
+    const code = getImportsFromOption({
+      title: {},
+      media: [
+        {
+          query: { maxWidth: 600 },
+          option: {
+            visualMap: {},
+            series: [{ type: "bar" }],
+          },
+        },
+      ],
+    });
+
+    expect(code).toContain("TitleComponent");
+    expect(code).toContain("VisualMapComponent");
+    expect(code).toContain("BarChart");
+  });
 });
