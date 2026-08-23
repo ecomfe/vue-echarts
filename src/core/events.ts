@@ -24,29 +24,6 @@ function getEmitter(instance: EChartsType, zr: boolean): EventEmitter {
   return zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
 }
 
-function createBoundHandler(
-  emitter: EventEmitter,
-  event: string,
-  invoke: EventHandler,
-  once: boolean,
-): EventHandler {
-  if (!once) {
-    return invoke;
-  }
-
-  let called = false;
-  const onceHandler: EventHandler = (...args: unknown[]): void => {
-    if (called) {
-      return;
-    }
-    called = true;
-    emitter.off(event, onceHandler);
-    invoke(...args);
-  };
-
-  return onceHandler;
-}
-
 function toNativeEventKey(event: string, once: boolean): string | null {
   if (!event.startsWith("native:")) {
     return null;
@@ -142,17 +119,19 @@ export function useReactiveChartListeners(
       const emitter = getEmitter(instance, zr);
       const current = { value: invoke };
       const invokeCurrent: EventHandler = (...args) => current.value(...args);
-      const handler = createBoundHandler(
-        emitter,
-        event,
-        parsed.once
-          ? (...args) => {
-              (consumedSources ??= new Map()).set(key, source);
-              invokeCurrent(...args);
-            }
-          : invokeCurrent,
-        parsed.once,
-      );
+      let handler = invokeCurrent;
+      if (parsed.once) {
+        let called = false;
+        handler = (...args): void => {
+          if (called) {
+            return;
+          }
+          called = true;
+          emitter.off(event, handler);
+          (consumedSources ??= new Map()).set(key, source);
+          invokeCurrent(...args);
+        };
+      }
 
       emitter.on(event, handler);
       (bindings ??= new Map()).set(key, {
