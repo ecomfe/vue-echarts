@@ -6,6 +6,7 @@ import CodeGen from "../demo/CodeGen.vue";
 import type { OptionAnalysisState } from "../demo/composables/useOptionAnalysis";
 
 const mocks = vi.hoisted(() => ({
+  analysisStop: vi.fn(),
   editorChange: null as ((value: string) => void) | null,
   editorFocus: vi.fn(),
   track: vi.fn(),
@@ -20,7 +21,7 @@ vi.mock("../demo/composables/useDemoDark", async () => {
 });
 
 vi.mock("../demo/composables/useOptionAnalysis", async () => {
-  const { reactive, ref } = await import("vue");
+  const { onBeforeUnmount, reactive, ref } = await import("vue");
   return {
     useOptionAnalysis(initialCode: string) {
       const code = ref(initialCode);
@@ -34,6 +35,7 @@ vi.mock("../demo/composables/useOptionAnalysis", async () => {
         output: "",
         hasBlockingIssue: false,
       });
+      onBeforeUnmount(mocks.analysisStop);
       return {
         code,
         state,
@@ -42,7 +44,6 @@ vi.mock("../demo/composables/useOptionAnalysis", async () => {
           state.status = "analyzing";
           state.option = null;
         },
-        dispose: vi.fn(),
       };
     },
   };
@@ -85,6 +86,7 @@ vi.mock("../demo/services/monaco", () => ({
 }));
 
 beforeEach(() => {
+  mocks.analysisStop.mockReset();
   mocks.editorChange = null;
   mocks.editorFocus.mockReset();
   mocks.track.mockReset();
@@ -102,7 +104,7 @@ function renderCodegen() {
   const mounted = ref(false);
   const trigger = ref<HTMLButtonElement | null>(null);
 
-  render(
+  const screen = render(
     defineComponent(
       () => () =>
         h("div", [
@@ -135,7 +137,7 @@ function renderCodegen() {
   if (!trigger.value) {
     throw new Error("Expected a code generator trigger.");
   }
-  return { open, trigger: trigger.value };
+  return { open, trigger: trigger.value, unmount: screen.unmount };
 }
 
 async function openCodegen(trigger: HTMLButtonElement, expectedFocusCount = 1) {
@@ -157,6 +159,15 @@ async function openCodegen(trigger: HTMLButtonElement, expectedFocusCount = 1) {
 }
 
 describe("code generator dialog", () => {
+  it("stops option analysis once when unmounted", async () => {
+    const { trigger, unmount } = renderCodegen();
+    await openCodegen(trigger);
+
+    unmount();
+
+    expect(mocks.analysisStop).toHaveBeenCalledOnce();
+  });
+
   it("moves focus inside on first and later opens, then restores the trigger", async () => {
     const { open, trigger } = renderCodegen();
 

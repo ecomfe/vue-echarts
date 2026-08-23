@@ -76,12 +76,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ "update:open": [boolean] }>();
 
-const {
-  code: sourceCode,
-  state: analysisState,
-  updateSource,
-  dispose: disposeAnalysis,
-} = useOptionAnalysis(DEFAULT_OPTION);
+const { code: sourceCode, state: analysisState, updateSource } = useOptionAnalysis(DEFAULT_OPTION);
 
 const modal = ref<HTMLDialogElement | null>(null);
 const dialog = ref<HTMLElement | null>(null);
@@ -351,7 +346,6 @@ onBeforeUnmount(() => {
   optionEditor = null;
   importViewer?.dispose();
   importViewer = null;
-  disposeAnalysis();
 });
 </script>
 

@@ -12,6 +12,7 @@ interface WorkerRequest {
 const worker = vi.hoisted(() => ({
   target: null as EventTarget | null,
   postMessage: vi.fn<(request: WorkerRequest) => void>(),
+  terminate: vi.fn(),
 }));
 
 vi.mock("../demo/workers/option.worker?worker", () => ({
@@ -25,13 +26,16 @@ vi.mock("../demo/workers/option.worker?worker", () => ({
       worker.postMessage(request);
     }
 
-    terminate() {}
+    terminate() {
+      worker.terminate();
+    }
   },
 }));
 
 beforeEach(() => {
   worker.target = null;
   worker.postMessage.mockReset();
+  worker.terminate.mockReset();
 });
 
 function reply(request: WorkerRequest, option: unknown): void {
@@ -52,7 +56,7 @@ function reply(request: WorkerRequest, option: unknown): void {
 describe("useOptionAnalysis", () => {
   it("invalidates stale results as soon as source changes", async () => {
     let analysis!: ReturnType<typeof useOptionAnalysis>;
-    render(
+    const screen = render(
       defineComponent(() => {
         analysis = useOptionAnalysis("first");
         return () => null;
@@ -80,5 +84,8 @@ describe("useOptionAnalysis", () => {
     expect(analysis.state.status).toBe("analyzing");
     expect(analysis.state.option).toBeNull();
     expect(analysis.state.output).toBeNull();
+
+    screen.unmount();
+    expect(worker.terminate).toHaveBeenCalledOnce();
   });
 });

@@ -1,5 +1,4 @@
 import { onBeforeUnmount, reactive, ref, watch } from "vue";
-import type { Ref } from "vue";
 import type { MonacoMarkerLike, MonacoSeverity } from "../services/monaco";
 import OptionWorker from "../workers/option.worker?worker";
 
@@ -52,16 +51,9 @@ export interface OptionAnalysisState {
   hasBlockingIssue: boolean;
 }
 
-export interface UseOptionAnalysisResult {
-  code: Ref<string>;
-  state: OptionAnalysisState;
-  updateSource(code: string): void;
-  dispose(): void;
-}
-
 const ANALYZE_DELAY = 120;
 
-export function useOptionAnalysis(initialCode: string): UseOptionAnalysisResult {
+export function useOptionAnalysis(initialCode: string) {
   const isBrowser = typeof window !== "undefined";
   const worker = isBrowser ? new OptionWorker() : null;
   const code = ref(initialCode);
@@ -147,9 +139,8 @@ export function useOptionAnalysis(initialCode: string): UseOptionAnalysisResult 
   return {
     code,
     state,
-    updateSource(next) {
+    updateSource(next: string) {
       code.value = next;
     },
-    dispose: stop,
   };
 }
