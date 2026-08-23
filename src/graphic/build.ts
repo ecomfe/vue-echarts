@@ -5,7 +5,6 @@ import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-c
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 
-const EMPTY_PROP_KEYS: readonly string[] = [];
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function mergeProps(
@@ -25,13 +24,15 @@ function mergeProps(
 function buildNestedProps(
   source: unknown,
   props: Record<string, unknown>,
-  keys: readonly string[],
+  keys: readonly string[] | undefined,
   transition: unknown,
   extraKeys?: readonly string[],
 ): Record<string, unknown> | undefined {
   const nested = source as Record<string, unknown> | undefined;
   let result = nested && Object.keys(nested).length > 0 ? { ...nested } : undefined;
-  result = mergeProps(result, keys, props);
+  if (keys) {
+    result = mergeProps(result, keys, props);
+  }
   if (extraKeys) {
     result = mergeProps(result, extraKeys, props);
   }
@@ -115,10 +116,10 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const { type, id, props } = node;
-  const shapeKeys: readonly string[] =
-    SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
-  const styleKeys: readonly string[] =
-    STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+  const shapeKeys: readonly string[] | undefined =
+    SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
+  const styleKeys: readonly string[] | undefined =
+    STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE];
   const out: Record<string, unknown> = {
     type,
     id,
@@ -126,7 +127,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
   for (const key of COMMON_PROP_KEYS) {
     const value = props[key];
-    if (value !== undefined && !shapeKeys.includes(key) && !styleKeys.includes(key)) {
+    if (value !== undefined && !shapeKeys?.includes(key) && !styleKeys?.includes(key)) {
       out[key] = value;
     }
   }
