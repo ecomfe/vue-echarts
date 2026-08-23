@@ -142,6 +142,34 @@ describe("smart-update", () => {
       expect(serialized).not.toContain("unused");
     });
 
+    it("reads each structural value once", () => {
+      const reads: Record<string, number> = {};
+      const tracked = (key: string, value: unknown): PropertyDescriptor => ({
+        enumerable: true,
+        get: () => {
+          reads[key] = (reads[key] ?? 0) + 1;
+          return value;
+        },
+      });
+      const baseOption = Object.defineProperty({}, "title", tracked("baseTitle", {}));
+      const mediaOption = Object.defineProperty({}, "title", tracked("mediaTitle", {}));
+      const media = Object.defineProperty({}, "option", tracked("mediaOption", mediaOption));
+      const series = Object.defineProperty(
+        new Array(1),
+        0,
+        tracked("seriesItem", { id: "series", type: "line" }),
+      );
+
+      buildSignature({ baseOption, media: [media], series } as EChartsOption);
+
+      expect(reads).toEqual({
+        baseTitle: 1,
+        mediaOption: 1,
+        mediaTitle: 1,
+        seriesItem: 1,
+      });
+    });
+
     it("does not traverse data arrays inside option containers", () => {
       const item = {};
       Object.defineProperty(item, "expensive", {

@@ -16,6 +16,7 @@ type ArrayItemShape = {
   id: string | undefined;
   shape: Shape;
 };
+type ShapeMode = "option" | "media";
 
 /** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
@@ -63,7 +64,7 @@ function readId(item: unknown): string | undefined {
   return undefined;
 }
 
-function buildShape(value: unknown, stack: WeakSet<object>): true | ObjectShape {
+function buildShape(value: unknown, stack: WeakSet<object>, mode?: ShapeMode): true | ObjectShape {
   if (!isPlainObject(value) || stack.has(value)) {
     return true;
   }
@@ -71,40 +72,27 @@ function buildShape(value: unknown, stack: WeakSet<object>): true | ObjectShape 
   stack.add(value);
   const shape: ObjectShape = Object.create(null);
   for (const key of Object.keys(value)) {
-    if (value[key] !== undefined) {
-      shape[key] = buildShape(value[key], stack);
+    const child = value[key];
+    if (child === undefined) {
+      continue;
     }
+    shape[key] =
+      mode === "option" && Array.isArray(child)
+        ? analyzeArray(child, stack)
+        : mode === "media" && key === "option"
+          ? buildOptionShape(child, stack)
+          : buildShape(child, stack);
   }
   stack.delete(value);
   return shape;
 }
 
 function buildOptionShape(value: unknown, stack: WeakSet<object>): Shape {
-  const shape = buildShape(value, stack);
-  if (shape === true) {
-    return true;
-  }
-
-  const option = value as Record<string, unknown>;
-  for (const key of Object.keys(option)) {
-    if (Array.isArray(option[key])) {
-      shape[key] = analyzeArray(option[key], stack);
-    }
-  }
-  return shape;
+  return buildShape(value, stack, "option");
 }
 
 function buildMediaShape(value: unknown, stack: WeakSet<object>): Shape {
-  const shape = buildShape(value, stack);
-  if (shape === true) {
-    return true;
-  }
-
-  const option = (value as Record<string, unknown>).option;
-  if (option !== undefined) {
-    shape.option = buildOptionShape(option, stack);
-  }
-  return shape;
+  return buildShape(value, stack, "media");
 }
 
 function analyzeArray(
@@ -117,8 +105,9 @@ function analyzeArray(
   const shapes: ArrayItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
-    const id = readId(items[i]);
-    shapes.push({ id, shape: buildItemShape(items[i], stack) });
+    const item = items[i];
+    const id = readId(item);
+    shapes.push({ id, shape: buildItemShape(item, stack) });
     if (id === undefined) {
       noIdCount++;
       continue;
