@@ -6,17 +6,10 @@ import { shallowRef } from "vue";
 import type { LoadingOptions, Option } from "../../src/types";
 import VChart from "../../src/ECharts";
 import VExample from "./Example.vue";
-import worldMap from "../data/world.json";
 import { DEMO_TEXT_STYLE } from "../constants";
 import { isGeoJSONSource } from "../utils/geo";
 
 use([LinesChart, GeoComponent, TitleComponent, TooltipComponent]);
-
-const worldGeoJSON = isGeoJSONSource(worldMap) ? worldMap : null;
-
-if (worldGeoJSON) {
-  registerMap("world", worldGeoJSON);
-}
 
 type ChartInstance = InstanceType<typeof VChart>;
 
@@ -53,12 +46,19 @@ async function load(): Promise<FlightDataset> {
 
   loading.value = true;
 
-  const { default: data } = await import("../data/flight.json");
+  const [{ default: data }, { default: worldMap }] = await Promise.all([
+    import("../data/flight.json"),
+    import("../data/world.json"),
+  ]);
 
   loading.value = false;
 
   if (!isFlightDataset(data)) {
     throw new Error("Invalid flight dataset");
+  }
+
+  if (isGeoJSONSource(worldMap)) {
+    registerMap("world", worldMap);
   }
 
   flightData.value = data;
