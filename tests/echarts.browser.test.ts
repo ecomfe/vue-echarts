@@ -1376,6 +1376,29 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
+  it("stays disposed when the exposed ref disposes before mounted initialization", async () => {
+    let instance: Exposed | undefined;
+    const disposeOnRef: VNodeRef = (value) => {
+      if (value) {
+        instance = value as Exposed;
+        instance.dispose();
+      }
+    };
+    const Root = defineComponent({
+      setup: () => () =>
+        h(ECharts, {
+          ref: disposeOnRef,
+          option: {},
+        }),
+    });
+
+    render(Root);
+    await nextTick();
+
+    expect(init).not.toHaveBeenCalled();
+    expect(instance?.isDisposed()).toBe(true);
+  });
+
   it("reports disposed after the component unmounts", async () => {
     const exposed = shallowRef<Exposed>();
     const screen = renderChart(() => ({ option: { series: [] } }), exposed);

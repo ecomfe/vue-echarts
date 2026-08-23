@@ -359,7 +359,9 @@ export default /* @__PURE__ */ defineComponent({
     onMounted(() => {
       register(root.value);
       mounted = true;
-      init();
+      if (!terminallyDisposed) {
+        init();
+      }
     });
 
     onBeforeUnmount(() => {
