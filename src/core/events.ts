@@ -20,10 +20,6 @@ type ListenerBinding = {
   handler: EventHandler;
 };
 
-function getEmitter(instance: EChartsType, zr: boolean): EventEmitter {
-  return zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
-}
-
 function toNativeEventKey(event: string, once: boolean): string | null {
   if (!event.startsWith("native:")) {
     return null;
@@ -119,7 +115,7 @@ export function useReactiveChartListeners(
         continue;
       }
 
-      const emitter = getEmitter(instance, zr);
+      const emitter = zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
       const current = { value: invoke };
       const invokeCurrent: EventHandler = (...args) => current.value(...args);
       let handler = invokeCurrent;
