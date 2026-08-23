@@ -123,6 +123,10 @@ type ZRenderEmits = {
   [key in ZRenderEventName]: (params: ElementEvent) => void;
 };
 
+type NativeEmits = {
+  [key in `native:${string}`]: (params: any) => void;
+};
+
 type OtherEmits = {
   [key in OtherEventName | OtherEventAlias]: (params: unknown) => void;
 };
@@ -133,4 +137,5 @@ export type Emits = MouseEmits &
     axisBreakChanged: (params: AxisBreakChangedEvent) => void;
     rendered: (params: { elapsedTime: number }) => void;
     finished: () => void;
-  } & ZRenderEmits;
+  } & ZRenderEmits &
+  NativeEmits;
