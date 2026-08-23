@@ -149,7 +149,7 @@ app.component('VChart', VueECharts)
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
 
   #### 智能更新
-  - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。
+  - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。移除它之后，首次智能更新会重建一次，以建立可靠的结构基线。
   - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数，重新初始化后不会保留这些调用的效果。
   - 其他情况下，Vue ECharts 会分析差异：组件数组删除及安全的对象/数组形态切换会按需使用 `replaceMerge`；嵌套属性删除、非组件数组缩短及其他高风险删除会退回 `notMerge: true`。
 

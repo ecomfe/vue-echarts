@@ -108,7 +108,8 @@ export default /* @__PURE__ */ defineComponent({
         requestUpdate: (updateOptions) => requestUpdate(updateOptions, "graphic"),
       }) ?? {};
 
-    let lastSignature: Signature | undefined;
+    // `null` means the last option skipped analysis, so the next smart update must rebuild.
+    let lastSignature: Signature | null | undefined;
     let themedChart: EChartsType | undefined;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
@@ -150,21 +151,18 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
-      if (override) {
-        const planned = planUpdate(lastSignature, slotted);
-        instance.setOption(patched, withGraphicReplaceMerge(override));
-        lastSignature = planned.signature;
-        return;
-      }
-
-      if (realUpdateOptions.value) {
+      if (!override && realUpdateOptions.value) {
         instance.setOption(patched, withGraphicReplaceMerge(realUpdateOptions.value));
-        lastSignature = undefined;
+        lastSignature = null;
         return;
       }
 
-      const planned = planUpdate(lastSignature, slotted);
-      instance.setOption(patched, withGraphicReplaceMerge(planned.plan));
+      const planned = planUpdate(lastSignature ?? undefined, slotted);
+      let updateOptions = override ?? planned.plan;
+      if (lastSignature === null) {
+        updateOptions = { ...updateOptions, notMerge: true };
+      }
+      instance.setOption(patched, withGraphicReplaceMerge(updateOptions));
       lastSignature = planned.signature;
     }
 

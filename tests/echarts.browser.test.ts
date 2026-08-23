@@ -686,6 +686,33 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][1]).toBe(updateOptions.value);
   });
 
+  it("rebuilds once when returning to smart updates", async () => {
+    const option = ref<Option>({
+      series: [
+        { id: "a", type: "line", data: [1] },
+        { id: "b", type: "line", data: [2] },
+      ],
+    });
+    const updateOptions = ref<UpdateOptions | undefined>({ notMerge: false });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: option.value, updateOptions: updateOptions.value }), exposed);
+    await nextTick();
+    chartStub.setOption.mockClear();
+
+    updateOptions.value = undefined;
+    option.value = { series: [{ id: "b", type: "line", data: [3] }] };
+    await nextTick();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: true });
+
+    chartStub.setOption.mockClear();
+    option.value = { series: [{ id: "b", type: "line", data: [4] }] };
+    await nextTick();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
+  });
+
   it("switches between manual and reactive updates", async () => {
     const option = ref({ title: { text: "initial" } });
     const manualUpdate = ref(true);
