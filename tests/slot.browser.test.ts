@@ -152,6 +152,24 @@ describe("useSlotOption", () => {
     expect(getExposed(exposed).patchOption(option)).toBe(option);
   });
 
+  it("handles slot removal before optional state is initialized", async () => {
+    const changeSpy = vi.fn();
+    const visible = ref(true);
+
+    renderSlotComponent(() => {
+      const slots: SlotDictionary = {};
+      if (visible.value) {
+        slots.tooltip = () => h("span", "tooltip");
+      }
+      return slots;
+    }, changeSpy);
+    visible.value = false;
+    await nextTick();
+
+    expect(changeSpy).toHaveBeenCalledOnce();
+    expect(changeSpy).toHaveBeenCalledWith({ notMerge: true });
+  });
+
   it("creates callback containers in the component owner document", async () => {
     const iframe = document.body.appendChild(document.createElement("iframe"));
     const ownerDocument = iframe.contentDocument;

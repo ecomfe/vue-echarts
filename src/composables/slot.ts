@@ -24,6 +24,12 @@ type SlotBinding = {
   path: string[];
   formatter: (payload: unknown) => HTMLElement | undefined;
 };
+type SlotState = {
+  containers: SlotMap<HTMLElement>;
+  initialized: SlotMap<boolean>;
+  params: SlotMap<unknown>;
+  bindings: Map<SlotName, SlotBinding>;
+};
 
 function isValidSlotName(key: string): key is SlotName {
   if (key.endsWith("-") || key.includes("--")) {
@@ -81,12 +87,17 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
 export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOptions) => void) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
-  const containers = shallowReactive<SlotMap<HTMLElement>>({});
-  const initialized = shallowReactive<SlotMap<boolean>>({});
-  const params = shallowReactive<SlotMap<unknown>>({});
-  const bindings = new Map<SlotName, SlotBinding>();
+  let state: SlotState | undefined;
   const isMounted = shallowRef(false);
-  const warnedInvalidSlots = new Set<string>();
+  let warnedInvalidSlots: Set<string> | undefined;
+
+  const getState = (): SlotState =>
+    (state ??= {
+      containers: shallowReactive<SlotMap<HTMLElement>>({}),
+      initialized: shallowReactive<SlotMap<boolean>>({}),
+      params: shallowReactive<SlotMap<unknown>>({}),
+      bindings: new Map<SlotName, SlotBinding>(),
+    });
 
   const collectSlotNames = (warnInvalid: boolean): SlotName[] => {
     const result: SlotName[] = [];
@@ -96,9 +107,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
       }
       if (isValidSlotName(key)) {
         result.push(key);
-      } else if (warnInvalid && !warnedInvalidSlots.has(key)) {
+      } else if (warnInvalid && !warnedInvalidSlots?.has(key)) {
         warn(`Invalid slot name: ${key}`);
-        warnedInvalidSlots.add(key);
+        (warnedInvalidSlots ??= new Set()).add(key);
       }
     }
     return result;
@@ -113,6 +124,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
     detachedRoot ??= ownerDocument.createElement("div");
+    const { containers, initialized, params } = getState();
 
     return h(
       Teleport,
@@ -142,6 +154,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
     if (names.length === 0) {
       return src;
     }
+    const { bindings, initialized, params, containers } = getState();
     const root: Option = { ...src };
 
     for (const key of names) {
@@ -191,10 +204,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
     for (const key of slotNames) {
       if (!nextSlotNameSet.has(key)) {
         removed = true;
-        delete params[key];
-        delete initialized[key];
-        delete containers[key];
-        bindings.delete(key);
+        if (state) {
+          delete state.params[key];
+          delete state.initialized[key];
+          delete state.containers[key];
+          state.bindings.delete(key);
+        }
       }
     }
 
