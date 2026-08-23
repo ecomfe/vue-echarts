@@ -261,16 +261,18 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
   }
 
-  if (
-    hasMissing(prev.leaves, next.leaves) &&
-    prev.leaves.some(
-      (key) =>
-        !next.leaves.includes(key) &&
-        next.arrays[key] === undefined &&
-        next.objectShapes[key] === undefined,
-    )
-  ) {
-    return null;
+  let nextLeafIndex = 0;
+  for (const key of prev.leaves) {
+    while (nextLeafIndex < next.leaves.length && next.leaves[nextLeafIndex] < key) {
+      nextLeafIndex++;
+    }
+    if (
+      next.leaves[nextLeafIndex] !== key &&
+      next.arrays[key] === undefined &&
+      next.objectShapes[key] === undefined
+    ) {
+      return null;
+    }
   }
 
   for (const key in prev.arrays) {

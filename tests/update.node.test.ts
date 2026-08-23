@@ -217,28 +217,24 @@ describe("smart-update", () => {
       });
 
       it("keeps merge when a leaf value changes", () => {
-        const prev = buildSignature({ color: "red" });
-        const next = planUpdate(prev, { color: "blue" });
+        const prev = buildSignature({ backgroundColor: "red", color: "red" });
+        const next = planUpdate(prev, { backgroundColor: "blue", color: "blue" });
 
-        expect(next.plan.notMerge).toBe(false);
-        expect(next.plan.replaceMerge).toBeUndefined();
+        expect(next.plan).toEqual({ notMerge: false });
       });
 
       it("keeps merge when a setting changes between leaf and structured forms", () => {
         const object = buildSignature({
           backgroundColor: linearGradient,
         });
-        const leaf = buildSignature({ backgroundColor: "transparent" });
+        const leaf = buildSignature({ backgroundColor: "transparent", color: "red" });
 
         expect(planUpdate(object, { backgroundColor: "transparent" }).plan).toEqual({
           notMerge: false,
         });
-        expect(planUpdate(leaf, { backgroundColor: linearGradient }).plan).toEqual({
-          notMerge: false,
-        });
-        expect(planUpdate(buildSignature({ color: "red" }), { color: ["blue"] }).plan).toEqual({
-          notMerge: false,
-        });
+        expect(planUpdate(leaf, { backgroundColor: linearGradient, color: ["blue"] }).plan).toEqual(
+          { notMerge: false },
+        );
       });
 
       it("keeps merge for nested additions and value replacements", () => {
