@@ -356,7 +356,12 @@ onBeforeUnmount(() => {
     @close="onDialogClose"
   >
     <section ref="dialog" class="dialog">
-      <h2 id="codegen-title">Generate import code</h2>
+      <header class="dialog-header">
+        <h2 id="codegen-title">Generate import code</h2>
+        <button class="dialog-close" type="button" aria-label="Close code generator" @click="close">
+          ×
+        </button>
+      </header>
       <section class="options">
         <label>
           Renderer
@@ -436,8 +441,30 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow);
 }
 
-.dialog h2 {
-  margin-top: 2rem;
+.dialog-header {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+}
+
+.dialog-header h2 {
+  grid-column: 2;
+  margin: 0;
+}
+
+.dialog-close {
+  grid-column: 3;
+  width: 2.25rem;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+  font-size: 1.25rem;
+}
+
+.dialog-close:hover {
+  color: var(--heading);
 }
 
 .options {
@@ -479,6 +506,7 @@ onBeforeUnmount(() => {
   .option-code,
   .import-code {
     flex: 0 0 50%;
+    min-width: 0;
     margin: 0;
     border: none;
   }
@@ -503,6 +531,50 @@ onBeforeUnmount(() => {
   top: var(--space-2);
   border-radius: var(--r-m);
   border: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .dialog {
+    width: calc(100vw - var(--space-4));
+    height: calc(100svh - var(--space-4));
+    border-radius: var(--r-m);
+  }
+
+  .dialog-header {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .dialog-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .options {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    max-height: 11rem;
+    padding: var(--space-3);
+    overflow-y: auto;
+  }
+
+  .code {
+    flex-direction: column;
+
+    .option-code,
+    .import-code {
+      flex: 1 1 50%;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .import-code {
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .copy {
+    top: calc(50% + var(--space-2));
+  }
 }
 
 .message {

@@ -177,12 +177,22 @@ describe("code generator dialog", () => {
     expect(mocks.analysisStop).toHaveBeenCalledOnce();
   });
 
-  it("moves focus inside on first and later opens, then restores the trigger", async () => {
+  it("closes from a visible control or Escape and restores the trigger", async () => {
     const { open, trigger } = renderCodegen();
 
     for (const expectedFocusCount of [1, 2]) {
       const modal = await openCodegen(trigger, expectedFocusCount);
-      modal.dispatchEvent(new Event("cancel", { cancelable: true }));
+      if (expectedFocusCount === 1) {
+        const closeButton = modal.querySelector<HTMLButtonElement>(
+          '[aria-label="Close code generator"]',
+        );
+        if (!closeButton) {
+          throw new Error("Expected a visible close button.");
+        }
+        closeButton.click();
+      } else {
+        modal.dispatchEvent(new Event("cancel", { cancelable: true }));
+      }
 
       await vi.waitFor(() => {
         expect(open.value).toBe(false);
