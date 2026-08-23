@@ -150,7 +150,7 @@ describe("register", () => {
       }
     });
 
-    it("disposes chart when element is removed from DOM", async () => {
+    it("keeps chart alive across DOM moves and disposes after removal", async () => {
       const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
@@ -161,8 +161,16 @@ describe("register", () => {
       const dispose = vi.fn();
       element.__dispose = dispose;
 
+      const parent = document.body.appendChild(document.createElement("div"));
       document.body.appendChild(element);
-      document.body.removeChild(element);
+      parent.appendChild(element);
+
+      await Promise.resolve();
+
+      expect(dispose).not.toHaveBeenCalled();
+      expect(element.__dispose).toBe(dispose);
+
+      element.remove();
 
       await Promise.resolve();
 

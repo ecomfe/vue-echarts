@@ -26,10 +26,12 @@ export function register(): boolean {
         __dispose: (() => void) | null = null;
 
         disconnectedCallback(): void {
-          if (this.__dispose) {
-            this.__dispose();
-            this.__dispose = null;
-          }
+          queueMicrotask(() => {
+            if (!this.isConnected && this.__dispose) {
+              this.__dispose();
+              this.__dispose = null;
+            }
+          });
         }
       }
 
