@@ -280,31 +280,36 @@ provide(THEME_KEY, () => theme.value);
 <details>
 <summary>Options API</summary>
 
+Static value:
+
 ```js
-import { THEME_KEY } from 'vue-echarts'
-import { computed } from 'vue'
+import { THEME_KEY } from "vue-echarts";
 
 export default {
-  {
-    provide: {
-      [THEME_KEY]: 'dark'
-    }
-  }
-}
+  provide: {
+    [THEME_KEY]: "dark",
+  },
+};
+```
 
-// Or make injections reactive
+Reactive value:
+
+```js
+import { THEME_KEY } from "vue-echarts";
+import { computed } from "vue";
+
 export default {
   data() {
     return {
-      theme: 'dark'
-    }
+      theme: "dark",
+    };
   },
   provide() {
     return {
-      [THEME_KEY]: computed(() => this.theme)
-    }
-  }
-}
+      [THEME_KEY]: computed(() => this.theme),
+    };
+  },
+};
 ```
 
 </details>

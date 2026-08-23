@@ -280,31 +280,36 @@ provide(THEME_KEY, () => theme.value);
 <details>
 <summary>选项式 API</summary>
 
+静态值：
+
 ```js
-import { THEME_KEY } from 'vue-echarts'
-import { computed } from 'vue'
+import { THEME_KEY } from "vue-echarts";
 
 export default {
-  {
-    provide: {
-      [THEME_KEY]: 'dark'
-    }
-  }
-}
+  provide: {
+    [THEME_KEY]: "dark",
+  },
+};
+```
 
-// 或者让注入项具有响应性
+响应式值：
+
+```js
+import { THEME_KEY } from "vue-echarts";
+import { computed } from "vue";
+
 export default {
   data() {
     return {
-      theme: 'dark'
-    }
+      theme: "dark",
+    };
   },
   provide() {
     return {
-      [THEME_KEY]: computed(() => this.theme)
-    }
-  }
-}
+      [THEME_KEY]: computed(() => this.theme),
+    };
+  },
+};
 ```
 
 </details>
