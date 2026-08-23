@@ -27,7 +27,11 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
+    const { render, patchOption } = useSlotOption(
+      ctx.slots,
+      props.onChange ?? (() => {}),
+      shallowRef(true),
+    );
 
     ctx.expose({ patchOption, render });
 

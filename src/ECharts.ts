@@ -97,7 +97,7 @@ export default /* @__PURE__ */ defineComponent({
 
     const rootAttrs = useRootAttrs(attrsMap);
 
-    const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate);
+    const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate, isReady);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
       useGraphic({
@@ -379,11 +379,9 @@ export default /* @__PURE__ */ defineComponent({
         }),
       ];
 
-      if (isReady.value) {
-        const teleported = renderSlot();
-        if (teleported) {
-          children.push(teleported);
-        }
+      const teleported = renderSlot();
+      if (teleported) {
+        children.push(teleported);
       }
 
       if (renderGraphic) {

@@ -7,7 +7,7 @@ import {
   shallowRef,
   shallowReactive,
 } from "vue";
-import type { Slots, SlotsType } from "vue";
+import type { Ref, Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
 import { isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
@@ -85,7 +85,11 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
   parent[seg] = value;
 }
 
-export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOptions) => void) {
+export function useSlotOption(
+  slots: Slots,
+  onSlotsChange: (options?: UpdateOptions) => void,
+  ready: Ref<boolean>,
+) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
   let state: SlotState | undefined;
@@ -120,7 +124,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   const render = () => {
     const names = collectSlotNames(false);
-    if (names.length === 0 || !isMounted.value) {
+    if (names.length === 0 || !ready.value || !isMounted.value) {
       return undefined;
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;

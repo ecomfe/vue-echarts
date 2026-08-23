@@ -16,7 +16,7 @@ describe("SSR environment", () => {
 
     const Probe = defineComponent({
       setup(_, ctx) {
-        const { render, patchOption } = useSlotOption(ctx.slots, () => {});
+        const { render, patchOption } = useSlotOption(ctx.slots, () => {}, shallowRef(true));
         exposed.value = { render, patchOption };
         return () => h("div", render());
       },
