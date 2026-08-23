@@ -34,24 +34,25 @@ type SlotState = {
 };
 
 function isValidSlotName(key: string): key is SlotName {
-  if (key.endsWith("-") || key.includes("--") || PROTOTYPE_SEGMENT_RE.test(key)) {
-    return false;
-  }
   return (
-    key === "tooltip" ||
-    key.startsWith("tooltip-") ||
-    key === "dataView" ||
-    key.startsWith("dataView-")
+    (key === "tooltip" ||
+      key.startsWith("tooltip-") ||
+      key === "dataView" ||
+      key.startsWith("dataView-")) &&
+    !key.endsWith("-") &&
+    !key.includes("--") &&
+    !PROTOTYPE_SEGMENT_RE.test(key)
   );
 }
 
 type Container = Record<string, unknown> | unknown[];
 
 function ensureChild(parent: Container, seg: string, nextSeg?: string): Container | undefined {
-  if (Array.isArray(parent) && !isValidArrayIndex(seg)) {
+  const parentIsArray = Array.isArray(parent);
+  if (parentIsArray && !isValidArrayIndex(seg)) {
     return undefined;
   }
-  const next = readSegment(parent, seg);
+  const next = parentIsArray ? parent[Number(seg)] : parent[seg];
 
   if (Array.isArray(next)) {
     const cloned = [...next];
@@ -69,13 +70,6 @@ function ensureChild(parent: Container, seg: string, nextSeg?: string): Containe
     return created;
   }
   return undefined;
-}
-
-function readSegment(parent: Container, seg: string): unknown {
-  if (Array.isArray(parent)) {
-    return parent[Number(seg)];
-  }
-  return parent[seg];
 }
 
 function writeSegment(parent: Container, seg: string, value: unknown): void {
