@@ -142,6 +142,8 @@ app.component('VChart', VueECharts)
 
   要应用的主题。请参考 `echarts.init` 的 `theme` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
 
+  传入空字符串可以在覆盖注入主题的同时使用 ECharts 默认主题。
+
   Inject 键名：`THEME_KEY`。
 
 - `option: object`

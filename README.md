@@ -142,6 +142,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   Theme to be applied. See `echarts.init`'s `theme` parameter [here →](https://echarts.apache.org/en/api.html#echarts.init)
 
+  Pass an empty string to use ECharts' default theme while overriding an injected theme.
+
   Injection key: `THEME_KEY`.
 
 - `option: object`
