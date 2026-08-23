@@ -257,6 +257,15 @@ export default /* @__PURE__ */ defineComponent({
         applyOption(instance, option);
       }
 
+      function markReady(): void {
+        const current = chart.value;
+        isReady.value =
+          current === instance &&
+          current !== undefined &&
+          !terminallyDisposed &&
+          !current.isDisposed();
+      }
+
       if (autoresize.value) {
         const deferred = (deferredCharts ??= new WeakSet());
         deferred.add(instance);
@@ -273,7 +282,7 @@ export default /* @__PURE__ */ defineComponent({
           if (deferred.has(instance)) {
             commit();
           }
-          isReady.value = true;
+          markReady();
           queueMicrotask(() => {
             if (deferred.delete(instance) && chart.value === instance && !terminallyDisposed) {
               requestUpdate();
@@ -284,7 +293,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       commit();
-      isReady.value = true;
+      markReady();
     }
 
     const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {

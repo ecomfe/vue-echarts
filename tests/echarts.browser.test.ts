@@ -959,6 +959,42 @@ describe("ECharts component", () => {
     expect(onRendered).toHaveBeenCalledWith({ elapsedTime: 1 });
   });
 
+  it.each([false, true])(
+    "keeps callback slots inactive after disposal during initial commit (autoresize: %s)",
+    async (autoresize) => {
+      const exposed = shallowRef<Exposed>();
+      chartStub.setOption.mockImplementation(() => {
+        const binding = chartStub.on.mock.calls.find(([event]) => event === "rendered");
+        binding?.[1]({ elapsedTime: 1 });
+      });
+
+      const Root = defineComponent({
+        setup: () => () =>
+          h(
+            ECharts,
+            {
+              option: { tooltip: {} },
+              autoresize,
+              onRendered: () => getExposed(exposed).dispose(),
+              ref: createExposedRef(exposed),
+            },
+            { tooltip: () => h("span", "disposed") },
+          ),
+      });
+
+      render(Root);
+      await nextTick();
+      await nextTick();
+
+      const [patched] = getLastSetOptionCall(chartStub);
+      const formatter = (patched.tooltip as { formatter?: (params: unknown) => unknown }).formatter;
+
+      expect(chartStub.dispose).toHaveBeenCalledOnce();
+      expect(formatter).toBeTypeOf("function");
+      expect(formatter?.({})).toBeUndefined();
+    },
+  );
+
   it("binds chart, zr, and native event listeners", async () => {
     const clickHandler = vi.fn();
     const clickOnce = vi.fn();
