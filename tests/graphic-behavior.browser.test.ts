@@ -4,7 +4,7 @@ import type { VNodeRef } from "vue";
 import { use } from "echarts/core";
 import { GraphicComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import type { EChartsType, Option } from "../src/types";
+import type { EChartsType, Option, Theme } from "../src/types";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
 import { GGroup, GRect } from "../src/graphic/components";
@@ -153,42 +153,50 @@ describe("graphic update behavior (real echarts)", () => {
     expect(ids.has("b")).toBe(true);
   });
 
-  it("clears a removed option while keeping the graphic slot", async () => {
-    registerExtension();
+  it.each([false, true])(
+    "clears a removed option while keeping the graphic slot (theme update: %s)",
+    async (updateTheme) => {
+      registerExtension();
 
-    const option = ref<Option | undefined>({ backgroundColor: "#ef4444" });
-    const exposed = shallowRef<Exposed>();
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            {
-              option: option.value,
-              style: "width: 200px; height: 120px;",
-              ref: createExposeSetter(exposed),
-            },
-            {
-              graphic: () => h(GRect, { id: "graphic-only", width: 20, height: 10 }),
-            },
-          );
-      },
-    });
+      const option = ref<Option | undefined>({ backgroundColor: "#ef4444" });
+      const theme = ref<Theme>();
+      const exposed = shallowRef<Exposed>();
+      const Root = defineComponent({
+        setup() {
+          return () =>
+            h(
+              ECharts,
+              {
+                option: option.value,
+                theme: theme.value,
+                style: "width: 200px; height: 120px;",
+                ref: createExposeSetter(exposed),
+              },
+              {
+                graphic: () => h(GRect, { id: "graphic-only", width: 20, height: 10 }),
+              },
+            );
+        },
+      });
 
-    render(Root);
-    await nextTick();
-    await flushAnimationFrame();
+      render(Root);
+      await nextTick();
+      await flushAnimationFrame();
 
-    const chart = getChart(exposed.value);
-    expect(chart.getOption().backgroundColor).toBe("#ef4444");
+      const chart = getChart(exposed.value);
+      expect(chart.getOption().backgroundColor).toBe("#ef4444");
 
-    option.value = undefined;
-    await nextTick();
-    await flushAnimationFrame();
+      option.value = undefined;
+      if (updateTheme) {
+        theme.value = { color: ["#22c55e"] };
+      }
+      await nextTick();
+      await flushAnimationFrame();
 
-    expect(chart.getOption().backgroundColor).not.toBe("#ef4444");
-    expect(collectGraphicIds(chart).has("graphic-only")).toBe(true);
-  });
+      expect(chart.getOption().backgroundColor).not.toBe("#ef4444");
+      expect(collectGraphicIds(chart).has("graphic-only")).toBe(true);
+    },
+  );
 
   it("reparents slotted graphic nodes safely", async () => {
     registerExtension();

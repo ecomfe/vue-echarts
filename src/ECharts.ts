@@ -416,13 +416,14 @@ export default /* @__PURE__ */ defineComponent({
           // ECharts ignores empty theme names instead of resetting to its default theme.
           instance.setTheme(theme || {});
 
+          const option = getAutoOption();
           if (
             isActive(instance) &&
-            props.option &&
+            option &&
             !manualUpdate.value &&
             !deferredCharts?.has(instance)
           ) {
-            applyOption(instance, props.option);
+            applyOption(instance, option);
           }
         }
       },
