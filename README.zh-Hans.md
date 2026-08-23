@@ -207,6 +207,9 @@ Vue ECharts 支持如下事件：
 - `legendscroll` [→](https://echarts.apache.org/zh/api.html#events.legendscroll)
 - `datazoom` [→](https://echarts.apache.org/zh/api.html#events.datazoom)
 - `datarangeselected` [→](https://echarts.apache.org/zh/api.html#events.datarangeselected)
+- `graphroam` [→](https://echarts.apache.org/zh/api.html#events.graphroam)
+- `georoam` [→](https://echarts.apache.org/zh/api.html#events.georoam)
+- `treeroam` [→](https://echarts.apache.org/zh/api.html#events.treeroam)
 - `timelinechanged` [→](https://echarts.apache.org/zh/api.html#events.timelinechanged)
 - `timelineplaychanged` [→](https://echarts.apache.org/zh/api.html#events.timelineplaychanged)
 - `restore` [→](https://echarts.apache.org/zh/api.html#events.restore)
@@ -234,11 +237,22 @@ Vue ECharts 支持如下事件：
   - `contextmenu` [→](https://echarts.apache.org/zh/api.html#events.Mouse%20events.contextmenu)
 - ZRender 事件
   - `zr:click`
-  - `zr:mousedown`
-  - `zr:mouseup`
-  - `zr:mousewheel`
   - `zr:dblclick`
+  - `zr:mouseout`
+  - `zr:mouseover`
+  - `zr:mouseup`
+  - `zr:mousedown`
+  - `zr:mousemove`
   - `zr:contextmenu`
+  - `zr:globalout`
+  - `zr:mousewheel`
+  - `zr:drag`
+  - `zr:dragstart`
+  - `zr:dragend`
+  - `zr:dragenter`
+  - `zr:dragleave`
+  - `zr:dragover`
+  - `zr:drop`
 
 更多事件说明可参考 [ECharts 官方事件文档 →](https://echarts.apache.org/zh/api.html#events)
 

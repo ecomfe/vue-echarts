@@ -194,7 +194,7 @@ You can bind events with Vue's `v-on` directive.
 > [!NOTE]
 > Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
 
-Vue ECharts support the following events:
+Vue ECharts supports the following events:
 
 - `highlight` [→](https://echarts.apache.org/en/api.html#events.highlight)
 - `downplay` [→](https://echarts.apache.org/en/api.html#events.downplay)
@@ -207,6 +207,9 @@ Vue ECharts support the following events:
 - `legendscroll` [→](https://echarts.apache.org/en/api.html#events.legendscroll)
 - `datazoom` [→](https://echarts.apache.org/en/api.html#events.datazoom)
 - `datarangeselected` [→](https://echarts.apache.org/en/api.html#events.datarangeselected)
+- `graphroam` [→](https://echarts.apache.org/en/api.html#events.graphroam)
+- `georoam` [→](https://echarts.apache.org/en/api.html#events.georoam)
+- `treeroam` [→](https://echarts.apache.org/en/api.html#events.treeroam)
 - `timelinechanged` [→](https://echarts.apache.org/en/api.html#events.timelinechanged)
 - `timelineplaychanged` [→](https://echarts.apache.org/en/api.html#events.timelineplaychanged)
 - `restore` [→](https://echarts.apache.org/en/api.html#events.restore)
@@ -234,11 +237,22 @@ Vue ECharts support the following events:
   - `contextmenu` [→](https://echarts.apache.org/en/api.html#events.Mouse%20events.contextmenu)
 - ZRender events
   - `zr:click`
-  - `zr:mousedown`
-  - `zr:mouseup`
-  - `zr:mousewheel`
   - `zr:dblclick`
+  - `zr:mouseout`
+  - `zr:mouseover`
+  - `zr:mouseup`
+  - `zr:mousedown`
+  - `zr:mousemove`
   - `zr:contextmenu`
+  - `zr:globalout`
+  - `zr:mousewheel`
+  - `zr:drag`
+  - `zr:dragstart`
+  - `zr:dragend`
+  - `zr:dragenter`
+  - `zr:dragleave`
+  - `zr:dragover`
+  - `zr:drop`
 
 See supported events in the [ECharts API reference →](https://echarts.apache.org/en/api.html#events)
 
