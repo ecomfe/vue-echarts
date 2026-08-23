@@ -7,7 +7,7 @@ export type GraphicNode = {
   parentId: string | null;
   props: Record<string, unknown>;
   handlers: Record<string, unknown>;
-  handlerCache: Map<string, { source: unknown; handler: EventHandler }>;
+  handlerCache?: Map<string, { source: unknown; handler: EventHandler }>;
   order: number;
   sourceId: number;
 };
@@ -78,7 +78,6 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     } else {
       nodes.set(node.id, {
         ...node,
-        handlerCache: new Map(),
         order: nextOrder,
       });
     }

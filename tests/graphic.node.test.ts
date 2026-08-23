@@ -5,10 +5,6 @@ import { createCollector, type GraphicNode } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
-function withHandlerCache(nodes: Array<Omit<GraphicNode, "handlerCache">>): GraphicNode[] {
-  return nodes.map((node) => ({ ...node, handlerCache: new Map() }));
-}
-
 function getRootGraphicElement(option: unknown): any {
   const root = (option as any).graphic?.elements?.[0] as any;
   if (!root) {
@@ -19,7 +15,7 @@ function getRootGraphicElement(option: unknown): any {
 
 describe("graphic", () => {
   it("builds graphic option with ordered children and replace root", () => {
-    const nodes = withHandlerCache([
+    const nodes: GraphicNode[] = [
       {
         id: "rect",
         type: "rect",
@@ -56,7 +52,7 @@ describe("graphic", () => {
         order: 0,
         sourceId: 2,
       },
-    ]);
+    ];
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
@@ -99,7 +95,7 @@ describe("graphic", () => {
     const onClickB = vi.fn();
     const inheritedMouseover = vi.fn();
     const handlers = [onClickA];
-    const nodes = withHandlerCache([
+    const nodes: GraphicNode[] = [
       {
         id: "hit",
         type: "circle",
@@ -116,11 +112,10 @@ describe("graphic", () => {
         order: 0,
         sourceId: 1,
       },
+    ];
+    nodes[0].handlerCache = new Map([
+      ["onMouseover", { source: inheritedMouseover, handler: inheritedMouseover }],
     ]);
-    nodes[0].handlerCache.set("onMouseover", {
-      source: inheritedMouseover,
-      handler: inheritedMouseover,
-    });
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
@@ -149,7 +144,7 @@ describe("graphic", () => {
   });
 
   it("builds image and group options", () => {
-    const nodes = withHandlerCache([
+    const nodes: GraphicNode[] = [
       {
         id: "group",
         type: "group",
@@ -252,7 +247,7 @@ describe("graphic", () => {
         order: 3,
         sourceId: 6,
       },
-    ]);
+    ];
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
