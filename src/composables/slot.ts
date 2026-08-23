@@ -116,10 +116,11 @@ export function useSlotOption(
   };
 
   let slotNames = collectSlotNames(false);
+  let nextSlotNames = slotNames;
 
   const render = () => {
-    const names = collectSlotNames(false);
-    if (names.length === 0 || !ready.value || !isMounted.value) {
+    nextSlotNames = collectSlotNames(false);
+    if (nextSlotNames.length === 0 || !ready.value || !isMounted.value) {
       return undefined;
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
@@ -129,7 +130,7 @@ export function useSlotOption(
     return h(
       Teleport,
       { to: detachedRoot },
-      names.map((slotName) => {
+      nextSlotNames.map((slotName) => {
         const slot = slots[slotName];
         const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
         return h(
@@ -200,7 +201,6 @@ export function useSlotOption(
   }
 
   onUpdated(() => {
-    const nextSlotNames = collectSlotNames(false);
     let changed = nextSlotNames.length !== slotNames.length;
     for (let i = 0; !changed && i < slotNames.length; i++) {
       changed = nextSlotNames[i] !== slotNames[i];
