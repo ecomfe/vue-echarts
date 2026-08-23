@@ -1372,6 +1372,9 @@ describe("ECharts component", () => {
 
       expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
       expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+      expect(chartStub.resize.mock.invocationCallOrder[0]).toBeLessThan(
+        chartStub.setOption.mock.invocationCallOrder[0],
+      );
       expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
         title: { text: "latest" },
       });

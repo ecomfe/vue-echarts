@@ -407,7 +407,12 @@ export default /* @__PURE__ */ defineComponent({
           // ECharts ignores empty theme names instead of resetting to its default theme.
           instance.setTheme(theme || {});
 
-          if (isActive(instance) && props.option && !manualUpdate.value) {
+          if (
+            isActive(instance) &&
+            props.option &&
+            !manualUpdate.value &&
+            !deferredCharts?.has(instance)
+          ) {
             applyOption(instance, props.option);
           }
         }
