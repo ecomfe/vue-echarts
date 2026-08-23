@@ -66,6 +66,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
   const containers = shallowReactive<SlotContainerMap>({});
   const initialized = shallowReactive<SlotInitMap>({});
   const params = shallowReactive<SlotParamMap>({});
+  const formatters = new Map<SlotName, (payload: unknown) => HTMLElement | undefined>();
   const isMounted = shallowRef(false);
   const warnedInvalidSlots = new Set<string>();
 
@@ -142,14 +143,18 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
       }
 
       const leaf = path[path.length - 1];
-      const formatter = (payload: unknown): HTMLElement | undefined => {
-        if (!slots[key]) {
-          return undefined;
-        }
-        initialized[key] = true;
-        params[key] = payload;
-        return containers[key];
-      };
+      let formatter = formatters.get(key);
+      if (!formatter) {
+        formatter = (payload: unknown): HTMLElement | undefined => {
+          if (!slots[key]) {
+            return undefined;
+          }
+          initialized[key] = true;
+          params[key] = payload;
+          return containers[key];
+        };
+        formatters.set(key, formatter);
+      }
       writeSegment(current, leaf, formatter);
     }
 
@@ -167,6 +172,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
           delete params[key];
           delete initialized[key];
           delete containers[key];
+          formatters.delete(key);
         }
       }
       slotNames = nextSlotNames;

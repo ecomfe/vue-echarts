@@ -113,6 +113,14 @@ function getToolboxOption(option: Option): ToolboxComponentOption {
   return toolbox;
 }
 
+function getDataViewFormatter(option: Option) {
+  const formatter = getToolboxOption(option).feature?.dataView?.optionToContent;
+  if (typeof formatter !== "function") {
+    throw new Error("Expected dataView optionToContent to be injected.");
+  }
+  return formatter;
+}
+
 function hasTooltipOption(value: unknown): value is { tooltip?: TooltipComponentOption } {
   return typeof value === "object" && value !== null && "tooltip" in value;
 }
@@ -191,15 +199,7 @@ describe("useSlotOption", () => {
     });
     expect(changeSpy).not.toHaveBeenCalled();
 
-    const toolbox = getToolboxOption(patched);
-    const feature = toolbox.feature;
-    if (!feature || !feature.dataView) {
-      throw new Error("Expected dataView optionToContent to be injected.");
-    }
-    const optionToContent = feature.dataView.optionToContent;
-    if (typeof optionToContent !== "function") {
-      throw new Error("Expected dataView optionToContent to be injected.");
-    }
+    const optionToContent = getDataViewFormatter(patched);
     const container = optionToContent({});
     if (!(container instanceof HTMLElement)) {
       throw new Error("Expected dataView optionToContent to return an HTMLElement.");
@@ -207,6 +207,34 @@ describe("useSlotOption", () => {
 
     await nextTick();
     expect(container.textContent).toBe("data-view");
+  });
+
+  it("reuses callback formatters across option patches", async () => {
+    const tooltipSlot = shallowRef(() => [h("span", "first")]);
+    const { exposed } = renderSlotComponent(() => ({
+      tooltip: tooltipSlot.value,
+      dataView: () => [h("span", "data-view")],
+    }));
+
+    await nextTick();
+
+    const first = getExposed(exposed).patchOption({});
+    const second = getExposed(exposed).patchOption({});
+    const formatter = getTooltipFormatter(first, "tooltip");
+
+    expect(getTooltipFormatter(second, "tooltip")).toBe(formatter);
+    expect(getDataViewFormatter(second)).toBe(getDataViewFormatter(first));
+
+    const container = formatter(makeTooltipParams(0), "");
+    if (!(container instanceof HTMLElement)) {
+      throw new Error("Expected tooltip formatter to return an HTMLElement.");
+    }
+    tooltipSlot.value = () => [h("span", "second")];
+    await nextTick();
+
+    formatter(makeTooltipParams(1), "");
+    await nextTick();
+    expect(container.textContent).toBe("second");
   });
 
   it("notifies when slot set changes and cleans state", async () => {
