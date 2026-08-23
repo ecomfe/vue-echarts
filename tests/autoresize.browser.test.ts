@@ -86,6 +86,46 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("skips a throttled resize if the container becomes empty before execution", async () => {
+    let pendingResize: (() => void) | undefined;
+    vi.mocked(throttle).mockImplementation((fn) => {
+      const throttled = (() => {
+        pendingResize = fn as () => void;
+      }) as ReturnType<typeof throttle>;
+      throttled.clear = vi.fn();
+      return throttled;
+    });
+
+    const resize = vi.fn();
+    const onResize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>({ onResize });
+    const root = ref<HTMLElement | undefined>();
+    const container = createSizedContainer(120, 80);
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = { resize } as unknown as EChartsType;
+    root.value = container;
+    await nextTick();
+    await flushAnimationFrame();
+
+    container.style.width = "180px";
+    await flushAnimationFrame();
+    expect(pendingResize).toBeTypeOf("function");
+    expect(resize).not.toHaveBeenCalled();
+
+    container.style.width = "0";
+    pendingResize?.();
+    expect(resize).not.toHaveBeenCalled();
+    expect(onResize).not.toHaveBeenCalled();
+
+    scope.stop();
+  });
+
   it("reacts to in-place throttle and callback changes", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();

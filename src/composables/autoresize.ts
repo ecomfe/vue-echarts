@@ -41,9 +41,14 @@ export function useAutoresize(
     let initialResizeTriggered = false;
 
     const resize = () => {
+      const { offsetWidth, offsetHeight } = root;
+      // A throttled callback may run after its triggering dimensions have changed.
+      if (offsetWidth === 0 || offsetHeight === 0) {
+        return;
+      }
       chart.resize();
-      sizedWidth = root.offsetWidth;
-      sizedHeight = root.offsetHeight;
+      sizedWidth = offsetWidth;
+      sizedHeight = offsetHeight;
       onResize?.();
     };
     const throttledResize = wait ? throttle(resize, wait) : undefined;
