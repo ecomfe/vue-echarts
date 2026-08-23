@@ -29,7 +29,7 @@ import { warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
-import { useReactiveChartListeners, useReactiveEventAttrs } from "./core/events";
+import { useReactiveChartListeners, useRootAttrs } from "./core/events";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
 
@@ -95,7 +95,7 @@ export default /* @__PURE__ */ defineComponent({
     );
     const realUpdateOptions = computed(() => props.updateOptions ?? toValue(defaultUpdateOptions));
 
-    const eventAttrs = useReactiveEventAttrs(attrsMap);
+    const rootAttrs = useRootAttrs(attrsMap);
 
     const { render: renderSlot, patchOption } = useSlotOption(slots, requestUpdate);
 
@@ -393,15 +393,14 @@ export default /* @__PURE__ */ defineComponent({
         }
       }
 
-      const { nonEventAttrs, nativeListeners } = eventAttrs.value;
+      const forwardedAttrs = rootAttrs.value;
 
       return h(
         TAG_NAME,
         {
-          ...nonEventAttrs,
-          ...nativeListeners,
+          ...forwardedAttrs,
           ref: root,
-          class: ["echarts", nonEventAttrs.class],
+          class: ["echarts", forwardedAttrs.class],
         },
         children,
       );

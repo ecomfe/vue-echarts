@@ -166,18 +166,14 @@ export function useReactiveChartListeners(
   onScopeDispose(clearBindings);
 }
 
-export function useReactiveEventAttrs(attrs: AttrMap): ComputedRef<{
-  nonEventAttrs: AttrMap;
-  nativeListeners: AttrMap;
-}> {
+export function useRootAttrs(attrs: AttrMap): ComputedRef<AttrMap> {
   return computed(() => {
-    const nonEventAttrs: AttrMap = {};
-    const nativeListeners: AttrMap = {};
+    const result: AttrMap = {};
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
       if (!parsed) {
-        nonEventAttrs[key] = attrs[key];
+        result[key] = attrs[key];
         continue;
       }
 
@@ -185,9 +181,9 @@ export function useReactiveEventAttrs(attrs: AttrMap): ComputedRef<{
       if (!nativeKey) {
         continue;
       }
-      nativeListeners[nativeKey] = attrs[key];
+      result[nativeKey] = attrs[key];
     }
 
-    return { nonEventAttrs, nativeListeners };
+    return result;
   });
 }

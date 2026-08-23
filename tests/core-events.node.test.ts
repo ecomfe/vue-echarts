@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { effectScope, nextTick, reactive, ref } from "vue";
 
-import { useReactiveChartListeners, useReactiveEventAttrs } from "../src/core/events";
+import { useReactiveChartListeners, useRootAttrs } from "../src/core/events";
 import type { EChartsType } from "../src/types";
 
 type EventHandler = (...args: unknown[]) => void;
@@ -52,20 +52,20 @@ describe("core events", () => {
     });
 
     const scope = effectScope();
-    const state = scope.run(() => useReactiveEventAttrs(attrs));
-    if (!state) {
+    const rootAttrs = scope.run(() => useRootAttrs(attrs));
+    if (!rootAttrs) {
       throw new Error("Expected computed attrs to be available.");
     }
 
-    expect(state.value.nonEventAttrs).toEqual({ class: "chart" });
-    expect(state.value.nativeListeners).toEqual({
+    expect(rootAttrs.value).toEqual({
+      class: "chart",
       onClick: attrs["onNative:click"],
     });
 
     attrs["onNative:clickOnce"] = vi.fn();
     await nextTick();
 
-    expect(state.value.nativeListeners).toMatchObject({
+    expect(rootAttrs.value).toMatchObject({
       onClick: attrs["onNative:click"],
       onClickOnce: attrs["onNative:clickOnce"],
     });
