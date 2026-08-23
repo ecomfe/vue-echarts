@@ -8,17 +8,23 @@ export function createEventInvoker(value: unknown): EventHandler | undefined {
     return value as EventHandler;
   }
 
-  if (!Array.isArray(value) || !value.some((handler) => typeof handler === "function")) {
+  if (!Array.isArray(value)) {
     return undefined;
   }
 
-  return (...args: unknown[]): void => {
-    for (const handler of value.slice()) {
-      if (typeof handler === "function") {
-        handler(...args);
-      }
+  for (const candidate of value) {
+    if (typeof candidate === "function") {
+      return (...args: unknown[]): void => {
+        for (const handler of value.slice()) {
+          if (typeof handler === "function") {
+            handler(...args);
+          }
+        }
+      };
     }
-  };
+  }
+
+  return undefined;
 }
 
 export function isBrowser(): boolean {
