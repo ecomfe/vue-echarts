@@ -88,6 +88,12 @@ describe("graphic", () => {
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
+  it("builds an empty replace root when there are no nodes", () => {
+    const root = getRootGraphicElement(buildOption([], "root"));
+
+    expect(root.children).toEqual([]);
+  });
+
   it("keeps user info, ignores inherited handlers, and uses the latest handler array", () => {
     const onClickA = vi.fn();
     const onClickB = vi.fn();

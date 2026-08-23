@@ -177,15 +177,13 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
     list.sort((a, b) => a.order - b.order);
   }
 
-  const childrenOf = (parentId: string | null): Option[] => {
-    const list = byParent.get(parentId) ?? [];
-    return list.map((node) => {
+  const childrenOf = (parentId: string | null): Option[] | undefined =>
+    byParent.get(parentId)?.map((node) => {
       if (node.type !== "group") {
         return toElement(node);
       }
       return toElement(node, childrenOf(node.id));
     });
-  };
 
   return {
     graphic: {
@@ -194,7 +192,7 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
           type: "group",
           id: rootId,
           $action: "replace",
-          children: childrenOf(null),
+          children: childrenOf(null) ?? [],
         },
       ],
     },
