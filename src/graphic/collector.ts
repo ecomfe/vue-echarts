@@ -68,8 +68,22 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     const nextOrder = node.order ?? order;
     order = Math.max(order, nextOrder + 1);
     const existing = nodes.get(node.id);
+    const sameSource = existing?.sourceId === node.sourceId;
+    const unchanged =
+      sameSource &&
+      existing.type === node.type &&
+      existing.parentId === node.parentId &&
+      existing.props === node.props &&
+      existing.handlers === node.handlers &&
+      existing.order === nextOrder;
 
-    if (existing?.sourceId === node.sourceId) {
+    seenInPass.set(node.id, node.sourceId);
+    // Props and attrs are stable proxies; their watcher covers value-only changes.
+    if (unchanged) {
+      return;
+    }
+
+    if (sameSource) {
       existing.type = node.type;
       existing.parentId = node.parentId;
       existing.props = node.props;
@@ -81,7 +95,6 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
         order: nextOrder,
       });
     }
-    seenInPass.set(node.id, node.sourceId);
     requestFlush();
   }
 

@@ -5,7 +5,7 @@ import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./he
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
-import { GRect } from "../src/graphic/components";
+import { GGroup, GRect } from "../src/graphic/components";
 import {
   getLastGraphicIds,
   getLastGraphicOption,
@@ -156,6 +156,36 @@ describe("graphic slot edge and integration behavior", () => {
     const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 32 });
     expect(updateArg?.replaceMerge).toContain("graphic");
+  });
+
+  it("skips graphic updates when only non-graphic group content changes", async () => {
+    registerExtension();
+
+    const tick = ref(0);
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: {} },
+            {
+              graphic: () => h(GGroup, { id: "group" }, () => `tick-${tick.value}`),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    chartStub.setOption.mockClear();
+    tick.value++;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
   it("does not auto-reapply graphic option on theme changes in manual-update mode", async () => {
