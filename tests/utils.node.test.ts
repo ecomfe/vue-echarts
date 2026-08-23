@@ -6,6 +6,7 @@ import {
   isPlainObject,
   isValidArrayIndex,
   parseOnEvent,
+  shallowEqual,
 } from "../src/utils";
 
 describe("utils", () => {
@@ -91,6 +92,17 @@ describe("utils", () => {
       expect(isPlainObject(() => ({ foo: "bar" }))).toBe(false);
       expect(isPlainObject(null)).toBe(false);
       expect(isPlainObject("foo")).toBe(false);
+    });
+  });
+
+  describe("shallowEqual", () => {
+    it("compares own keys and values without traversing nested objects", () => {
+      const nested = {};
+
+      expect(shallowEqual({ value: NaN, nested }, { value: NaN, nested })).toBe(true);
+      expect(shallowEqual({ value: 1 }, { value: 2 })).toBe(false);
+      expect(shallowEqual({ value: 1 }, { value: 1, extra: undefined })).toBe(false);
+      expect(shallowEqual({ nested: {} }, { nested: {} })).toBe(false);
     });
   });
 });

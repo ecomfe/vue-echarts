@@ -25,7 +25,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { warn } from "./utils";
+import { shallowEqual, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -313,8 +313,17 @@ export default /* @__PURE__ */ defineComponent({
 
     watch(
       [manualUpdate, realInitOptions],
-      () => {
+      ([manual, options], [previousManual, previousOptions]) => {
         if (!mounted || terminallyDisposed) {
+          return;
+        }
+        if (
+          manual === previousManual &&
+          options !== previousOptions &&
+          options &&
+          previousOptions &&
+          shallowEqual(options, previousOptions)
+        ) {
           return;
         }
         cleanup();

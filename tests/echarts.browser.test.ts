@@ -623,7 +623,7 @@ describe("ECharts component", () => {
     expect(chartStub.setTheme.mock.calls.length).toBe(callsBefore);
   });
 
-  it("re-initializes when initOptions change", async () => {
+  it("re-initializes only when initOptions change", async () => {
     const option = ref({ title: { text: "coffee" } });
     const initOptions = ref({ useDirtyRect: true });
     const exposed = shallowRef<Exposed>();
@@ -632,10 +632,16 @@ describe("ECharts component", () => {
     await nextTick();
 
     const firstStub = chartStub;
+    initOptions.value = { useDirtyRect: true };
+    await nextTick();
+
+    expect(firstStub.dispose).not.toHaveBeenCalled();
+    expect(init).toHaveBeenCalledTimes(1);
+
     const secondStub = enqueueChart();
     chartStub = secondStub;
 
-    initOptions.value = { useDirtyRect: false };
+    initOptions.value.useDirtyRect = false;
     await nextTick();
 
     expect(firstStub.dispose).toHaveBeenCalledTimes(1);

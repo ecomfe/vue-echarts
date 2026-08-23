@@ -72,6 +72,14 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
   );
 }
 
+export function shallowEqual<T extends object>(left: T, right: T): boolean {
+  const keys = Object.keys(left) as (keyof T)[];
+  return (
+    keys.length === Object.keys(right).length &&
+    keys.every((key) => Object.is(left[key], right[key]))
+  );
+}
+
 const LOG_PREFIX = "[vue-echarts]";
 
 export function warn(message: string): void {

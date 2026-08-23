@@ -2,6 +2,7 @@ import { inject, watchEffect, toValue } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
+import { shallowEqual } from "../utils";
 
 export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol();
 
@@ -25,13 +26,8 @@ export function useLoading(
         ...loadingOptions.value,
       };
       const previous = shownOptions?.get(instance);
-      const keys = Object.keys(options) as (keyof LoadingOptions)[];
 
-      if (
-        previous &&
-        keys.length === Object.keys(previous).length &&
-        keys.every((key) => Object.is(options[key], previous[key]))
-      ) {
+      if (previous && shallowEqual(options, previous)) {
         return;
       }
 
