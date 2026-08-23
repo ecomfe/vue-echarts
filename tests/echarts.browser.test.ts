@@ -1132,6 +1132,26 @@ describe("ECharts component", () => {
     });
   });
 
+  it("keeps a manual option set during autoresize mount", async () => {
+    const exposed = shallowRef<Exposed>();
+    const manualOption = { title: { text: "manual" } };
+
+    renderChart(
+      () => ({
+        option: { title: { text: "initial" } },
+        manualUpdate: true,
+        autoresize: true,
+      }),
+      exposed,
+    );
+    getExposed(exposed).setOption(manualOption);
+    await nextTick();
+
+    expect(chartStub.resize).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
+  });
+
   it.each([false, true])(
     "coalesces option and theme changes before autoresize initialization (manual: %s)",
     async (manualUpdate) => {

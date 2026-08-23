@@ -108,7 +108,7 @@ export default /* @__PURE__ */ defineComponent({
     let optionUpdatePending = false;
     let mounted = false;
     let terminallyDisposed = false;
-    const initializing = new WeakSet<EChartsType>();
+    const deferredInitialOption = new WeakSet<EChartsType>();
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
@@ -221,17 +221,17 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       if (autoresize.value) {
-        initializing.add(instance);
+        deferredInitialOption.add(instance);
         nextTick(() => {
           if (instance.isDisposed()) {
             return;
           }
           instance.resize();
-          if (!themeUpdatePending || manualUpdate.value) {
+          if (deferredInitialOption.has(instance) && (!themeUpdatePending || manualUpdate.value)) {
             commit();
           }
           isReady.value = true;
-          queueMicrotask(() => initializing.delete(instance));
+          queueMicrotask(() => deferredInitialOption.delete(instance));
         });
         return;
       }
@@ -257,6 +257,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       applyOption(instance, option, updateOptions, true);
+      deferredInitialOption.delete(instance);
     };
 
     // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.
@@ -281,7 +282,7 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (!instance || initializing.has(instance)) {
+        if (!instance || deferredInitialOption.has(instance)) {
           return;
         }
 
