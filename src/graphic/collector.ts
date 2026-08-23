@@ -7,7 +7,7 @@ export type GraphicNode = {
   parentId: string | null;
   props: Record<string, unknown>;
   handlers: Record<string, unknown>;
-  onceHandlers: Map<string, { source: unknown; handler: EventHandler }>;
+  handlerCache: Map<string, { source: unknown; handler: EventHandler }>;
   order: number;
   sourceId: number;
 };
@@ -23,7 +23,7 @@ export type GraphicCollector = {
   dispose: () => void;
 };
 
-export type GraphicRegisterNode = Omit<GraphicNode, "onceHandlers" | "order"> & {
+export type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & {
   order?: number;
 };
 
@@ -64,7 +64,7 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
 
     nodes.set(node.id, {
       ...node,
-      onceHandlers: existing?.sourceId === node.sourceId ? existing.onceHandlers : new Map(),
+      handlerCache: existing?.sourceId === node.sourceId ? existing.handlerCache : new Map(),
       order: nextOrder,
     });
     seenInPass.set(node.id, node.sourceId);

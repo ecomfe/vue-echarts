@@ -5,8 +5,8 @@ import { createCollector, type GraphicNode } from "../src/graphic/collector";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
-function withOnceHandlers(nodes: Array<Omit<GraphicNode, "onceHandlers">>): GraphicNode[] {
-  return nodes.map((node) => ({ ...node, onceHandlers: new Map() }));
+function withHandlerCache(nodes: Array<Omit<GraphicNode, "handlerCache">>): GraphicNode[] {
+  return nodes.map((node) => ({ ...node, handlerCache: new Map() }));
 }
 
 function getRootGraphicElement(option: unknown): any {
@@ -19,7 +19,7 @@ function getRootGraphicElement(option: unknown): any {
 
 describe("graphic", () => {
   it("builds graphic option with ordered children and replace root", () => {
-    const nodes = withOnceHandlers([
+    const nodes = withHandlerCache([
       {
         id: "rect",
         type: "rect",
@@ -91,7 +91,7 @@ describe("graphic", () => {
     const onClickA = vi.fn();
     const onClickB = vi.fn();
     const handlers = [onClickA];
-    const nodes = withOnceHandlers([
+    const nodes = withHandlerCache([
       {
         id: "hit",
         type: "circle",
@@ -127,10 +127,13 @@ describe("graphic", () => {
     expect(onClickA).toHaveBeenCalledWith("first");
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledWith("second");
+
+    const rebuilt = getRootGraphicElement(buildOption(nodes, "root")).children?.[0];
+    expect(rebuilt?.onclick).toBe(click);
   });
 
   it("builds image/group options and covers info fallback branches", () => {
-    const nodes = withOnceHandlers([
+    const nodes = withHandlerCache([
       {
         id: "group",
         type: "group",

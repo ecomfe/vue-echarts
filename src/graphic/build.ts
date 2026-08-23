@@ -91,12 +91,12 @@ function toEventHandler(value: unknown, once: boolean): EventHandler | undefined
 }
 
 function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefined {
-  const { handlers, onceHandlers } = node;
+  const { handlers, handlerCache } = node;
   const out: Record<string, EventHandler> = {};
 
-  for (const key of onceHandlers.keys()) {
+  for (const key of handlerCache.keys()) {
     if (!(key in handlers)) {
-      onceHandlers.delete(key);
+      handlerCache.delete(key);
     }
   }
 
@@ -106,19 +106,14 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
       continue;
     }
 
-    const cached = descriptor.once ? onceHandlers.get(key) : undefined;
+    const cached = handlerCache.get(key);
     const handler =
       cached && cached.source === value ? cached.handler : toEventHandler(value, descriptor.once);
-    if (descriptor.once) {
-      if (handler) {
-        onceHandlers.set(key, { source: value, handler });
-      } else {
-        onceHandlers.delete(key);
-      }
-    }
     if (!handler) {
+      handlerCache.delete(key);
       continue;
     }
+    handlerCache.set(key, { source: value, handler });
 
     const eventKey = `on${descriptor.event}`;
     const existing = out[eventKey];
