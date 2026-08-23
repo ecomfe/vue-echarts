@@ -48,9 +48,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
         if (identity.missingIdentity) {
           warnScoped(
             `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
-            {
-              onceKey: `missing-id:${instance.uid}`,
-            },
+            `missing-id:${instance.uid}`,
           );
         }
         if (currentId !== null && currentId !== identity.id) {

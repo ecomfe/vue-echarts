@@ -255,9 +255,7 @@ describe("graphic components", () => {
     expect(payload.id).toMatch(/^__ve_graphic_/);
     expect(collector.warn).toHaveBeenCalledWith(
       expect.stringContaining("missing `id` and `key`"),
-      expect.objectContaining({
-        onceKey: expect.stringMatching(/^missing-id:/),
-      }),
+      expect.stringMatching(/^missing-id:/),
     );
   });
 

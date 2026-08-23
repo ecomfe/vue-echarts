@@ -1,5 +1,5 @@
 import { warn as coreWarn } from "../utils";
-import type { EventHandler, Warn, WarnOptions } from "../utils";
+import type { EventHandler } from "../utils";
 
 export type GraphicNode = {
   id: string;
@@ -16,7 +16,7 @@ export type GraphicCollector = {
   beginPass: () => void;
   register: (node: GraphicRegisterNode) => void;
   unregister: (id: string, sourceId?: number) => void;
-  warn: Warn;
+  warn: (message: string, onceKey?: string) => void;
   getNodes: () => Iterable<GraphicNode>;
   requestFlush: () => void;
   cancelPendingFlush: () => void;
@@ -42,8 +42,14 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
     seenInPass.clear();
   }
 
-  function warn(message: string, options?: WarnOptions): void {
-    coreWarn(message, options ? { ...options, onceStore: warnedKeys } : undefined);
+  function warn(message: string, onceKey?: string): void {
+    if (onceKey !== undefined) {
+      if (warnedKeys.has(onceKey)) {
+        return;
+      }
+      warnedKeys.add(onceKey);
+    }
+    coreWarn(message);
   }
 
   function register(node: GraphicRegisterNode): void {
@@ -53,9 +59,10 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
 
     const seenSource = seenInPass.get(node.id);
     if (seenSource != null && seenSource !== node.sourceId) {
-      warn(`Duplicate graphic id "${node.id}" detected. Updates may be unstable.`, {
-        onceKey: `duplicate-id:${node.id}`,
-      });
+      warn(
+        `Duplicate graphic id "${node.id}" detected. Updates may be unstable.`,
+        `duplicate-id:${node.id}`,
+      );
     }
 
     const nextOrder = node.order ?? order;

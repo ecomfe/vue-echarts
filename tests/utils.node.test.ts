@@ -1,28 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
-  __resetWarnState,
   createEventInvoker,
   isOn,
   isPlainObject,
   isValidArrayIndex,
   parseOnEvent,
-  warn,
 } from "../src/utils";
 
 describe("utils", () => {
-  let warnSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    __resetWarnState();
-    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    warnSpy.mockRestore();
-    __resetWarnState();
-  });
-
   describe("createEventInvoker", () => {
     it("uses a stable handler snapshot for each dispatch", () => {
       const lateHandler = vi.fn();
@@ -105,26 +91,6 @@ describe("utils", () => {
       expect(isPlainObject(() => ({ foo: "bar" }))).toBe(false);
       expect(isPlainObject(null)).toBe(false);
       expect(isPlainObject("foo")).toBe(false);
-    });
-  });
-
-  describe("warn", () => {
-    it("dedupes repeated onceKey warnings", () => {
-      warn("hello", { onceKey: "same-key" });
-      warn("hello", { onceKey: "same-key" });
-
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(String(warnSpy.mock.calls[0][0])).toContain("hello");
-    });
-
-    it("supports custom onceStore", () => {
-      const onceStore = new Set<string>();
-
-      warn("custom", { onceKey: "k", onceStore });
-      warn("custom", { onceKey: "k", onceStore });
-      warn("custom", { onceKey: "k" });
-
-      expect(warnSpy).toHaveBeenCalledTimes(2);
     });
   });
 });

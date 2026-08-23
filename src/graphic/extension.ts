@@ -29,9 +29,10 @@ export function registerExtension(): void {
       const updated = requestUpdate(UPDATE_OPTIONS);
 
       if (!updated && manualUpdate.value) {
-        collector!.warn("`#graphic` slot updates are ignored when `manual-update` is `true`.", {
-          onceKey: "manual-update-graphic",
-        });
+        collector!.warn(
+          "`#graphic` slot updates are ignored when `manual-update` is `true`.",
+          "manual-update-graphic",
+        );
       }
     }
 
