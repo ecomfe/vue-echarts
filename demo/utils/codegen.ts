@@ -285,7 +285,7 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
   const componentsGLImports: string[] = [];
   const featuresImports: string[] = [];
   const renderersImports: string[] = [];
-  const extensionImports: string[] = [];
+  const extensionPaths: string[] = [];
 
   deps.forEach((dep) => {
     if (dep.endsWith("Renderer")) {
@@ -311,7 +311,7 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
     } else if (FEATURES.includes(dep)) {
       featuresImports.push(dep);
     } else if (EXTENSIONS_MAP[dep]) {
-      extensionImports.push(dep);
+      extensionPaths.push(`echarts/extension/${EXTENSIONS_MAP[dep]}`);
     }
   });
 
@@ -358,8 +358,8 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
 
   const semiStr = options.semi ? ";" : "";
 
-  getExtensionDeps(extensionImports, options.includeType).forEach((ext) => {
-    importStatements.push(`import ${options.quote}${ext}${options.quote}${semiStr}`);
+  extensionPaths.forEach((path) => {
+    importStatements.push(`import ${options.quote}${path}${options.quote}${semiStr}`);
   });
 
   if (options.includeType) {
@@ -386,11 +386,6 @@ ${useItems(
 )}
 ${options.includeType ? `\n${ECOptionTypeCode}` : ""}
 `;
-}
-function getExtensionDeps(deps: string[], includeTypes?: boolean): string[] {
-  return deps
-    .filter((dep) => EXTENSIONS_MAP[dep])
-    .map((dep) => `echarts/extension${includeTypes ? "-src" : ""}/${EXTENSIONS_MAP[dep]}`);
 }
 
 /** import */

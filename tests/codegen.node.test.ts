@@ -38,6 +38,16 @@ describe("code generator", () => {
     expect(getImportsFromOption({ dataset: { source: [] } })).not.toContain("TransformComponent");
   });
 
+  it("uses the published extension path in TypeScript output", () => {
+    const code = getImportsFromOption(
+      { series: { type: "scatter", coordinateSystem: "bmap" } },
+      { includeType: true },
+    );
+
+    expect(code).toContain("import 'echarts/extension/bmap/bmap'");
+    expect(code).not.toContain("extension-src");
+  });
+
   it("registers dependencies from direct and nested options", () => {
     const code = getImportsFromOption({
       title: {},
