@@ -102,6 +102,10 @@ const option = ref({
 import "echarts";
 ```
 
+#### 样式
+
+Vue ECharts 会在首次渲染时将基础样式注入图表所在的 document 或 shadow root，通常无需导入 CSS。如果样式管线需要显式加载，可引入 `vue-echarts/style.css`；必须引入的情形请参见 [CSP](#csp-style-src-或-style-src-elem)。
+
 ### CDN
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：

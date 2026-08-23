@@ -102,6 +102,10 @@ But if you really want to import the whole ECharts bundle without having to impo
 import "echarts";
 ```
 
+#### Styles
+
+Vue ECharts injects its base styles into the chart's document or shadow root on first render, so no CSS import is normally required. If your stylesheet pipeline needs to load them explicitly, import `vue-echarts/style.css`; see [CSP](#csp-style-src-or-style-src-elem) for when this is required.
+
 ### CDN
 
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
