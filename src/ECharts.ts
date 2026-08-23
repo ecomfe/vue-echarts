@@ -149,7 +149,7 @@ export default /* @__PURE__ */ defineComponent({
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
       const replaceGraphic = graphicSlotApplied || hasGraphicSlot;
       graphicSlotApplied = hasGraphicSlot;
-      if (!replaceGraphic) {
+      if (!replaceGraphic || updateOptions?.notMerge) {
         return updateOptions;
       }
 

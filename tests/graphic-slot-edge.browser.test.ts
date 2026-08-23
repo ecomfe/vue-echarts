@@ -565,7 +565,7 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
-  it("coalesces option and graphic changes with merged replaceMerge", async () => {
+  it("coalesces option and slot changes with minimal update options", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
@@ -579,6 +579,8 @@ describe("graphic slot edge and integration behavior", () => {
             ECharts,
             { option: option.value, updateOptions: { replaceMerge: "series" } },
             {
+              tooltip: () => h("span", "tooltip"),
+              ...(showMarker.value ? { "tooltip-extra": () => h("span", "extra") } : {}),
               graphic: () =>
                 showMarker.value
                   ? h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 })
@@ -616,6 +618,10 @@ describe("graphic slot edge and integration behavior", () => {
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     expect(getLastGraphicOption(chartStub).graphic.elements[0].children).toEqual([]);
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      notMerge: true,
+      replaceMerge: "series",
+    });
   });
 
   it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {
