@@ -354,7 +354,8 @@ export default /* @__PURE__ */ defineComponent({
           return;
         }
 
-        if (!option) {
+        const nextOption = option ?? getAutoOption();
+        if (!nextOption) {
           return;
         }
 
@@ -367,7 +368,7 @@ export default /* @__PURE__ */ defineComponent({
           optionUpdatePending = true;
           return;
         }
-        applyOption(instance, option);
+        applyOption(instance, nextOption);
       },
       // Graphic nodes register during render, so update after the collected tree is current.
       { deep: true, flush: updateFlush },

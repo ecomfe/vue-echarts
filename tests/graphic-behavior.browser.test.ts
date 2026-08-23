@@ -4,7 +4,7 @@ import type { VNodeRef } from "vue";
 import { use } from "echarts/core";
 import { GraphicComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import type { EChartsType } from "../src/types";
+import type { EChartsType, Option } from "../src/types";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
 import { GGroup, GRect } from "../src/graphic/components";
@@ -151,6 +151,43 @@ describe("graphic update behavior (real echarts)", () => {
     ids = collectGraphicIds(chart);
     expect(ids.has("a")).toBe(false);
     expect(ids.has("b")).toBe(true);
+  });
+
+  it("clears a removed option while keeping the graphic slot", async () => {
+    registerExtension();
+
+    const option = ref<Option | undefined>({ backgroundColor: "#ef4444" });
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              style: "width: 200px; height: 120px;",
+              ref: createExposeSetter(exposed),
+            },
+            {
+              graphic: () => h(GRect, { id: "graphic-only", width: 20, height: 10 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chart = getChart(exposed.value);
+    expect(chart.getOption().backgroundColor).toBe("#ef4444");
+
+    option.value = undefined;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chart.getOption().backgroundColor).not.toBe("#ef4444");
+    expect(collectGraphicIds(chart).has("graphic-only")).toBe(true);
   });
 
   it("reparents slotted graphic nodes safely", async () => {
