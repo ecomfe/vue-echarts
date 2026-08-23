@@ -170,7 +170,7 @@ describe("graphic components", () => {
     }
   });
 
-  it("accepts native graphic paints and disabled line dashes", async () => {
+  it("accepts native graphic paint controls", async () => {
     const collector = createCollectorMock();
     const fill: LinearGradientObject = {
       type: "linear",
@@ -187,6 +187,9 @@ describe("graphic components", () => {
     const paint = {
       fill,
       stroke,
+      decal: stroke,
+      strokePercent: 0,
+      strokeFirst: false,
       lineDash: false,
       strokeNoScale: false,
       fillOpacity: 0.5,
@@ -242,6 +245,7 @@ describe("graphic components", () => {
       clipPath: undefined,
       lineDash: undefined,
       strokeNoScale: undefined,
+      strokeFirst: undefined,
     });
     expect(propsById.flags).toMatchObject({
       silent: false,

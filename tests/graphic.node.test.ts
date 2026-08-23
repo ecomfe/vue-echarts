@@ -59,7 +59,10 @@ describe("graphic", () => {
     };
     const paint = {
       fill: "#f00",
+      decal: { image: "pattern.png", repeat: "repeat" },
+      strokePercent: 0,
       strokeNoScale: false,
+      strokeFirst: false,
       fillOpacity: 0.5,
       strokeOpacity: 0.75,
     };

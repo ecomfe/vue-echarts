@@ -1,5 +1,10 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
-import type { Color, CustomSeriesRenderItemReturn, TooltipComponentOption } from "echarts";
+import type {
+  Color,
+  CustomSeriesRenderItemReturn,
+  PatternObject,
+  TooltipComponentOption,
+} from "echarts";
 
 export type GraphicDuring = NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>;
 
@@ -50,6 +55,8 @@ export const COMMON_PROP_KEYS = [
 export const BASE_STYLE_KEYS = [
   "fill",
   "stroke",
+  "decal",
+  "strokePercent",
   "strokeNoScale",
   "fillOpacity",
   "strokeOpacity",
@@ -59,6 +66,7 @@ export const BASE_STYLE_KEYS = [
   "lineCap",
   "lineJoin",
   "miterLimit",
+  "strokeFirst",
   "shadowBlur",
   "shadowOffsetX",
   "shadowOffsetY",
@@ -173,6 +181,8 @@ const graphicCommonOnlyProps = {
 const baseStyleProps = {
   fill: [String, Object] as PropType<Color>,
   stroke: [String, Object] as PropType<Color>,
+  decal: Object as PropType<PatternObject>,
+  strokePercent: Number,
   strokeNoScale: withUndefinedDefault(Boolean),
   fillOpacity: Number,
   strokeOpacity: Number,
@@ -182,6 +192,7 @@ const baseStyleProps = {
   lineCap: String,
   lineJoin: String,
   miterLimit: Number,
+  strokeFirst: withUndefinedDefault(Boolean),
   shadowBlur: Number,
   shadowOffsetX: Number,
   shadowOffsetY: Number,

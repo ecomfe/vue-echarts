@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import type { Color, CustomSeriesRenderItemReturn, TooltipComponentOption } from "echarts";
+import type {
+  Color,
+  CustomSeriesRenderItemReturn,
+  PatternObject,
+  TooltipComponentOption,
+} from "echarts";
 
 import { GEllipse, GImage, GRect, GText } from "../../src/graphic/components";
 
@@ -36,6 +41,9 @@ type _textContentType = Assert<IsAssignable<RectProps["textContent"], object | u
 type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | undefined>>;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
+type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"]>>;
+type _strokePercentType = Assert<IsAssignable<RectProps["strokePercent"], number | undefined>>;
+type _strokeFirstAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeFirst"]>>;
 type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]>>;
 type _strokeNoScaleAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeNoScale"]>>;
 type _fillOpacityType = Assert<IsAssignable<RectProps["fillOpacity"], number | undefined>>;
