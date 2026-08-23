@@ -107,6 +107,7 @@ export default /* @__PURE__ */ defineComponent({
     let lastSignature: Signature | undefined;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
+    let mounted = false;
     let terminallyDisposed = false;
     const initializing = new WeakSet<EChartsType>();
     const updateFlush = patchGraphicOption ? "post" : "pre";
@@ -192,9 +193,6 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     function init(): void {
-      if (chart.value) {
-        return;
-      }
       isReady.value = false;
 
       ensureStyles(root.value?.getRootNode());
@@ -296,7 +294,7 @@ export default /* @__PURE__ */ defineComponent({
     watch(
       [manualUpdate, realInitOptions],
       () => {
-        if (terminallyDisposed) {
+        if (!mounted || terminallyDisposed) {
           return;
         }
         cleanup();
@@ -346,7 +344,10 @@ export default /* @__PURE__ */ defineComponent({
 
     useAutoresize(chart, autoresize, root);
 
-    onMounted(init);
+    onMounted(() => {
+      mounted = true;
+      init();
+    });
 
     onBeforeUnmount(() => {
       terminallyDisposed = true;

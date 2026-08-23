@@ -638,17 +638,20 @@ describe("ECharts component", () => {
     });
   });
 
-  it("initializes once with the latest injected options when they change before mounted", async () => {
+  it("initializes once with the latest injected defaults when they change before mounted", async () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const theme = ref<Theme>("dark");
     const Mutator = defineComponent({
       setup() {
         initOptions.value = { renderer: "svg" };
+        theme.value = { palette: ["#22d3ee"] };
         return () => null;
       },
     });
     const Root = defineComponent({
       setup() {
         provide(INIT_OPTIONS_KEY, initOptions);
+        provide(THEME_KEY, theme);
         return () => [h(ECharts, { option: { series: [] } }), h(Mutator)];
       },
     });
@@ -657,7 +660,10 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(init).toHaveBeenCalledTimes(1);
+    expect(init.mock.calls[0][1]).toEqual({ palette: ["#22d3ee"] });
     expect(init.mock.calls[0][2]).toEqual({ renderer: "svg" });
+    expect(chartStub.setTheme).not.toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
   });
 
   it("passes updateOptions when provided", async () => {
