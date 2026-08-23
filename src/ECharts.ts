@@ -50,6 +50,7 @@ import type { EChartsElement } from "./wc";
 import { ensureStyles } from "./style";
 
 const SKIP_AUTO_UPDATE = Symbol();
+type ApplyMode = "manual" | "graphic";
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -103,7 +104,8 @@ export default /* @__PURE__ */ defineComponent({
       useGraphic({
         slots,
         manualUpdate,
-        requestUpdate,
+        // Graphic is always replaced, so slot-only changes do not alter the source signature.
+        requestUpdate: (updateOptions) => requestUpdate(updateOptions, "graphic"),
       }) ?? {};
 
     let lastSignature: Signature | undefined;
@@ -135,14 +137,16 @@ export default /* @__PURE__ */ defineComponent({
       instance: EChartsType,
       option: Option,
       override?: UpdateOptions,
-      manual = false,
+      mode?: ApplyMode,
     ): void {
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
-      if (manual) {
+      if (mode) {
         instance.setOption(patched, withGraphicReplaceMerge(override));
-        lastSignature = undefined;
+        if (mode === "manual") {
+          lastSignature = undefined;
+        }
         return;
       }
 
@@ -164,14 +168,14 @@ export default /* @__PURE__ */ defineComponent({
       lastSignature = planned.signature;
     }
 
-    function requestUpdate(updateOptions?: UpdateOptions): boolean {
+    function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
       const instance = chart.value;
       const option = props.option;
       if (!instance || !option || manualUpdate.value) {
         return false;
       }
 
-      applyOption(instance, option, updateOptions);
+      applyOption(instance, option, updateOptions, mode);
       return true;
     }
 
@@ -215,7 +219,7 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         if (manualUpdate.value) {
-          applyOption(instance, option, undefined, true);
+          applyOption(instance, option, undefined, "manual");
           return;
         }
 
@@ -259,7 +263,7 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
-      applyOption(instance, option, updateOptions, true);
+      applyOption(instance, option, updateOptions, "manual");
       deferredCharts?.delete(instance);
     };
 

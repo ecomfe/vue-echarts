@@ -494,6 +494,54 @@ describe("graphic slot edge and integration behavior", () => {
     expect(shape).toMatchObject({ x: 20, y: 28 });
   });
 
+  it("does not re-analyze unchanged option for graphic-only updates", async () => {
+    registerExtension();
+
+    const readData = vi.fn(() => [1, 2, 3]);
+    const series = { type: "line", label: { show: true } } as Record<string, unknown>;
+    Object.defineProperty(series, "data", {
+      enumerable: true,
+      get: readData,
+    });
+    const option = ref({ series: [series] });
+    const x = ref(8);
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: option.value },
+            {
+              graphic: () => h(GRect, { id: "moving", x: x.value, y: 10, width: 18, height: 10 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(readData).toHaveBeenCalled();
+    readData.mockClear();
+    x.value = 20;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(readData).not.toHaveBeenCalled();
+    const chartStub = suite.getChartStub();
+    const shape = getLastGraphicOption(chartStub).graphic.elements[0].children[0].shape;
+    expect(shape).toMatchObject({ x: 20 });
+
+    chartStub.setOption.mockClear();
+    option.value = { series: [{ type: "line", data: [3, 2, 1] }] };
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toMatchObject({ notMerge: true });
+  });
+
   it("skips reapplying 100+ unchanged nodes when parent rerenders", async () => {
     registerExtension();
 
