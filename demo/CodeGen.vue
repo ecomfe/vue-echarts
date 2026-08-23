@@ -7,6 +7,7 @@ import { getImportsFromOption, type Quote, type PublicCodegenOptions } from "./u
 import {
   createOptionEditor,
   createCodeViewer,
+  monaco,
   type OptionEditor,
   type CodeViewer,
 } from "./services/monaco";
@@ -258,10 +259,10 @@ async function copy() {
 
 onMounted(async () => {
   await nextTick();
+  monaco.editor.setTheme(monacoTheme.value);
   if (editorEl.value) {
     optionEditor = createOptionEditor(editorEl.value, {
       initialCode: sourceCode.value,
-      theme: monacoTheme.value,
       onChange(value) {
         if (suppressNextEditorEvent) {
           return;
@@ -275,17 +276,13 @@ onMounted(async () => {
     importViewer = createCodeViewer(outputEl.value, {
       initialCode: importCode.value,
       language: codegenOptions.value.includeType ? "typescript" : "javascript",
-      theme: monacoTheme.value,
     });
   }
   initializing.value = false;
   syncOpenState(props.open);
 });
 
-watch(monacoTheme, (theme) => {
-  optionEditor?.setTheme(theme);
-  importViewer?.setTheme(theme);
-});
+watch(monacoTheme, (theme) => monaco.editor.setTheme(theme));
 
 watch(
   () => codegenOptions.value.includeType,

@@ -7,8 +7,10 @@ import type { OptionAnalysisState } from "../demo/composables/useOptionAnalysis"
 
 const mocks = vi.hoisted(() => ({
   analysisStop: vi.fn(),
+  dark: null as { value: boolean } | null,
   editorChange: null as ((value: string) => void) | null,
   editorFocus: vi.fn(),
+  monacoSetTheme: vi.fn(),
   track: vi.fn(),
   viewerSetValue: vi.fn(),
   writeText: vi.fn<() => Promise<void>>(),
@@ -18,7 +20,9 @@ vi.mock("@vercel/analytics", () => ({ track: mocks.track }));
 
 vi.mock("../demo/composables/useDemoDark", async () => {
   const { ref } = await import("vue");
-  return { useDemoDark: () => ref(false) };
+  const dark = ref(false);
+  mocks.dark = dark;
+  return { useDemoDark: () => dark };
 });
 
 vi.mock("../demo/composables/useOptionAnalysis", async () => {
@@ -51,6 +55,7 @@ vi.mock("../demo/composables/useOptionAnalysis", async () => {
 });
 
 vi.mock("../demo/services/monaco", () => ({
+  monaco: { editor: { setTheme: mocks.monacoSetTheme } },
   createOptionEditor(
     container: HTMLElement,
     { initialCode, onChange }: { initialCode: string; onChange: (value: string) => void },
@@ -71,7 +76,6 @@ vi.mock("../demo/services/monaco", () => ({
         value = next;
       },
       setMarkers: vi.fn(),
-      setTheme: vi.fn(),
       dispose: vi.fn(),
     };
   },
@@ -79,7 +83,6 @@ vi.mock("../demo/services/monaco", () => ({
     return {
       editor: { layout: vi.fn() },
       setValue: mocks.viewerSetValue,
-      setTheme: vi.fn(),
       setLanguage: vi.fn(),
       dispose: vi.fn(),
     };
@@ -88,8 +91,10 @@ vi.mock("../demo/services/monaco", () => ({
 
 beforeEach(() => {
   mocks.analysisStop.mockReset();
+  mocks.dark!.value = false;
   mocks.editorChange = null;
   mocks.editorFocus.mockReset();
+  mocks.monacoSetTheme.mockReset();
   mocks.track.mockReset();
   mocks.viewerSetValue.mockReset();
   mocks.writeText.mockReset().mockResolvedValue();
@@ -182,6 +187,22 @@ describe("code generator dialog", () => {
         expect(document.activeElement).toBe(trigger);
       });
     }
+  });
+
+  it("applies each Monaco theme change once", async () => {
+    const { trigger } = renderCodegen();
+    await openCodegen(trigger);
+
+    expect(mocks.monacoSetTheme).toHaveBeenCalledOnce();
+    expect(mocks.monacoSetTheme).toHaveBeenCalledWith("vs");
+    mocks.monacoSetTheme.mockClear();
+
+    mocks.dark!.value = true;
+
+    await vi.waitFor(() => {
+      expect(mocks.monacoSetTheme).toHaveBeenCalledOnce();
+      expect(mocks.monacoSetTheme).toHaveBeenCalledWith("vs-dark");
+    });
   });
 
   it("reports clipboard success and failure accurately", async () => {

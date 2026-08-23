@@ -63,14 +63,12 @@ export interface OptionEditor {
   getValue(): string;
   setValue(value: string): void;
   setMarkers(markers: readonly MonacoMarkerLike[]): void;
-  setTheme(theme: string): void;
   dispose(): void;
 }
 
 export interface CodeViewer {
   editor: monaco.editor.IStandaloneCodeEditor;
   setValue(value: string): void;
-  setTheme(theme: string): void;
   setLanguage(language: string): void;
   dispose(): void;
 }
@@ -79,23 +77,19 @@ export interface CreateOptionEditorOptions {
   initialCode: string;
   language?: string;
   onChange?: (code: string) => void;
-  theme?: string;
 }
 
 export interface CreateCodeViewerOptions {
   initialCode: string;
   language?: string;
-  theme?: string;
 }
 
 const MARKER_OWNER = "ve-codegen-option";
 
 export function createOptionEditor(
   container: HTMLElement,
-  { initialCode, language = "typescript", onChange, theme = "vs" }: CreateOptionEditorOptions,
+  { initialCode, language = "typescript", onChange }: CreateOptionEditorOptions,
 ): OptionEditor {
-  monaco.editor.setTheme(theme);
-
   const editor = monaco.editor.create(container, {
     value: initialCode,
     language,
@@ -159,26 +153,19 @@ export function createOptionEditor(
     editor.dispose();
   }
 
-  function setTheme(nextTheme: string) {
-    monaco.editor.setTheme(nextTheme);
-  }
-
   return {
     editor,
     getValue,
     setValue,
     setMarkers,
-    setTheme,
     dispose,
   };
 }
 
 export function createCodeViewer(
   container: HTMLElement,
-  { initialCode, language = "javascript", theme = "vs" }: CreateCodeViewerOptions,
+  { initialCode, language = "javascript" }: CreateCodeViewerOptions,
 ): CodeViewer {
-  monaco.editor.setTheme(theme);
-
   const editor = monaco.editor.create(container, {
     value: initialCode,
     language,
@@ -204,10 +191,6 @@ export function createCodeViewer(
     }
   }
 
-  function setTheme(nextTheme: string) {
-    monaco.editor.setTheme(nextTheme);
-  }
-
   function setLanguage(nextLanguage: string) {
     const model = editor.getModel();
     if (!model) {
@@ -223,7 +206,6 @@ export function createCodeViewer(
   return {
     editor,
     setValue,
-    setTheme,
     setLanguage,
     dispose,
   };
