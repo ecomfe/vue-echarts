@@ -188,20 +188,28 @@ describe("graphic slot edge and integration behavior", () => {
     render(Root);
     await nextTick();
     await flushAnimationFrame();
-    expect(getLastGraphicIds(suite.getChartStub())).toEqual(["slot-rect"]);
+    const chartStub = suite.getChartStub();
+    expect(getLastGraphicIds(chartStub)).toEqual(["slot-rect"]);
 
     showGraphic.value = false;
     await nextTick();
     await flushAnimationFrame();
 
-    const [optionArg, updateArg] = getLastSetOptionCall(suite.getChartStub());
+    const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic).toBeUndefined();
     expect(updateArg?.replaceMerge).toContain("graphic");
+
+    chartStub.setOption.mockClear();
+    option.value = { series: [{ type: "line", data: [3, 2, 1] }] };
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
 
     showGraphic.value = true;
     await nextTick();
     await flushAnimationFrame();
-    expect(getLastGraphicIds(suite.getChartStub())).toEqual(["slot-rect"]);
+    expect(getLastGraphicIds(chartStub)).toEqual(["slot-rect"]);
   });
 
   it("warns once when duplicate graphic ids are rendered", async () => {

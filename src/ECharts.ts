@@ -151,7 +151,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       if (override) {
-        const planned = planUpdate(lastSignature, patched);
+        const planned = planUpdate(lastSignature, slotted);
         instance.setOption(patched, withGraphicReplaceMerge(override));
         lastSignature = planned.signature;
         return;
@@ -163,7 +163,7 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
-      const planned = planUpdate(lastSignature, patched);
+      const planned = planUpdate(lastSignature, slotted);
       instance.setOption(patched, withGraphicReplaceMerge(planned.plan));
       lastSignature = planned.signature;
     }
