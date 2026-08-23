@@ -324,7 +324,7 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
     ...featuresImports,
   ];
 
-  const ECOptionTypeCode = typeItems(
+  const optionTypeCode = typeItems(
     allImports.filter((a) => a.endsWith("Option")),
     options,
   );
@@ -362,7 +362,7 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
     importStatements.push(`import ${options.quote}${path}${options.quote}${semiStr}`);
   });
 
-  if (options.includeType) {
+  if (optionTypeCode) {
     importStatements.push(
       `import type { ComposeOption } from ${options.quote}echarts/core${options.quote}${semiStr}`,
     );
@@ -384,7 +384,7 @@ ${useItems(
   allImports.filter((a) => !a.endsWith("Option")),
   options,
 )}
-${options.includeType ? `\n${ECOptionTypeCode}` : ""}
+${optionTypeCode ? `\n${optionTypeCode}` : ""}
 `;
 }
 

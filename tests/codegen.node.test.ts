@@ -13,6 +13,13 @@ describe("code generator", () => {
     expect(code).toContain("use([AriaComponent, CanvasRenderer])");
   });
 
+  it("omits type scaffolding when no option types are detected", () => {
+    const code = getImportsFromOption({}, { includeType: true });
+
+    expect(code).not.toContain("ComposeOption");
+    expect(code).not.toContain("type EChartsOption");
+  });
+
   it("registers explicitly configured grid and axis pointer components", () => {
     const code = getImportsFromOption({ grid: {}, axisPointer: {} });
 
