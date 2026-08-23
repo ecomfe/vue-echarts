@@ -374,6 +374,9 @@ export default /* @__PURE__ */ defineComponent({
     });
 
     onBeforeUnmount(() => {
+      if (terminallyDisposed) {
+        return;
+      }
       terminallyDisposed = true;
       const element = root.value;
       if (register(element) && element?.isConnected && element.__dispose === null) {

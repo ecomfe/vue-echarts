@@ -1395,7 +1395,7 @@ describe("ECharts component", () => {
     const manualUpdate = ref(false);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    const screen = renderChart(
       () => ({
         option: option.value,
         initOptions: initOptions.value,
@@ -1406,6 +1406,10 @@ describe("ECharts component", () => {
     await nextTick();
 
     const instance = getExposed(exposed);
+    const element = getExposedField<EChartsElement>(instance, "root");
+    if (!element) {
+      throw new Error("Expected root element to be available.");
+    }
     chartStub.dispose.mockClear();
     chartStub.setOption.mockClear();
 
@@ -1424,6 +1428,9 @@ describe("ECharts component", () => {
 
     expect(init).not.toHaveBeenCalled();
     expect(chartStub.setOption).not.toHaveBeenCalled();
+
+    screen.unmount();
+    expect(element.__dispose).toBeNull();
   });
 
   it("stays disposed when the exposed ref disposes before mounted initialization", async () => {
