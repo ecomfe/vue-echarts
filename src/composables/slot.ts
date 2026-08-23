@@ -99,7 +99,7 @@ export function useSlotOption(
       bindings: new Map<SlotName, SlotBinding>(),
     });
 
-  const collectSlotNames = (warnInvalid: boolean): readonly SlotName[] => {
+  const collectSlotNames = (): readonly SlotName[] => {
     let result: SlotName[] | undefined;
     for (const key in slots) {
       if (key === "graphic") {
@@ -107,7 +107,7 @@ export function useSlotOption(
       }
       if (isValidSlotName(key)) {
         (result ??= []).push(key);
-      } else if (warnInvalid && !warnedInvalidSlots?.has(key)) {
+      } else if (!warnedInvalidSlots?.has(key)) {
         warn(`Invalid slot name: ${key}`);
         (warnedInvalidSlots ??= new Set()).add(key);
       }
@@ -115,12 +115,12 @@ export function useSlotOption(
     return result ?? EMPTY_SLOT_NAMES;
   };
 
-  let slotNames = collectSlotNames(false);
+  let slotNames = EMPTY_SLOT_NAMES;
   let nextSlotNames = slotNames;
   let resetPending = false;
 
   const render = () => {
-    nextSlotNames = collectSlotNames(false);
+    nextSlotNames = collectSlotNames();
     if (nextSlotNames.length === 0 || !ready.value || !isMounted.value) {
       return undefined;
     }
@@ -154,7 +154,7 @@ export function useSlotOption(
   };
 
   function patchOption(src: Option): Option {
-    const names = collectSlotNames(true);
+    const names = collectSlotNames();
     if (names.length === 0) {
       return src;
     }
@@ -217,7 +217,6 @@ export function useSlotOption(
   }
 
   onUpdated(() => {
-    collectSlotNames(true);
     let changed = nextSlotNames.length !== slotNames.length;
     for (let i = 0; !changed && i < slotNames.length; i++) {
       changed = nextSlotNames[i] !== slotNames[i];
@@ -255,8 +254,8 @@ export function useSlotOption(
   });
 
   onMounted(() => {
+    slotNames = nextSlotNames;
     isMounted.value = true;
-    collectSlotNames(true);
   });
 
   return {

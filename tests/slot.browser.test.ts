@@ -519,8 +519,8 @@ describe("useSlotOption", () => {
       await nextTick();
 
       expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("[vue-echarts] Invalid slot name: legend"),
+      expect(warnSpy.mock.calls.flat().join(" ")).toContain(
+        "[vue-echarts] Invalid slot name: legend",
       );
       expect(changeSpy).not.toHaveBeenCalled();
     });
