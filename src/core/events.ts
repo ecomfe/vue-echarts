@@ -66,15 +66,18 @@ export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
   attrs: AttrMap,
 ): void {
-  const bindings = new Map<string, ListenerBinding>();
+  let bindings: Map<string, ListenerBinding> | undefined;
   let activeInstance: EChartsType | undefined;
   let scan = 0;
 
   function clearBindings(): void {
+    if (!bindings) {
+      return;
+    }
     for (const binding of bindings.values()) {
       binding.emitter.off(binding.event, binding.handler);
     }
-    bindings.clear();
+    bindings = undefined;
   }
 
   watchSyncEffect(() => {
@@ -100,7 +103,7 @@ export function useReactiveChartListeners(
       const zr = parsed.event.startsWith("zr:");
       const event = zr ? parsed.event.slice(3) : parsed.event;
       const source = attrs[key];
-      const existing = bindings.get(key);
+      const existing = bindings?.get(key);
 
       if (existing && existing.source === source) {
         existing.seenAt = scan;
@@ -117,7 +120,7 @@ export function useReactiveChartListeners(
 
       if (existing) {
         existing.emitter.off(existing.event, existing.handler);
-        bindings.delete(key);
+        bindings?.delete(key);
       }
 
       if (!invoke) {
@@ -134,7 +137,7 @@ export function useReactiveChartListeners(
       );
 
       emitter.on(event, handler);
-      bindings.set(key, {
+      (bindings ??= new Map()).set(key, {
         emitter,
         event,
         source,
@@ -145,12 +148,18 @@ export function useReactiveChartListeners(
       });
     }
 
+    if (!bindings) {
+      return;
+    }
     for (const [key, binding] of bindings) {
       if (binding.seenAt === scan) {
         continue;
       }
       binding.emitter.off(binding.event, binding.handler);
       bindings.delete(key);
+    }
+    if (bindings.size === 0) {
+      bindings = undefined;
     }
   });
 

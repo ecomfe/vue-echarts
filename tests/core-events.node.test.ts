@@ -107,8 +107,6 @@ describe("core events", () => {
   it("binds, diffs, and cleans chart/zr listeners reactively", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({
-      onClick: vi.fn(),
-      "onZr:mousemove": vi.fn(),
       "onZr:mouseup": ["invalid"],
     });
 
@@ -121,6 +119,13 @@ describe("core events", () => {
     });
 
     chartRef.value = first.chart;
+    await nextTick();
+
+    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+    expect(first.zr.on).not.toHaveBeenCalled();
+
+    attrs.onClick = vi.fn();
+    attrs["onZr:mousemove"] = vi.fn();
     await nextTick();
 
     expect((first.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
