@@ -6,6 +6,7 @@ import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 
 const EMPTY_PROP_KEYS: readonly string[] = [];
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function mergeProps(
   target: Record<string, unknown>,
@@ -86,15 +87,19 @@ function toEventHandler(value: unknown, once: boolean): EventHandler | undefined
 
 function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefined {
   const { handlers, handlerCache } = node;
-  const out: Record<string, EventHandler> = {};
+  let out: Record<string, EventHandler> | undefined;
 
   for (const key of handlerCache.keys()) {
-    if (!(key in handlers)) {
+    if (!hasOwnProperty.call(handlers, key)) {
       handlerCache.delete(key);
     }
   }
 
-  for (const [key, value] of Object.entries(handlers)) {
+  for (const key in handlers) {
+    if (!hasOwnProperty.call(handlers, key)) {
+      continue;
+    }
+    const value = handlers[key];
     const descriptor = parseOnEvent(key);
     if (!descriptor) {
       continue;
@@ -110,19 +115,20 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
     handlerCache.set(key, { source: value, handler });
 
     const eventKey = `on${descriptor.event}`;
-    const existing = out[eventKey];
+    const result = (out ??= {});
+    const existing = result[eventKey];
     if (!existing) {
-      out[eventKey] = handler;
+      result[eventKey] = handler;
       continue;
     }
 
-    out[eventKey] = (...args: unknown[]): void => {
+    result[eventKey] = (...args: unknown[]): void => {
       existing(...args);
       handler(...args);
     };
   }
 
-  return Object.keys(out).length > 0 ? out : undefined;
+  return out;
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {

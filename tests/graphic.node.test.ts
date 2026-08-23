@@ -87,9 +87,10 @@ describe("graphic", () => {
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
-  it("keeps user info and uses the latest graphic handler array", () => {
+  it("keeps user info, ignores inherited handlers, and uses the latest handler array", () => {
     const onClickA = vi.fn();
     const onClickB = vi.fn();
+    const inheritedMouseover = vi.fn();
     const handlers = [onClickA];
     const nodes = withHandlerCache([
       {
@@ -102,11 +103,17 @@ describe("graphic", () => {
           r: 3,
           info: { name: "marker" },
         },
-        handlers: { onClick: handlers },
+        handlers: Object.assign(Object.create({ onMouseover: inheritedMouseover }), {
+          onClick: handlers,
+        }),
         order: 0,
         sourceId: 1,
       },
     ]);
+    nodes[0].handlerCache.set("onMouseover", {
+      source: inheritedMouseover,
+      handler: inheritedMouseover,
+    });
 
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
@@ -121,6 +128,8 @@ describe("graphic", () => {
     }
 
     expect(info).toMatchObject({ name: "marker" });
+    expect(child.onmouseover).toBeUndefined();
+    expect(nodes[0].handlerCache.has("onMouseover")).toBe(false);
     click("first");
     handlers[0] = onClickB;
     click("second");
