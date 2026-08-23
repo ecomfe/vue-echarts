@@ -4,7 +4,7 @@ import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GArc, GGroup, GRect } from "../src/graphic/components";
+import { GArc, GGroup, GImage, GRect } from "../src/graphic/components";
 
 type CollectorMock = {
   beginPass: ReturnType<typeof vi.fn>;
@@ -96,6 +96,39 @@ describe("graphic components", () => {
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });
+  });
+
+  it("accepts media elements from another document", async () => {
+    const collector = createCollectorMock();
+    const iframe = document.body.appendChild(document.createElement("iframe"));
+    const ownerDocument = iframe.contentDocument;
+    if (!ownerDocument) {
+      throw new Error("Expected iframe document to be available.");
+    }
+    const media = [
+      ownerDocument.createElement("img"),
+      ownerDocument.createElement("canvas"),
+      ownerDocument.createElement("video"),
+    ];
+    const Root = withGraphicProvider(collector, () =>
+      media.map((image, index) => h(GImage, { id: index, image })),
+    );
+
+    try {
+      withConsoleWarn((warnSpy) => {
+        render(Root);
+        expect(
+          warnSpy.mock.calls.some((call: unknown[]) =>
+            String(call[0]).includes('type check failed for prop "image"'),
+          ),
+        ).toBe(false);
+      });
+      await nextTick();
+
+      expect(collector.register.mock.calls.map(([node]) => node.props.image)).toEqual(media);
+    } finally {
+      iframe.remove();
+    }
   });
 
   it("preserves the default clockwise direction until explicitly overridden", async () => {

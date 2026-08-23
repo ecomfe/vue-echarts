@@ -87,9 +87,6 @@ export type GraphicImageStyleKey = (typeof IMAGE_STYLE_KEYS)[number];
 
 type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width">;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
-const ImageElement = typeof HTMLImageElement === "undefined" ? Object : HTMLImageElement;
-const CanvasElement = typeof HTMLCanvasElement === "undefined" ? Object : HTMLCanvasElement;
-const VideoElement = typeof HTMLVideoElement === "undefined" ? Object : HTMLVideoElement;
 
 const graphicCommonOnlyProps = {
   id: [String, Number] as PropType<string | number>,
@@ -164,7 +161,7 @@ const textStyleProps = {
 } as const satisfies Record<GraphicTextStyleOnlyKey, unknown>;
 
 const imageStyleProps = {
-  image: [String, ImageElement, CanvasElement, VideoElement] as PropType<
+  image: [String, Object] as PropType<
     string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement
   >,
 } as const satisfies Record<GraphicImageStyleOnlyKey, unknown>;
