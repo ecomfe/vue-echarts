@@ -88,6 +88,34 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
+  it("resizes before the initial graphic commit with autoresize", async () => {
+    registerExtension();
+
+    const option = { series: [{ type: "line", data: [1, 2, 3] }] };
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option, autoresize: true },
+            {
+              graphic: () => h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12 }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    const chartStub = suite.getChartStub();
+    expect(chartStub.resize).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.resize.mock.invocationCallOrder[0]).toBeLessThan(
+      chartStub.setOption.mock.invocationCallOrder[0],
+    );
+  });
+
   it("reapplies graphic option after theme changes", async () => {
     registerExtension();
 

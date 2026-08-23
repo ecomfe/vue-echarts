@@ -171,7 +171,7 @@ export default /* @__PURE__ */ defineComponent({
     function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
       const instance = chart.value;
       const option = props.option;
-      if (!instance || !option || manualUpdate.value) {
+      if (!instance || !option || manualUpdate.value || deferredCharts?.has(instance)) {
         return false;
       }
 
