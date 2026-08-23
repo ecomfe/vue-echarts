@@ -11,9 +11,11 @@ const SLOT_OPTION_PATHS = {
 } as const;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
-type SlotContainerMap = Partial<Record<SlotName, HTMLElement>>;
-type SlotInitMap = Partial<Record<SlotName, boolean>>;
-type SlotParamMap = Partial<Record<SlotName, unknown>>;
+type SlotMap<T> = Partial<Record<SlotName, T>>;
+type SlotBinding = {
+  path: string[];
+  formatter: (payload: unknown) => HTMLElement | undefined;
+};
 const SLOT_PREFIXES: SlotPrefix[] = ["tooltip", "dataView"];
 
 function isValidSlotName(key: string): key is SlotName {
@@ -66,10 +68,10 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
 
 export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOptions) => void) {
   const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
-  const containers = shallowReactive<SlotContainerMap>({});
-  const initialized = shallowReactive<SlotInitMap>({});
-  const params = shallowReactive<SlotParamMap>({});
-  const formatters = new Map<SlotName, (payload: unknown) => HTMLElement | undefined>();
+  const containers = shallowReactive<SlotMap<HTMLElement>>({});
+  const initialized = shallowReactive<SlotMap<boolean>>({});
+  const params = shallowReactive<SlotMap<unknown>>({});
+  const bindings = new Map<SlotName, SlotBinding>();
   const isMounted = shallowRef(false);
   const warnedInvalidSlots = new Set<string>();
 
@@ -128,11 +130,26 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
     const root: Option = { ...src };
 
     for (const key of names) {
-      const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
-      const rest = key.slice(prefix.length);
-      const parts = rest ? rest.slice(1).split("-") : [];
-      const tail = SLOT_OPTION_PATHS[prefix];
-      const path = [...parts, ...tail];
+      let binding = bindings.get(key);
+      if (!binding) {
+        const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
+        const rest = key.slice(prefix.length);
+        const parts = rest ? rest.slice(1).split("-") : [];
+        binding = {
+          path: [...parts, ...SLOT_OPTION_PATHS[prefix]],
+          formatter: (payload: unknown): HTMLElement | undefined => {
+            if (!slots[key]) {
+              return undefined;
+            }
+            initialized[key] = true;
+            params[key] = payload;
+            return containers[key];
+          },
+        };
+        bindings.set(key, binding);
+      }
+
+      const { path, formatter } = binding;
 
       let current: Container | undefined = root;
       for (let i = 0; i < path.length - 1; i++) {
@@ -146,18 +163,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
       }
 
       const leaf = path[path.length - 1];
-      let formatter = formatters.get(key);
-      if (!formatter) {
-        formatter = (payload: unknown): HTMLElement | undefined => {
-          if (!slots[key]) {
-            return undefined;
-          }
-          initialized[key] = true;
-          params[key] = payload;
-          return containers[key];
-        };
-        formatters.set(key, formatter);
-      }
       writeSegment(current, leaf, formatter);
     }
 
@@ -174,7 +179,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
         delete params[key];
         delete initialized[key];
         delete containers[key];
-        formatters.delete(key);
+        bindings.delete(key);
       }
     }
 
