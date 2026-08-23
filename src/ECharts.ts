@@ -120,13 +120,13 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       const replaceMerge = updateOptions?.replaceMerge;
-      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : (replaceMerge ?? []);
-      if (replacements.includes("graphic")) {
+      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
+      if (replacements?.includes("graphic")) {
         return updateOptions;
       }
       return {
         ...updateOptions,
-        replaceMerge: [...replacements, "graphic"],
+        replaceMerge: replacements ? [...replacements, "graphic"] : ["graphic"],
       };
     }
 
