@@ -256,6 +256,7 @@ export function useSlotOption(
 
   onMounted(() => {
     isMounted.value = true;
+    collectSlotNames(true);
   });
 
   return {

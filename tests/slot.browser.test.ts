@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 import { makeTooltipParams } from "./helpers/tooltip";
 
 import { useSlotOption } from "../src/composables/slot";
-import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
+import { withConsoleWarnAsync } from "./helpers/dom";
 import type { Option } from "../src/types";
 import type {
   ToolboxComponentOption,
@@ -473,27 +473,30 @@ describe("useSlotOption", () => {
 
   it("warns and skips invalid slot names", async () => {
     const changeSpy = vi.fn();
-    const { exposed } = renderSlotComponent(
-      () => ({
-        legend: () => [h("span", "legend")],
-        "tooltip-": () => [h("span", "empty-tooltip-path")],
-        "tooltip-__proto__": () => [h("span", "prototype-path")],
-        "dataView-panel--0": () => [h("span", "empty-data-view-path")],
-      }),
-      changeSpy,
-    );
+    await withConsoleWarnAsync(async (warnSpy) => {
+      const { exposed } = renderSlotComponent(
+        () => ({
+          legend: () => [h("span", "legend")],
+          "tooltip-": () => [h("span", "empty-tooltip-path")],
+          "tooltip-__proto__": () => [h("span", "prototype-path")],
+          "dataView-panel--0": () => [h("span", "empty-data-view-path")],
+        }),
+        changeSpy,
+      );
 
-    await nextTick();
-    changeSpy.mockClear();
-
-    withConsoleWarn((warnSpy) => {
-      const patched = getExposed(exposed).patchOption({});
+      await nextTick();
       const flattened = warnSpy.mock.calls.flat().join(" ");
 
       expect(flattened).toContain("[vue-echarts] Invalid slot name: legend");
       expect(flattened).toContain("[vue-echarts] Invalid slot name: tooltip-");
       expect(flattened).toContain("[vue-echarts] Invalid slot name: tooltip-__proto__");
       expect(flattened).toContain("[vue-echarts] Invalid slot name: dataView-panel--0");
+
+      warnSpy.mockClear();
+      changeSpy.mockClear();
+      const patched = getExposed(exposed).patchOption({});
+
+      expect(warnSpy).not.toHaveBeenCalled();
       expect(patched).toEqual({});
       expect(Object.getPrototypeOf(patched)).toBe(Object.prototype);
       expect(changeSpy).not.toHaveBeenCalled();
