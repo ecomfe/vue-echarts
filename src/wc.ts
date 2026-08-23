@@ -1,3 +1,4 @@
+import { ensureStyles } from "./style";
 import { isBrowser } from "./utils";
 
 let registered: boolean | null = null;
@@ -23,6 +24,10 @@ export function register(): boolean {
     try {
       class ECElement extends HTMLElement implements EChartsElement {
         __dispose: (() => void) | null = null;
+
+        connectedCallback(): void {
+          ensureStyles(this.getRootNode());
+        }
 
         disconnectedCallback(): void {
           queueMicrotask(() => {

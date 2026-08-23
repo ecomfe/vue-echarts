@@ -12,6 +12,13 @@ const useFallbackStyles = (root: Document | ShadowRoot = document) =>
     value: undefined,
   });
 
+function createShadowHost() {
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = host.attachShadow({ mode: "open" });
+  useFallbackStyles(root);
+  return { host, root };
+}
+
 function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
   const iframe = document.createElement("iframe");
   document.body.appendChild(iframe);
@@ -87,22 +94,47 @@ describe("style entry", () => {
   });
 
   it("injects styles into the component's shadow root", async () => {
-    const host = document.createElement("div");
-    const shadowRoot = host.attachShadow({ mode: "open" });
-    const container = document.createElement("div");
-    useFallbackStyles(shadowRoot);
-    shadowRoot.appendChild(container);
-    document.body.appendChild(host);
+    const { host, root } = createShadowHost();
+    const container = root.appendChild(document.createElement("div"));
 
     const { default: ECharts } = await import("../src/ECharts");
     const app = createApp(ECharts);
 
     try {
       app.mount(container);
-      expect(shadowRoot.querySelector("style")).not.toBeNull();
+      expect(root.querySelector("style")).not.toBeNull();
     } finally {
       app.unmount();
       host.remove();
+    }
+  });
+
+  it("injects styles after the component moves between shadow roots", async () => {
+    const first = createShadowHost();
+    const second = createShadowHost();
+    const container = first.root.appendChild(document.createElement("div"));
+
+    const { default: ECharts } = await import("../src/ECharts");
+    const app = createApp(ECharts);
+
+    try {
+      app.mount(container);
+      const element = first.root.querySelector("x-vue-echarts");
+      if (!element) {
+        throw new Error("Expected chart root to be available.");
+      }
+
+      expect(first.root.querySelector("style")).not.toBeNull();
+      expect(second.root.querySelector("style")).toBeNull();
+
+      second.root.appendChild(element);
+      await Promise.resolve();
+
+      expect(second.root.querySelector("style")).not.toBeNull();
+    } finally {
+      app.unmount();
+      first.host.remove();
+      second.host.remove();
     }
   });
 
