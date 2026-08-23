@@ -26,12 +26,10 @@ export const GraphicMount = defineComponent({
 
     return () => {
       beginPass();
-      const content = slots.default?.();
+      const content = slots.default!();
       order.update(content);
 
-      return detachedRoot
-        ? h(Teleport, { to: detachedRoot }, h("div", { style: { display: "contents" } }, content))
-        : null;
+      return detachedRoot ? h(Teleport, { to: detachedRoot }, content) : null;
     };
   },
 });
