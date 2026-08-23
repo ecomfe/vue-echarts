@@ -6,7 +6,7 @@ Core source lives in `src/`, implemented in TypeScript with the Vue 3 Compositio
 
 ## Build, Test, and Development Commands
 
-Use `pnpm install` to set up dependencies. `pnpm dev` serves the demo playground at `http://localhost:5173` for interactive testing; use `pnpm dev:build` or `pnpm dev:preview` for the Vite demo bundle, and `pnpm dev:typecheck` to typecheck the demo. Run `pnpm build` (tsdown) to produce distributable output under `dist/`. `pnpm typecheck` runs library typechecks for both the main and Vitest configs. `pnpm lint` (or `pnpm lint:fix`) applies ESLint, `pnpm format` runs oxfmt, and `pnpm test` executes the Vitest suite (see also `pnpm test:browser`, `pnpm test:node`, and `pnpm test:coverage`). Install Playwright Chromium with `pnpm test:setup` when running browser tests. Use `pnpm publint` before releases, and `pnpm docs` to refresh generated docs content.
+Use `pnpm install` to set up dependencies. `pnpm dev` serves the demo playground at `http://localhost:5173` for interactive testing; use `pnpm dev:build` or `pnpm dev:preview` for the Vite demo bundle, and `pnpm dev:typecheck` to typecheck the demo. Run `pnpm build` (tsdown) to produce distributable output under `dist/`. `pnpm typecheck` runs library typechecks for both the main and Vitest configs. `pnpm lint` (or `pnpm lint:fix`) applies ESLint, `pnpm format` runs oxfmt, and `pnpm test` executes the Vitest suite (see also `pnpm test:browser`, `pnpm test:node`, and `pnpm test:coverage`). Install Playwright Chromium with `pnpm test:setup` when running browser tests. Use `pnpm publint` before releases, and `pnpm run docs` to refresh generated docs content.
 
 ## Coding Style & Naming Conventions
 
