@@ -46,6 +46,10 @@ describe("graphic order helpers", () => {
     expect(reordered).not.toBe(orderMap);
     expect(reordered.get("id:second")).toBe(0);
     expect(reordered.get("id:first")).toBe(1);
+
+    order.update(h(RectGraphic, { id: "third" }));
+    expect(orderMap.get("id:first")).toBe(0);
+    expect(orderMap.get("id:second")).toBe(1);
   });
 
   it("leaves group slot collection to the group render", () => {

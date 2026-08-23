@@ -54,23 +54,19 @@ function isSameOrder(current: Map<string, number>, next: Map<string, number>): b
   return true;
 }
 
-function collectOrder(value: unknown, current: Map<string, number>): Map<string, number> {
-  const orderMap = new Map<string, number>();
-  collect(value, orderMap, 0);
-  return isSameOrder(current, orderMap) ? current : orderMap;
-}
-
 export function createOrderTracker() {
   let current = new Map<string, number>();
+  const next = new Map<string, number>();
   const ref = shallowRef(current);
 
   return {
     ref,
     update(value: unknown): void {
-      const next = collectOrder(value, current);
-      if (next !== current) {
-        current = next;
-        ref.value = next;
+      next.clear();
+      collect(value, next, 0);
+      if (!isSameOrder(current, next)) {
+        current = new Map(next);
+        ref.value = current;
       }
     },
   };
