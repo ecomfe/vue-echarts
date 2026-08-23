@@ -22,6 +22,7 @@ const componentProps = {
   ...shapeProps,
 } as const;
 
+/* @__NO_SIDE_EFFECTS__ */
 export function createComponent(name: string, type: GraphicComponentType) {
   const component = defineComponent({
     name,
