@@ -3,6 +3,7 @@ import { createComponent, type GraphicComponent } from "./component-factory";
 export const GGroup: GraphicComponent = createComponent("GGroup", "group");
 export const GRect: GraphicComponent = createComponent("GRect", "rect");
 export const GCircle: GraphicComponent = createComponent("GCircle", "circle");
+export const GEllipse: GraphicComponent = createComponent("GEllipse", "ellipse");
 export const GText: GraphicComponent = createComponent("GText", "text");
 export const GLine: GraphicComponent = createComponent("GLine", "line");
 export const GPolyline: GraphicComponent = createComponent("GPolyline", "polyline");

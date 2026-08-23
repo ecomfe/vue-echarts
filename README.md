@@ -446,6 +446,7 @@ Available components:
 - `GGroup`
 - `GRect`
 - `GCircle`
+- `GEllipse`
 - `GText`
 - `GLine`
 - `GPolyline`

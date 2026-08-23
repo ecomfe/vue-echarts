@@ -445,6 +445,7 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 - `GGroup`
 - `GRect`
 - `GCircle`
+- `GEllipse`
 - `GText`
 - `GLine`
 - `GPolyline`

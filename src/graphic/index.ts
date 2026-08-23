@@ -12,6 +12,7 @@ export {
   GGroup,
   GRect,
   GCircle,
+  GEllipse,
   GText,
   GLine,
   GPolyline,

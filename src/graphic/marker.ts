@@ -4,6 +4,7 @@ export type GraphicComponentType =
   | "group"
   | "rect"
   | "circle"
+  | "ellipse"
   | "text"
   | "line"
   | "polyline"

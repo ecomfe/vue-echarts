@@ -6,6 +6,7 @@ import { withUndefinedDefault } from "./props-common";
 export const SHAPE_KEYS_BY_TYPE = {
   rect: ["x", "y", "width", "height", "r"],
   circle: ["cx", "cy", "r"],
+  ellipse: ["cx", "cy", "rx", "ry"],
   sector: ["cx", "cy", "r", "r0", "startAngle", "endAngle", "clockwise", "cornerRadius"],
   ring: ["cx", "cy", "r", "r0"],
   arc: ["cx", "cy", "r", "r0", "startAngle", "endAngle", "clockwise"],
@@ -20,6 +21,8 @@ export const shapeProps = {
   y: Number,
   cx: Number,
   cy: Number,
+  rx: Number,
+  ry: Number,
   r: [Number, Array] as PropType<number | number[]>,
   r0: Number,
   x1: Number,

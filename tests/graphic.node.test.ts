@@ -88,6 +88,15 @@ describe("graphic", () => {
         order: 0,
         sourceId: 2,
       },
+      {
+        id: "ellipse",
+        type: "ellipse",
+        parentId: null,
+        props: { cx: 20, cy: 30, rx: 12, ry: 8 },
+        handlers: {},
+        order: 2,
+        sourceId: 3,
+      },
     ];
 
     const option = buildOption(nodes, "root");
@@ -96,7 +105,7 @@ describe("graphic", () => {
     expect(root.id).toBe("root");
     expect(root.$action).toBe("replace");
 
-    const [text, rect] = root.children as any[];
+    const [text, rect, ellipse] = root.children as any[];
 
     expect(text.type).toBe("text");
     expect(text.x).toBe(2);
@@ -119,6 +128,8 @@ describe("graphic", () => {
     expect(rect.textConfig).toMatchObject({ position: "inside" });
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });
     expect(rect.style).toMatchObject({ ...paint, stroke: "#0f0" });
+
+    expect(ellipse.shape).toEqual({ cx: 20, cy: 30, rx: 12, ry: 8 });
 
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
