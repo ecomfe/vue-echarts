@@ -34,8 +34,8 @@ export interface Signature {
   arrays: Record<string, ArraySummary | undefined>;
   /** Structural snapshots used to detect nested property removal without retaining option values. */
   objectShapes: Record<string, Shape | undefined>;
-  /** Sorted list of scalar-typed top-level keys (string|number|boolean|null). */
-  scalars: string[];
+  /** Sorted top-level keys whose values are not traversed. */
+  leaves: string[];
 }
 
 export interface PlannedUpdate {
@@ -133,7 +133,7 @@ export function buildSignature(option: Option): Signature {
   const stack = new WeakSet<object>();
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
-  const scalars: string[] = [];
+  const leaves: string[] = [];
 
   for (const key of Object.keys(opt)) {
     const value = opt[key];
@@ -150,20 +150,20 @@ export function buildSignature(option: Option): Signature {
       continue;
     }
 
-    // scalar: string | number | boolean | null  (undefined is treated as "absent")
+    // `undefined` is treated as absent; all other non-structural values remain leaves.
     if (value !== undefined) {
-      scalars.push(key);
+      leaves.push(key);
     }
   }
 
-  if (scalars.length > 1) {
-    scalars.sort();
+  if (leaves.length > 1) {
+    leaves.sort();
   }
 
   return {
     arrays,
     objectShapes,
-    scalars,
+    leaves,
   };
 }
 
@@ -265,12 +265,12 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
         return null;
       }
       (replaceMerge ??= []).push(key);
-    } else if (!next.scalars.includes(key)) {
+    } else if (!next.leaves.includes(key)) {
       return null;
     }
   }
 
-  if (hasMissing(prev.scalars, next.scalars)) {
+  if (hasMissing(prev.leaves, next.leaves)) {
     return null;
   }
 

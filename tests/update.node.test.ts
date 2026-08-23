@@ -62,7 +62,7 @@ function applyPlannedUpdate(base: EChartsOption, update: EChartsOption) {
 
 describe("smart-update", () => {
   describe("buildSignature", () => {
-    it("collects scalars, objects, and array summaries", () => {
+    it("collects leaves, objects, and array summaries", () => {
       const option: EChartsOption = {
         title: { text: "foo" },
         tooltip: { show: true },
@@ -74,11 +74,11 @@ describe("smart-update", () => {
       const signature = buildSignature(option);
 
       expect(Object.keys(signature.objectShapes).sort()).toEqual(["title", "tooltip"]);
-      expect(signature.scalars).toEqual(["color"]);
+      expect(signature.leaves).toEqual(["color"]);
       expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["ds1"], noIdCount: 1 });
       expect(signature.arrays.series).toMatchObject({ idsSorted: ["a"], noIdCount: 1 });
       expect(signature.objectShapes.color).toBeUndefined();
-      expect(signature.scalars).not.toContain("title");
+      expect(signature.leaves).not.toContain("title");
       expect(signature.arrays.tooltip).toBeUndefined();
     });
 
@@ -97,7 +97,7 @@ describe("smart-update", () => {
       expect(signature.arrays.series).toMatchObject({ idsSorted: ["1", "2"], noIdCount: 3 });
     });
 
-    it("counts primitive array items and sorts scalar keys", () => {
+    it("counts primitive array items and sorts leaf keys", () => {
       const option: EChartsOption = {
         dataset: ["raw", { id: "has-id" }],
         backgroundColor: "#000",
@@ -107,7 +107,7 @@ describe("smart-update", () => {
       const signature = buildSignature(option);
 
       expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 1 });
-      expect(signature.scalars).toEqual(["backgroundColor", "color"]);
+      expect(signature.leaves).toEqual(["backgroundColor", "color"]);
     });
 
     it("handles malformed option container entries", () => {
@@ -120,7 +120,7 @@ describe("smart-update", () => {
       expect(signature.arrays.media?.noIdCount).toBe(2);
     });
 
-    it("ignores explicit undefined values in scalars", () => {
+    it("ignores explicit undefined values in leaves", () => {
       const option: EChartsOption = {
         backgroundColor: undefined,
         color: "#fff",
@@ -128,7 +128,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.scalars).toEqual(["color"]);
+      expect(signature.leaves).toEqual(["color"]);
     });
 
     it("handles cyclic option objects", () => {
@@ -218,7 +218,7 @@ describe("smart-update", () => {
         expect(next.plan.replaceMerge).toBeUndefined();
       });
 
-      it("keeps merge when scalar value changes", () => {
+      it("keeps merge when a leaf value changes", () => {
         const prev = buildSignature({ color: "red" });
         const next = planUpdate(prev, { color: "blue" });
 
@@ -226,7 +226,7 @@ describe("smart-update", () => {
         expect(next.plan.replaceMerge).toBeUndefined();
       });
 
-      it("keeps merge when an object setting becomes scalar", () => {
+      it("keeps merge when a non-plain object becomes a primitive", () => {
         const prev = buildSignature({
           backgroundColor: linearGradient,
         });
@@ -362,7 +362,7 @@ describe("smart-update", () => {
         },
       );
 
-      it("forces rebuild when scalars disappear", () => {
+      it("forces rebuild when leaves disappear", () => {
         const prev = buildSignature({ color: "red", title: { text: "foo" } });
         const { plan } = planUpdate(prev, { title: { text: "foo" } });
         expect(plan.notMerge).toBe(true);
@@ -732,7 +732,7 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toEqual(["series"]);
       });
 
-      it("prioritizes notMerge when scalar removal happens with array shrink", () => {
+      it("prioritizes notMerge when leaf removal happens with array shrink", () => {
         const base: EChartsOption = {
           color: "#000",
           series: [
