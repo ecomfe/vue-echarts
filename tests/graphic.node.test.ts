@@ -140,6 +140,29 @@ describe("graphic", () => {
     expect(root.children).toEqual([]);
   });
 
+  it("routes shared shape props only to compatible element types", () => {
+    const common = {
+      parentId: null,
+      handlers: {},
+      order: 0,
+      sourceId: 1,
+    };
+    const root = getRootGraphicElement(
+      buildOption(
+        [
+          { ...common, id: "polyline", type: "polyline", props: { percent: 0.5 } },
+          { ...common, id: "arc", type: "arc", props: { r0: 5 } },
+        ],
+        "root",
+      ),
+    );
+
+    expect(root.children).toEqual([
+      { type: "polyline", id: "polyline", shape: { percent: 0.5 } },
+      { type: "arc", id: "arc" },
+    ]);
+  });
+
   it("keeps user info, ignores inherited handlers, and uses the latest handler array", () => {
     const onClickA = vi.fn();
     const onClickB = vi.fn();

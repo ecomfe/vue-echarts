@@ -9,9 +9,9 @@ export const SHAPE_KEYS_BY_TYPE = {
   ellipse: ["cx", "cy", "rx", "ry"],
   sector: ["cx", "cy", "r", "r0", "startAngle", "endAngle", "clockwise", "cornerRadius"],
   ring: ["cx", "cy", "r", "r0"],
-  arc: ["cx", "cy", "r", "r0", "startAngle", "endAngle", "clockwise"],
+  arc: ["cx", "cy", "r", "startAngle", "endAngle", "clockwise"],
   line: ["x1", "y1", "x2", "y2", "percent"],
-  polyline: ["points", "smooth", "smoothConstraint"],
+  polyline: ["points", "percent", "smooth", "smoothConstraint"],
   polygon: ["points", "smooth", "smoothConstraint"],
   bezierCurve: ["x1", "y1", "x2", "y2", "cpx1", "cpy1", "cpx2", "cpy2", "percent"],
 } as const satisfies Partial<Record<GraphicComponentType, readonly string[]>>;
