@@ -429,6 +429,29 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
+.modal {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+
+  &[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.modal::backdrop {
+  background-color: rgba(2, 6, 23, 0.35);
+}
+
 .dialog {
   display: flex;
   flex-direction: column;
@@ -588,6 +611,7 @@ onBeforeUnmount(() => {
   color: var(--surface);
   font-size: 0.875rem;
   transform: translate(-50%, 200%);
+  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
   border-radius: var(--r-s);
   opacity: 0;
   transition:

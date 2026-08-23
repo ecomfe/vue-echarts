@@ -593,17 +593,6 @@ textarea {
   border-bottom-color: color-mix(in srgb, var(--border) 70%, transparent);
 }
 
-.dialog {
-  background: var(--surface);
-  border: 1px solid var(--border);
-}
-
-.message {
-  background: var(--text);
-  color: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -722,35 +711,6 @@ x-vue-echarts {
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: none;
-  max-height: none;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-
-  &[open] {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-.modal::backdrop {
-  background-color: rgba(2, 6, 23, 0.35);
-}
-
-@media (max-width: 480px) {
-  body .codegen {
-    display: none !important;
   }
 }
 
