@@ -404,7 +404,8 @@ export default /* @__PURE__ */ defineComponent({
         const instance = chart.value;
         if (isActive(instance) && instance !== themedChart) {
           themedChart = instance;
-          instance.setTheme(theme ?? {});
+          // ECharts ignores empty theme names instead of resetting to its default theme.
+          instance.setTheme(theme || {});
 
           if (isActive(instance) && props.option && !manualUpdate.value) {
             applyOption(instance, props.option);

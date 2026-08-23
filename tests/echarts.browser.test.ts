@@ -332,7 +332,7 @@ describe("ECharts component", () => {
 
     theme.value = "";
     await nextTick();
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith("");
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
   });
 
   it("reapplies latest graph option after theme changes when data is assigned later", async () => {

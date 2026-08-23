@@ -114,9 +114,9 @@ describe("ECharts theme behavior (real echarts)", () => {
     expect(getSeriesDataLength(chart)).toBe(3);
   });
 
-  it("keeps graph data after theme toggles when data exists initially", async () => {
+  it("resets an empty theme without losing existing graph data", async () => {
     const isDark = ref(true);
-    const theme = computed(() => (isDark.value ? "dark" : undefined));
+    const theme = computed(() => (isDark.value ? "dark" : ""));
     const option = ref<Option>({
       series: {
         type: "graph",
@@ -145,12 +145,14 @@ describe("ECharts theme behavior (real echarts)", () => {
 
     const chart = getChart(exposed.value);
     expect(getSeriesDataLength(chart)).toBe(3);
+    expect(chart.getOption().backgroundColor).toBe("#111827");
 
     isDark.value = false;
     await nextTick();
     await flushFrames();
 
     expect(getSeriesDataLength(chart)).toBe(3);
+    expect(chart.getOption().backgroundColor).not.toBe("#111827");
   });
 });
 
