@@ -134,7 +134,7 @@ app.component('VChart', VueECharts)
 
 可以在[这里](https://github.com/ecomfe/vue-echarts/tree/main/demo)查看更多例子。
 
-### Prop
+### Props
 
 - `init-options: object`
 
