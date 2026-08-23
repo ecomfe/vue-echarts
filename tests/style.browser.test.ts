@@ -151,6 +151,7 @@ describe("style entry", () => {
       app.mount(container);
       expect(ownerDocument.head.querySelector("style")).not.toBeNull();
       expect(document.head.querySelector("style")).toBeNull();
+      expect(ownerDocument.defaultView?.customElements.get("x-vue-echarts")).toBeTypeOf("function");
     } finally {
       app.unmount();
       iframe.remove();

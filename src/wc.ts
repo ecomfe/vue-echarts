@@ -1,7 +1,7 @@
 import { ensureStyles } from "./style";
 import { isBrowser } from "./utils";
 
-let registered = false;
+let registered = new WeakSet<CustomElementRegistry>();
 
 export const TAG_NAME = "x-vue-echarts";
 
@@ -9,20 +9,21 @@ export interface EChartsElement extends HTMLElement {
   __dispose: (() => void) | null;
 }
 
-export function register(): boolean {
-  if (registered) {
-    return true;
-  }
-
-  const registry = globalThis.customElements;
+export function register(root?: Element): boolean {
+  const realm = root?.ownerDocument.defaultView ?? globalThis;
+  const registry = realm.customElements;
 
   if (!isBrowser() || !registry?.get) {
     return false;
   }
 
+  if (registered.has(registry)) {
+    return true;
+  }
+
   if (!registry.get(TAG_NAME)) {
     try {
-      class ECElement extends HTMLElement implements EChartsElement {
+      class ECElement extends realm.HTMLElement implements EChartsElement {
         __dispose: (() => void) | null = null;
 
         connectedCallback(): void {
@@ -44,16 +45,17 @@ export function register(): boolean {
 
       registry.define(TAG_NAME, ECElement);
     } catch {
-      registered = Boolean(registry.get(TAG_NAME));
-      return registered;
+      if (!registry.get(TAG_NAME)) {
+        return false;
+      }
     }
   }
 
-  registered = true;
-  return registered;
+  registered.add(registry);
+  return true;
 }
 
 // Test helper to reset cached registration state.
 export function __resetRegisterState(): void {
-  registered = false;
+  registered = new WeakSet();
 }

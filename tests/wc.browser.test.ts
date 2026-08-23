@@ -159,21 +159,15 @@ describe("register", () => {
   });
 
   describe("with native customElements", () => {
-    let original: CustomElementConstructor | undefined;
-
     beforeEach(() => {
       vi.resetModules();
       vi.restoreAllMocks();
       vi.unstubAllGlobals();
-      original = customElements.get("x-vue-echarts");
       document.body.innerHTML = "";
     });
 
     afterEach(() => {
       document.body.innerHTML = "";
-      if (original) {
-        customElements.define("x-vue-echarts", original);
-      }
     });
 
     it("keeps chart alive across DOM moves and disposes after removal", async () => {
@@ -202,6 +196,31 @@ describe("register", () => {
 
       expect(dispose).toHaveBeenCalledTimes(1);
       expect(element.__dispose).toBeNull();
+    });
+
+    it("registers the disposal hook in each document", async () => {
+      const { register, TAG_NAME } = await loadModule();
+
+      expect(register()).toBe(true);
+
+      const iframe = document.body.appendChild(document.createElement("iframe"));
+      const frameDocument = iframe.contentDocument!;
+      const element = frameDocument.body.appendChild(frameDocument.createElement(TAG_NAME));
+
+      try {
+        expect(register(element)).toBe(true);
+        expect(element.__dispose).toBeNull();
+
+        const dispose = vi.fn();
+        element.__dispose = dispose;
+        element.remove();
+        await Promise.resolve();
+
+        expect(dispose).toHaveBeenCalledTimes(1);
+        expect(element.__dispose).toBeNull();
+      } finally {
+        iframe.remove();
+      }
     });
   });
 });

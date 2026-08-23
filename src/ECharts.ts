@@ -357,14 +357,16 @@ export default /* @__PURE__ */ defineComponent({
     useAutoresize(chart, autoresize, root);
 
     onMounted(() => {
+      register(root.value);
       mounted = true;
       init();
     });
 
     onBeforeUnmount(() => {
       terminallyDisposed = true;
-      if (register() && root.value?.isConnected && root.value.__dispose === null) {
-        root.value.__dispose = cleanup;
+      const element = root.value;
+      if (register(element) && element?.isConnected && element.__dispose === null) {
+        element.__dispose = cleanup;
         return;
       }
 
