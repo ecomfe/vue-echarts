@@ -122,6 +122,7 @@ export default /* @__PURE__ */ defineComponent({
     let lastSignature: Signature | null | undefined;
     let themedChart: EChartsType | undefined;
     let themeInvalidated = false;
+    let initOptionsInvalidated = false;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let mounted = false;
@@ -223,6 +224,7 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     function init(): void {
+      initOptionsInvalidated = false;
       isReady.value = false;
 
       ensureStyles(root.value?.getRootNode());
@@ -294,7 +296,7 @@ export default /* @__PURE__ */ defineComponent({
       applyOption(instance, option, updateOptions, "manual");
     };
 
-    // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.
+    // Mark synchronously so later batched replacements cannot mask nested changes.
     watch(
       realTheme,
       (theme, previousTheme) => {
@@ -304,6 +306,16 @@ export default /* @__PURE__ */ defineComponent({
         themeInvalidated = true;
         themedChart = undefined;
         themeUpdatePending = true;
+      },
+      { deep: true, flush: "sync" },
+    );
+
+    watch(
+      realInitOptions,
+      (options, previousOptions) => {
+        if (!isEquivalentReplacement(options, previousOptions)) {
+          initOptionsInvalidated = true;
+        }
       },
       { deep: true, flush: "sync" },
     );
@@ -341,7 +353,11 @@ export default /* @__PURE__ */ defineComponent({
         if (!mounted || terminallyDisposed) {
           return;
         }
-        if (manual === previousManual && isEquivalentReplacement(options, previousOptions)) {
+        if (
+          manual === previousManual &&
+          !initOptionsInvalidated &&
+          isEquivalentReplacement(options, previousOptions)
+        ) {
           return;
         }
         cleanup();

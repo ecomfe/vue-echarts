@@ -669,6 +669,28 @@ describe("ECharts component", () => {
     });
   });
 
+  it("preserves nested initOptions changes across equivalent root replacement", async () => {
+    const locale = reactive({ time: { month: ["January"] } });
+    const typedLocale = locale as unknown as NonNullable<InitOptions["locale"]>;
+    const initOptions = ref<InitOptions>({ locale: typedLocale });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: {}, initOptions: initOptions.value }), exposed);
+    await nextTick();
+
+    const firstStub = chartStub;
+    chartStub = enqueueChart();
+    locale.time.month[0] = "February";
+    initOptions.value = { locale: typedLocale };
+    await nextTick();
+
+    expect(firstStub.dispose).toHaveBeenCalledOnce();
+    expect(init).toHaveBeenCalledTimes(2);
+    expect(init.mock.calls[1][2]).toMatchObject({
+      locale: { time: { month: ["February"] } },
+    });
+  });
+
   it("initializes once with the latest injected defaults when they change before mounted", async () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const theme = ref<Theme>("dark");
@@ -695,6 +717,11 @@ describe("ECharts component", () => {
     expect(init.mock.calls[0][2]).toEqual({ renderer: "svg" });
     expect(chartStub.setTheme).not.toHaveBeenCalled();
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+
+    initOptions.value = { renderer: "svg" };
+    await nextTick();
+    expect(init).toHaveBeenCalledTimes(1);
+    expect(chartStub.dispose).not.toHaveBeenCalled();
   });
 
   it("passes updateOptions when provided", async () => {
