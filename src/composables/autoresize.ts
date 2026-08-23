@@ -38,12 +38,14 @@ export function useAutoresize(
       return;
     }
 
-    let initialResizeTriggered = false;
-
     const resize = () => {
       const { offsetWidth, offsetHeight } = root;
-      // A throttled callback may run after its triggering dimensions have changed.
-      if (offsetWidth === 0 || offsetHeight === 0) {
+      // Observer notifications can repeat, and throttled work can outlive its triggering size.
+      if (
+        offsetWidth === 0 ||
+        offsetHeight === 0 ||
+        (offsetWidth === sizedWidth && offsetHeight === sizedHeight)
+      ) {
         return;
       }
       chart.resize();
@@ -62,21 +64,7 @@ export function useAutoresize(
       runResize();
     }
 
-    const observer = new ResizeObserver(() => {
-      // ResizeObserver reports the initial dimensions even when they have not changed.
-      if (!initialResizeTriggered) {
-        initialResizeTriggered = true;
-        if (root.offsetWidth === offsetWidth && root.offsetHeight === offsetHeight) {
-          return;
-        }
-      }
-
-      if (root.offsetWidth === 0 || root.offsetHeight === 0) {
-        return;
-      }
-
-      runResize();
-    });
+    const observer = new ResizeObserver(runResize);
     observer.observe(root);
 
     onCleanup(() => {

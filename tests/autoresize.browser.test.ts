@@ -86,7 +86,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips a throttled resize if the container becomes empty before execution", async () => {
+  it("skips a throttled resize when its pending size is no longer current", async () => {
     let pendingResize: (() => void) | undefined;
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
@@ -119,6 +119,13 @@ describe("useAutoresize", () => {
     expect(resize).not.toHaveBeenCalled();
 
     container.style.width = "0";
+    pendingResize?.();
+    expect(resize).not.toHaveBeenCalled();
+    expect(onResize).not.toHaveBeenCalled();
+
+    container.style.width = "180px";
+    await flushAnimationFrame();
+    container.style.width = "120px";
     pendingResize?.();
     expect(resize).not.toHaveBeenCalled();
     expect(onResize).not.toHaveBeenCalled();
@@ -290,7 +297,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips the initial resize callback when dimensions are unchanged", async () => {
+  it("skips resize callbacks while dimensions are unchanged", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const autoresize = ref<AutoResize | undefined>(true);
@@ -329,7 +336,13 @@ describe("useAutoresize", () => {
       throw new Error("Expected ResizeObserver callback to be registered.");
     }
     callbacks[0]();
+    callbacks[0]();
     expect(resize).not.toHaveBeenCalled();
+
+    container.style.width = "200px";
+    callbacks[0]();
+    callbacks[0]();
+    expect(resize).toHaveBeenCalledTimes(1);
 
     scope.stop();
     globalWithRO.ResizeObserver = originalRO;
