@@ -1,4 +1,4 @@
-import { inject, computed, watchEffect, toValue } from "vue";
+import { inject, watchEffect, toValue } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
@@ -10,12 +10,8 @@ export function useLoading(
   loading: Ref<boolean | undefined>,
   loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
-  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, {});
-  const realLoadingOptions = computed(() => ({
-    ...toValue(defaultLoadingOptions),
-    ...(loadingOptions.value ?? {}),
-  }));
-  const activeInstances = new WeakSet<EChartsType>();
+  const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
+  let activeInstances: WeakSet<EChartsType> | undefined;
 
   watchEffect(() => {
     const instance = chart.value;
@@ -24,12 +20,15 @@ export function useLoading(
     }
 
     if (loading.value) {
-      instance.showLoading(realLoadingOptions.value);
-      activeInstances.add(instance);
+      instance.showLoading({
+        ...toValue(defaultLoadingOptions),
+        ...loadingOptions.value,
+      });
+      (activeInstances ??= new WeakSet()).add(instance);
       return;
     }
 
-    if (activeInstances.has(instance)) {
+    if (activeInstances?.has(instance)) {
       instance.hideLoading();
       activeInstances.delete(instance);
     }
