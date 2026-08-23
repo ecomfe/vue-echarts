@@ -431,6 +431,23 @@ describe("useSlotOption", () => {
     expect(typeof patched.series).toBe("number");
   });
 
+  it("does not create properties for non-index array segments", async () => {
+    const { exposed } = renderSlotComponent(() => ({
+      tooltip: () => [h("span", "invalid")],
+      "tooltip-series-name": () => [h("span", "invalid")],
+    }));
+
+    await nextTick();
+
+    const patched = getExposed(exposed).patchOption({
+      tooltip: [],
+      series: [],
+    } as unknown as Option);
+
+    expect(Object.keys(patched.tooltip as unknown[])).toEqual([]);
+    expect(Object.keys(patched.series as unknown[])).toEqual([]);
+  });
+
   it("creates array shells when target slot path is missing", async () => {
     const { exposed } = renderSlotComponent(() => ({
       "tooltip-series-1": () => [h("span", "series-1")],

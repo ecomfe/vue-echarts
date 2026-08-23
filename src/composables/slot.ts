@@ -26,6 +26,9 @@ function isValidSlotName(key: string): key is SlotName {
 type Container = Record<string, unknown> | unknown[];
 
 function ensureChild(parent: Container, seg: string, nextSeg?: string): Container | undefined {
+  if (Array.isArray(parent) && !isValidArrayIndex(seg)) {
+    return undefined;
+  }
   const next = readSegment(parent, seg);
 
   if (Array.isArray(next)) {
@@ -138,7 +141,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
           break;
         }
       }
-      if (!current) {
+      if (!current || Array.isArray(current)) {
         continue;
       }
 
