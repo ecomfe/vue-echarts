@@ -12,6 +12,7 @@ import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
+import { collectOrder } from "./order";
 import { commonProps } from "./props-common";
 import { shapeProps } from "./props-shape";
 import type { GraphicEmits } from "./types";
@@ -31,7 +32,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
       const instance = getCurrentInstance()!;
       const collector = inject(GRAPHIC_COLLECTOR_KEY, null);
       const parentIdRef = inject(GRAPHIC_PARENT_ID_KEY, null);
-      const orderRef = inject(GRAPHIC_ORDER_KEY, null);
+      const parentOrderRef = inject(GRAPHIC_ORDER_KEY, null);
 
       if (!collector) {
         warn(`\`${name}\` must be used inside \`#graphic\` slot.`);
@@ -56,7 +57,9 @@ export function createComponent(name: string, type: GraphicComponentType) {
           unregister(currentId, instance.uid);
         }
         currentId = identity.id;
-        const hintedOrder = identity.orderKey ? orderRef?.value.get(identity.orderKey) : undefined;
+        const hintedOrder = identity.orderKey
+          ? parentOrderRef?.value.get(identity.orderKey)
+          : undefined;
 
         registerNode({
           id: currentId,
@@ -74,11 +77,15 @@ export function createComponent(name: string, type: GraphicComponentType) {
 
       if (type === "group") {
         const providedParent = shallowRef<string | null>(null);
+        const childOrderRef = shallowRef<Map<string, number>>(new Map());
         provide(GRAPHIC_PARENT_ID_KEY, providedParent);
+        provide(GRAPHIC_ORDER_KEY, childOrderRef);
 
         return () => {
           providedParent.value = register();
-          return slots.default?.() ?? null;
+          const content = slots.default?.() ?? null;
+          childOrderRef.value = collectOrder(content);
+          return content;
         };
       }
 

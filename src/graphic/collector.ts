@@ -97,6 +97,7 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
         return;
       }
       pending = false;
+      beginPass();
       onFlush();
     });
   }
@@ -107,6 +108,7 @@ export function createCollector(options: { onFlush: () => void }): GraphicCollec
 
   function cancelPendingFlush(): void {
     pending = false;
+    beginPass();
   }
 
   function dispose(): void {

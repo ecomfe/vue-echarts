@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { h } from "vue";
 
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
-import { collectOrder, getType } from "../src/graphic/order";
+import { collectOrder } from "../src/graphic/order";
 
 const RectGraphic = {
   [GRAPHIC_COMPONENT_MARKER]: "rect",
@@ -15,57 +15,34 @@ const GroupGraphic = {
 } as const;
 
 describe("graphic order helpers", () => {
-  it("detects marked graphic vnode types and ignores invalid values", () => {
-    expect(getType(undefined)).toBeNull();
-    expect(getType(1)).toBeNull();
-    expect(getType({ type: "div" } as any)).toBeNull();
+  it("ignores invalid and unmarked entries", () => {
     expect(
-      getType(
+      collectOrder([
+        undefined,
+        1,
+        { type: "div" },
         h({
           render: () => null,
         }),
-      ),
-    ).toBeNull();
-    expect(getType(h(RectGraphic))).toBe("rect");
-  });
-
-  it("returns current order for non-object entries", () => {
-    const orderMap = new Map<string, number>();
-    const order = collectOrder(42, orderMap, 3);
-
-    expect(order).toBe(3);
-    expect(orderMap.size).toBe(0);
+      ]).size,
+    ).toBe(0);
   });
 
   it("collects id order from regular graphic children", () => {
-    const orderMap = new Map<string, number>();
     const container = h("div", [h(RectGraphic, { id: "first" }), h(RectGraphic, { id: "second" })]);
 
-    const order = collectOrder(container, orderMap, 0);
+    const orderMap = collectOrder(container);
 
-    expect(order).toBe(2);
     expect(orderMap.get("id:first")).toBe(0);
     expect(orderMap.get("id:second")).toBe(1);
   });
 
-  it("descends into group default slot content", () => {
-    const orderMap = new Map<string, number>();
-    const group = h(GroupGraphic, { id: "group-1" }, () => [h(RectGraphic, { id: "child-1" })]);
+  it("leaves group slot collection to the group render", () => {
+    const slot = vi.fn(() => h(RectGraphic, { id: "child-1" }));
+    const orderMap = collectOrder(h(GroupGraphic, { id: "group-1" }, slot));
 
-    const order = collectOrder(group, orderMap, 0);
-
-    expect(order).toBe(2);
     expect(orderMap.get("id:group-1")).toBe(0);
-    expect(orderMap.get("id:child-1")).toBe(1);
-  });
-
-  it("handles group vnode without default slot content", () => {
-    const orderMap = new Map<string, number>();
-    const group = h(GroupGraphic, { id: "group-empty" });
-
-    const order = collectOrder(group, orderMap, 0);
-
-    expect(order).toBe(1);
-    expect(orderMap.get("id:group-empty")).toBe(0);
+    expect(orderMap.has("id:child-1")).toBe(false);
+    expect(slot).not.toHaveBeenCalled();
   });
 });

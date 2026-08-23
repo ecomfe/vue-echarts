@@ -376,14 +376,13 @@ describe("graphic", () => {
     expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(false);
   });
 
-  it("does not mark duplicate when same id appears across different passes", () => {
+  it("does not mark duplicate when same id appears across flushed updates", async () => {
     const collector = createCollector({
       onFlush: () => void 0,
     });
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     try {
-      collector.beginPass();
       collector.register({
         id: "node",
         type: "rect",
@@ -392,8 +391,8 @@ describe("graphic", () => {
         handlers: {},
         sourceId: 1,
       });
+      await flushMicrotasks();
 
-      collector.beginPass();
       collector.register({
         id: "node",
         type: "rect",

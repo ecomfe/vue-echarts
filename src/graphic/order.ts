@@ -1,24 +1,20 @@
 import type { VNode } from "vue";
 
 import { resolveOrderKey } from "./identity";
-import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
+import { GRAPHIC_COMPONENT_MARKER } from "./marker";
 
-export function getType(vnode: unknown): GraphicComponentType | null {
-  if (!vnode || typeof vnode !== "object") {
-    return null;
-  }
-  const type = (vnode as VNode).type as Record<string, unknown> | string | symbol;
+function isGraphic(vnode: VNode): boolean {
+  const type = vnode.type as Record<string, unknown> | string | symbol;
   if (!type || typeof type !== "object") {
-    return null;
+    return false;
   }
-  const mark = (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER];
-  return typeof mark === "string" ? (mark as GraphicComponentType) : null;
+  return typeof (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER] === "string";
 }
 
-export function collectOrder(value: unknown, orderMap: Map<string, number>, order: number): number {
+function collect(value: unknown, orderMap: Map<string, number>, order: number): number {
   if (Array.isArray(value)) {
     for (const child of value) {
-      order = collectOrder(child, orderMap, order);
+      order = collect(child, orderMap, order);
     }
     return order;
   }
@@ -27,28 +23,26 @@ export function collectOrder(value: unknown, orderMap: Map<string, number>, orde
     return order;
   }
   const vnode = value as VNode;
-  const type = getType(vnode);
-  if (type) {
+  if (isGraphic(vnode)) {
     const props = vnode.props as Record<string, unknown> | null;
     const identity = resolveOrderKey(props?.id, vnode.key);
     if (identity) {
       orderMap.set(identity, order);
     }
-    order += 1;
-  }
-
-  if (type === "group") {
-    const slot = (vnode.children as { default?: () => unknown } | null)?.default;
-    if (slot) {
-      return collectOrder(slot(), orderMap, order);
-    }
+    return order + 1;
   }
 
   const children = vnode.children;
   if (Array.isArray(children)) {
     for (const child of children) {
-      order = collectOrder(child, orderMap, order);
+      order = collect(child, orderMap, order);
     }
   }
   return order;
+}
+
+export function collectOrder(value: unknown): Map<string, number> {
+  const orderMap = new Map<string, number>();
+  collect(value, orderMap, 0);
+  return orderMap;
 }

@@ -5,6 +5,7 @@ import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
 import { GArc, GGroup, GImage, GRect } from "../src/graphic/components";
+import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
   beginPass: ReturnType<typeof vi.fn>;
@@ -96,6 +97,35 @@ describe("graphic components", () => {
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });
+  });
+
+  it("evaluates nested group slots once per render", async () => {
+    const collector = createCollectorMock();
+    const childId = ref("child");
+    const groupSlot = vi.fn(() => h(GRect, { id: childId.value }));
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            GraphicMount,
+            { collector: collector as any },
+            {
+              default: () => h(GGroup, { id: "group" }, { default: groupSlot }),
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    expect(groupSlot).toHaveBeenCalledOnce();
+
+    groupSlot.mockClear();
+    childId.value = "next-child";
+    await nextTick();
+
+    expect(groupSlot).toHaveBeenCalledOnce();
   });
 
   it("accepts media elements from another document", async () => {

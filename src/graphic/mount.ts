@@ -27,9 +27,7 @@ export const GraphicMount = defineComponent({
     return () => {
       beginPass();
       const content = slots.default?.();
-      const orderMap = new Map<string, number>();
-      collectOrder(content, orderMap, 0);
-      orderMapRef.value = orderMap;
+      orderMapRef.value = collectOrder(content);
 
       return detachedRoot
         ? h(Teleport, { to: detachedRoot }, h("div", { style: { display: "contents" } }, content))
