@@ -69,7 +69,11 @@ const codegenOptions = useLocalStorage<CodegenPreferences>("ve.codegenOptions", 
   renderer: "canvas",
 } satisfies CodegenPreferences);
 
-const props = defineProps<{ open: boolean; renderer: string }>();
+const props = defineProps<{
+  open: boolean;
+  renderer: string;
+  returnFocus: HTMLElement | null;
+}>();
 const emit = defineEmits<{ "update:open": [boolean] }>();
 
 const {
@@ -79,6 +83,7 @@ const {
   dispose: disposeAnalysis,
 } = useOptionAnalysis(DEFAULT_OPTION);
 
+const modal = ref<HTMLDialogElement | null>(null);
 const dialog = ref<HTMLElement | null>(null);
 let clickFrom: Node | null = null;
 
@@ -128,6 +133,32 @@ function closeFromOutside() {
 
 function close() {
   emit("update:open", false);
+}
+
+function syncOpenState(open: boolean) {
+  const element = modal.value;
+  if (!element) {
+    return;
+  }
+  if (open && !element.open) {
+    element.showModal();
+  } else if (!open && element.open) {
+    element.close();
+  }
+  if (!open) {
+    return;
+  }
+  renderer.value = props.renderer === "svg" ? "svg" : "canvas";
+  optionEditor?.editor.focus();
+  optionEditor?.editor.layout();
+  importViewer?.editor.layout();
+}
+
+function onDialogClose() {
+  if (props.open) {
+    close();
+  }
+  props.returnFocus?.focus();
 }
 
 const copied = ref(false);
@@ -239,6 +270,7 @@ onMounted(async () => {
     });
   }
   initializing.value = false;
+  syncOpenState(props.open);
 });
 
 watch(monacoTheme, (theme) => {
@@ -270,13 +302,8 @@ watch(
 watch(
   () => props.open,
   async (value) => {
-    if (value) {
-      renderer.value = props.renderer === "svg" ? "svg" : "canvas";
-      await nextTick();
-      optionEditor?.editor.focus();
-      optionEditor?.editor.layout();
-      importViewer?.editor.layout();
-    }
+    await nextTick();
+    syncOpenState(value);
   },
 );
 
@@ -316,20 +343,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <aside
+  <dialog
+    ref="modal"
     class="modal"
-    :class="{ open: props.open }"
+    aria-labelledby="codegen-title"
     @mousedown="onMousedown"
     @click="closeFromOutside"
-    @keydown.esc="close"
+    @cancel.prevent="close"
+    @close="onDialogClose"
   >
-    <section
-      ref="dialog"
-      class="dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="codegen-title"
-    >
+    <section ref="dialog" class="dialog">
       <h2 id="codegen-title">Generate import code</h2>
       <section class="options">
         <label>
@@ -389,11 +412,10 @@ onBeforeUnmount(() => {
         <button class="copy" :disabled="analysisState.hasBlockingIssue" @click="copy">Copy</button>
       </section>
     </section>
-  </aside>
-
-  <aside class="message" :class="{ open: messageOpen }" role="status" aria-live="polite">
-    Copied to clipboard
-  </aside>
+    <aside class="message" :class="{ open: messageOpen }" role="status" aria-live="polite">
+      Copied to clipboard
+    </aside>
+  </dialog>
 </template>
 
 <style>

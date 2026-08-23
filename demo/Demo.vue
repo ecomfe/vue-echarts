@@ -57,6 +57,7 @@ const initialCodegenOpen = isClient && window.location.hash === "#codegen";
 const codeOpen = ref(initialCodegenOpen);
 const codegenMounted = ref(initialCodegenOpen);
 const codegenLoading = ref(false);
+const codegenButton = ref<HTMLButtonElement | null>(null);
 
 const trackCodegen = (source: "link" | "click"): void => {
   if (isClient) {
@@ -248,9 +249,9 @@ watch(codeOpen, applyCodegenState, { immediate: true });
         </button>
       </div>
       <button
+        ref="codegenButton"
         class="codegen"
         type="button"
-        :disabled="codegenLoading"
         :aria-busy="codegenLoading"
         @pointerenter="prepareCodegen"
         @focus="prepareCodegen"
@@ -260,7 +261,12 @@ watch(codeOpen, applyCodegenState, { immediate: true });
       </button>
     </div>
 
-    <CodeGen v-if="codegenMounted" v-model:open="codeOpen" :renderer="selectedRenderer" />
+    <CodeGen
+      v-if="codegenMounted"
+      v-model:open="codeOpen"
+      :renderer="selectedRenderer"
+      :return-focus="codegenButton"
+    />
   </main>
 </template>
 
@@ -720,20 +726,26 @@ x-vue-echarts {
 }
 
 .modal {
-  display: none;
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(2, 6, 23, 0.35);
-  z-index: 2147483646;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
 
-  &.open {
+  &[open] {
     display: flex;
     align-items: center;
     justify-content: center;
   }
+}
+
+.modal::backdrop {
+  background-color: rgba(2, 6, 23, 0.35);
 }
 
 @media (max-width: 480px) {

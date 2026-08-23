@@ -4,5 +4,5 @@
     "types": ["vitest/globals", "vite/client"],
     "noEmit": true
   },
-  "include": ["tests/**/*.ts", "tests/types/**/*.d.ts"]
+  "include": ["tests/**/*.ts", "tests/types/**/*.d.ts", "demo/shims-vue.d.ts"]
 }
