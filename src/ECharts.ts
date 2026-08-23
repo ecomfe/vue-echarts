@@ -429,7 +429,7 @@ export default /* @__PURE__ */ defineComponent({
 
     useLoading(chart, loading, loadingOptions);
 
-    useAutoresize(chart, autoresize, root);
+    useAutoresize(chart, autoresize, chartHost);
 
     onMounted(() => {
       register(root.value);

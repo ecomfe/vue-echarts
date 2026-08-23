@@ -1257,14 +1257,17 @@ describe("ECharts component", () => {
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
-  it("calls resize before commit when autoresize is true", async () => {
+  it("observes the chart host and resizes before the initial commit", async () => {
     const option = ref({ title: { text: "auto" } });
     const exposed = shallowRef<Exposed>();
+    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
 
     renderChart(() => ({ option: option.value, autoresize: true }), exposed);
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalled();
+    expect(observeSpy).toHaveBeenCalledWith(init.mock.calls[0][0]);
+    observeSpy.mockRestore();
   });
 
   it("skips deferred resize when autoresize is disabled before initialization", async () => {

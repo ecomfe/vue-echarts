@@ -9,7 +9,7 @@ const isZeroSize = (width: number, height: number) => width === 0 || height === 
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<AutoResize | undefined>,
-  root: Ref<HTMLElement | undefined>,
+  container: Ref<HTMLElement | undefined>,
 ): void {
   // Preserve the last synchronized size while observation is disabled or being rebound.
   let sizedChart: EChartsType | undefined;
@@ -19,22 +19,22 @@ export function useAutoresize(
 
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
   const resizeSources = [
-    root,
+    container,
     chart,
     () => Boolean(autoresize.value),
     () => getOptions()?.throttle ?? 100,
   ] as const;
 
-  watch(resizeSources, ([root, chart, enabled, wait], _, onCleanup) => {
+  watch(resizeSources, ([container, chart, enabled, wait], _, onCleanup) => {
     if (!chart) {
       sizedChart = undefined;
       return;
     }
-    if (!root) {
+    if (!container) {
       return;
     }
 
-    const { offsetWidth, offsetHeight } = root;
+    const { offsetWidth, offsetHeight } = container;
     if (chart !== sizedChart) {
       sizedChart = chart;
       sizedWidth = offsetWidth;
@@ -61,7 +61,7 @@ export function useAutoresize(
     };
 
     const resize = () => {
-      const { offsetWidth, offsetHeight } = root;
+      const { offsetWidth, offsetHeight } = container;
       // Observer notifications can repeat, and throttled work can outlive its triggering size.
       if (isZeroSize(offsetWidth, offsetHeight)) {
         wasZeroSized = true;
@@ -80,7 +80,7 @@ export function useAutoresize(
     const runResize = throttledResize ?? resize;
 
     const observeResize = () => {
-      const { offsetWidth, offsetHeight } = root;
+      const { offsetWidth, offsetHeight } = container;
       if (isZeroSize(offsetWidth, offsetHeight)) {
         wasZeroSized = true;
         return;
@@ -92,7 +92,7 @@ export function useAutoresize(
 
     observeResize();
     const observer = new ResizeObserver(observeResize);
-    observer.observe(root);
+    observer.observe(container);
 
     onCleanup(() => {
       observer.disconnect();
