@@ -237,6 +237,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "brew" } });
     const theme = ref<Theme | undefined>("dark");
     const initOptions = ref({ renderer: "svg" });
+    const colors = reactive(["#fff"]);
     const exposed = shallowRef<Exposed>();
 
     renderChart(
@@ -255,9 +256,25 @@ describe("ECharts component", () => {
     expect(passedInit).toEqual({ renderer: "svg" });
 
     const currentStub = chartStub;
-    theme.value = { palette: ["#fff"] };
+    theme.value = { color: colors };
     await nextTick();
-    expect(currentStub.setTheme).toHaveBeenCalledWith({ palette: ["#fff"] });
+    expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
+
+    currentStub.setTheme.mockClear();
+    currentStub.setOption.mockClear();
+    theme.value = { color: colors };
+    await nextTick();
+
+    expect(currentStub.setTheme).not.toHaveBeenCalled();
+    expect(currentStub.setOption).not.toHaveBeenCalled();
+
+    colors[0] = "#000";
+    theme.value = { color: colors };
+    await nextTick();
+
+    expect(currentStub.setTheme).toHaveBeenCalledOnce();
+    expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
+    expect(currentStub.setOption).toHaveBeenCalledOnce();
 
     theme.value = undefined;
     await nextTick();

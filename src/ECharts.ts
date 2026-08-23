@@ -25,7 +25,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { shallowEqual, warn } from "./utils";
+import { isPlainObject, shallowEqual, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -51,6 +51,15 @@ import { ensureStyles } from "./style";
 
 const SKIP_AUTO_UPDATE = Symbol();
 type ApplyMode = "manual" | "graphic";
+
+function isEquivalentReplacement(value: unknown, previous: unknown): boolean {
+  return (
+    value !== previous &&
+    isPlainObject(value) &&
+    isPlainObject(previous) &&
+    shallowEqual(value, previous)
+  );
+}
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -111,6 +120,7 @@ export default /* @__PURE__ */ defineComponent({
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
     let lastSignature: Signature | null | undefined;
     let themedChart: EChartsType | undefined;
+    let themeInvalidated = false;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let mounted = false;
@@ -277,7 +287,11 @@ export default /* @__PURE__ */ defineComponent({
     // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.
     watch(
       realTheme,
-      () => {
+      (theme, previousTheme) => {
+        if (isEquivalentReplacement(theme, previousTheme)) {
+          return;
+        }
+        themeInvalidated = true;
         themedChart = undefined;
         themeUpdatePending = true;
       },
@@ -317,13 +331,7 @@ export default /* @__PURE__ */ defineComponent({
         if (!mounted || terminallyDisposed) {
           return;
         }
-        if (
-          manual === previousManual &&
-          options !== previousOptions &&
-          options &&
-          previousOptions &&
-          shallowEqual(options, previousOptions)
-        ) {
+        if (manual === previousManual && isEquivalentReplacement(options, previousOptions)) {
           return;
         }
         cleanup();
@@ -337,6 +345,10 @@ export default /* @__PURE__ */ defineComponent({
     watch(
       realTheme,
       (theme) => {
+        if (!themeInvalidated) {
+          return;
+        }
+        themeInvalidated = false;
         optionUpdatePending = false;
         nextTick(() => {
           themeUpdatePending = false;
