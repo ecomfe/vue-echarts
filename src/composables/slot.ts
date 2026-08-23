@@ -144,6 +144,8 @@ export function useSlotOption(
             ref: (el) => {
               if (el) {
                 containers[slotName] = el as HTMLElement;
+              } else {
+                delete containers[slotName];
               }
             },
             style: { display: "contents" },

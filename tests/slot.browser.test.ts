@@ -17,6 +17,7 @@ import type {
 type SlotTestHandle = {
   patchOption: ReturnType<typeof useSlotOption>["patchOption"];
   render: ReturnType<typeof useSlotOption>["render"];
+  setReady: (value: boolean) => void;
 };
 
 const SlotTestComponent = defineComponent({
@@ -27,13 +28,16 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { render, patchOption } = useSlotOption(
-      ctx.slots,
-      props.onChange ?? (() => {}),
-      shallowRef(true),
-    );
+    const ready = shallowRef(true);
+    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}), ready);
 
-    ctx.expose({ patchOption, render });
+    ctx.expose({
+      patchOption,
+      render,
+      setReady: (value: boolean) => {
+        ready.value = value;
+      },
+    });
 
     return () => h("div", render());
   },
@@ -242,6 +246,29 @@ describe("useSlotOption", () => {
 
     await nextTick();
     expect(container.textContent).toBe("tooltip-42");
+  });
+
+  it("releases callback containers while the chart is not ready", async () => {
+    const { exposed } = renderSlotComponent(() => ({ tooltip: () => h("span", "tooltip") }));
+
+    await nextTick();
+
+    const handle = getExposed(exposed);
+    const formatter = getTooltipFormatter(handle.patchOption({}), "tooltip");
+    const container = formatter(makeTooltipParams(0), "");
+    expect(container).toBeInstanceOf(HTMLElement);
+
+    handle.setReady(false);
+    await nextTick();
+
+    expect(formatter(makeTooltipParams(1), "")).toBeUndefined();
+
+    handle.setReady(true);
+    await nextTick();
+
+    const nextContainer = formatter(makeTooltipParams(2), "");
+    expect(nextContainer).toBeInstanceOf(HTMLElement);
+    expect(nextContainer).not.toBe(container);
   });
 
   it("patches dataView slots and renders teleported content", async () => {
