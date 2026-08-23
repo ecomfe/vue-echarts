@@ -471,6 +471,7 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 >
 > - graphic 元素事件额外支持 `dblclick`、`contextmenu`。
 > - 事件支持 `.once` 修饰符。
+> - 仅使用 graphic 插槽时可以省略 `option` prop。
 > - `#graphic` 会覆盖 `option.graphic`。`manual-update` 模式下需调用 `chartRef.setOption(...)` 提交变更。
 
 <details>

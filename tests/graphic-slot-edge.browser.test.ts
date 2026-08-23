@@ -315,6 +315,48 @@ describe("graphic slot edge and integration behavior", () => {
     expect(getLastGraphicIds(chartStub)).toEqual(["slot-rect"]);
   });
 
+  it("renders and clears #graphic without an option prop", async () => {
+    registerExtension();
+
+    const showGraphic = ref(true);
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {},
+            showGraphic.value
+              ? {
+                  graphic: () =>
+                    h(GRect, { id: "graphic-only", x: 10, y: 10, width: 20, height: 12 }),
+                }
+              : {},
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    expect(getLastGraphicIds(chartStub)).toEqual(["graphic-only"]);
+
+    chartStub.setOption.mockClear();
+    showGraphic.value = false;
+    await nextTick();
+    await flushAnimationFrame();
+
+    const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
+    expect(optionArg.graphic).toBeUndefined();
+    expect(updateArg?.replaceMerge).toContain("graphic");
+
+    showGraphic.value = true;
+    await nextTick();
+    await flushAnimationFrame();
+    expect(getLastGraphicIds(chartStub)).toEqual(["graphic-only"]);
+  });
+
   it("applies dynamic empty #graphic slot presence changes", async () => {
     registerExtension();
 

@@ -134,6 +134,14 @@ export default /* @__PURE__ */ defineComponent({
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
+    function getAutoOption(): Option | undefined {
+      // A graphic slot is a complete option source even without an `option` prop.
+      return (
+        props.option ??
+        (patchGraphicOption && (slots.graphic || graphicSlotApplied) ? {} : undefined)
+      );
+    }
+
     function isActive(instance: EChartsType | undefined): instance is EChartsType {
       return (
         instance !== undefined &&
@@ -198,7 +206,7 @@ export default /* @__PURE__ */ defineComponent({
 
     function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
       const instance = chart.value;
-      const option = props.option;
+      const option = getAutoOption();
       if (!instance || !option || manualUpdate.value || deferredCharts?.has(instance)) {
         return false;
       }
@@ -252,7 +260,7 @@ export default /* @__PURE__ */ defineComponent({
       themedChart = instance;
 
       function commit(): void {
-        const option = props.option;
+        const option = manualUpdate.value ? props.option : getAutoOption();
         if (!option) {
           return;
         }

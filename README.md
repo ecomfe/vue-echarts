@@ -471,6 +471,7 @@ Read more at [ECharts `option.graphic` →](https://echarts.apache.org/en/option
 >
 > - Graphic element events additionally support `dblclick` and `contextmenu`.
 > - Event listeners support the `.once` modifier.
+> - The `option` prop may be omitted for graphic-only charts.
 > - `#graphic` overrides `option.graphic`. In `manual-update` mode, call `chartRef.setOption(...)` to apply changes.
 
 <details>
