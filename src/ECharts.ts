@@ -140,6 +140,7 @@ export default /* @__PURE__ */ defineComponent({
       override?: UpdateOptions,
       mode?: ApplyMode,
     ): void {
+      deferredCharts?.delete(instance);
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
@@ -232,7 +233,7 @@ export default /* @__PURE__ */ defineComponent({
             return;
           }
           instance.resize();
-          if (deferred.has(instance) && (!themeUpdatePending || manualUpdate.value)) {
+          if (deferred.has(instance)) {
             commit();
           }
           isReady.value = true;
@@ -262,7 +263,6 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       applyOption(instance, option, updateOptions, "manual");
-      deferredCharts?.delete(instance);
     };
 
     // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.

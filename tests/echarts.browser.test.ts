@@ -448,43 +448,48 @@ describe("ECharts component", () => {
     expect(lastOption).toMatchObject({ title: { text: "after" } });
   });
 
-  it("re-initializes cleanly when initOptions and theme change in the same tick", async () => {
-    const option = ref<Option>({ title: { text: "combo" } });
-    const theme = ref<Theme | undefined>("dark");
-    const initOptions = ref<InitOptions>({ renderer: "canvas" });
-    const exposed = shallowRef<Exposed>();
+  it.each([false, true])(
+    "re-initializes cleanly when initOptions and theme change in the same tick (autoresize: %s)",
+    async (autoresize) => {
+      const option = ref<Option>({ title: { text: "combo" } });
+      const theme = ref<Theme | undefined>("dark");
+      const initOptions = ref<InitOptions>({ renderer: "canvas" });
+      const exposed = shallowRef<Exposed>();
 
-    renderChart(
-      () => ({
-        option: option.value,
-        initOptions: initOptions.value,
-        theme: theme.value,
-      }),
-      exposed,
-    );
-    await nextTick();
+      renderChart(
+        () => ({
+          option: option.value,
+          initOptions: initOptions.value,
+          theme: theme.value,
+          autoresize,
+        }),
+        exposed,
+      );
+      await nextTick();
 
-    const firstStub = chartStub;
-    const replacementStub = enqueueChart();
-    chartStub = replacementStub;
-    init.mockClear();
-    firstStub.dispose.mockClear();
+      const firstStub = chartStub;
+      const replacementStub = enqueueChart();
+      chartStub = replacementStub;
+      init.mockClear();
+      firstStub.dispose.mockClear();
 
-    theme.value = { palette: ["#f97316"] };
-    initOptions.value = { renderer: "svg" };
-    await nextTick();
+      theme.value = { palette: ["#f97316"] };
+      initOptions.value = { renderer: "svg" };
+      await nextTick();
+      await nextTick();
 
-    expect(firstStub.dispose).toHaveBeenCalledTimes(1);
-    expect(init).toHaveBeenCalledTimes(1);
-    const [, passedTheme, passedInit] = init.mock.calls[0];
-    expect(passedTheme).toEqual({ palette: ["#f97316"] });
-    expect(passedInit).toEqual({ renderer: "svg" });
-    expect(replacementStub.setTheme).not.toHaveBeenCalled();
-    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
-    expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
-      title: { text: "combo" },
-    });
-  });
+      expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+      expect(init).toHaveBeenCalledTimes(1);
+      const [, passedTheme, passedInit] = init.mock.calls[0];
+      expect(passedTheme).toEqual({ palette: ["#f97316"] });
+      expect(passedInit).toEqual({ renderer: "svg" });
+      expect(replacementStub.setTheme).not.toHaveBeenCalled();
+      expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
+      expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
+        title: { text: "combo" },
+      });
+    },
+  );
 
   it("reapplies option with explicit updateOptions after theme changes", async () => {
     const option = ref<Option>({ series: [{ type: "line", data: [1, 2, 3] }] });
