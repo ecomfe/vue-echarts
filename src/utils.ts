@@ -65,7 +65,11 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
     return false;
   }
   const prototype = Object.getPrototypeOf(value);
-  return prototype === null || prototype === Object.prototype;
+  return (
+    prototype === null ||
+    prototype === Object.prototype ||
+    (Object.getPrototypeOf(prototype) === null && prototype.constructor?.name === "Object")
+  );
 }
 
 const LOG_PREFIX = "[vue-echarts]";

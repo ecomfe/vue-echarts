@@ -1297,6 +1297,32 @@ describe("ECharts component", () => {
     });
   });
 
+  it("detects removals in option objects from another realm", async () => {
+    const iframe = document.body.appendChild(document.createElement("iframe"));
+    const ownerWindow = iframe.contentDocument?.defaultView;
+    if (!ownerWindow) {
+      throw new Error("Expected iframe window to be available.");
+    }
+    const option = ref<Option>(
+      ownerWindow.JSON.parse('{"title":{"text":"Coffee","subtext":"Daily"}}'),
+    );
+    const exposed = shallowRef<Exposed>();
+    const screen = renderChart(() => ({ option: option.value }), exposed);
+
+    try {
+      await nextTick();
+      chartStub.setOption.mockClear();
+
+      option.value = ownerWindow.JSON.parse('{"title":{"text":"Coffee"}}');
+      await nextTick();
+
+      expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: true });
+    } finally {
+      screen.unmount();
+      iframe.remove();
+    }
+  });
+
   it("honors override.replaceMerge in update options", async () => {
     const option = ref({ series: [{ type: "bar", data: [1] }] });
     const exposed = shallowRef<Exposed>();

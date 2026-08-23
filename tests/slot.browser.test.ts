@@ -184,6 +184,10 @@ describe("useSlotOption", () => {
     if (!ownerDocument) {
       throw new Error("Expected iframe document to be available.");
     }
+    const ownerWindow = ownerDocument.defaultView;
+    if (!ownerWindow) {
+      throw new Error("Expected iframe window to be available.");
+    }
     const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
     const exposed = shallowRef<SlotTestHandle>();
     const Root = defineComponent({
@@ -206,7 +210,8 @@ describe("useSlotOption", () => {
       app.mount(container);
       await nextTick();
 
-      const patched = getExposed(exposed).patchOption({});
+      const option = ownerWindow.JSON.parse('{"tooltip":{"show":true}}') as Option;
+      const patched = getExposed(exposed).patchOption(option);
       const tooltipContainer = getTooltipFormatter(patched, "iframe")(makeTooltipParams(0), "");
       const element = tooltipContainer as HTMLElement | undefined;
 
