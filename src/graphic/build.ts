@@ -7,14 +7,6 @@ import type { GraphicNode } from "./collector";
 
 const EMPTY_PROP_KEYS: readonly string[] = [];
 
-function resolveShapeKeys(type: string): readonly string[] {
-  return SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
-}
-
-function resolveStyleKeys(type: string): readonly string[] {
-  return STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
-}
-
 function mergeProps(
   target: Record<string, unknown>,
   keys: readonly string[],
@@ -43,11 +35,11 @@ function buildStyle(
 }
 
 function buildShape(
-  type: string,
   props: Record<string, unknown>,
+  shapeKeys: readonly string[],
 ): Record<string, unknown> | undefined {
   const shape = { ...(props.shape as Record<string, unknown> | undefined) };
-  mergeProps(shape, resolveShapeKeys(type), props);
+  mergeProps(shape, shapeKeys, props);
 
   if (props.shapeTransition !== undefined) {
     shape.transition = props.shapeTransition;
@@ -56,10 +48,12 @@ function buildShape(
   return Object.keys(shape).length > 0 ? shape : undefined;
 }
 
-function buildCommon(type: string, props: Record<string, unknown>): Record<string, unknown> {
+function buildCommon(
+  props: Record<string, unknown>,
+  shapeKeys: readonly string[],
+  styleKeys: readonly string[],
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  const shapeKeys = resolveShapeKeys(type);
-  const styleKeys = resolveStyleKeys(type);
 
   for (const key of COMMON_PROP_KEYS) {
     if (shapeKeys.includes(key) || styleKeys.includes(key)) {
@@ -133,21 +127,18 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const { type, id, props } = node;
-  const styleKeys = resolveStyleKeys(type);
+  const shapeKeys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+  const styleKeys = STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
   const out: Record<string, unknown> = {
     type,
     id,
   };
 
-  Object.assign(out, buildCommon(type, props));
+  Object.assign(out, buildCommon(props, shapeKeys, styleKeys));
 
   const handlers = buildHandlers(node);
   if (handlers) {
     Object.assign(out, handlers);
-  }
-
-  if (props.info !== undefined) {
-    out.info = props.info;
   }
 
   if (type === "group") {
@@ -157,7 +148,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     return out as Option;
   }
 
-  const shape = buildShape(type, props);
+  const shape = buildShape(props, shapeKeys);
   if (shape) {
     out.shape = shape;
   }

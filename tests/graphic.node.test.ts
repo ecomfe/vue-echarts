@@ -132,7 +132,7 @@ describe("graphic", () => {
     expect(rebuilt?.onclick).toBe(click);
   });
 
-  it("builds image/group options and covers info fallback branches", () => {
+  it("builds image and group options", () => {
     const nodes = withHandlerCache([
       {
         id: "group",
