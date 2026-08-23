@@ -14,8 +14,9 @@ function mergeProps(
   props: Record<string, unknown>,
 ): void {
   for (const key of keys) {
-    if (props[key] !== undefined) {
-      target[key] = props[key];
+    const value = props[key];
+    if (value !== undefined) {
+      target[key] = value;
     }
   }
 }
@@ -56,12 +57,9 @@ function mergeCommon(
   styleKeys: readonly string[],
 ): void {
   for (const key of COMMON_PROP_KEYS) {
-    if (shapeKeys.includes(key) || styleKeys.includes(key)) {
-      continue;
-    }
-
-    if (props[key] !== undefined) {
-      target[key] = props[key];
+    const value = props[key];
+    if (value !== undefined && !shapeKeys.includes(key) && !styleKeys.includes(key)) {
+      target[key] = value;
     }
   }
 }
