@@ -135,6 +135,15 @@ function getSeriesOption(option: Option, index: number): TooltipComponentOption 
 }
 
 describe("useSlotOption", () => {
+  it("returns the original option when no callback slots exist", async () => {
+    const { exposed } = renderSlotComponent(() => ({}));
+    const option = { series: [{ type: "line", data: [1, 2, 3] }] };
+
+    await nextTick();
+
+    expect(getExposed(exposed).patchOption(option)).toBe(option);
+  });
+
   it("patches tooltip slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 

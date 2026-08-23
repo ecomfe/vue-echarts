@@ -117,8 +117,11 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
   };
 
   function patchOption(src: Option): Option {
-    const root: Option = { ...src };
     const names = collectSlotNames(true);
+    if (names.length === 0) {
+      return src;
+    }
+    const root: Option = { ...src };
 
     for (const key of names) {
       const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
