@@ -6,6 +6,7 @@ import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
+import type { UpdateOptions } from "../src/types";
 import { registerExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
 import { setupGraphicSlotSuite } from "./helpers/graphic-slot";
@@ -33,11 +34,12 @@ describe("graphic slot manual-update behavior", () => {
     const manualOption = ref({
       series: [{ type: "line", data: [3, 5, 2] }],
     });
+    const updateOptions = { replaceMerge: ["graphic"] } satisfies UpdateOptions;
 
     const Root = defineComponent({
       setup() {
         onMounted(() => {
-          exposed.value?.setOption(manualOption.value);
+          exposed.value?.setOption(manualOption.value, updateOptions);
         });
 
         return () =>
@@ -58,9 +60,10 @@ describe("graphic slot manual-update behavior", () => {
 
       const chartStub = suite.getChartStub();
       expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-      const [optionArg] = chartStub.setOption.mock.calls[0] as [any, any];
+      const [optionArg, updateArg] = chartStub.setOption.mock.calls[0] as [any, any];
       expect(optionArg.graphic.elements[0].children[0].id).toBe("slot-rect");
       expect(optionArg.series?.[0]?.data).toEqual([3, 5, 2]);
+      expect(updateArg).toBe(updateOptions);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) => String(call[0]).includes("manual-update")),
       ).toBe(false);
