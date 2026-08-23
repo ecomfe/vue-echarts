@@ -1,7 +1,7 @@
 import { h, Teleport, onUpdated, onMounted, shallowRef, shallowReactive } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
-import { isBrowser, isPlainObject, isSameSet, isValidArrayIndex, warn } from "../utils";
+import { isBrowser, isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
 
@@ -163,18 +163,19 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   onUpdated(() => {
     const nextSlotNames = collectSlotNames(false);
-    if (!isSameSet(nextSlotNames, slotNames)) {
-      const nextSlotNameSet = new Set(nextSlotNames);
-      let removed = false;
-      for (const key of slotNames) {
-        if (!nextSlotNameSet.has(key)) {
-          removed = true;
-          delete params[key];
-          delete initialized[key];
-          delete containers[key];
-          formatters.delete(key);
-        }
+    const nextSlotNameSet = new Set(nextSlotNames);
+    let removed = false;
+    for (const key of slotNames) {
+      if (!nextSlotNameSet.has(key)) {
+        removed = true;
+        delete params[key];
+        delete initialized[key];
+        delete containers[key];
+        formatters.delete(key);
       }
+    }
+
+    if (removed || nextSlotNames.length !== slotNames.length) {
       slotNames = nextSlotNames;
       // ECharts merge retains formatter fields omitted after a slot is removed.
       onSlotsChange(removed ? { notMerge: true } : undefined);

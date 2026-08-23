@@ -54,23 +54,6 @@ export function isValidArrayIndex(key: string): boolean {
   return Number.isInteger(num) && num >= 0 && num < Math.pow(2, 32) - 1 && String(num) === key;
 }
 
-export function isSameSet<T>(a: T[], b: T[]): boolean {
-  const setA = new Set(a);
-  const setB = new Set(b);
-
-  if (setA.size !== setB.size) {
-    return false;
-  }
-
-  for (const val of setA) {
-    if (!setB.has(val)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object") {
     return false;

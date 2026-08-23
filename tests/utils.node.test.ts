@@ -5,7 +5,6 @@ import {
   createEventInvoker,
   isOn,
   isPlainObject,
-  isSameSet,
   isValidArrayIndex,
   parseOnEvent,
   warn,
@@ -90,18 +89,6 @@ describe("utils", () => {
       expect(isValidArrayIndex("3.14")).toBe(false);
       expect(isValidArrayIndex("1e3")).toBe(false);
       expect(isValidArrayIndex("foo")).toBe(false);
-    });
-  });
-
-  describe("isSameSet", () => {
-    it("detects identical sets regardless of order", () => {
-      expect(isSameSet([1, 2, 2, 3], [3, 2, 1])).toBe(true);
-      expect(isSameSet([1, 2, 2, 3], [3, 4, 1])).toBe(false);
-    });
-
-    it("detects differing sets", () => {
-      expect(isSameSet([1, 2], [1, 2, 3])).toBe(false);
-      expect(isSameSet([1, 2], [1, 3])).toBe(false);
     });
   });
 
