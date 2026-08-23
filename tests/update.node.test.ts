@@ -12,6 +12,7 @@ const linearGradient = {
   global: true,
 };
 type AppliedOption = {
+  backgroundColor?: unknown;
   dataset?: unknown;
   title?: Array<{ subtext?: string }>;
   series?: Array<{ name?: string; datasetId?: string; label?: { color?: string } }>;
@@ -97,7 +98,7 @@ describe("smart-update", () => {
       expect(signature.arrays.series).toMatchObject({ idsSorted: ["1", "2"], noIdCount: 3 });
     });
 
-    it("counts primitive array items and sorts leaf keys", () => {
+    it("filters primitive component items and sorts leaf keys", () => {
       const option: EChartsOption = {
         dataset: ["raw", { id: "has-id" }],
         backgroundColor: "#000",
@@ -106,7 +107,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 1 });
+      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 0 });
       expect(signature.leaves).toEqual(["backgroundColor", "color"]);
     });
 
@@ -383,6 +384,42 @@ describe("smart-update", () => {
 
         expect(next.plan.notMerge).toBe(true);
         expect(next.plan.replaceMerge).toBeUndefined();
+      });
+
+      it("removes top-level values explicitly cleared with null", () => {
+        const title = { title: { text: "before" } };
+        const background = { backgroundColor: "red" };
+        const clearedTitle = { title: null } as unknown as EChartsOption;
+        const clearedBackground = { backgroundColor: null } as unknown as EChartsOption;
+        const { applied, plan } = applyPlannedUpdate(background, clearedBackground);
+
+        expect(planUpdate(buildSignature(title), clearedTitle).plan).toEqual({ notMerge: true });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.backgroundColor).toBeUndefined();
+      });
+
+      it("removes component entries replaced by null holes", () => {
+        const base: EChartsOption = {
+          series: [{ type: "pie", data: [1] }],
+        };
+        const update = { series: [null] } as unknown as EChartsOption;
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
+        expect(applied.series).toEqual([]);
+      });
+
+      it.each(optionContainers)("aligns component shapes around null holes in %s", (container) => {
+        const base = wrapOption(container, {
+          series: [{ type: "pie", data: [1], label: { show: true, color: "red" } }, null],
+        } as unknown as EChartsOption);
+        const update = wrapOption(container, {
+          series: [null, { type: "pie", data: [2], label: { show: true } }],
+        } as unknown as EChartsOption);
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.[0]?.label?.color).toBeUndefined();
       });
 
       it("removes planned object and array options from the ECharts model", () => {

@@ -25,13 +25,17 @@ function toIdentity(value: unknown): string | undefined {
     : undefined;
 }
 
+function isComponentOption(value: unknown): boolean {
+  return typeof value === "function" || (typeof value === "object" && value !== null);
+}
+
 /** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
   /** Unique, sorted string ids extracted from items' `id` field. */
   idsSorted: string[];
-  /** Count of items without an `id` field. */
+  /** Count of summarized items without an `id` field. */
   noIdCount: number;
-  /** Structural snapshots aligned with the original items. */
+  /** Structural snapshots in merge order; invalid component entries are omitted. */
   shapes: ArrayItemShape[];
 }
 
@@ -80,7 +84,7 @@ function buildShape(
     }
     shape[key] =
       mode === "option" && Array.isArray(child)
-        ? analyzeArray(child, stack)
+        ? analyzeArray(child, stack, undefined, ComponentModel.hasClass(key))
         : mode === "media" && key === "option"
           ? buildShape(child, stack, "option")
           : buildShape(child, stack);
@@ -89,13 +93,21 @@ function buildShape(
   return shape;
 }
 
-function analyzeArray(items: unknown[], stack: WeakSet<object>, mode?: ShapeMode): ArraySummary {
+function analyzeArray(
+  items: unknown[],
+  stack: WeakSet<object>,
+  mode: ShapeMode | undefined,
+  componentItems: boolean,
+): ArraySummary {
   let ids: Set<string> | undefined;
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
+    if (componentItems && !isComponentOption(item)) {
+      continue;
+    }
     const itemShape: ArrayItemShape = { id: undefined, name: undefined, shape: true };
     itemShape.shape = buildShape(item, stack, mode, itemShape);
     shapes.push(itemShape);
@@ -130,7 +142,12 @@ export function buildSignature(option: Option): Signature {
     const value = opt[key];
     if (Array.isArray(value)) {
       const mode = key === "options" ? "option" : key === "media" ? "media" : undefined;
-      arrays[key] = analyzeArray(value, (stack ??= new WeakSet()), mode);
+      arrays[key] = analyzeArray(
+        value,
+        (stack ??= new WeakSet()),
+        mode,
+        ComponentModel.hasClass(key),
+      );
       continue;
     }
 
@@ -140,8 +157,8 @@ export function buildSignature(option: Option): Signature {
       continue;
     }
 
-    // `undefined` is treated as absent; all other non-structural values remain leaves.
-    if (value !== undefined) {
+    // ECharts ignores nullish top-level values during merge, so they represent absence here too.
+    if (value != null) {
       leaves.push(key);
     }
   }
