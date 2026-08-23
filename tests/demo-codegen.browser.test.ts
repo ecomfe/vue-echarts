@@ -163,4 +163,31 @@ describe("code generator dialog", () => {
     expect(mocks.writeText).toHaveBeenCalledTimes(2);
     expect(mocks.track).toHaveBeenCalledWith("copy-code", { from: "button" });
   });
+
+  it("closes only when a pointer gesture stays outside the dialog content", async () => {
+    const { open, trigger } = renderCodegen();
+    const modal = await openCodegen(trigger);
+    const content = modal.querySelector<HTMLElement>(".dialog");
+    const checkbox = modal.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    if (!content || !checkbox) {
+      throw new Error("Expected dialog content and controls.");
+    }
+
+    // Keyboard activation emits click without a preceding pointer event.
+    checkbox.click();
+    expect(checkbox.checked).toBe(true);
+    expect(open.value).toBe(true);
+    expect(modal.open).toBe(true);
+
+    content.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    modal.click();
+    expect(open.value).toBe(true);
+
+    modal.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    modal.click();
+    await vi.waitFor(() => {
+      expect(open.value).toBe(false);
+      expect(modal.open).toBe(false);
+    });
+  });
 });

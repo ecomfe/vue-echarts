@@ -85,7 +85,7 @@ const {
 
 const modal = ref<HTMLDialogElement | null>(null);
 const dialog = ref<HTMLElement | null>(null);
-let clickFrom: Node | null = null;
+let mouseDownTarget: Node | null = null;
 
 const editorEl = ref<HTMLElement | null>(null);
 const outputEl = ref<HTMLElement | null>(null);
@@ -120,12 +120,15 @@ watch(renderer, (value) => {
 });
 
 function onMousedown(event: MouseEvent) {
-  clickFrom = event.target instanceof Node ? event.target : null;
+  mouseDownTarget = event.target instanceof Node ? event.target : null;
 }
 
-function closeFromOutside() {
-  const target = clickFrom;
-  if (target && dialog.value?.contains(target)) {
+function closeFromOutside(event: MouseEvent) {
+  const content = dialog.value;
+  const startedInside = mouseDownTarget ? Boolean(content?.contains(mouseDownTarget)) : false;
+  mouseDownTarget = null;
+  const endedInside = event.target instanceof Node && Boolean(content?.contains(event.target));
+  if (startedInside || endedInside) {
     return;
   }
   close();
