@@ -271,7 +271,15 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
   }
 
-  if (hasMissing(prev.leaves, next.leaves)) {
+  if (
+    hasMissing(prev.leaves, next.leaves) &&
+    prev.leaves.some(
+      (key) =>
+        !next.leaves.includes(key) &&
+        next.arrays[key] === undefined &&
+        next.objectShapes[key] === undefined,
+    )
+  ) {
     return null;
   }
 

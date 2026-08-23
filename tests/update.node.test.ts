@@ -224,14 +224,21 @@ describe("smart-update", () => {
         expect(next.plan.replaceMerge).toBeUndefined();
       });
 
-      it("keeps merge when a non-plain object becomes a primitive", () => {
-        const prev = buildSignature({
+      it("keeps merge when a setting changes between leaf and structured forms", () => {
+        const object = buildSignature({
           backgroundColor: linearGradient,
         });
-        const next = planUpdate(prev, { backgroundColor: "transparent" });
+        const leaf = buildSignature({ backgroundColor: "transparent" });
 
-        expect(next.plan.notMerge).toBe(false);
-        expect(next.plan.replaceMerge).toBeUndefined();
+        expect(planUpdate(object, { backgroundColor: "transparent" }).plan).toEqual({
+          notMerge: false,
+        });
+        expect(planUpdate(leaf, { backgroundColor: linearGradient }).plan).toEqual({
+          notMerge: false,
+        });
+        expect(planUpdate(buildSignature({ color: "red" }), { color: ["blue"] }).plan).toEqual({
+          notMerge: false,
+        });
       });
 
       it("keeps merge for nested additions and value replacements", () => {
