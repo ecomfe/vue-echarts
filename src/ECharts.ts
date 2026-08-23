@@ -117,17 +117,13 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       const replaceMerge = updateOptions?.replaceMerge;
-      if (
-        Array.isArray(replaceMerge) &&
-        replaceMerge.length === 1 &&
-        replaceMerge[0] === "graphic"
-      ) {
+      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : (replaceMerge ?? []);
+      if (replacements.includes("graphic")) {
         return updateOptions;
       }
-      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : (replaceMerge ?? []);
       return {
         ...updateOptions,
-        replaceMerge: [...new Set([...replacements, "graphic"])],
+        replaceMerge: [...replacements, "graphic"],
       };
     }
 

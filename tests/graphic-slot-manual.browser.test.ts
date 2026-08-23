@@ -27,14 +27,14 @@ function getLastSetOptionArg(chartStub: { setOption: { mock: { calls: unknown[][
 }
 
 describe("graphic slot manual-update behavior", () => {
-  it("includes mounted graphic in the first manual setOption without warning", async () => {
+  it("includes mounted graphic and reuses complete update options", async () => {
     registerExtension();
 
     const exposed = shallowRef<Exposed>();
     const manualOption = ref({
       series: [{ type: "line", data: [3, 5, 2] }],
     });
-    const updateOptions = { replaceMerge: ["graphic"] } satisfies UpdateOptions;
+    const updateOptions = { replaceMerge: ["series", "graphic"] } satisfies UpdateOptions;
 
     const Root = defineComponent({
       setup() {
