@@ -148,6 +148,12 @@ describe("graphic", () => {
   });
 
   it("builds image and group options", () => {
+    const crop = {
+      sx: 1,
+      sy: 2,
+      sWidth: 30,
+      sHeight: 40,
+    };
     const nodes: GraphicNode[] = [
       {
         id: "group",
@@ -170,6 +176,7 @@ describe("graphic", () => {
           width: 3,
           height: 4,
           image: "https://example.com/a.png",
+          ...crop,
           styleTransition: "all",
         },
         handlers: {},
@@ -268,6 +275,7 @@ describe("graphic", () => {
     expect(group.info).toBe("root");
     expect(image.style).toMatchObject({
       image: "https://example.com/a.png",
+      ...crop,
       transition: "all",
     });
     expect(line.shape).toMatchObject({

@@ -79,7 +79,17 @@ export const TEXT_STYLE_KEYS = [
   "ellipsis",
 ] as const;
 
-export const IMAGE_STYLE_KEYS = ["image", "x", "y", "width", "height"] as const;
+export const IMAGE_STYLE_KEYS = [
+  "image",
+  "x",
+  "y",
+  "width",
+  "height",
+  "sx",
+  "sy",
+  "sWidth",
+  "sHeight",
+] as const;
 
 export const STYLE_KEYS_BY_TYPE = {
   text: TEXT_STYLE_KEYS,
@@ -182,6 +192,10 @@ const imageStyleProps = {
   image: [String, Object] as PropType<
     string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement
   >,
+  sx: Number,
+  sy: Number,
+  sWidth: Number,
+  sHeight: Number,
 } as const satisfies Record<GraphicImageStyleOnlyKey, unknown>;
 
 export const commonProps = {

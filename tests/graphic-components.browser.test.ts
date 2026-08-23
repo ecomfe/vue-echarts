@@ -143,8 +143,9 @@ describe("graphic components", () => {
       ownerDocument.createElement("canvas"),
       ownerDocument.createElement("video"),
     ];
+    const crop = { sx: 1, sy: 2, sWidth: 30, sHeight: 40 };
     const Root = withGraphicProvider(collector, () =>
-      media.map((image, index) => h(GImage, { id: index, image })),
+      media.map((image, index) => h(GImage, { id: index, image, ...crop })),
     );
 
     try {
@@ -159,6 +160,7 @@ describe("graphic components", () => {
       await nextTick();
 
       expect(collector.register.mock.calls.map(([node]) => node.props.image)).toEqual(media);
+      expect(getLastRegisterPayload(collector).props).toMatchObject(crop);
     } finally {
       iframe.remove();
     }

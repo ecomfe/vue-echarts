@@ -2,8 +2,9 @@
 
 import type { Color } from "echarts";
 
-import { GRect, GText } from "../../src/graphic/components";
+import { GImage, GRect, GText } from "../../src/graphic/components";
 
+type ImageProps = InstanceType<typeof GImage>["$props"];
 type RectProps = InstanceType<typeof GRect>["$props"];
 type TextProps = InstanceType<typeof GText>["$props"];
 
@@ -21,5 +22,9 @@ type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | und
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
 type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]>>;
+type _sxType = Assert<IsAssignable<ImageProps["sx"], number | undefined>>;
+type _syType = Assert<IsAssignable<ImageProps["sy"], number | undefined>>;
+type _sWidthType = Assert<IsAssignable<ImageProps["sWidth"], number | undefined>>;
+type _sHeightType = Assert<IsAssignable<ImageProps["sHeight"], number | undefined>>;
 type _overflowType = Assert<IsAssignable<TextProps["overflow"], string | undefined>>;
 type _ellipsisType = Assert<IsAssignable<TextProps["ellipsis"], string | undefined>>;
