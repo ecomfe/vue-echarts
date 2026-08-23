@@ -270,7 +270,6 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         if (!option) {
-          lastSignature = undefined;
           return;
         }
 

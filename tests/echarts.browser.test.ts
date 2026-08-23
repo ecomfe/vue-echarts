@@ -808,22 +808,32 @@ describe("ECharts component", () => {
     expect(getExposedField(getExposed(exposed), "chart")).toBeUndefined();
   });
 
-  it("ignores falsy reactive options", async () => {
-    const option = ref<Option | undefined>({ title: { text: "present" } });
+  it("ignores absent options without losing the last update signature", async () => {
+    const option = ref<Option | undefined>({
+      series: [{ id: "old", type: "line", data: [1, 2, 3] }],
+    });
     const exposed = shallowRef<Exposed>();
 
     renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
-    const replacementStub = chartStub;
-    expect(replacementStub.setOption.mock.calls.length).toBeGreaterThan(0);
-    replacementStub.setOption.mockClear();
+    const activeChart = chartStub;
+    expect(activeChart.setOption.mock.calls.length).toBeGreaterThan(0);
+    activeChart.setOption.mockClear();
 
     option.value = undefined;
     await nextTick();
+
+    expect(activeChart.setOption).not.toHaveBeenCalled();
+
+    option.value = { title: { text: "replacement" } };
     await nextTick();
 
-    expect(replacementStub.setOption).not.toHaveBeenCalled();
+    expect(activeChart.setOption).toHaveBeenCalledOnce();
+    expect(getLastSetOptionCall(activeChart)[1]).toEqual({
+      notMerge: false,
+      replaceMerge: ["series"],
+    });
   });
 
   it("shows and hides loading based on props", async () => {
