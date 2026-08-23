@@ -8,7 +8,7 @@ import type {
 } from "echarts/core";
 import type { MaybeRefOrGetter } from "vue";
 
-export type Injection<T> = MaybeRefOrGetter<T | null>;
+export type Injection<T> = MaybeRefOrGetter<T | null | undefined>;
 
 type InitType = typeof init;
 export type InitParameters = Parameters<InitType>;
