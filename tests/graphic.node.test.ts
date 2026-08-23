@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
+import { init } from "echarts";
 
 import { buildOption } from "../src/graphic/build";
 import { createCollector, type GraphicNode } from "../src/graphic/collector";
+import * as components from "../src/graphic/components";
+import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
@@ -14,6 +17,30 @@ function getRootGraphicElement(option: unknown): any {
 }
 
 describe("graphic", () => {
+  it("exports only element types supported by the ECharts graphic component", () => {
+    const nodes = Object.values(components).map((component, index): GraphicNode => ({
+      id: String(index),
+      type: (component as unknown as Record<symbol, string>)[GRAPHIC_COMPONENT_MARKER],
+      parentId: null,
+      props: {},
+      handlers: {},
+      order: index,
+      sourceId: index,
+    }));
+    const chart = init(null, undefined, {
+      renderer: "svg",
+      ssr: true,
+      width: 100,
+      height: 100,
+    });
+
+    try {
+      expect(() => chart.setOption(buildOption(nodes, "root"))).not.toThrow();
+    } finally {
+      chart.dispose();
+    }
+  });
+
   it("builds graphic option with ordered children and replace root", () => {
     const paint = {
       fill: "#f00",

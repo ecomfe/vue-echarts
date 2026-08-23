@@ -12,4 +12,3 @@ export const GSector: GraphicComponent = createComponent("GSector", "sector");
 export const GRing: GraphicComponent = createComponent("GRing", "ring");
 export const GArc: GraphicComponent = createComponent("GArc", "arc");
 export const GBezierCurve: GraphicComponent = createComponent("GBezierCurve", "bezierCurve");
-export const GCompoundPath: GraphicComponent = createComponent("GCompoundPath", "compoundPath");

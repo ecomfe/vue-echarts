@@ -454,7 +454,6 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 - `GRing`
 - `GArc`
 - `GBezierCurve`
-- `GCompoundPath`
 
 更多细节可参考 [ECharts `option.graphic` →](https://echarts.apache.org/zh/option.html#graphic)
 

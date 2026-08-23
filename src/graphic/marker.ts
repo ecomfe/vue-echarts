@@ -12,5 +12,4 @@ export type GraphicComponentType =
   | "sector"
   | "ring"
   | "arc"
-  | "bezierCurve"
-  | "compoundPath";
+  | "bezierCurve";

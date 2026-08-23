@@ -13,7 +13,6 @@ export const SHAPE_KEYS_BY_TYPE = {
   polyline: ["points", "smooth", "smoothConstraint"],
   polygon: ["points", "smooth", "smoothConstraint"],
   bezierCurve: ["x1", "y1", "x2", "y2", "cpx1", "cpy1", "cpx2", "cpy2", "percent"],
-  compoundPath: ["paths"],
 } as const satisfies Partial<Record<GraphicComponentType, readonly string[]>>;
 
 export const shapeProps = {
@@ -37,7 +36,6 @@ export const shapeProps = {
   points: Array as PropType<Array<[number, number]>>,
   smooth: withUndefinedDefault([Boolean, Number] as PropType<boolean | number>),
   smoothConstraint: Array as PropType<Array<[number, number]>>,
-  paths: Array as PropType<unknown[]>,
   clockwise: withUndefinedDefault(Boolean),
   cornerRadius: [Number, Array] as PropType<number | number[]>,
 } as const;

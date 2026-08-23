@@ -455,7 +455,6 @@ Available components:
 - `GRing`
 - `GArc`
 - `GBezierCurve`
-- `GCompoundPath`
 
 Read more at [ECharts `option.graphic` →](https://echarts.apache.org/en/option.html#graphic)
 

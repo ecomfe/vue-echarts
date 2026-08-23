@@ -21,5 +21,4 @@ export {
   GRing,
   GArc,
   GBezierCurve,
-  GCompoundPath,
 } from "./components";
