@@ -42,7 +42,7 @@ export function createComponent(name: string, type: GraphicComponentType) {
       const { register: registerNode, unregister, requestFlush, warn: warnScoped } = collector;
       let currentId: string | null = null;
 
-      watch(props, requestFlush, { deep: true });
+      watch([props, () => attrs], requestFlush, { deep: true });
 
       function register(): string {
         const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);

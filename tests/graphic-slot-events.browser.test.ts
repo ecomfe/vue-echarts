@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, ref, shallowRef } from "vue";
+import { defineComponent, h, nextTick, reactive, ref, shallowRef } from "vue";
 
 import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
@@ -153,24 +153,20 @@ describe("graphic slot event handling", () => {
     expect(onMousemove).toHaveBeenCalledTimes(1);
   });
 
-  it("supports handler transitions: function to array to empty", async () => {
+  it("supports handler transitions and in-place array activation", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const fnA = vi.fn();
     const fnB = vi.fn();
     const fnC = vi.fn();
-    const stage = ref<"single" | "array" | "none">("single");
+    const mutableHandlers = reactive<unknown[]>(["invalid"]);
+    const currentHandler = shallowRef<unknown>(fnA);
 
     const Root = defineComponent({
       setup() {
         return () => {
-          const onClick =
-            stage.value === "single"
-              ? fnA
-              : stage.value === "array"
-                ? ([fnB, fnC] as unknown as (params: unknown) => void)
-                : undefined;
+          const onClick = currentHandler.value as ((params: unknown) => void) | undefined;
           return h(
             ECharts,
             { option: option.value },
@@ -188,9 +184,9 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const singleNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "channel-node",
-    ) as Record<string, unknown> | undefined;
+    const getNode = () =>
+      getLastGraphicRootChildren(chartStub).find((item) => item.id === "channel-node");
+    const singleNode = getNode();
     if (!singleNode || typeof singleNode.onclick !== "function") {
       throw new Error("Expected first click handler to exist.");
     }
@@ -200,13 +196,11 @@ describe("graphic slot event handling", () => {
     expect(fnB).toHaveBeenCalledTimes(0);
     expect(fnC).toHaveBeenCalledTimes(0);
 
-    stage.value = "array";
+    currentHandler.value = [fnB, fnC];
     await nextTick();
     await flushAnimationFrame();
 
-    const arrayNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "channel-node",
-    ) as Record<string, unknown> | undefined;
+    const arrayNode = getNode();
     if (!arrayNode || typeof arrayNode.onclick !== "function") {
       throw new Error("Expected array click handler to exist.");
     }
@@ -216,19 +210,31 @@ describe("graphic slot event handling", () => {
     expect(fnB).toHaveBeenCalledTimes(1);
     expect(fnC).toHaveBeenCalledTimes(1);
 
-    stage.value = "none";
+    currentHandler.value = undefined;
     await nextTick();
     await flushAnimationFrame();
 
-    const noneNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "channel-node",
-    ) as Record<string, unknown> | undefined;
+    const noneNode = getNode();
     if (!noneNode) {
       throw new Error("Expected none node to exist.");
     }
     expect(noneNode.onclick).toBeUndefined();
     expect(fnB).toHaveBeenCalledTimes(1);
     expect(fnC).toHaveBeenCalledTimes(1);
+
+    currentHandler.value = mutableHandlers;
+    await nextTick();
+    await flushAnimationFrame();
+    expect(getNode()?.onclick).toBeUndefined();
+
+    mutableHandlers[0] = fnA;
+    await nextTick();
+    await flushAnimationFrame();
+
+    const click = getNode()?.onclick;
+    expect(click).toBeTypeOf("function");
+    (click as (params: unknown) => void)({ value: 1 });
+    expect(fnA).toHaveBeenCalledTimes(2);
   });
 
   it("keeps once handlers consumed across rerenders and resets on replacement", async () => {
