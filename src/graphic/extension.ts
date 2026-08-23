@@ -23,7 +23,7 @@ export function registerExtension(): void {
     let warnedOverride = false;
 
     function getCollector(): GraphicCollector {
-      return (collector ??= createCollector({ onFlush: handleFlush }));
+      return (collector ??= createCollector(handleFlush));
     }
 
     function handleFlush(): void {

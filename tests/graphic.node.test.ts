@@ -290,7 +290,7 @@ describe("graphic", () => {
 
   it("coalesces flushes and warns on duplicate ids", async () => {
     const onFlush = vi.fn();
-    const collector = createCollector({ onFlush });
+    const collector = createCollector(onFlush);
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     try {
@@ -328,7 +328,7 @@ describe("graphic", () => {
   });
 
   it("forwards collector.warn without options", () => {
-    const collector = createCollector({ onFlush: () => void 0 });
+    const collector = createCollector(() => void 0);
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     try {
@@ -342,9 +342,7 @@ describe("graphic", () => {
   });
 
   it("exposes current collector nodes", () => {
-    const collector = createCollector({
-      onFlush: () => void 0,
-    });
+    const collector = createCollector(() => void 0);
 
     collector.register({
       id: "a",
@@ -369,9 +367,7 @@ describe("graphic", () => {
   });
 
   it("ignores unregister from mismatched source and removes with matched source", () => {
-    const collector = createCollector({
-      onFlush: () => void 0,
-    });
+    const collector = createCollector(() => void 0);
 
     collector.register({
       id: "x",
@@ -392,9 +388,7 @@ describe("graphic", () => {
   });
 
   it("does not mark duplicate when same id appears across flushed updates", async () => {
-    const collector = createCollector({
-      onFlush: () => void 0,
-    });
+    const collector = createCollector(() => void 0);
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     try {
@@ -425,9 +419,7 @@ describe("graphic", () => {
 
   it("skips pending flush callback and ignores operations after dispose", async () => {
     const onFlush = vi.fn();
-    const collector = createCollector({
-      onFlush,
-    });
+    const collector = createCollector(onFlush);
 
     collector.register({
       id: "node",
@@ -459,9 +451,7 @@ describe("graphic", () => {
 
   it("accepts null, bigint, and symbol values", async () => {
     const onFlush = vi.fn();
-    const collector = createCollector({
-      onFlush,
-    });
+    const collector = createCollector(onFlush);
     const onClick = () => void 0;
     const marker = Symbol("marker");
 

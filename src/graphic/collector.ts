@@ -27,8 +27,7 @@ export type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & 
   order?: number;
 };
 
-export function createCollector(options: { onFlush: () => void }): GraphicCollector {
-  const { onFlush } = options;
+export function createCollector(onFlush: () => void): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const seenInPass = new Map<string, number>();
   let warnedKeys: Set<string> | undefined;
