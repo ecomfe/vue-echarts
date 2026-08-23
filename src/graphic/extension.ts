@@ -2,7 +2,7 @@ import { h, onScopeDispose } from "vue";
 import { use } from "echarts/core";
 import { GraphicComponent } from "echarts/components";
 import { buildOption } from "./build";
-import { createCollector } from "./collector";
+import { createCollector, type GraphicCollector } from "./collector";
 import { GraphicMount } from "./mount";
 import { registerRuntime } from "./runtime";
 
@@ -18,38 +18,39 @@ export function registerExtension(): void {
 
   registerRuntime((ctx) => {
     const { slots, manualUpdate, requestUpdate } = ctx;
+    let collector: GraphicCollector | undefined;
     let warnedOverride = false;
 
-    const collector = createCollector({
-      onFlush: handleFlush,
-    });
-    const { cancelPendingFlush, dispose, getNodes, warn } = collector;
+    function getCollector(): GraphicCollector {
+      return (collector ??= createCollector({ onFlush: handleFlush }));
+    }
 
     function handleFlush(): void {
       const updated = requestUpdate(UPDATE_OPTIONS);
 
       if (!updated && manualUpdate.value) {
-        warn("`#graphic` slot updates are ignored when `manual-update` is `true`.", {
+        collector!.warn("`#graphic` slot updates are ignored when `manual-update` is `true`.", {
           onceKey: "manual-update-graphic",
         });
       }
     }
 
-    onScopeDispose(dispose);
+    onScopeDispose(() => collector?.dispose());
 
     return {
       patchOption(option) {
         if (!slots.graphic) {
           return option;
         }
+        const collector = getCollector();
         if (option.graphic && !warnedOverride) {
-          warn(
+          collector.warn(
             "`#graphic` slot is provided, so `option.graphic` is ignored. Remove one of them to avoid ambiguity.",
           );
           warnedOverride = true;
         }
-        const nextOption = buildOption(getNodes(), ROOT_ID);
-        cancelPendingFlush();
+        const nextOption = buildOption(collector.getNodes(), ROOT_ID);
+        collector.cancelPendingFlush();
         return {
           ...option,
           graphic: nextOption.graphic,
@@ -59,7 +60,7 @@ export function registerExtension(): void {
         if (!slots.graphic) {
           return null;
         }
-        return h(GraphicMount, { collector }, { default: slots.graphic });
+        return h(GraphicMount, { collector: getCollector() }, { default: slots.graphic });
       },
     };
   });
