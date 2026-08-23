@@ -217,21 +217,25 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
 
 function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): boolean {
   let nextById: Map<string, Shape> | undefined;
-
-  for (const item of next) {
-    if (item.id !== undefined) {
-      (nextById ??= new Map()).set(item.id, item.shape);
-    }
-  }
-
   let nextIndex = 0;
   for (const item of prev) {
+    let nextShape: Shape | undefined;
     if (item.id === undefined) {
       while (next[nextIndex]?.id !== undefined) {
         nextIndex++;
       }
+      nextShape = next[nextIndex++]?.shape;
+    } else {
+      if (!nextById) {
+        nextById = new Map();
+        for (const nextItem of next) {
+          if (nextItem.id !== undefined) {
+            nextById.set(nextItem.id, nextItem.shape);
+          }
+        }
+      }
+      nextShape = nextById.get(item.id);
     }
-    const nextShape = item.id === undefined ? next[nextIndex++]?.shape : nextById?.get(item.id);
     if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
       return true;
     }
