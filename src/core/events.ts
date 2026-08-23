@@ -66,6 +66,7 @@ export function useReactiveChartListeners(
   attrs: AttrMap,
 ): void {
   const bindings = new Map<string, ListenerBinding>();
+  const seen = new Set<string>();
   let activeInstance: EChartsType | undefined;
 
   function clearBindings(): void {
@@ -76,6 +77,7 @@ export function useReactiveChartListeners(
   }
 
   watchSyncEffect(() => {
+    seen.clear();
     const instance = chart.value;
     if (!instance) {
       clearBindings();
@@ -87,8 +89,6 @@ export function useReactiveChartListeners(
       clearBindings();
     }
     activeInstance = instance;
-
-    const seen = new Set<string>();
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
