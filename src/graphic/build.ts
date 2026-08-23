@@ -9,45 +9,38 @@ const EMPTY_PROP_KEYS: readonly string[] = [];
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function mergeProps(
-  target: Record<string, unknown>,
+  target: Record<string, unknown> | undefined,
   keys: readonly string[],
   props: Record<string, unknown>,
-): void {
+): Record<string, unknown> | undefined {
   for (const key of keys) {
     const value = props[key];
     if (value !== undefined) {
-      target[key] = value;
+      (target ??= {})[key] = value;
     }
   }
+  return target;
 }
 
-function buildStyle(
+function buildNestedProps(
+  source: unknown,
   props: Record<string, unknown>,
-  extraKeys: readonly string[],
+  keys: readonly string[],
+  transition: unknown,
+  extraKeys?: readonly string[],
 ): Record<string, unknown> | undefined {
-  const style = { ...(props.style as Record<string, unknown> | undefined) };
-  mergeProps(style, BASE_STYLE_KEYS, props);
-  mergeProps(style, extraKeys, props);
-
-  if (props.styleTransition !== undefined) {
-    style.transition = props.styleTransition;
+  const nested = source as Record<string, unknown> | undefined;
+  let result = nested && Object.keys(nested).length > 0 ? { ...nested } : undefined;
+  result = mergeProps(result, keys, props);
+  if (extraKeys) {
+    result = mergeProps(result, extraKeys, props);
   }
 
-  return Object.keys(style).length > 0 ? style : undefined;
-}
-
-function buildShape(
-  props: Record<string, unknown>,
-  shapeKeys: readonly string[],
-): Record<string, unknown> | undefined {
-  const shape = { ...(props.shape as Record<string, unknown> | undefined) };
-  mergeProps(shape, shapeKeys, props);
-
-  if (props.shapeTransition !== undefined) {
-    shape.transition = props.shapeTransition;
+  if (transition !== undefined) {
+    (result ??= {}).transition = transition;
   }
 
-  return Object.keys(shape).length > 0 ? shape : undefined;
+  return result;
 }
 
 function mergeCommon(
@@ -149,12 +142,18 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     return out as Option;
   }
 
-  const shape = buildShape(props, shapeKeys);
+  const shape = buildNestedProps(props.shape, props, shapeKeys, props.shapeTransition);
   if (shape) {
     out.shape = shape;
   }
 
-  const style = buildStyle(props, styleKeys);
+  const style = buildNestedProps(
+    props.style,
+    props,
+    BASE_STYLE_KEYS,
+    props.styleTransition,
+    styleKeys,
+  );
   if (style) {
     out.style = style;
   }

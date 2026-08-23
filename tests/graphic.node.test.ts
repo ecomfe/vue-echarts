@@ -32,6 +32,7 @@ describe("graphic", () => {
           progressive: 8,
           textContent: { type: "text", style: { text: "label" } },
           textConfig: { position: "inside" },
+          style: { fill: "#000", stroke: "#0f0" },
           fill: "#f00",
         },
         handlers: {},
@@ -82,7 +83,7 @@ describe("graphic", () => {
     expect(rect.textContent).toMatchObject({ type: "text" });
     expect(rect.textConfig).toMatchObject({ position: "inside" });
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });
-    expect(rect.style).toMatchObject({ fill: "#f00" });
+    expect(rect.style).toMatchObject({ fill: "#f00", stroke: "#0f0" });
 
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
