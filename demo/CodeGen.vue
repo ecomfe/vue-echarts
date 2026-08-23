@@ -89,9 +89,14 @@ let importViewer: CodeViewer | null = null;
 let suppressNextEditorEvent = false;
 const initializing = ref<boolean>(true);
 const showAnalyzingOverlay = ref(false);
-const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } = useTimeoutFn(() => {
-  showAnalyzingOverlay.value = true;
-}, 180);
+const ON_DEMAND_TIMEOUT = { immediate: false };
+const { start: scheduleAnalyzingOverlay, stop: cancelAnalyzingOverlay } = useTimeoutFn(
+  () => {
+    showAnalyzingOverlay.value = true;
+  },
+  180,
+  ON_DEMAND_TIMEOUT,
+);
 
 type Renderer = "canvas" | "svg";
 
@@ -161,9 +166,13 @@ function onDialogClose() {
 
 const copied = ref(false);
 const message = ref("");
-const { start: scheduleMessageClose, stop: cancelMessageClose } = useTimeoutFn(() => {
-  message.value = "";
-}, 2018);
+const { start: scheduleMessageClose } = useTimeoutFn(
+  () => {
+    message.value = "";
+  },
+  2018,
+  ON_DEMAND_TIMEOUT,
+);
 
 function trackCopy(from: "button" | "system") {
   if (copied.value) {
@@ -175,7 +184,6 @@ function trackCopy(from: "button" | "system") {
 
 function showMessage(text: string) {
   message.value = text;
-  cancelMessageClose();
   scheduleMessageClose();
 }
 
@@ -340,8 +348,6 @@ watch(sourceCode, (value) => {
 });
 
 onBeforeUnmount(() => {
-  cancelMessageClose();
-  cancelAnalyzingOverlay();
   optionEditor?.dispose();
   optionEditor = null;
   importViewer?.dispose();
