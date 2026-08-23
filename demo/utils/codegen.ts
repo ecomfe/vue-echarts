@@ -161,49 +161,13 @@ const CHARTS_GL_MAP_REVERSE = createReverseMap(CHARTS_GL_MAP);
 
 type DependencyList = string[];
 
-type OptionLike = PlainObject & {
-  options?: unknown;
-  baseOption?: unknown;
-  series?: unknown;
-  dataset?: unknown;
-};
-
-type SeriesOptionLike = PlainObject & {
-  type?: unknown;
-  coordinateSystem?: unknown;
-  labelLayout?: unknown;
-  universalTransition?: unknown;
-};
-
-function isOptionLike(value: unknown): value is OptionLike {
-  return isPlainObject(value);
-}
-
-function isSeriesOptionLike(value: unknown): value is SeriesOptionLike {
-  return isPlainObject(value);
-}
-
-function toOptionLike(value: unknown): OptionLike | null {
-  return isOptionLike(value) ? value : null;
-}
-
-function toSeriesList(value: unknown): SeriesOptionLike[] {
-  const list: SeriesOptionLike[] = [];
-  if (Array.isArray(value)) {
-    value.forEach((item) => {
-      if (isSeriesOptionLike(item)) {
-        list.push(item);
-      }
-    });
-  } else if (isSeriesOptionLike(value)) {
-    list.push(value);
-  }
-  return list;
+function toObjectList(value: unknown): PlainObject[] {
+  return (Array.isArray(value) ? value : [value]).filter(isPlainObject);
 }
 
 function collectDeps(option: unknown): DependencyList {
   const deps: DependencyList = [];
-  const optionObject = toOptionLike(option);
+  const optionObject = isPlainObject(option) ? option : null;
   if (!optionObject) {
     return deps;
   }
@@ -242,7 +206,7 @@ function collectDeps(option: unknown): DependencyList {
       }
     });
 
-    const seriesList = toSeriesList(optionObject.series);
+    const seriesList = toObjectList(optionObject.series);
     let hasScatterSeries = false;
     seriesList.forEach((seriesOpt) => {
       const type = typeof seriesOpt.type === "string" ? seriesOpt.type : "";
@@ -294,14 +258,11 @@ function collectDeps(option: unknown): DependencyList {
       });
     });
 
-    const dataset = optionObject.dataset;
-    if (Array.isArray(dataset)) {
-      dataset.forEach((item) => {
-        if (isPlainObject(item) && item.transform) {
-          deps.push("TransformComponent");
-        }
-      });
-    }
+    toObjectList(optionObject.dataset).forEach((dataset) => {
+      if (dataset.transform) {
+        deps.push("TransformComponent");
+      }
+    });
   }
 
   return Array.from(new Set(deps));

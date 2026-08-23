@@ -12,4 +12,22 @@ describe("code generator", () => {
     expect(code).toContain("import type { AriaComponentOption } from 'echarts/components'");
     expect(code).toContain("use([AriaComponent, CanvasRenderer])");
   });
+
+  it("registers built-in transforms for object and array datasets", () => {
+    const transformedDataset = {
+      source: [[1], [2]],
+      transform: { type: "filter", config: { dimension: 0, ">": 1 } },
+    };
+
+    [{ dataset: transformedDataset }, { dataset: [transformedDataset] }].forEach((option) => {
+      const code = getImportsFromOption(option);
+
+      expect(code).toContain(
+        "import { DatasetComponent, TransformComponent } from 'echarts/components'",
+      );
+      expect(code).toContain("use([DatasetComponent, TransformComponent, CanvasRenderer])");
+    });
+
+    expect(getImportsFromOption({ dataset: { source: [] } })).not.toContain("TransformComponent");
+  });
 });
