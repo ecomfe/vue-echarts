@@ -74,31 +74,19 @@ describe("graphic runtime", () => {
     scope.stop();
   });
 
-  it("registers only once when called repeatedly", () => {
+  it("registers the graphic component and runtime only once", async () => {
+    const { GraphicComponent } = await import("echarts/components");
+
     extensionModule.registerExtension();
     extensionModule.registerExtension();
+
+    expect(mockState.use).toHaveBeenCalledTimes(1);
+    expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
 
     const scope = effectScope();
     const runtime = scope.run(() => runtimeModule.useRuntime(createContext()));
     expect(runtime).toBeTruthy();
     scope.stop();
-  });
-
-  it("auto-registers GraphicComponent when extension is registered", async () => {
-    vi.resetModules();
-    mockState.use.mockReset();
-
-    try {
-      const { GraphicComponent } = await import("echarts/components");
-      const mod = await import("../src/graphic/extension");
-      mod.registerExtension();
-      mod.registerExtension();
-
-      expect(mockState.use).toHaveBeenCalledTimes(1);
-      expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
-    } finally {
-      mockState.use.mockReset();
-    }
   });
 
   it("keeps option untouched without allocating when graphic slot is absent", () => {

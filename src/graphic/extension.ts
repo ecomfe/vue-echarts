@@ -8,13 +8,14 @@ import { registerRuntime } from "./runtime";
 
 const ROOT_ID = "__ve_graphic_root__";
 const UPDATE_OPTIONS = { replaceMerge: ["graphic"] };
-let componentRegistered = false;
+let registered = false;
 
 export function registerExtension(): void {
-  if (!componentRegistered) {
-    use([GraphicComponent]);
-    componentRegistered = true;
+  if (registered) {
+    return;
   }
+  use([GraphicComponent]);
+  registered = true;
 
   registerRuntime((ctx) => {
     const { slots, manualUpdate, requestUpdate } = ctx;
