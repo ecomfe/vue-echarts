@@ -136,7 +136,7 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBe(existing);
     });
 
-    it("exposes a constructor with disconnect hook", async () => {
+    it("exposes a constructor that skips disconnect work without a disposal hook", async () => {
       const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
@@ -146,7 +146,15 @@ describe("register", () => {
         throw new Error("Expected custom element constructor to be registered.");
       }
       expect(typeof ctor).toBe("function");
-      expect("disconnectedCallback" in ctor.prototype).toBe(true);
+      const disconnectedCallback = (
+        ctor.prototype as { disconnectedCallback: (this: HTMLElement) => void }
+      ).disconnectedCallback;
+      expect(disconnectedCallback).toBeTypeOf("function");
+      const queueSpy = vi.spyOn(globalThis, "queueMicrotask");
+
+      disconnectedCallback.call({ __dispose: null } as unknown as HTMLElement);
+
+      expect(queueSpy).not.toHaveBeenCalled();
     });
   });
 

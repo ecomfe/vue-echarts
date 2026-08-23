@@ -30,6 +30,9 @@ export function register(): boolean {
         }
 
         disconnectedCallback(): void {
+          if (!this.__dispose) {
+            return;
+          }
           queueMicrotask(() => {
             if (!this.isConnected && this.__dispose) {
               this.__dispose();
