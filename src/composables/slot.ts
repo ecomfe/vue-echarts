@@ -119,6 +119,41 @@ export function useSlotOption(
   let nextSlotNames = slotNames;
   let resetPending = false;
 
+  function syncSlotNames(names: readonly SlotName[]): boolean | undefined {
+    let changed = names.length !== slotNames.length;
+    for (let i = 0; !changed && i < slotNames.length; i++) {
+      changed = names[i] !== slotNames[i];
+    }
+    if (!changed) {
+      return undefined;
+    }
+    if (slotNames.length === 0) {
+      slotNames = names;
+      return false;
+    }
+
+    const nextSlotNameSet = new Set(names);
+    let removed = false;
+    for (const key of slotNames) {
+      if (!nextSlotNameSet.has(key)) {
+        removed = true;
+        if (state) {
+          delete state.params[key];
+          delete state.initialized[key];
+          delete state.containers[key];
+          state.bindings.delete(key);
+        }
+      }
+    }
+
+    // ECharts merge retains formatter fields omitted after a slot is removed.
+    if (removed) {
+      resetPending = true;
+    }
+    slotNames = names;
+    return removed;
+  }
+
   const render = () => {
     nextSlotNames = collectSlotNames();
     if (nextSlotNames.length === 0 || !ready.value || !isMounted.value) {
@@ -155,6 +190,7 @@ export function useSlotOption(
 
   function patchOption(src: Option): Option {
     const names = collectSlotNames();
+    syncSlotNames(names);
     if (names.length === 0) {
       return src;
     }
@@ -217,39 +253,10 @@ export function useSlotOption(
   }
 
   onUpdated(() => {
-    let changed = nextSlotNames.length !== slotNames.length;
-    for (let i = 0; !changed && i < slotNames.length; i++) {
-      changed = nextSlotNames[i] !== slotNames[i];
-    }
-    if (!changed) {
+    const removed = syncSlotNames(nextSlotNames);
+    if (removed === undefined) {
       return;
     }
-
-    if (slotNames.length === 0) {
-      slotNames = nextSlotNames;
-      onSlotsChange();
-      return;
-    }
-
-    const nextSlotNameSet = new Set(nextSlotNames);
-    let removed = false;
-    for (const key of slotNames) {
-      if (!nextSlotNameSet.has(key)) {
-        removed = true;
-        if (state) {
-          delete state.params[key];
-          delete state.initialized[key];
-          delete state.containers[key];
-          state.bindings.delete(key);
-        }
-      }
-    }
-
-    // ECharts merge retains formatter fields omitted after a slot is removed.
-    if (removed) {
-      resetPending = true;
-    }
-    slotNames = nextSlotNames;
     onSlotsChange(removed ? { notMerge: true } : undefined);
   });
 

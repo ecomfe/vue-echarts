@@ -1686,6 +1686,47 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBeGreaterThan(initialCalls);
   });
 
+  it.each([
+    ["added", false, true, { notMerge: false }],
+    ["removed", true, false, { notMerge: true }],
+  ] as const)(
+    "coalesces option and callback slot changes when a slot is %s in the same tick",
+    async (_, initiallyVisible, nextVisible, expectedUpdateOptions) => {
+      const option = ref({ title: { text: "first" } });
+      const showExtra = ref(initiallyVisible);
+
+      const Root = defineComponent({
+        setup() {
+          return () =>
+            h(
+              ECharts,
+              { option: option.value },
+              showExtra.value
+                ? {
+                    tooltip: () => h("span", "tooltip"),
+                    "tooltip-extra": () => h("span", "extra"),
+                  }
+                : { tooltip: () => h("span", "tooltip") },
+            );
+        },
+      });
+
+      render(Root);
+      await nextTick();
+      chartStub.setOption.mockClear();
+
+      option.value = { title: { text: "second" } };
+      showExtra.value = nextVisible;
+      await nextTick();
+      await nextTick();
+
+      expect(chartStub.setOption).toHaveBeenCalledOnce();
+      const [patched, updateOptions] = getLastSetOptionCall(chartStub);
+      expect(patched).toMatchObject({ title: { text: "second" } });
+      expect(updateOptions).toEqual(expectedUpdateOptions);
+    },
+  );
+
   it("defers callback slot removal until explicit setOption in manual-update mode", async () => {
     const option = ref({ title: { text: "manual-slots" } });
     const showExtra = ref(true);
