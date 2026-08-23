@@ -59,7 +59,6 @@ describe("graphic", () => {
           y: 20,
           width: 30,
           height: 40,
-          progressive: 8,
           tooltip: { show: true, formatter: "main-rect" },
           clipPath: { type: "circle", shape: { cx: 15, cy: 20, r: 10 } },
           textContent: { type: "text", style: { text: "label" } },
@@ -121,7 +120,6 @@ describe("graphic", () => {
 
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");
-    expect(rect.progressive).toBe(8);
     expect(rect.tooltip).toEqual({ show: true, formatter: "main-rect" });
     expect(rect.clipPath).toEqual({ type: "circle", shape: { cx: 15, cy: 20, r: 10 } });
     expect(rect.textContent).toMatchObject({ type: "text" });

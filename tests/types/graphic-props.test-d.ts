@@ -12,7 +12,9 @@ type TextProps = InstanceType<typeof GText>["$props"];
 type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
 
-type _progressiveType = Assert<IsAssignable<RectProps["progressive"], number | undefined>>;
+type _unsupportedProps = Assert<
+  IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
+>;
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<
   IsAssignable<TooltipComponentOption, RectProps["tooltip"]>
