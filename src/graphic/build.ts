@@ -49,24 +49,21 @@ function buildShape(
   return Object.keys(shape).length > 0 ? shape : undefined;
 }
 
-function buildCommon(
+function mergeCommon(
+  target: Record<string, unknown>,
   props: Record<string, unknown>,
   shapeKeys: readonly string[],
   styleKeys: readonly string[],
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-
+): void {
   for (const key of COMMON_PROP_KEYS) {
     if (shapeKeys.includes(key) || styleKeys.includes(key)) {
       continue;
     }
 
     if (props[key] !== undefined) {
-      out[key] = props[key];
+      target[key] = props[key];
     }
   }
-
-  return out;
 }
 
 function toEventHandler(value: unknown, once: boolean): EventHandler | undefined {
@@ -140,7 +137,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     id,
   };
 
-  Object.assign(out, buildCommon(props, shapeKeys, styleKeys));
+  mergeCommon(out, props, shapeKeys, styleKeys);
 
   const handlers = buildHandlers(node);
   if (handlers) {
