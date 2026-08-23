@@ -53,18 +53,7 @@ export type MouseEventName =
   | "contextmenu"
   | "globalout";
 
-export type ElementEventName =
-  | MouseEventName
-  | "mousewheel"
-  | "drag"
-  | "dragstart"
-  | "dragend"
-  | "dragenter"
-  | "dragleave"
-  | "dragover"
-  | "drop";
-
-type ZRenderEventName = `zr:${ElementEventName}`;
+type ZRenderEventName = `zr:${ElementEvent["type"]}`;
 
 type OtherEventName =
   | "highlight"
