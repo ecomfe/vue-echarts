@@ -219,6 +219,7 @@ describe("graphic components", () => {
         draggable: true,
         ignore: false,
         invisible: true,
+        clipPath: false,
       }),
       h(GPolyline, { id: "smooth-default" }),
       h(GPolyline, { id: "smooth-explicit", smooth: false }),
@@ -238,6 +239,7 @@ describe("graphic components", () => {
       draggable: undefined,
       ignore: undefined,
       invisible: undefined,
+      clipPath: undefined,
       lineDash: undefined,
       strokeNoScale: undefined,
     });
@@ -246,6 +248,7 @@ describe("graphic components", () => {
       draggable: true,
       ignore: false,
       invisible: true,
+      clipPath: false,
     });
     expect(propsById["smooth-default"].smooth).toBeUndefined();
     expect(propsById["smooth-explicit"].smooth).toBe(false);

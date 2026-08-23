@@ -16,6 +16,8 @@ type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<
   IsAssignable<TooltipComponentOption, RectProps["tooltip"]>
 >;
+type _clipPathAcceptsObject = Assert<IsAssignable<object, RectProps["clipPath"]>>;
+type _clipPathAcceptsFalse = Assert<IsAssignable<false, RectProps["clipPath"]>>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
 type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
 type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
