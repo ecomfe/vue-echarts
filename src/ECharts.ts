@@ -85,7 +85,6 @@ export default /* @__PURE__ */ defineComponent({
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
-    register();
     const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();

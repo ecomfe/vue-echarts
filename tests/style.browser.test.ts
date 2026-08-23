@@ -163,22 +163,25 @@ describe("style entry", () => {
     }
   });
 
-  it("injects styles into the component's owner document", async () => {
+  it("uses the component's owner document for registration and styles", async () => {
     const { iframe, ownerDocument } = createFrame();
     useFallbackStyles(ownerDocument);
     const container = ownerDocument.createElement("div");
     ownerDocument.body.appendChild(container);
+    const globalRegistryGet = vi.spyOn(customElements, "get");
 
     const { default: ECharts } = await import("../src/ECharts");
     const app = createApp(ECharts);
 
     try {
       app.mount(container);
+      expect(globalRegistryGet).not.toHaveBeenCalled();
       expect(ownerDocument.head.querySelector("style")).not.toBeNull();
       expect(document.head.querySelector("style")).toBeNull();
       expect(ownerDocument.defaultView?.customElements.get("x-vue-echarts")).toBeTypeOf("function");
     } finally {
       app.unmount();
+      globalRegistryGet.mockRestore();
       iframe.remove();
     }
   });
