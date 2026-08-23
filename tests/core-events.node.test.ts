@@ -193,7 +193,8 @@ describe("core events", () => {
     chartRef.value = second.chart;
     await nextTick();
 
-    expect((second.chart as unknown as EmitterStub).on).toHaveBeenCalled();
+    // The component listener remains consumed when only its internal emitter changes.
+    expect((second.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
 
     chartRef.value = undefined;
     await nextTick();

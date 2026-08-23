@@ -67,6 +67,7 @@ export function useReactiveChartListeners(
   attrs: AttrMap,
 ): void {
   let bindings: Map<string, ListenerBinding> | undefined;
+  let consumedSources: Map<string, unknown> | undefined;
   let activeInstance: EChartsType | undefined;
   let scan = 0;
 
@@ -82,6 +83,13 @@ export function useReactiveChartListeners(
 
   watchSyncEffect(() => {
     const instance = chart.value;
+    if (consumedSources) {
+      for (const [key, source] of consumedSources) {
+        if (attrs[key] !== source) {
+          consumedSources.delete(key);
+        }
+      }
+    }
     if (!instance) {
       clearBindings();
       activeInstance = undefined;
@@ -104,6 +112,10 @@ export function useReactiveChartListeners(
       const event = zr ? parsed.event.slice(3) : parsed.event;
       const source = attrs[key];
       const existing = bindings?.get(key);
+
+      if (parsed.once && consumedSources?.get(key) === source) {
+        continue;
+      }
 
       if (existing && existing.source === source) {
         existing.seenAt = scan;
@@ -129,10 +141,16 @@ export function useReactiveChartListeners(
 
       const emitter = getEmitter(instance, zr);
       const current = { value: invoke };
+      const invokeCurrent: EventHandler = (...args) => current.value(...args);
       const handler = createBoundHandler(
         emitter,
         event,
-        (...args) => current.value(...args),
+        parsed.once
+          ? (...args) => {
+              (consumedSources ??= new Map()).set(key, source);
+              invokeCurrent(...args);
+            }
+          : invokeCurrent,
         parsed.once,
       );
 
