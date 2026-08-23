@@ -13,7 +13,7 @@ export function createEventInvoker(value: unknown): EventHandler | undefined {
   }
 
   return (...args: unknown[]): void => {
-    for (const handler of value) {
+    for (const handler of value.slice()) {
       if (typeof handler === "function") {
         handler(...args);
       }

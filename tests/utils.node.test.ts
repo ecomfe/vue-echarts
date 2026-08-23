@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   __resetWarnState,
+  createEventInvoker,
   isOn,
   isPlainObject,
   isSameSet,
@@ -21,6 +22,28 @@ describe("utils", () => {
   afterEach(() => {
     warnSpy.mockRestore();
     __resetWarnState();
+  });
+
+  describe("createEventInvoker", () => {
+    it("uses a stable handler snapshot for each dispatch", () => {
+      const lateHandler = vi.fn();
+      const stableHandler = vi.fn();
+      const handlers: Array<() => void> = [];
+      handlers.push(() => handlers.splice(1, 1, lateHandler), stableHandler);
+
+      const invoke = createEventInvoker(handlers);
+      if (!invoke) {
+        throw new Error("Expected an array event invoker.");
+      }
+
+      invoke();
+      expect(stableHandler).toHaveBeenCalledTimes(1);
+      expect(lateHandler).not.toHaveBeenCalled();
+
+      invoke();
+      expect(stableHandler).toHaveBeenCalledTimes(1);
+      expect(lateHandler).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("isOn", () => {
