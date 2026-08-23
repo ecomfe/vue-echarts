@@ -165,14 +165,22 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
 export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
   const byParent = new Map<string | null, GraphicNode[]>();
+  let occupiedRootIds: Set<string> | undefined;
 
   for (const node of nodes) {
+    if (node.id.startsWith(rootId)) {
+      (occupiedRootIds ??= new Set()).add(node.id);
+    }
     const list = byParent.get(node.parentId);
     if (list) {
       list.push(node);
       continue;
     }
     byParent.set(node.parentId, [node]);
+  }
+
+  while (occupiedRootIds?.has(rootId)) {
+    rootId += "_";
   }
 
   for (const list of byParent.values()) {

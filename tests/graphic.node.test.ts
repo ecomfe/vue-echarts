@@ -16,6 +16,15 @@ function getRootGraphicElement(option: unknown): any {
   return root;
 }
 
+function createChart() {
+  return init(null, undefined, {
+    renderer: "svg",
+    ssr: true,
+    width: 100,
+    height: 100,
+  });
+}
+
 describe("graphic", () => {
   it("exports only element types supported by the ECharts graphic component", () => {
     const nodes = Object.values(components).map((component, index): GraphicNode => ({
@@ -27,12 +36,7 @@ describe("graphic", () => {
       order: index,
       sourceId: index,
     }));
-    const chart = init(null, undefined, {
-      renderer: "svg",
-      ssr: true,
-      width: 100,
-      height: 100,
-    });
+    const chart = createChart();
 
     try {
       expect(() => chart.setOption(buildOption(nodes, "root"))).not.toThrow();
@@ -154,6 +158,29 @@ describe("graphic", () => {
     const root = getRootGraphicElement(buildOption([], "root"));
 
     expect(root.children).toEqual([]);
+  });
+
+  it("keeps the internal root id distinct from user element ids", () => {
+    const nodes = ["root_", "root"].map((id, index): GraphicNode => ({
+      id,
+      type: "rect",
+      parentId: null,
+      props: { x: index, y: 0, width: 1, height: 1 },
+      handlers: {},
+      order: index,
+      sourceId: index,
+    }));
+    const option = buildOption(nodes, "root");
+    const root = getRootGraphicElement(option);
+    const chart = createChart();
+
+    try {
+      expect(root.id).toBe("root__");
+      expect(root.children.map((child: { id: string }) => child.id)).toEqual(["root_", "root"]);
+      expect(() => chart.setOption(option)).not.toThrow();
+    } finally {
+      chart.dispose();
+    }
   });
 
   it("routes shared shape props only to compatible element types", () => {
