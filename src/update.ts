@@ -43,19 +43,6 @@ export interface PlannedUpdate {
   plan: UpdatePlan;
 }
 
-/** Normalize an item's supported `id` value to a string. */
-function normalizeId(raw: unknown): string | undefined {
-  if (typeof raw === "string") {
-    return raw;
-  }
-
-  if (typeof raw === "number" && Number.isFinite(raw)) {
-    return String(raw);
-  }
-
-  return undefined;
-}
-
 function buildShape(
   value: unknown,
   stack: WeakSet<object>,
@@ -67,8 +54,11 @@ function buildShape(
   }
 
   const rawId = itemShape ? value.id : undefined;
-  if (itemShape) {
-    itemShape.id = normalizeId(rawId);
+  if (
+    itemShape &&
+    (typeof rawId === "string" || (typeof rawId === "number" && Number.isFinite(rawId)))
+  ) {
+    itemShape.id = String(rawId);
   }
   if (stack.has(value)) {
     return true;
