@@ -1,7 +1,7 @@
 import {
   defineComponent,
   shallowRef,
-  toRefs,
+  toRef,
   watch,
   computed,
   inject,
@@ -84,7 +84,10 @@ export default /* @__PURE__ */ defineComponent({
     const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
     const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
 
-    const { autoresize, manualUpdate, loading, loadingOptions } = toRefs(props);
+    const autoresize = toRef(props, "autoresize");
+    const manualUpdate = toRef(props, "manualUpdate");
+    const loading = toRef(props, "loading");
+    const loadingOptions = toRef(props, "loadingOptions");
 
     const realTheme = computed(() => props.theme ?? toValue(defaultTheme));
     const realInitOptions = computed(
