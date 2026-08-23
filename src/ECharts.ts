@@ -108,6 +108,7 @@ export default defineComponent({
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let terminallyDisposed = false;
+    const initializing = new WeakSet<EChartsType>();
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
@@ -215,13 +216,17 @@ export default defineComponent({
       }
 
       if (autoresize.value) {
+        initializing.add(instance);
         nextTick(() => {
           if (instance.isDisposed()) {
             return;
           }
           instance.resize();
-          commit();
+          if (!themeUpdatePending || manualUpdate.value) {
+            commit();
+          }
           isReady.value = true;
+          queueMicrotask(() => initializing.delete(instance));
         });
         return;
       }
@@ -269,7 +274,7 @@ export default defineComponent({
         }
 
         const instance = chart.value;
-        if (!instance) {
+        if (!instance || initializing.has(instance)) {
           return;
         }
 

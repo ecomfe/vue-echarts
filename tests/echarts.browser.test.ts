@@ -1062,6 +1062,49 @@ describe("ECharts component", () => {
     expect(chartStub.resize).toHaveBeenCalled();
   });
 
+  it("coalesces option changes before autoresize initialization", async () => {
+    const option = ref<Option>({ title: { text: "initial" } });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    option.value = { title: { text: "latest" } };
+    await nextTick();
+
+    expect(chartStub.resize).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+      title: { text: "latest" },
+    });
+  });
+
+  it.each([false, true])(
+    "coalesces option and theme changes before autoresize initialization (manual: %s)",
+    async (manualUpdate) => {
+      const option = ref<Option>({ title: { text: "initial" } });
+      const theme = ref<Theme | undefined>("dark");
+      const exposed = shallowRef<Exposed>();
+
+      renderChart(
+        () => ({
+          option: option.value,
+          theme: theme.value,
+          autoresize: true,
+          manualUpdate,
+        }),
+        exposed,
+      );
+      option.value = { title: { text: "latest" } };
+      theme.value = undefined;
+      await nextTick();
+
+      expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+      expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+      expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
+        title: { text: "latest" },
+      });
+    },
+  );
+
   it("supports boolean notMerge in manual setOption", async () => {
     const option = ref({ title: { text: "manual" } });
     const exposed = shallowRef<Exposed>();
