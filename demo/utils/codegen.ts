@@ -181,83 +181,81 @@ function collectDeps(option: unknown): DependencyList {
     deps.push(...collectDeps(optionObject.baseOption));
   }
 
-  if (deps.length === 0) {
-    Object.keys(optionObject).forEach((key) => {
-      const value = optionObject[key];
+  Object.keys(optionObject).forEach((key) => {
+    const value = optionObject[key];
 
-      if (Array.isArray(value) && value.length === 0) {
+    if (Array.isArray(value) && value.length === 0) {
+      return;
+    }
+
+    if (COMPONENTS_MAP[key]) {
+      deps.push(COMPONENTS_MAP[key]);
+    }
+    if (COMPONENTS_GL_MAP[key]) {
+      deps.push(COMPONENTS_GL_MAP[key]);
+    }
+    if (EXTENSIONS_MAP[key]) {
+      deps.push(key);
+    }
+  });
+
+  const seriesList = toObjectList(optionObject.series);
+  let hasScatterSeries = false;
+  seriesList.forEach((seriesOpt) => {
+    const type = typeof seriesOpt.type === "string" ? seriesOpt.type : "";
+    if (type === "scatter") {
+      hasScatterSeries = true;
+    }
+    if (CHARTS_MAP[type]) {
+      deps.push(CHARTS_MAP[type]);
+    }
+    if (CHARTS_GL_MAP[type]) {
+      deps.push(CHARTS_GL_MAP[type]);
+    }
+    if (type === "map") {
+      deps.push(COMPONENTS_MAP.geo);
+    }
+    if (seriesOpt.coordinateSystem === "bmap") {
+      deps.push("bmap");
+    }
+    MARKERS.forEach((markerType) => {
+      if (isPlainObject(seriesOpt[markerType])) {
+        deps.push(COMPONENTS_MAP[markerType]);
+      }
+    });
+    if (seriesOpt.labelLayout) {
+      deps.push("LabelLayout");
+    }
+    if (seriesOpt.universalTransition) {
+      deps.push("UniversalTransition");
+    }
+  });
+
+  Object.keys(optionObject).forEach((key) => {
+    if (!key.endsWith("Axis")) {
+      return;
+    }
+    const value = optionObject[key];
+    const axes = Array.isArray(value) ? value : [value];
+    axes.forEach((axisOption) => {
+      if (!isPlainObject(axisOption)) {
         return;
       }
-
-      if (COMPONENTS_MAP[key]) {
-        deps.push(COMPONENTS_MAP[key]);
+      if (hasScatterSeries && Number(axisOption.jitter) > 0) {
+        deps.push("ScatterJitter");
       }
-      if (COMPONENTS_GL_MAP[key]) {
-        deps.push(COMPONENTS_GL_MAP[key]);
-      }
-      if (EXTENSIONS_MAP[key]) {
-        deps.push(key);
+      const breaks = axisOption.breaks;
+      if (Array.isArray(breaks) && breaks.length > 0) {
+        deps.push("AxisBreak");
       }
     });
+  });
 
-    const seriesList = toObjectList(optionObject.series);
-    let hasScatterSeries = false;
-    seriesList.forEach((seriesOpt) => {
-      const type = typeof seriesOpt.type === "string" ? seriesOpt.type : "";
-      if (type === "scatter") {
-        hasScatterSeries = true;
-      }
-      if (CHARTS_MAP[type]) {
-        deps.push(CHARTS_MAP[type]);
-      }
-      if (CHARTS_GL_MAP[type]) {
-        deps.push(CHARTS_GL_MAP[type]);
-      }
-      if (type === "map") {
-        deps.push(COMPONENTS_MAP.geo);
-      }
-      if (seriesOpt.coordinateSystem === "bmap") {
-        deps.push("bmap");
-      }
-      MARKERS.forEach((markerType) => {
-        if (isPlainObject(seriesOpt[markerType])) {
-          deps.push(COMPONENTS_MAP[markerType]);
-        }
-      });
-      if (seriesOpt.labelLayout) {
-        deps.push("LabelLayout");
-      }
-      if (seriesOpt.universalTransition) {
-        deps.push("UniversalTransition");
-      }
-    });
-
-    Object.keys(optionObject).forEach((key) => {
-      if (!key.endsWith("Axis")) {
-        return;
-      }
-      const value = optionObject[key];
-      const axes = Array.isArray(value) ? value : [value];
-      axes.forEach((axisOption) => {
-        if (!isPlainObject(axisOption)) {
-          return;
-        }
-        if (hasScatterSeries && Number(axisOption.jitter) > 0) {
-          deps.push("ScatterJitter");
-        }
-        const breaks = axisOption.breaks;
-        if (Array.isArray(breaks) && breaks.length > 0) {
-          deps.push("AxisBreak");
-        }
-      });
-    });
-
-    toObjectList(optionObject.dataset).forEach((dataset) => {
-      if (dataset.transform) {
-        deps.push("TransformComponent");
-      }
-    });
-  }
+  toObjectList(optionObject.dataset).forEach((dataset) => {
+    if (dataset.transform) {
+      deps.push("TransformComponent");
+    }
+  });
 
   toObjectList(optionObject.media).forEach((media) => {
     deps.push(...collectDeps(media.option));

@@ -38,22 +38,26 @@ describe("code generator", () => {
     expect(getImportsFromOption({ dataset: { source: [] } })).not.toContain("TransformComponent");
   });
 
-  it("registers dependencies from direct and media options", () => {
+  it("registers dependencies from direct and nested options", () => {
     const code = getImportsFromOption({
       title: {},
+      timeline: {},
+      baseOption: { series: [{ type: "line" }] },
+      options: [{ series: [{ type: "bar" }] }],
       media: [
         {
           query: { maxWidth: 600 },
           option: {
             visualMap: {},
-            series: [{ type: "bar" }],
           },
         },
       ],
     });
 
     expect(code).toContain("TitleComponent");
+    expect(code).toContain("TimelineComponent");
     expect(code).toContain("VisualMapComponent");
+    expect(code).toContain("LineChart");
     expect(code).toContain("BarChart");
   });
 });
