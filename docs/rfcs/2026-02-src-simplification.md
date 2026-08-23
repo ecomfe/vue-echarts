@@ -1,13 +1,13 @@
 # RFC: `src` Simplification and Reactive Attr Events
 
-- Status: Draft
-- Target release: v8 minor
+- Status: Implemented
+- Released in: v8.1.0
 - Scope: `/src` runtime internals and docs
 
 ## Goals
 
 1. Improve maintainability by reducing `src/ECharts.ts` responsibilities.
-2. Keep public API stable: no new props, no removed exports.
+2. Preserve the public API while refactoring internals.
 3. Make attrs-based event bindings reactive by default.
 4. Preserve smart-update semantics while improving implementation clarity.
 
@@ -19,16 +19,16 @@
 
 ## Decisions
 
-1. Keep only event-reactivity logic in `src/core/events.ts`; move option/lifecycle flow back to `ECharts.ts` for readability.
+1. Keep only event-reactivity logic in `src/core/events.ts`; keep option/lifecycle flow in `ECharts.ts` for readability.
 2. Keep `ECharts.ts` as the primary, explicit runtime flow.
 3. Do not add a `reactive-events` switch.
-4. Do not add `VChartExposed` export in this iteration.
+4. Do not add a `VChartExposed` export.
 5. Prefer straightforward implementation over speculative abstraction.
 6. Internal module APIs are not compatibility-bound and can be refactored with callsites together.
 
-## Core Refactor
+## Runtime Structure
 
-- New `src/core/events.ts`
+- `src/core/events.ts`
   - Reactive chart/zr listener binding with diff + cleanup.
   - Reactive native listener projection for render attrs.
 - Option patch + smart-update flow remains in `src/ECharts.ts`.
@@ -42,7 +42,7 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - keep parsing and application logic close to where it is used;
 - use named shared helpers only when they remove repetition without adding indirection.
 
-## Behavior Change
+## Behavior
 
 Attrs listeners now update reactively:
 
@@ -59,7 +59,7 @@ Template syntax and runtime method signatures remain unchanged.
 2. `once` listeners losing stable identity.
    - Control: store wrapped callback and unbind old callback before rebinding.
 3. Regression in setOption call patterns.
-   - Control: existing test suite + additional reactive listener tests.
+   - Control: setOption call-pattern contracts in component tests.
 
 ## Validation
 
@@ -70,15 +70,9 @@ Required checks:
 - `pnpm test:node`
 - `pnpm test:browser`
 
-Additional tests:
+Behavior contracts:
 
 - attrs chart handler switch A -> B
 - attrs zr handler switch A -> B
 - attrs native handler switch A -> B
 - once handler replacement remains one-shot
-
-## Rollout
-
-1. Land `core/events` and simplify `ECharts.ts` main runtime flow.
-2. Land update/slot/graphic simplifications.
-3. Land docs updates in both `README.md` and `README.zh-Hans.md`.
