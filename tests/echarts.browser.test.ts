@@ -25,6 +25,7 @@ import type {
 import { withConsoleWarn } from "./helpers/dom";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
+import { __resetRegisterState, register as registerWc } from "../src/wc";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
 
@@ -1554,39 +1555,31 @@ describe("ECharts component", () => {
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
   });
 
-  it("calls cleanup directly when web component registration fails", async () => {
-    vi.resetModules();
+  it("retries web component registration before cleanup", async () => {
+    vi.unstubAllGlobals();
+    __resetRegisterState();
+    expect(registerWc()).toBe(true);
+    __resetRegisterState();
+    vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
+    const screen = renderChart(
+      () => ({ option: { title: { text: "late-wc" } } }),
+      shallowRef<Exposed>(),
+    );
 
-    vi.doMock("../src/wc", () => ({
-      TAG_NAME: "x-vue-echarts",
-      register: () => false,
-    }));
+    try {
+      await nextTick();
+      chartStub.dispose.mockClear();
+      vi.unstubAllGlobals();
 
-    const { default: LocalECharts } = await import("../src/ECharts");
+      screen.unmount();
 
-    const exposed = shallowRef<Exposed>();
-    const Root = defineComponent({
-      setup() {
-        const setExposed = createExposedRef(exposed);
-        return () =>
-          h(LocalECharts, {
-            option: { title: { text: "no-wc" } },
-            ref: setExposed,
-          });
-      },
-    });
-
-    const screen = render(Root);
-    await nextTick();
-
-    chartStub.dispose.mockClear();
-
-    screen.unmount();
-    await nextTick();
-
-    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
-
-    vi.doUnmock("../src/wc");
+      expect(chartStub.dispose).not.toHaveBeenCalled();
+      await Promise.resolve();
+      expect(chartStub.dispose).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+      __resetRegisterState();
+    }
   });
 
   it("keeps a single option apply when manualUpdate and theme change in the same tick", async () => {

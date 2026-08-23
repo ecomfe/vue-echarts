@@ -74,7 +74,7 @@ export default /* @__PURE__ */ defineComponent({
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
-    const wcRegistered = register();
+    register();
     const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
@@ -353,7 +353,7 @@ export default /* @__PURE__ */ defineComponent({
 
     onBeforeUnmount(() => {
       terminallyDisposed = true;
-      if (wcRegistered && root.value?.isConnected && root.value.__dispose === null) {
+      if (register() && root.value?.isConnected && root.value.__dispose === null) {
         root.value.__dispose = cleanup;
         return;
       }
