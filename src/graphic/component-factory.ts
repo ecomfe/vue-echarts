@@ -5,6 +5,7 @@ import {
   onBeforeUnmount,
   provide,
   shallowRef,
+  watch,
 } from "vue";
 
 import { warn } from "../utils";
@@ -36,8 +37,10 @@ export function createComponent(name: string, type: GraphicComponentType) {
         warn(`\`${name}\` must be used inside \`#graphic\` slot.`);
         return () => null;
       }
-      const { register: registerNode, unregister, warn: warnScoped } = collector;
+      const { register: registerNode, unregister, requestFlush, warn: warnScoped } = collector;
       let currentId: string | null = null;
+
+      watch(props, requestFlush, { deep: true });
 
       function register(): string {
         const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);

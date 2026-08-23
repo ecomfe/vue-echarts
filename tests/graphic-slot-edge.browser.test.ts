@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { defineComponent, h, nextTick, reactive, ref } from "vue";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
@@ -331,12 +331,13 @@ describe("graphic slot edge and integration behavior", () => {
     expect(getLastGraphicIds(suite.getChartStub())).toEqual([]);
   });
 
-  it("updates graphic shape/style from reactive bindings in auto mode", async () => {
+  it("updates flat bindings and nested reactive shape objects", async () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
     const x = ref(10);
     const label = ref("alpha");
+    const nestedShape = reactive({ x: 10, y: 10, width: 20, height: 12 });
 
     const Root = defineComponent({
       setup() {
@@ -362,6 +363,7 @@ describe("graphic slot edge and integration behavior", () => {
                   height: 16,
                   fill: "#bfdbfe",
                 }),
+                h(GRect, { id: "nested", shape: nestedShape }),
                 h("div", [h("span", label.value)]),
               ],
             },
@@ -373,18 +375,33 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
+    const chartStub = suite.getChartStub();
+    chartStub.setOption.mockClear();
     x.value = 36;
     label.value = "beta";
     await nextTick();
     await flushAnimationFrame();
 
-    const graphic = getLastGraphicOption(suite.getChartStub()).graphic.elements[0]
-      .children as any[];
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    const graphic = getLastGraphicOption(chartStub).graphic.elements[0].children as any[];
     const marker = graphic.find((item) => item.id === "marker");
     const markerBg = graphic.find((item) => item.id === "marker-bg");
     expect(marker.shape).toMatchObject({ x: 36 });
     expect(marker.style).toMatchObject({ fill: "#22c55e" });
     expect(markerBg.shape).toMatchObject({ x: 34 });
+    chartStub.setOption.mockClear();
+
+    nestedShape.x = 36;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    const nested = getLastGraphicOption(chartStub).graphic.elements[0].children.find(
+      (item: { id?: string }) => item.id === "nested",
+    );
+    expect(nested.shape).toMatchObject({
+      x: 36,
+    });
   });
 
   it("coalesces option and graphic changes with merged replaceMerge", async () => {
