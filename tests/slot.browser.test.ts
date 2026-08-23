@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 import { makeTooltipParams } from "./helpers/tooltip";
 
 import { useSlotOption } from "../src/composables/slot";
-import { withConsoleWarn } from "./helpers/dom";
+import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import type { Option } from "../src/types";
 import type {
   ToolboxComponentOption,
@@ -496,6 +496,29 @@ describe("useSlotOption", () => {
       expect(flattened).toContain("[vue-echarts] Invalid slot name: dataView-panel--0");
       expect(patched).toEqual({});
       expect(Object.getPrototypeOf(patched)).toBe(Object.prototype);
+      expect(changeSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  it("warns once when an invalid slot is added dynamically", async () => {
+    const changeSpy = vi.fn();
+    const slots = shallowRef<SlotDictionary>({});
+
+    renderSlotComponent(() => slots.value, changeSpy);
+    await nextTick();
+
+    await withConsoleWarnAsync(async (warnSpy) => {
+      slots.value = { legend: () => h("span", "legend") };
+      await nextTick();
+      slots.value = {};
+      await nextTick();
+      slots.value = { legend: () => h("span", "legend") };
+      await nextTick();
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("[vue-echarts] Invalid slot name: legend"),
+      );
       expect(changeSpy).not.toHaveBeenCalled();
     });
   });

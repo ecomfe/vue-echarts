@@ -217,6 +217,7 @@ export function useSlotOption(
   }
 
   onUpdated(() => {
+    collectSlotNames(true);
     let changed = nextSlotNames.length !== slotNames.length;
     for (let i = 0; !changed && i < slotNames.length; i++) {
       changed = nextSlotNames[i] !== slotNames[i];
