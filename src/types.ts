@@ -1,6 +1,11 @@
 import { init } from "echarts/core";
 
-import type { SetOptionOpts, ECElementEvent, ElementEvent } from "echarts/core";
+import type {
+  SetOptionOpts,
+  ECElementEvent,
+  ElementEvent,
+  AxisBreakChangedEvent,
+} from "echarts/core";
 import type { MaybeRefOrGetter } from "vue";
 
 export type Injection<T> = MaybeRefOrGetter<T | null>;
@@ -80,7 +85,7 @@ type OtherEventName =
   | "geounselected"
   | "axisareaselected"
   | "brush"
-  | "brushEnd"
+  | "brushend"
   | "brushselected"
   | "globalcursortaken";
 
@@ -98,6 +103,7 @@ type OtherEmits = {
 
 export type Emits = MouseEmits &
   OtherEmits & {
+    axisbreakchanged: (params: AxisBreakChangedEvent) => void;
     rendered: (params: { elapsedTime: number }) => void;
     finished: () => void;
   } & ZRenderEmits;
