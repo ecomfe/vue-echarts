@@ -58,6 +58,12 @@ describe("graphic slot edge and integration behavior", () => {
     const option = ref({
       graphic: { elements: [{ type: "rect", id: "from-option", shape: { x: 0, y: 0 } }] },
     });
+    const transform = {
+      skewX: 0.2,
+      skewY: 0.1,
+      anchorX: 5,
+      anchorY: 6,
+    };
 
     const Root = defineComponent({
       setup() {
@@ -67,7 +73,15 @@ describe("graphic slot edge and integration behavior", () => {
             { option: option.value },
             {
               graphic: () =>
-                h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12, z2: 7 }),
+                h(GRect, {
+                  id: "slot-rect",
+                  x: 10,
+                  y: 10,
+                  width: 20,
+                  height: 12,
+                  z2: 7,
+                  ...transform,
+                }),
             },
           );
       },
@@ -82,6 +96,7 @@ describe("graphic slot edge and integration behavior", () => {
       expect(lastCall.graphic.elements[0].children[0]).toMatchObject({
         id: "slot-rect",
         z2: 7,
+        ...transform,
       });
       expect(
         lastCall.graphic.elements[0].children.some((child: any) => child.id === "from-option"),

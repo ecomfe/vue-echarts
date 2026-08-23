@@ -12,6 +12,10 @@ type IsAssignable<From, To> = [From] extends [To] ? true : false;
 
 type _progressiveType = Assert<IsAssignable<RectProps["progressive"], number | undefined>>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
+type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
+type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
+type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined>>;
+type _anchorYType = Assert<IsAssignable<RectProps["anchorY"], number | undefined>>;
 type _textContentType = Assert<IsAssignable<RectProps["textContent"], object | undefined>>;
 type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | undefined>>;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
