@@ -100,7 +100,7 @@ function analyzeArray(
   stack: WeakSet<object>,
   buildItemShape: (value: unknown, stack: WeakSet<object>) => Shape = buildShape,
 ): ArraySummary {
-  const ids = new Set<string>();
+  let ids: Set<string> | undefined;
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
@@ -112,11 +112,11 @@ function analyzeArray(
       noIdCount++;
       continue;
     }
-    ids.add(id);
+    (ids ??= new Set()).add(id);
   }
 
   return {
-    idsSorted: ids.size > 0 ? Array.from(ids).sort() : [],
+    idsSorted: ids ? Array.from(ids).sort() : [],
     noIdCount,
     shapes,
   };
@@ -223,21 +223,21 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
 }
 
 function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): boolean {
-  const nextById = new Map<string, Shape>();
-  const nextAnonymous: Shape[] = [];
+  let nextById: Map<string, Shape> | undefined;
+  let nextAnonymous: Shape[] | undefined;
 
   for (const item of next) {
     if (item.id === undefined) {
-      nextAnonymous.push(item.shape);
+      (nextAnonymous ??= []).push(item.shape);
     } else {
-      nextById.set(item.id, item.shape);
+      (nextById ??= new Map()).set(item.id, item.shape);
     }
   }
 
   let anonymousIndex = 0;
   for (const item of prev) {
     const nextShape =
-      item.id === undefined ? nextAnonymous[anonymousIndex++] : nextById.get(item.id);
+      item.id === undefined ? nextAnonymous?.[anonymousIndex++] : nextById?.get(item.id);
     if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
       return true;
     }

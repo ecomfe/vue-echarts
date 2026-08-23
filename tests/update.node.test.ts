@@ -490,6 +490,17 @@ describe("smart-update", () => {
         expect(applied.series?.[0]?.label?.color).not.toBe("red");
         expect(plan).toEqual({ notMerge: true });
       });
+
+      it("aligns anonymous item shapes around named items", () => {
+        const prev = buildSignature({
+          series: [{}, { id: "named" }, { label: { color: "red" } }],
+        });
+        const next = planUpdate(prev, {
+          series: [{ id: "named" }, {}, { label: {} }],
+        });
+
+        expect(next.plan).toEqual({ notMerge: true });
+      });
     });
 
     describe("real data scenarios", () => {
