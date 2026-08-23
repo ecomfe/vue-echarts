@@ -12,11 +12,21 @@ type IsAssignable<From, To> = [From] extends [To] ? true : false;
 type IsEqual<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 
-type HandlerName = "onClick" | "onMouseover" | "onDrag" | "onDblclick";
+type HandlerName =
+  | "onClick"
+  | "onDblClick"
+  | "onContextMenu"
+  | "onDrag"
+  | "onDrop"
+  | `onMouse${Capitalize<"wheel" | "out" | "over" | "up" | "down" | "move">}`
+  | `onDrag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`;
+type VueEventPropName = `on${Capitalize<GraphicEventName>}`;
 type HandlerPayload = Parameters<NonNullable<RectProps[HandlerName]>>[0];
+type VueEventPayload = Parameters<NonNullable<RectProps[VueEventPropName]>>[0];
 type ClickHandler = NonNullable<RectProps["onClick"]>;
 
 type _assertHandlerPayload = Assert<IsEqual<HandlerPayload, ElementEvent>>;
+type _assertVueEventPayload = Assert<IsEqual<VueEventPayload, ElementEvent>>;
 type _assertExportedPayload = Assert<IsEqual<Parameters<GraphicEmits["click"]>[0], ElementEvent>>;
 type _assertEventNameExport = Assert<
   IsEqual<GraphicEventName, Exclude<ElementEvent["type"], "globalout">>
