@@ -1150,6 +1150,19 @@ describe("ECharts component", () => {
     expect(chartStub.resize).toHaveBeenCalled();
   });
 
+  it("skips deferred resize when autoresize is disabled before initialization", async () => {
+    const option = { title: { text: "disabled" } };
+    const autoresize = ref(true);
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option, autoresize: autoresize.value }), exposed);
+    autoresize.value = false;
+    await nextTick();
+
+    expect(chartStub.resize).not.toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+  });
+
   it("coalesces option changes before autoresize initialization", async () => {
     const option = ref<Option>({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();

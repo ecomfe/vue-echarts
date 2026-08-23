@@ -232,7 +232,9 @@ export default /* @__PURE__ */ defineComponent({
           if (instance.isDisposed()) {
             return;
           }
-          instance.resize();
+          if (autoresize.value) {
+            instance.resize();
+          }
           if (deferred.has(instance)) {
             commit();
           }
