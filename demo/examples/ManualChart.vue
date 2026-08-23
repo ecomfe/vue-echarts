@@ -45,25 +45,25 @@ async function load(): Promise<FlightDataset> {
   }
 
   loading.value = true;
+  try {
+    const [{ default: data }, { default: worldMap }] = await Promise.all([
+      import("../data/flight.json"),
+      import("../data/world.json"),
+    ]);
 
-  const [{ default: data }, { default: worldMap }] = await Promise.all([
-    import("../data/flight.json"),
-    import("../data/world.json"),
-  ]);
+    if (!isFlightDataset(data)) {
+      throw new Error("Invalid flight dataset");
+    }
 
-  loading.value = false;
+    if (isGeoJSONSource(worldMap)) {
+      registerMap("world", worldMap);
+    }
 
-  if (!isFlightDataset(data)) {
-    throw new Error("Invalid flight dataset");
+    flightData.value = data;
+    return data;
+  } finally {
+    loading.value = false;
   }
-
-  if (isGeoJSONSource(worldMap)) {
-    registerMap("world", worldMap);
-  }
-
-  flightData.value = data;
-
-  return data;
 }
 
 async function render(): Promise<void> {
@@ -145,7 +145,9 @@ async function render(): Promise<void> {
     <template #extra>
       <p>You may use the <code>manual-update</code> prop for performance critical use cases.</p>
       <p class="actions">
-        <button :disabled="loading" @click="render">Load</button>
+        <button type="button" :disabled="loading" :aria-busy="loading" @click="render">
+          {{ loading ? "Loading…" : "Load" }}
+        </button>
       </p>
     </template>
   </VExample>
