@@ -101,6 +101,7 @@ describe("smart-update", () => {
     it("filters primitive component items and sorts leaf keys", () => {
       const option: EChartsOption = {
         dataset: ["raw", { id: "has-id" }],
+        animation: false,
         backgroundColor: "#000",
         color: "#fff",
       } as unknown as EChartsOption;
@@ -108,7 +109,7 @@ describe("smart-update", () => {
       const signature = buildSignature(option);
 
       expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 0 });
-      expect(signature.leaves).toEqual(["backgroundColor", "color"]);
+      expect(signature.leaves).toEqual(["animation", "backgroundColor", "color"]);
     });
 
     it("handles malformed option container entries", () => {
@@ -386,14 +387,20 @@ describe("smart-update", () => {
         expect(next.plan.replaceMerge).toBeUndefined();
       });
 
-      it("removes top-level values explicitly cleared with null", () => {
-        const title = { title: { text: "before" } };
-        const background = { backgroundColor: "red" };
-        const clearedTitle = { title: null } as unknown as EChartsOption;
-        const clearedBackground = { backgroundColor: null } as unknown as EChartsOption;
-        const { applied, plan } = applyPlannedUpdate(background, clearedBackground);
+      it.each([null, false])("removes top-level components replaced with %s", (value) => {
+        const base = { title: { text: "before" } };
+        const update = { title: value } as unknown as EChartsOption;
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(planUpdate(buildSignature(title), clearedTitle).plan).toEqual({ notMerge: true });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.title?.[0]).toBeUndefined();
+      });
+
+      it("removes top-level settings explicitly cleared with null", () => {
+        const { applied, plan } = applyPlannedUpdate({ backgroundColor: "red" }, {
+          backgroundColor: null,
+        } as unknown as EChartsOption);
+
         expect(plan).toEqual({ notMerge: true });
         expect(applied.backgroundColor).toBeUndefined();
       });

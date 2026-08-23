@@ -157,8 +157,8 @@ export function buildSignature(option: Option): Signature {
       continue;
     }
 
-    // ECharts ignores nullish top-level values during merge, so they represent absence here too.
-    if (value != null) {
+    // ECharts ignores nullish values and non-object component options during top-level merge.
+    if (value != null && (!ComponentModel.hasClass(key) || isComponentOption(value))) {
       leaves.push(key);
     }
   }
