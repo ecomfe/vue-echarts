@@ -234,6 +234,9 @@ export default /* @__PURE__ */ defineComponent({
           }
           if (autoresize.value) {
             instance.resize();
+            if (instance.isDisposed()) {
+              return;
+            }
           }
           if (deferred.has(instance)) {
             commit();

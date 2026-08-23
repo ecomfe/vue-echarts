@@ -1163,6 +1163,21 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).toHaveBeenCalledOnce();
   });
 
+  it("stops deferred initialization when resize disposes the chart", async () => {
+    const exposed = shallowRef<Exposed>();
+    chartStub.dispose.mockImplementation(() => {
+      chartStub.isDisposed.mockReturnValue(true);
+    });
+    chartStub.resize.mockImplementation(() => getExposed(exposed).dispose());
+
+    renderChart(() => ({ option: {}, autoresize: true }), exposed);
+    await nextTick();
+
+    expect(chartStub.resize).toHaveBeenCalledOnce();
+    expect(chartStub.dispose).toHaveBeenCalledOnce();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
   it("coalesces option changes before autoresize initialization", async () => {
     const option = ref<Option>({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
