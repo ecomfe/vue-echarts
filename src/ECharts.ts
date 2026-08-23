@@ -107,6 +107,7 @@ export default /* @__PURE__ */ defineComponent({
       }) ?? {};
 
     let lastSignature: Signature | undefined;
+    let themedChart: EChartsType | undefined;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let mounted = false;
@@ -188,6 +189,7 @@ export default /* @__PURE__ */ defineComponent({
         instance.dispose();
         chart.value = undefined;
       }
+      themedChart = undefined;
       isReady.value = false;
       lastSignature = undefined;
     }
@@ -204,6 +206,7 @@ export default /* @__PURE__ */ defineComponent({
 
       const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
+      themedChart = instance;
 
       function commit(): void {
         const option = props.option;
@@ -264,6 +267,7 @@ export default /* @__PURE__ */ defineComponent({
     watch(
       realTheme,
       () => {
+        themedChart = undefined;
         themeUpdatePending = true;
       },
       { deep: true, flush: "sync" },
@@ -322,7 +326,8 @@ export default /* @__PURE__ */ defineComponent({
           }
         });
         const instance = chart.value;
-        if (instance) {
+        if (instance && instance !== themedChart) {
+          themedChart = instance;
           instance.setTheme(theme ?? {});
 
           if (props.option && !manualUpdate.value) {

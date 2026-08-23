@@ -457,8 +457,8 @@ describe("ECharts component", () => {
     renderChart(
       () => ({
         option: option.value,
-        theme: theme.value,
         initOptions: initOptions.value,
+        theme: theme.value,
       }),
       exposed,
     );
@@ -479,6 +479,7 @@ describe("ECharts component", () => {
     const [, passedTheme, passedInit] = init.mock.calls[0];
     expect(passedTheme).toEqual({ palette: ["#f97316"] });
     expect(passedInit).toEqual({ renderer: "svg" });
+    expect(replacementStub.setTheme).not.toHaveBeenCalled();
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
     expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
       title: { text: "combo" },
