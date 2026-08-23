@@ -2,7 +2,7 @@ import { computed, onScopeDispose, watchSyncEffect } from "vue";
 
 import type { ComputedRef, Ref } from "vue";
 import type { EChartsType } from "../types";
-import { createEventInvoker, parseOnEvent } from "../utils";
+import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
 import type { AttrMap, EventHandler } from "../utils";
 
 type EventEmitter = {
@@ -93,7 +93,11 @@ export function useReactiveChartListeners(
         continue;
       }
 
-      if (existing && existing.source === source) {
+      if (
+        existing &&
+        existing.source === source &&
+        (!Array.isArray(source) || hasEventHandler(source))
+      ) {
         existing.seenAt = scan;
         continue;
       }

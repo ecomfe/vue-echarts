@@ -104,6 +104,44 @@ describe("core events", () => {
     scope.stop();
   });
 
+  it.each(["onClick", "onClickOnce"])(
+    "unbinds and rebinds %s when its array is emptied in place",
+    async (key) => {
+      const chartRef = ref<EChartsType | undefined>();
+      const handler = vi.fn();
+      const handlers = reactive<EventHandler[]>([handler]);
+      const attrs = reactive<Record<string, unknown>>({ [key]: handlers });
+      const target = createChartStub();
+      const emitter = target.chart as unknown as EmitterStub;
+
+      const scope = effectScope();
+      scope.run(() => {
+        useReactiveChartListeners(chartRef, attrs);
+      });
+
+      chartRef.value = target.chart;
+      await nextTick();
+
+      const initialBinding = findBoundHandler(emitter.on, "click");
+      handlers.length = 0;
+      await nextTick();
+
+      expect(emitter.off).toHaveBeenCalledWith("click", initialBinding);
+
+      emitter.on.mockClear();
+      handlers.push(handler);
+      await nextTick();
+
+      const rebound = findBoundHandler(emitter.on, "click");
+      rebound("payload");
+      rebound("again");
+
+      expect(handler).toHaveBeenCalledTimes(key === "onClickOnce" ? 1 : 2);
+
+      scope.stop();
+    },
+  );
+
   it("binds, diffs, and cleans chart/zr listeners reactively", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({

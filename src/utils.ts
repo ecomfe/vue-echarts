@@ -3,28 +3,26 @@ import { warn as vueWarn } from "vue";
 export type AttrMap = Record<string, unknown>;
 export type EventHandler = (...args: unknown[]) => void;
 
+export function hasEventHandler(values: readonly unknown[]): boolean {
+  return values.some((value) => typeof value === "function");
+}
+
 export function createEventInvoker(value: unknown): EventHandler | undefined {
   if (typeof value === "function") {
     return value as EventHandler;
   }
 
-  if (!Array.isArray(value)) {
+  if (!Array.isArray(value) || !hasEventHandler(value)) {
     return undefined;
   }
 
-  for (const candidate of value) {
-    if (typeof candidate === "function") {
-      return (...args: unknown[]): void => {
-        for (const handler of value.slice()) {
-          if (typeof handler === "function") {
-            handler(...args);
-          }
-        }
-      };
+  return (...args: unknown[]): void => {
+    for (const handler of value.slice()) {
+      if (typeof handler === "function") {
+        handler(...args);
+      }
     }
-  }
-
-  return undefined;
+  };
 }
 
 export function isBrowser(): boolean {
