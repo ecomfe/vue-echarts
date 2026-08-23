@@ -106,7 +106,7 @@ export default defineComponent({
 
     let lastSignature: Signature | undefined;
     let themeUpdatePending = false;
-    let isPubliclyDisposed = false;
+    let terminallyDisposed = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
@@ -185,7 +185,7 @@ export default defineComponent({
     }
 
     function dispose(): void {
-      isPubliclyDisposed = true;
+      terminallyDisposed = true;
       cleanup();
     }
 
@@ -284,7 +284,7 @@ export default defineComponent({
     watch(
       [manualUpdate, realInitOptions],
       () => {
-        if (isPubliclyDisposed) {
+        if (terminallyDisposed) {
           return;
         }
         cleanup();
@@ -323,7 +323,7 @@ export default defineComponent({
       }
     });
 
-    const publicApi = usePublicAPI(chart, dispose, () => isPubliclyDisposed);
+    const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed);
 
     useLoading(chart, loading, loadingOptions);
 
@@ -332,6 +332,7 @@ export default defineComponent({
     onMounted(init);
 
     onBeforeUnmount(() => {
+      terminallyDisposed = true;
       if (wcRegistered && root.value?.__dispose === null) {
         root.value.__dispose = cleanup;
         return;

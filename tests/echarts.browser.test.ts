@@ -1144,6 +1144,17 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
+  it("reports disposed after the component unmounts", async () => {
+    const exposed = shallowRef<Exposed>();
+    const screen = renderChart(() => ({ option: { series: [] } }), exposed);
+    await nextTick();
+    const instance = getExposed(exposed);
+
+    screen.unmount();
+
+    expect(instance.isDisposed()).toBe(true);
+  });
+
   it("sets __dispose on root during unmount when wcRegistered and cleanup runs via disconnectedCallback", async () => {
     const option = ref({ title: { text: "wc-dispose" } });
     const exposed = shallowRef<Exposed>();
