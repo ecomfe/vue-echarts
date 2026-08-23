@@ -323,7 +323,9 @@ export default {
 - `containPixel` [→](https://echarts.apache.org/en/api.html#echartsInstance.containPixel)
 - `getDataURL` [→](https://echarts.apache.org/en/api.html#echartsInstance.getDataURL)
 - `getConnectedDataURL` [→](https://echarts.apache.org/en/api.html#echartsInstance.getConnectedDataURL)
+- `appendData` [→](https://echarts.apache.org/en/api.html#echartsInstance.appendData)
 - `clear` [→](https://echarts.apache.org/en/api.html#echartsInstance.clear)
+- `isDisposed` [→](https://echarts.apache.org/en/api.html#echartsInstance.isDisposed)
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
 `dispose` is terminal for the current component instance. Remount the component to initialize a new chart.

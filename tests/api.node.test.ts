@@ -8,9 +8,10 @@ import type { EChartsType } from "../src/types";
 describe("usePublicAPI", () => {
   it("throws until chart instance is available", () => {
     const chart = shallowRef<EChartsType | undefined>(undefined);
-    const api = usePublicAPI(chart, vi.fn());
+    const api = usePublicAPI(chart, vi.fn(), () => false);
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
+    expect(() => api.isDisposed()).toThrowError("ECharts is not initialized yet.");
 
     const chartImpl = {
       getWidth: vi.fn(() => 320),
@@ -64,7 +65,7 @@ describe("usePublicAPI", () => {
     const chart = shallowRef<EChartsType | undefined>();
     chart.value = chartImpl as unknown as EChartsType;
     const dispose = vi.fn();
-    const api = usePublicAPI(chart, dispose);
+    const api = usePublicAPI(chart, dispose, () => false);
 
     type ArgsByName = { [K in MethodName]: Parameters<PublicMethods[K]> };
     const argsByName: ArgsByName = {
@@ -102,7 +103,7 @@ describe("usePublicAPI", () => {
 
   it("throws again if the chart instance is cleared after initialization", () => {
     const chart = shallowRef<EChartsType | undefined>();
-    const api = usePublicAPI(chart, vi.fn());
+    const api = usePublicAPI(chart, vi.fn(), () => false);
 
     const chartImpl = {
       getWidth: vi.fn(() => 240),

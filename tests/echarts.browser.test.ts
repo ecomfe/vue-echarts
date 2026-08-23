@@ -1132,6 +1132,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.dispose).toHaveBeenCalledOnce();
     expect(getExposedField<EChartsType>(instance, "chart")).toBeUndefined();
+    expect(instance.isDisposed()).toBe(true);
 
     init.mockClear();
     option.value = { title: { text: "after" } };

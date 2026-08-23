@@ -323,7 +323,9 @@ export default {
 - `containPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.containPixel)
 - `getDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDataURL)
 - `getConnectedDataURL` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getConnectedDataURL)
+- `appendData` [→](https://echarts.apache.org/zh/api.html#echartsInstance.appendData)
 - `clear` [→](https://echarts.apache.org/zh/api.html#echartsInstance.clear)
+- `isDisposed` [→](https://echarts.apache.org/zh/api.html#echartsInstance.isDisposed)
 - `dispose` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispose)
 
 `dispose` 会终止当前组件实例。需要创建新图表时，请重新挂载组件。

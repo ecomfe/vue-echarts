@@ -323,7 +323,7 @@ export default defineComponent({
       }
     });
 
-    const publicApi = usePublicAPI(chart, dispose);
+    const publicApi = usePublicAPI(chart, dispose, () => isPubliclyDisposed);
 
     useLoading(chart, loading, loadingOptions);
 
