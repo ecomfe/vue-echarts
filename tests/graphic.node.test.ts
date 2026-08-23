@@ -263,6 +263,40 @@ describe("graphic", () => {
     expect(nodes[0].handlerCache).toBeUndefined();
   });
 
+  it.each(["onClick", "onClickOnce"])(
+    "drops and recreates %s when its array is emptied in place",
+    (key) => {
+      const handler = vi.fn();
+      const handlers: unknown[] = [handler];
+      const node: GraphicNode = {
+        id: "mutable-handler",
+        type: "circle",
+        parentId: null,
+        props: {},
+        handlers: { [key]: handlers },
+        order: 0,
+        sourceId: 1,
+      };
+      const getClick = () =>
+        getRootGraphicElement(buildOption([node], "root")).children?.[0]?.onclick;
+
+      expect(getClick()).toBeTypeOf("function");
+
+      handlers.length = 0;
+      expect(getClick()).toBeUndefined();
+
+      handlers.push(handler);
+      const rebound = getClick();
+      if (typeof rebound !== "function") {
+        throw new Error("Expected click handler to be recreated.");
+      }
+      rebound("payload");
+      rebound("again");
+
+      expect(handler).toHaveBeenCalledTimes(key === "onClickOnce" ? 1 : 2);
+    },
+  );
+
   it("builds image and group options", () => {
     const crop = {
       sx: 1,

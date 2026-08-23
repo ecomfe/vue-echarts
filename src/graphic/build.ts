@@ -1,5 +1,5 @@
 import type { Option } from "../types";
-import { createEventInvoker, parseOnEvent } from "../utils";
+import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
 import type { EventHandler } from "../utils";
 import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
@@ -83,7 +83,7 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
     }
 
     const cached = node.handlerCache?.get(key);
-    const reused = cached !== undefined && cached.source === value;
+    const reused = cached !== undefined && cached.source === value && hasEventHandler(value);
     const handler = reused ? cached.handler : toEventHandler(value, descriptor.once);
     if (!handler) {
       node.handlerCache?.delete(key);

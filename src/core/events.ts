@@ -93,11 +93,7 @@ export function useReactiveChartListeners(
         continue;
       }
 
-      if (
-        existing &&
-        existing.source === source &&
-        (!Array.isArray(source) || hasEventHandler(source))
-      ) {
+      if (existing && existing.source === source && hasEventHandler(source)) {
         existing.seenAt = scan;
         continue;
       }

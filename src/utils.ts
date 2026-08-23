@@ -3,8 +3,11 @@ import { warn as vueWarn } from "vue";
 export type AttrMap = Record<string, unknown>;
 export type EventHandler = (...args: unknown[]) => void;
 
-export function hasEventHandler(values: readonly unknown[]): boolean {
-  return values.some((value) => typeof value === "function");
+export function hasEventHandler(value: unknown): boolean {
+  return (
+    typeof value === "function" ||
+    (Array.isArray(value) && value.some((candidate) => typeof candidate === "function"))
+  );
 }
 
 export function createEventInvoker(value: unknown): EventHandler | undefined {
