@@ -1,4 +1,4 @@
-import { Teleport, defineComponent, h, onUnmounted, provide, shallowRef } from "vue";
+import { Teleport, defineComponent, h, provide, shallowRef } from "vue";
 
 import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
@@ -23,10 +23,6 @@ export const GraphicMount = defineComponent({
     provide(GRAPHIC_COLLECTOR_KEY, collector);
     provide(GRAPHIC_PARENT_ID_KEY, parentId);
     provide(GRAPHIC_ORDER_KEY, orderMapRef);
-
-    onUnmounted(() => {
-      detachedRoot?.remove();
-    });
 
     return () => {
       beginPass();

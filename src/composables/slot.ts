@@ -1,4 +1,4 @@
-import { h, Teleport, onUpdated, onUnmounted, onMounted, shallowRef, shallowReactive } from "vue";
+import { h, Teleport, onUpdated, onMounted, shallowRef, shallowReactive } from "vue";
 import type { Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
 import { isBrowser, isPlainObject, isSameSet, isValidArrayIndex, warn } from "../utils";
@@ -183,10 +183,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: (options?: UpdateOpti
 
   onMounted(() => {
     isMounted.value = true;
-  });
-
-  onUnmounted(() => {
-    detachedRoot?.remove();
   });
 
   return {

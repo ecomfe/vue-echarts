@@ -1332,12 +1332,11 @@ describe("ECharts component", () => {
     expect(el).toBeInstanceOf(HTMLElement);
     chartStub.dispose.mockClear();
 
-    // Unmount triggers custom element disconnectedCallback, which invokes __dispose immediately
+    // Disconnect cleanup waits a microtask so a synchronously moved element can reconnect first.
     screen.unmount();
     await nextTick();
 
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
-    // wc disconnectedCallback should null out the hook after calling it
     expect(el.__dispose).toBeNull();
   });
 
