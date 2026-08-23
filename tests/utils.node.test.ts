@@ -108,11 +108,14 @@ describe("utils", () => {
   describe("isPlainObject", () => {
     it("accepts plain objects", () => {
       expect(isPlainObject({ foo: "bar" })).toBe(true);
-      expect(isPlainObject(() => ({ foo: "bar" }))).toBe(false);
+      expect(isPlainObject(Object.create(null))).toBe(true);
     });
 
-    it("rejects arrays and primitives", () => {
+    it("rejects arrays, class instances, and primitives", () => {
       expect(isPlainObject([])).toBe(false);
+      expect(isPlainObject(new Date())).toBe(false);
+      expect(isPlainObject(new (class {})())).toBe(false);
+      expect(isPlainObject(() => ({ foo: "bar" }))).toBe(false);
       expect(isPlainObject(null)).toBe(false);
       expect(isPlainObject("foo")).toBe(false);
     });

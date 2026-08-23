@@ -71,8 +71,12 @@ export function isSameSet<T>(a: T[], b: T[]): boolean {
   return true;
 }
 
-export function isPlainObject(v: unknown): v is Record<string, unknown> {
-  return v != null && typeof v === "object" && !Array.isArray(v);
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value == null || typeof value !== "object") {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === null || prototype === Object.prototype;
 }
 
 const LOG_PREFIX = "[vue-echarts]";

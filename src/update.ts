@@ -63,16 +63,8 @@ function readId(item: unknown): string | undefined {
   return undefined;
 }
 
-function isShapeObject(value: unknown): value is Record<string, unknown> {
-  if (!isPlainObject(value)) {
-    return false;
-  }
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === null || prototype === Object.prototype;
-}
-
 function buildShape(value: unknown, stack: WeakSet<object>): true | ObjectShape {
-  if (!isShapeObject(value) || stack.has(value)) {
+  if (!isPlainObject(value) || stack.has(value)) {
     return true;
   }
 
