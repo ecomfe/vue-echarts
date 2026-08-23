@@ -66,6 +66,9 @@ export function useReactiveChartListeners(
           consumedSources.delete(key);
         }
       }
+      if (consumedSources.size === 0) {
+        consumedSources = undefined;
+      }
     }
     if (!instance) {
       clearBindings();
@@ -128,6 +131,10 @@ export function useReactiveChartListeners(
           }
           called = true;
           emitter.off(event, handler);
+          bindings?.delete(key);
+          if (bindings?.size === 0) {
+            bindings = undefined;
+          }
           (consumedSources ??= new Map()).set(key, source);
           invokeCurrent(...args);
         };

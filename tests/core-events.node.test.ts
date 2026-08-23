@@ -239,10 +239,7 @@ describe("core events", () => {
     attrs.onClickOnce = [fnC];
     await nextTick();
 
-    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
-      "click",
-      firstOnceBinding,
-    );
+    expect((target.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
     expect((target.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
       "click",
       expect.any(Function),
@@ -261,5 +258,6 @@ describe("core events", () => {
     );
 
     scope.stop();
+    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledTimes(1);
   });
 });

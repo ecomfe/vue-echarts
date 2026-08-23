@@ -1104,7 +1104,7 @@ describe("ECharts component", () => {
     onceHandler.value = onceB;
     await nextTick();
 
-    expect(chartStub.off).toHaveBeenCalledWith("click", firstListener);
+    expect(chartStub.off).not.toHaveBeenCalled();
 
     const secondBinding = chartStub.on.mock.calls.find((call) => call[0] === "click");
     if (!secondBinding) {
@@ -1114,6 +1114,8 @@ describe("ECharts component", () => {
     secondListener("second");
     secondListener("second-again");
     expect(onceB).toHaveBeenCalledTimes(1);
+    expect(chartStub.off).toHaveBeenCalledOnce();
+    expect(chartStub.off).toHaveBeenCalledWith("click", secondListener);
   });
 
   it("plans replaceMerge when series id is removed", async () => {
