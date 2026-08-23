@@ -430,11 +430,11 @@ describe("smart-update", () => {
 
       it("sorts multiple replaceMerge components", () => {
         const prev = buildSignature({
-          series: [{ id: "a" }, { id: "b" }],
+          series: { type: "line" } as unknown as EChartsOption["series"],
           dataset: [{ id: "a" }, { id: "b" }],
         });
         const next = planUpdate(prev, {
-          series: [{ id: "a" }],
+          series: [{ id: "line", type: "line" }],
           dataset: [{ id: "a" }],
         });
 

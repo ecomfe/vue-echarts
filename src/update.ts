@@ -245,27 +245,33 @@ function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): bo
   return false;
 }
 
-function shouldForceNotMerge(prev: Signature, next: Signature): boolean {
+/** Returns replacements, undefined for a plain merge, or null when a rebuild is required. */
+function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
+  let replaceMerge: string[] | undefined;
+
   for (const key of Object.keys(prev.objectShapes)) {
     const prevShape = prev.objectShapes[key];
     const nextShape = next.objectShapes[key];
     if (prevShape && nextShape) {
       if (hasShapeRemoval(prevShape, nextShape)) {
-        return true;
+        return null;
       }
       continue;
     }
-    if (next.arrays[key] === undefined && !next.scalars.includes(key)) {
-      return true;
+
+    if (next.arrays[key]) {
+      if (!ComponentModel.hasClass(key)) {
+        return null;
+      }
+      (replaceMerge ??= []).push(key);
+    } else if (!next.scalars.includes(key)) {
+      return null;
     }
   }
 
-  return hasMissing(prev.scalars, next.scalars);
-}
-
-/** Returns undefined when no replacement is needed and null when one cannot be represented. */
-function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
-  let replaceMerge: string[] | undefined;
+  if (hasMissing(prev.scalars, next.scalars)) {
+    return null;
+  }
 
   for (const key of Object.keys(prev.arrays)) {
     const prevArray = prev.arrays[key];
@@ -279,16 +285,6 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
 
     if (!hasArrayRemoval(prevArray, nextArray)) {
-      continue;
-    }
-    if (!ComponentModel.hasClass(key)) {
-      return null;
-    }
-    (replaceMerge ??= []).push(key);
-  }
-
-  for (const key of Object.keys(prev.objectShapes)) {
-    if (!next.arrays[key]) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {
@@ -314,7 +310,7 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
     };
   }
 
-  const replaceMerge = shouldForceNotMerge(prev, next) ? null : collectReplacements(prev, next);
+  const replaceMerge = collectReplacements(prev, next);
   if (replaceMerge === null) {
     return {
       signature: next,
