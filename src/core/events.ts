@@ -96,7 +96,7 @@ export function useReactiveChartListeners(
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
-      if (!parsed || parsed.event.startsWith("native:")) {
+      if (!parsed || parsed.event.startsWith("native:") || parsed.event === "zr:") {
         continue;
       }
 

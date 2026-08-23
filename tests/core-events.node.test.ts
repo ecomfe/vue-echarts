@@ -107,6 +107,7 @@ describe("core events", () => {
   it("binds, diffs, and cleans chart/zr listeners reactively", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({
+      "onZr:": vi.fn(),
       "onZr:mouseup": ["invalid"],
     });
 
