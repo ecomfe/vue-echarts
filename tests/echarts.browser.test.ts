@@ -85,6 +85,8 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "coffee" } });
     const group = ref<string | undefined>("group-a");
     const exposed = shallowRef<Exposed>();
+    const appliedGroups: Array<string | undefined> = [];
+    chartStub.setOption.mockImplementation(() => appliedGroups.push(chartStub.group));
 
     const screen = renderChart(() => ({ option: option.value, group: group.value }), exposed);
     await nextTick();
@@ -102,15 +104,14 @@ describe("ECharts component", () => {
     expect(chartStub.group).toBe("group-a");
 
     option.value = { title: { text: "latte" } };
+    group.value = "group-b";
     await nextTick();
     expect(chartStub.setOption).toHaveBeenCalledTimes(2);
     expect(chartStub.setOption.mock.calls[1][0]).toMatchObject({
       title: { text: "latte" },
     });
-
-    group.value = "group-b";
-    await nextTick();
     expect(chartStub.group).toBe("group-b");
+    expect(appliedGroups).toEqual(["group-a", "group-b"]);
 
     group.value = undefined;
     await nextTick();

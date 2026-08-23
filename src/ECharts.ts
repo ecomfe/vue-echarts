@@ -9,7 +9,7 @@ import {
   onBeforeUnmount,
   h,
   nextTick,
-  watchEffect,
+  watchSyncEffect,
   toValue,
 } from "vue";
 import { init as initChart } from "echarts/core";
@@ -199,10 +199,6 @@ export default /* @__PURE__ */ defineComponent({
       const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
 
-      if (props.group) {
-        instance.group = props.group;
-      }
-
       function commit(): void {
         const option = props.option;
         if (!option) {
@@ -333,7 +329,7 @@ export default /* @__PURE__ */ defineComponent({
       },
     );
 
-    watchEffect(() => {
+    watchSyncEffect(() => {
       const instance = chart.value;
       if (instance) {
         instance.group = props.group ?? "";
