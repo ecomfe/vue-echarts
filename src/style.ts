@@ -3,7 +3,11 @@ import { isBrowser } from "./utils";
 
 const STYLE_REGISTRY = Symbol.for("vue-echarts.styles");
 
-if (isBrowser()) {
+export function ensureStyles(): void {
+  if (!isBrowser()) {
+    return;
+  }
+
   const styledDocument = document as Document & Record<symbol, Set<string> | undefined>;
   const styles = (styledDocument[STYLE_REGISTRY] ??= new Set());
 

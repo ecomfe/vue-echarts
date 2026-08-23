@@ -12,6 +12,10 @@
     "dist"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/graphic.js",
+    "./dist/style.css"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "unpkg": "dist/index.min.js",

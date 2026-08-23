@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render } from "./helpers/testing";
+import { createEChartsModule, resetECharts } from "./helpers/mock";
+
+vi.mock("echarts/core", () => createEChartsModule());
 
 const STYLE_REGISTRY = Symbol.for("vue-echarts.styles");
+const useFallbackStyles = () =>
+  Object.defineProperty(document, "adoptedStyleSheets", {
+    configurable: true,
+    value: undefined,
+  });
 
 describe("style entry", () => {
   const adoptedDescriptor = Object.getOwnPropertyDescriptor(
@@ -10,6 +19,7 @@ describe("style entry", () => {
 
   beforeEach(() => {
     vi.resetModules();
+    resetECharts();
     document.head.innerHTML = "";
     Reflect.deleteProperty(document, STYLE_REGISTRY);
   });
@@ -27,14 +37,15 @@ describe("style entry", () => {
   });
 
   it("injects one fallback style tag across repeated module loads", async () => {
-    Object.defineProperty(document, "adoptedStyleSheets", {
-      configurable: true,
-      value: undefined,
-    });
+    useFallbackStyles();
 
     const replaceSpy = vi.spyOn(CSSStyleSheet.prototype, "replaceSync");
 
-    await import("../src/style");
+    const { ensureStyles } = await import("../src/style");
+
+    expect(document.head.querySelector("style")).toBeNull();
+
+    ensureStyles();
 
     const styleEl = document.head.querySelector("style");
 
@@ -46,8 +57,21 @@ describe("style entry", () => {
     expect(styleEl.textContent).not.toBe("");
 
     const duplicateEntry = new URL("../src/style?duplicate", import.meta.url).href;
-    await import(/* @vite-ignore */ duplicateEntry);
+    const { ensureStyles: ensureDuplicateStyles } = await import(/* @vite-ignore */ duplicateEntry);
+    ensureDuplicateStyles();
 
     expect(document.head.querySelectorAll("style")).toHaveLength(1);
+  });
+
+  it("injects styles when the component is first rendered", async () => {
+    useFallbackStyles();
+
+    const { default: ECharts } = await import("../src/ECharts");
+
+    expect(document.head.querySelector("style")).toBeNull();
+
+    render(ECharts);
+
+    expect(document.head.querySelector("style")).not.toBeNull();
   });
 });

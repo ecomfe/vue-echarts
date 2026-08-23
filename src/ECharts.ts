@@ -47,9 +47,8 @@ import type {
 } from "./types";
 import type { EChartsElement } from "./wc";
 
-import "./style";
+import { ensureStyles } from "./style";
 
-const wcRegistered = register();
 const SKIP_AUTO_UPDATE = Symbol();
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
@@ -57,7 +56,7 @@ export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
 export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables";
 
-export default defineComponent({
+export default /* @__PURE__ */ defineComponent({
   name: "Echarts",
   inheritAttrs: false,
   props: {
@@ -75,6 +74,8 @@ export default defineComponent({
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
+    ensureStyles();
+    const wcRegistered = register();
     const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
