@@ -1,5 +1,7 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
-import type { Color, TooltipComponentOption } from "echarts";
+import type { Color, CustomSeriesRenderItemReturn, TooltipComponentOption } from "echarts";
+
+export type GraphicDuring = NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>;
 
 export const COMMON_PROP_KEYS = [
   "id",
@@ -38,6 +40,7 @@ export const COMMON_PROP_KEYS = [
   "transition",
   "enterFrom",
   "leaveTo",
+  "during",
   "enterAnimation",
   "updateAnimation",
   "leaveAnimation",
@@ -151,6 +154,7 @@ const graphicCommonOnlyProps = {
   transition: [String, Array] as PropType<string | string[]>,
   enterFrom: Object as PropType<Record<string, unknown>>,
   leaveTo: Object as PropType<Record<string, unknown>>,
+  during: Function as PropType<GraphicDuring>,
   enterAnimation: Object as PropType<Record<string, unknown>>,
   updateAnimation: Object as PropType<Record<string, unknown>>,
   leaveAnimation: Object as PropType<Record<string, unknown>>,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import type { Color, TooltipComponentOption } from "echarts";
+import type { Color, CustomSeriesRenderItemReturn, TooltipComponentOption } from "echarts";
 
 import { GEllipse, GImage, GRect, GText } from "../../src/graphic/components";
 
@@ -14,6 +14,12 @@ type IsAssignable<From, To> = [From] extends [To] ? true : false;
 
 type _unsupportedProps = Assert<
   IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
+>;
+type _duringType = Assert<
+  IsAssignable<
+    NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>,
+    RectProps["during"]
+  >
 >;
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<
