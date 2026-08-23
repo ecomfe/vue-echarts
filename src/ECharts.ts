@@ -74,7 +74,6 @@ export default /* @__PURE__ */ defineComponent({
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
-    ensureStyles();
     const wcRegistered = register();
     const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
@@ -194,6 +193,9 @@ export default /* @__PURE__ */ defineComponent({
 
     function init(): void {
       isReady.value = false;
+
+      const styleRoot = root.value?.getRootNode();
+      ensureStyles(styleRoot instanceof ShadowRoot ? styleRoot : undefined);
 
       const host = chartHost.value as HTMLDivElement;
       const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));

@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { createApp } from "vue";
 import { render } from "./helpers/testing";
 import { createEChartsModule, resetECharts } from "./helpers/mock";
 
 vi.mock("echarts/core", () => createEChartsModule());
 
 const STYLE_REGISTRY = Symbol.for("vue-echarts.styles");
-const useFallbackStyles = () =>
-  Object.defineProperty(document, "adoptedStyleSheets", {
+const useFallbackStyles = (root: Document | ShadowRoot = document) =>
+  Object.defineProperty(root, "adoptedStyleSheets", {
     configurable: true,
     value: undefined,
   });
@@ -73,5 +74,25 @@ describe("style entry", () => {
     render(ECharts);
 
     expect(document.head.querySelector("style")).not.toBeNull();
+  });
+
+  it("injects styles into the component's shadow root", async () => {
+    const host = document.createElement("div");
+    const shadowRoot = host.attachShadow({ mode: "open" });
+    const container = document.createElement("div");
+    useFallbackStyles(shadowRoot);
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    const { default: ECharts } = await import("../src/ECharts");
+    const app = createApp(ECharts);
+
+    try {
+      app.mount(container);
+      expect(shadowRoot.querySelector("style")).not.toBeNull();
+    } finally {
+      app.unmount();
+      host.remove();
+    }
   });
 });
