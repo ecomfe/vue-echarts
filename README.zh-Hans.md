@@ -165,9 +165,9 @@ app.component('VChart', VueECharts)
 
   图表的分组，用于[联动](https://echarts.apache.org/zh/api.html#echarts.connect)。请参考 `echartsInstance.group`。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.group)
 
-- `autoresize: boolean | { throttle?: number, onResize?: () => void }`（默认值`false`）
+- `autoresize: boolean | { throttle?: number, onResize?: () => void }`（默认值：`false`）
 
-  图表在组件根元素尺寸变化时是否需要自动进行重绘。也可以传入一个选项对象来指定自定义的节流延迟和尺寸变化时的额外回调函数。
+  图表渲染容器尺寸变化时是否自动调整图表大小。也可以传入一个选项对象来指定自定义的节流延迟和尺寸变化时的额外回调函数。
 
 - `loading: boolean`（默认值：`false`）
 
@@ -518,6 +518,8 @@ function onDrag(event: ElementEvent) {
 静态方法请直接通过 [`echarts` 本身](https://echarts.apache.org/zh/api.html#echarts)进行调用。
 
 ## CSP: `style-src` 或 `style-src-elem`
+
+`VChart` 会自动将基础样式注入其挂载所在的 document 或 shadow root。
 
 如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，**并且**需要兼容不支持 [CSSStyleSheet() 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
 
