@@ -33,6 +33,7 @@ describe("graphic", () => {
           width: 30,
           height: 40,
           progressive: 8,
+          tooltip: { show: true, formatter: "main-rect" },
           textContent: { type: "text", style: { text: "label" } },
           textConfig: { position: "inside" },
           style: { fill: "#000", stroke: "#0f0" },
@@ -84,6 +85,7 @@ describe("graphic", () => {
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");
     expect(rect.progressive).toBe(8);
+    expect(rect.tooltip).toEqual({ show: true, formatter: "main-rect" });
     expect(rect.textContent).toMatchObject({ type: "text" });
     expect(rect.textConfig).toMatchObject({ position: "inside" });
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });

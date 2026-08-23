@@ -84,6 +84,7 @@ describe("graphic components", () => {
       h(GRect, {
         key: "rect-key",
         name: "main-rect",
+        tooltip: { show: true },
         shape: { x: 1, y: 2, width: 3, height: 4 },
         style: { fill: "#0ea5e9" },
         onClick: () => void 0,
@@ -97,6 +98,7 @@ describe("graphic components", () => {
     const payload = getLastRegisterPayload(collector);
     expect(payload.id).toBe("rect-key");
     expect(payload.props.name).toBe("main-rect");
+    expect(payload.props.tooltip).toEqual({ show: true });
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });

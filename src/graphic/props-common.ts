@@ -1,5 +1,5 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
-import type { Color } from "echarts";
+import type { Color, TooltipComponentOption } from "echarts";
 
 export const COMMON_PROP_KEYS = [
   "id",
@@ -32,6 +32,7 @@ export const COMMON_PROP_KEYS = [
   "invisible",
   "progressive",
   "info",
+  "tooltip",
   "focus",
   "blurScope",
   "textContent",
@@ -146,6 +147,7 @@ const graphicCommonOnlyProps = {
   invisible: withUndefinedDefault(Boolean),
   progressive: Number,
   info: null as unknown as PropType<unknown>,
+  tooltip: Object as PropType<TooltipComponentOption>,
   focus: String,
   blurScope: String,
   textContent: Object as PropType<Record<string, unknown>>,

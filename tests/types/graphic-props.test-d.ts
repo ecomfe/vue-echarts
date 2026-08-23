@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import type { Color } from "echarts";
+import type { Color, TooltipComponentOption } from "echarts";
 
 import { GImage, GRect, GText } from "../../src/graphic/components";
 
@@ -13,6 +13,9 @@ type IsAssignable<From, To> = [From] extends [To] ? true : false;
 
 type _progressiveType = Assert<IsAssignable<RectProps["progressive"], number | undefined>>;
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
+type _tooltipAcceptsEChartsOption = Assert<
+  IsAssignable<TooltipComponentOption, RectProps["tooltip"]>
+>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
 type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
 type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
