@@ -114,7 +114,7 @@ function analyzeArray(items: unknown[], stack: WeakSet<object>, mode?: ShapeMode
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
-  const stack = new WeakSet<object>();
+  let stack: WeakSet<object> | undefined;
   const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
@@ -123,13 +123,13 @@ export function buildSignature(option: Option): Signature {
     const value = opt[key];
     if (Array.isArray(value)) {
       const mode = key === "options" ? "option" : key === "media" ? "media" : undefined;
-      arrays[key] = analyzeArray(value, stack, mode);
+      arrays[key] = analyzeArray(value, (stack ??= new WeakSet()), mode);
       continue;
     }
 
     if (isPlainObject(value)) {
-      objectShapes[key] =
-        key === "baseOption" ? buildShape(value, stack, "option") : buildShape(value, stack);
+      const mode = key === "baseOption" ? "option" : undefined;
+      objectShapes[key] = buildShape(value, (stack ??= new WeakSet()), mode);
       continue;
     }
 
