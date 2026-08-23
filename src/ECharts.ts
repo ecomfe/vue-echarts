@@ -128,10 +128,14 @@ export default /* @__PURE__ */ defineComponent({
     let mounted = false;
     let terminallyDisposed = false;
     let deferredCharts: WeakSet<EChartsType> | undefined;
+    let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
     function withGraphicReplaceMerge(updateOptions?: UpdateOptions): UpdateOptions | undefined {
-      if (!slots.graphic || !patchGraphicOption) {
+      const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
+      const replaceGraphic = graphicSlotApplied || hasGraphicSlot;
+      graphicSlotApplied = hasGraphicSlot;
+      if (!replaceGraphic) {
         return updateOptions;
       }
 
@@ -216,6 +220,7 @@ export default /* @__PURE__ */ defineComponent({
       themedChart = undefined;
       isReady.value = false;
       lastSignature = undefined;
+      graphicSlotApplied = false;
     }
 
     function dispose(): void {

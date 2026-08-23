@@ -176,6 +176,51 @@ describe("graphic slot manual-update behavior", () => {
     });
   });
 
+  it("clears a removed graphic slot on the next explicit setOption", async () => {
+    registerExtension();
+
+    const exposed = shallowRef<Exposed>();
+    const showGraphic = ref(true);
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { manualUpdate: true, ref: (value) => (exposed.value = value as Exposed) },
+            showGraphic.value
+              ? {
+                  graphic: () =>
+                    h(GRect, { id: "manual-rect", x: 10, y: 10, width: 12, height: 12 }),
+                }
+              : {},
+          );
+      },
+    });
+
+    await withConsoleWarnAsync(async () => {
+      render(Root);
+      await nextTick();
+      await flushAnimationFrame();
+
+      const chartStub = suite.getChartStub();
+      exposed.value?.setOption({ series: [] });
+      await nextTick();
+
+      showGraphic.value = false;
+      await nextTick();
+      await flushAnimationFrame();
+      chartStub.setOption.mockClear();
+
+      exposed.value?.setOption({ series: [] });
+      expect(chartStub.setOption.mock.calls[0][0].graphic).toBeUndefined();
+      expect(chartStub.setOption.mock.calls[0][1]).toEqual({ replaceMerge: ["graphic"] });
+
+      chartStub.setOption.mockClear();
+      exposed.value?.setOption({ series: [] });
+      expect(chartStub.setOption.mock.calls[0][1]).toBeUndefined();
+    });
+  });
+
   it("applies click handlers only after explicit setOption in manual-update mode", async () => {
     registerExtension();
 
