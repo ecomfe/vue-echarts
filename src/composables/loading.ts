@@ -11,7 +11,7 @@ export function useLoading(
   loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
-  let activeInstances: WeakSet<EChartsType> | undefined;
+  let shownOptions: WeakMap<EChartsType, LoadingOptions> | undefined;
 
   watchEffect(() => {
     const instance = chart.value;
@@ -20,17 +20,28 @@ export function useLoading(
     }
 
     if (loading.value) {
-      instance.showLoading({
+      const options: LoadingOptions = {
         ...toValue(defaultLoadingOptions),
         ...loadingOptions.value,
-      });
-      (activeInstances ??= new WeakSet()).add(instance);
+      };
+      const previous = shownOptions?.get(instance);
+      const keys = Object.keys(options) as (keyof LoadingOptions)[];
+
+      if (
+        previous &&
+        keys.length === Object.keys(previous).length &&
+        keys.every((key) => Object.is(options[key], previous[key]))
+      ) {
+        return;
+      }
+
+      instance.showLoading(options);
+      (shownOptions ??= new WeakMap()).set(instance, options);
       return;
     }
 
-    if (activeInstances?.has(instance)) {
+    if (shownOptions?.delete(instance)) {
       instance.hideLoading();
-      activeInstances.delete(instance);
     }
   });
 }

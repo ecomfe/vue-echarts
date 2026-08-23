@@ -96,7 +96,7 @@ describe("useLoading", () => {
     expect(hideLoading).not.toHaveBeenCalled();
   });
 
-  it("replays showLoading when defaults or options change while active", async () => {
+  it("replays showLoading only when effective options change", async () => {
     const showLoading = vi.fn();
     const hideLoading = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -117,6 +117,11 @@ describe("useLoading", () => {
     expect(hideLoading).not.toHaveBeenCalled();
 
     showLoading.mockClear();
+    loadingOptions.value = { text: "Loading" };
+    await nextTick();
+
+    expect(showLoading).not.toHaveBeenCalled();
+
     defaults.value = { color: "#000" };
     await nextTick();
 
