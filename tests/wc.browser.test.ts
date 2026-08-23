@@ -44,14 +44,18 @@ describe("register", () => {
       vi.restoreAllMocks();
     });
 
-    it("returns false when custom elements are unavailable", async () => {
+    it("retries when custom elements become available", async () => {
       vi.unstubAllGlobals();
       vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
 
-      const { register } = await loadModule();
+      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
-      expect(register()).toBe(false);
+
+      vi.stubGlobal("customElements", registry as unknown as CustomElementRegistry);
+
+      expect(register()).toBe(true);
+      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
     it("returns false when browser APIs are disabled", async () => {

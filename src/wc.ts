@@ -16,8 +16,7 @@ export function register(): boolean {
   const registry = globalThis.customElements;
 
   if (!isBrowser() || !registry?.get) {
-    registered = false;
-    return registered;
+    return false;
   }
 
   if (!registry.get(TAG_NAME)) {
