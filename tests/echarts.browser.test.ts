@@ -1553,11 +1553,12 @@ describe("ECharts component", () => {
     expect(element.__dispose).toBeNull();
   });
 
-  it("stays disposed when the exposed ref disposes before mounted initialization", async () => {
+  it("transitions to disposed when the exposed ref disposes before mounted initialization", async () => {
     let instance: Exposed | undefined;
     const disposeOnRef: VNodeRef = (value) => {
       if (value) {
         instance = value as Exposed;
+        expect(instance.isDisposed()).toBe(false);
         instance.dispose();
       }
     };

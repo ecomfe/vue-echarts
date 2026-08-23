@@ -6,12 +6,12 @@ import type { PublicMethods } from "../src/composables/api";
 import type { EChartsType } from "../src/types";
 
 describe("usePublicAPI", () => {
-  it("throws until chart instance is available", () => {
+  it("only guards methods that require a chart instance", () => {
     const chart = shallowRef<EChartsType | undefined>(undefined);
     const api = usePublicAPI(chart, vi.fn(), () => false);
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
-    expect(() => api.isDisposed()).toThrowError("ECharts is not initialized yet.");
+    expect(api.isDisposed()).toBe(false);
 
     const chartImpl = {
       getWidth: vi.fn(() => 320),

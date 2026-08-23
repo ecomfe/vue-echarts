@@ -42,6 +42,6 @@ export function usePublicAPI(
     };
   }
   api.dispose = dispose;
-  api.isDisposed = () => isPubliclyDisposed() || getInstance().isDisposed();
+  api.isDisposed = () => isPubliclyDisposed() || (chart.value?.isDisposed() ?? false);
   return api as PublicMethods;
 }
