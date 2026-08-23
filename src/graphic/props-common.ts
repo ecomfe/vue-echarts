@@ -18,6 +18,7 @@ export const COMMON_PROP_KEYS = [
   "height",
   "bounding",
   "z",
+  "z2",
   "zlevel",
   "silent",
   "draggable",
@@ -111,6 +112,7 @@ const graphicCommonOnlyProps = {
   height: [String, Number] as PropType<string | number>,
   bounding: String,
   z: Number,
+  z2: Number,
   zlevel: Number,
   silent: withUndefinedDefault(Boolean),
   draggable: withUndefinedDefault([Boolean, String] as PropType<

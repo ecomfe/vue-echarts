@@ -66,7 +66,8 @@ describe("graphic slot edge and integration behavior", () => {
             ECharts,
             { option: option.value },
             {
-              graphic: () => h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12 }),
+              graphic: () =>
+                h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12, z2: 7 }),
             },
           );
       },
@@ -78,7 +79,10 @@ describe("graphic slot edge and integration behavior", () => {
       await flushAnimationFrame();
 
       const [lastCall] = getLastSetOptionCall(suite.getChartStub());
-      expect(lastCall.graphic.elements[0].children[0].id).toBe("slot-rect");
+      expect(lastCall.graphic.elements[0].children[0]).toMatchObject({
+        id: "slot-rect",
+        z2: 7,
+      });
       expect(
         lastCall.graphic.elements[0].children.some((child: any) => child.id === "from-option"),
       ).toBe(false);
