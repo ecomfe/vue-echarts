@@ -192,6 +192,9 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     function init(): void {
+      if (chart.value) {
+        return;
+      }
       isReady.value = false;
 
       ensureStyles(root.value?.getRootNode());

@@ -23,7 +23,7 @@ import type {
   UpdateOptions,
 } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
-import ECharts, { THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
+import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
@@ -636,6 +636,28 @@ describe("ECharts component", () => {
     expect(secondStub.setOption.mock.calls[0][0]).toMatchObject({
       title: { text: "coffee" },
     });
+  });
+
+  it("initializes once with the latest injected options when they change before mounted", async () => {
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const Mutator = defineComponent({
+      setup() {
+        initOptions.value = { renderer: "svg" };
+        return () => null;
+      },
+    });
+    const Root = defineComponent({
+      setup() {
+        provide(INIT_OPTIONS_KEY, initOptions);
+        return () => [h(ECharts, { option: { series: [] } }), h(Mutator)];
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    expect(init).toHaveBeenCalledTimes(1);
+    expect(init.mock.calls[0][2]).toEqual({ renderer: "svg" });
   });
 
   it("passes updateOptions when provided", async () => {
