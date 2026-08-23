@@ -20,10 +20,9 @@ export function useAutoresize(
     chart,
     () => Boolean(autoresize.value),
     () => getOptions()?.throttle ?? 100,
-    () => getOptions()?.onResize,
   ] as const;
 
-  watch(resizeSources, ([root, chart, enabled, wait, onResize], _, onCleanup) => {
+  watch(resizeSources, ([root, chart, enabled, wait], _, onCleanup) => {
     if (!root || !chart) {
       return;
     }
@@ -51,7 +50,7 @@ export function useAutoresize(
       chart.resize();
       sizedWidth = offsetWidth;
       sizedHeight = offsetHeight;
-      onResize?.();
+      getOptions()?.onResize?.();
     };
     const throttledResize = wait ? throttle(resize, wait) : undefined;
     const runResize = throttledResize ?? resize;

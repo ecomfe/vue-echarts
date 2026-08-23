@@ -133,7 +133,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("reacts to in-place throttle and callback changes", async () => {
+  it("uses the latest callback and rebinds only when throttle changes", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const onResizeA = vi.fn();
@@ -143,6 +143,7 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
 
     const container = createSizedContainer(80, 60);
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
 
     const scope = effectScope();
     scope.run(() => {
@@ -161,23 +162,25 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledTimes(1);
     expect(onResizeA).toHaveBeenCalledTimes(1);
 
-    settings.throttle = 150;
-    await nextTick();
-
-    expect(vi.mocked(throttle)).toHaveBeenCalledTimes(1);
-    const [, wait] = vi.mocked(throttle).mock.calls[0];
-    expect(wait).toBe(150);
-
-    settings.throttle = 0;
     settings.onResize = onResizeB;
     await nextTick();
 
-    container.style.width = "120px";
+    expect(disconnectSpy).not.toHaveBeenCalled();
+
+    container.style.width = "100px";
     await flushAnimationFrame();
 
     expect(resize).toHaveBeenCalledTimes(2);
     expect(onResizeA).toHaveBeenCalledTimes(1);
     expect(onResizeB).toHaveBeenCalledTimes(1);
+
+    settings.throttle = 150;
+    await nextTick();
+
+    expect(disconnectSpy).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(throttle)).toHaveBeenCalledTimes(1);
+    const [, wait] = vi.mocked(throttle).mock.calls[0];
+    expect(wait).toBe(150);
 
     scope.stop();
   });
