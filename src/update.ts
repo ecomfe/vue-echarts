@@ -161,6 +161,10 @@ export function buildSignature(option: Option): Signature {
 }
 
 function hasMissing(prev: readonly string[], next: readonly string[]): boolean {
+  if (prev.length > next.length) {
+    return true;
+  }
+
   let nextIndex = 0;
   for (const value of prev) {
     while (nextIndex < next.length && next[nextIndex] < value) {
@@ -181,8 +185,8 @@ function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): bo
 
   return (
     next.shapes.length < prev.shapes.length ||
-    hasMissing(prev.idsSorted, next.idsSorted) ||
-    next.noIdCount < prev.noIdCount
+    next.noIdCount < prev.noIdCount ||
+    hasMissing(prev.idsSorted, next.idsSorted)
   );
 }
 
