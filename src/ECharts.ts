@@ -392,7 +392,7 @@ export default /* @__PURE__ */ defineComponent({
       root,
       chart,
     };
-    expose({ ...exposed, ...publicApi });
+    expose(Object.assign(exposed, publicApi));
 
     return (() => {
       const children: VNodeChild[] = [
