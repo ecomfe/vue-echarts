@@ -270,6 +270,7 @@ As Vue ECharts binds events to the ECharts instance by default, there is some ca
 ```
 
 Event handlers passed via attrs are reactive by default. Updates to `onClick`, `onZr:*`, or `onNative:*` handlers take effect automatically.
+Multiword handlers accept idiomatic camel case, such as `onDataZoom`, `onBrushEnd`, and `onZr:mouseMove`; existing forms such as `onDatazoom`, `onBrushend`, and `onZr:mousemove` remain supported.
 
 ### Provide / inject
 

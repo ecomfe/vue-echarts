@@ -1,15 +1,11 @@
 import type { ElementEvent } from "echarts/core";
+import type { ElementEventAlias } from "../types";
 
 export type GraphicEventName = Exclude<ElementEvent["type"], "globalout">;
 export type GraphicOnEventName = `on${GraphicEventName}`;
 
-// Vue only capitalizes the first letter; attrs also accept these idiomatic aliases.
-type CamelCaseGraphicEventName =
-  | "dblClick"
-  | "contextMenu"
-  | `mouse${Capitalize<"wheel" | "out" | "over" | "up" | "down" | "move">}`
-  | `drag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`;
+type GraphicEventAlias = Exclude<ElementEventAlias, "globalOut">;
 
 export type GraphicEmits = {
-  [key in GraphicEventName | CamelCaseGraphicEventName]: (params: ElementEvent) => void;
+  [key in GraphicEventName | GraphicEventAlias]: (params: ElementEvent) => void;
 };

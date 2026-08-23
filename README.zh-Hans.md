@@ -270,6 +270,7 @@ Vue ECharts 支持如下事件：
 ```
 
 通过 attrs 传入的事件处理器默认是响应式的。更新 `onClick`、`onZr:*` 或 `onNative:*` 后会自动生效。
+多词事件处理器支持自然的驼峰写法，例如 `onDataZoom`、`onBrushEnd` 和 `onZr:mouseMove`；原有的 `onDatazoom`、`onBrushend` 和 `onZr:mousemove` 写法仍然可用。
 
 ### Provide / Inject
 

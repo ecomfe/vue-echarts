@@ -58,7 +58,19 @@ export type MouseEventName =
   | "contextmenu"
   | "globalout";
 
-type ZRenderEventName = `zr:${ElementEvent["type"]}`;
+// Vue only capitalizes the first letter; runtime listeners also accept these idiomatic aliases.
+type MouseEventAlias =
+  | "dblClick"
+  | "contextMenu"
+  | "globalOut"
+  | `mouse${Capitalize<"out" | "over" | "up" | "down" | "move">}`;
+
+export type ElementEventAlias =
+  | MouseEventAlias
+  | "mouseWheel"
+  | `drag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`;
+
+type ZRenderEventName = `zr:${ElementEvent["type"] | ElementEventAlias}`;
 
 type OtherEventName =
   | "highlight"
@@ -89,8 +101,22 @@ type OtherEventName =
   | "brushselected"
   | "globalcursortaken";
 
+type OtherEventAlias =
+  | "selectChanged"
+  | `legend${Capitalize<
+      "selectChanged" | "selected" | "unselected" | "selectAll" | "inverseSelect" | "scroll"
+    >}`
+  | `data${Capitalize<"zoom" | "rangeSelected" | "viewChanged">}`
+  | `${"graph" | "geo" | "tree"}Roam`
+  | `timeline${Capitalize<"changed" | "playChanged">}`
+  | "magicTypeChanged"
+  | `geo${Capitalize<"selectChanged" | "selected" | "unselected">}`
+  | "axisAreaSelected"
+  | `brush${Capitalize<"end" | "selected">}`
+  | "globalCursorTaken";
+
 type MouseEmits = {
-  [key in MouseEventName]: (params: ECElementEvent) => void;
+  [key in MouseEventName | MouseEventAlias]: (params: ECElementEvent) => void;
 };
 
 type ZRenderEmits = {
@@ -98,12 +124,13 @@ type ZRenderEmits = {
 };
 
 type OtherEmits = {
-  [key in OtherEventName]: (params: unknown) => void;
+  [key in OtherEventName | OtherEventAlias]: (params: unknown) => void;
 };
 
 export type Emits = MouseEmits &
   OtherEmits & {
     axisbreakchanged: (params: AxisBreakChangedEvent) => void;
+    axisBreakChanged: (params: AxisBreakChangedEvent) => void;
     rendered: (params: { elapsedTime: number }) => void;
     finished: () => void;
   } & ZRenderEmits;
