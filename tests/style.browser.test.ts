@@ -93,7 +93,7 @@ describe("style entry", () => {
     expect(document.head.querySelector("style")).not.toBeNull();
   });
 
-  it("shrinks in column layouts and passes root rounding to the renderer", async () => {
+  it("shrinks in column layouts and passes root rounding to both renderers", async () => {
     useFallbackStyles();
     const { ensureStyles } = await import("../src/style");
     ensureStyles();
@@ -109,11 +109,13 @@ describe("style entry", () => {
     const renderer = chartHost.appendChild(document.createElement("div"));
     renderer.style.height = "100px";
     const canvas = renderer.appendChild(document.createElement("canvas"));
+    const svg = renderer.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "svg"));
 
     expect(root.getBoundingClientRect().height).toBe(60);
     expect(getComputedStyle(chartHost).borderRadius).toBe("12px");
     expect(getComputedStyle(renderer).borderRadius).toBe("12px");
     expect(getComputedStyle(canvas).borderRadius).toBe("12px");
+    expect(getComputedStyle(svg).borderRadius).toBe("12px");
   });
 
   it("injects styles into the component's shadow root", async () => {
