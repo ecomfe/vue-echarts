@@ -16,13 +16,17 @@ type SlotBinding = {
   path: string[];
   formatter: (payload: unknown) => HTMLElement | undefined;
 };
-const SLOT_PREFIXES: SlotPrefix[] = ["tooltip", "dataView"];
 
 function isValidSlotName(key: string): key is SlotName {
   if (key.endsWith("-") || key.includes("--")) {
     return false;
   }
-  return SLOT_PREFIXES.some((slotPrefix) => key === slotPrefix || key.startsWith(slotPrefix + "-"));
+  return (
+    key === "tooltip" ||
+    key.startsWith("tooltip-") ||
+    key === "dataView" ||
+    key.startsWith("dataView-")
+  );
 }
 
 type Container = Record<string, unknown> | unknown[];
