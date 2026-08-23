@@ -289,6 +289,56 @@ describe("graphic slot edge and integration behavior", () => {
     expect(getLastGraphicIds(chartStub)).toEqual(["slot-rect"]);
   });
 
+  it("applies dynamic empty #graphic slot presence changes", async () => {
+    registerExtension();
+
+    const option = ref({
+      graphic: {
+        elements: [{ type: "rect", id: "from-option" }],
+      },
+    });
+    const showGraphic = ref(false);
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: option.value },
+            showGraphic.value ? { graphic: () => undefined } : {},
+          );
+      },
+    });
+
+    await withConsoleWarnAsync(async () => {
+      render(Root);
+      await nextTick();
+      const chartStub = suite.getChartStub();
+      expect(getLastGraphicOption(chartStub)).toMatchObject(option.value);
+
+      const toggleGraphicSlot = async (value: boolean) => {
+        chartStub.setOption.mockClear();
+        showGraphic.value = value;
+        await nextTick();
+        expect(chartStub.setOption).toHaveBeenCalledOnce();
+      };
+
+      await toggleGraphicSlot(true);
+      expect(getLastGraphicIds(chartStub)).toEqual([]);
+      expect(getLastSetOptionCall(chartStub)[1]?.replaceMerge).toContain("graphic");
+
+      await toggleGraphicSlot(false);
+      expect(getLastGraphicOption(chartStub)).toMatchObject(option.value);
+      expect(getLastSetOptionCall(chartStub)[1]?.replaceMerge).toContain("graphic");
+
+      chartStub.setOption.mockClear();
+      option.value = { graphic: { elements: [] } };
+      showGraphic.value = true;
+      await nextTick();
+      expect(chartStub.setOption).toHaveBeenCalledOnce();
+    });
+  });
+
   it("warns once when duplicate graphic ids are rendered", async () => {
     registerExtension();
 

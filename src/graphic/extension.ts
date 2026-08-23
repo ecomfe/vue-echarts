@@ -1,4 +1,4 @@
-import { h, onScopeDispose } from "vue";
+import { h, onScopeDispose, onUpdated } from "vue";
 import { use } from "echarts/core";
 import { GraphicComponent } from "echarts/components";
 import { buildOption } from "./build";
@@ -20,6 +20,7 @@ export function registerExtension(): void {
   registerRuntime((ctx) => {
     const { slots, manualUpdate, requestUpdate } = ctx;
     let collector: GraphicCollector | undefined;
+    let hasGraphicSlot = Boolean(slots.graphic);
     let warnedOverride = false;
 
     function getCollector(): GraphicCollector {
@@ -38,10 +39,19 @@ export function registerExtension(): void {
     }
 
     onScopeDispose(() => collector?.dispose());
+    onUpdated(() => {
+      const nextHasGraphicSlot = Boolean(slots.graphic);
+      if (nextHasGraphicSlot === hasGraphicSlot) {
+        return;
+      }
+      hasGraphicSlot = nextHasGraphicSlot;
+      handleFlush();
+    });
 
     return {
       patchOption(option) {
-        if (!slots.graphic) {
+        hasGraphicSlot = Boolean(slots.graphic);
+        if (!hasGraphicSlot) {
           return option;
         }
         const collector = getCollector();
