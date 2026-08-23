@@ -136,7 +136,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
-    expect(chartStub.setOption.mock.calls[0][1]).toEqual({});
+    expect(chartStub.setOption.mock.calls[0][1]).toBeUndefined();
   });
 
   it("ignores setOption when manual-update is false", async () => {

@@ -134,7 +134,7 @@ export default /* @__PURE__ */ defineComponent({
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
       if (manual) {
-        instance.setOption(patched, withGraphicReplaceMerge(override) ?? {});
+        instance.setOption(patched, withGraphicReplaceMerge(override));
         lastSignature = undefined;
         return;
       }
@@ -249,7 +249,7 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
-      applyOption(instance, option, updateOptions ?? undefined, true);
+      applyOption(instance, option, updateOptions, true);
     };
 
     // Mark synchronously so batched option/theme changes coalesce regardless of trigger order.
