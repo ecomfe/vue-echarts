@@ -265,6 +265,15 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toBeUndefined();
       });
 
+      it("keeps merge when new IDs surround existing IDs", () => {
+        const prev = buildSignature({ series: [{ id: "b" }, { id: "d" }] });
+        const next = planUpdate(prev, {
+          series: [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }],
+        });
+
+        expect(next.plan).toEqual({ notMerge: false });
+      });
+
       it("keeps merge when dataset items reorder without shrink", () => {
         const prev = buildSignature({
           dataset: [
