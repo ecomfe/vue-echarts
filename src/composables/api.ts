@@ -34,17 +34,14 @@ export function usePublicAPI(
     return instance;
   };
 
-  return {
-    ...Object.fromEntries(
-      METHOD_NAMES.map((name) => [
-        name,
-        (...args: unknown[]): unknown => {
-          const instance = getInstance();
-          return Reflect.apply(instance[name], instance, args);
-        },
-      ]),
-    ),
-    dispose,
-    isDisposed: () => isPubliclyDisposed() || getInstance().isDisposed(),
-  } as PublicMethods;
+  const api: Record<string, (...args: unknown[]) => unknown> = {};
+  for (const name of METHOD_NAMES) {
+    api[name] = (...args: unknown[]): unknown => {
+      const instance = getInstance();
+      return Reflect.apply(instance[name], instance, args);
+    };
+  }
+  api.dispose = dispose;
+  api.isDisposed = () => isPubliclyDisposed() || getInstance().isDisposed();
+  return api as PublicMethods;
 }
