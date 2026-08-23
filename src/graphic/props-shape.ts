@@ -37,7 +37,8 @@ export const shapeProps = {
   smooth: [Boolean, Number] as PropType<boolean | number>,
   smoothConstraint: Array as PropType<Array<[number, number]>>,
   paths: Array as PropType<unknown[]>,
-  clockwise: Boolean,
+  // Preserve zrender's `true` default when the prop is absent.
+  clockwise: { type: Boolean, default: undefined },
   cornerRadius: [Number, Array] as PropType<number | number[]>,
 } as const;
 

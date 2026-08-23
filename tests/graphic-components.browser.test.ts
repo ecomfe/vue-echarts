@@ -4,7 +4,7 @@ import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GGroup, GRect } from "../src/graphic/components";
+import { GArc, GGroup, GRect } from "../src/graphic/components";
 
 type CollectorMock = {
   beginPass: ReturnType<typeof vi.fn>;
@@ -96,6 +96,26 @@ describe("graphic components", () => {
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });
+  });
+
+  it("preserves the default clockwise direction until explicitly overridden", async () => {
+    const collector = createCollectorMock();
+
+    const Root = withGraphicProvider(collector, () => [
+      h(GArc, { id: "default" }),
+      h(GArc, { id: "counterclockwise", clockwise: false }),
+      h(GArc, { id: "clockwise", clockwise: true }),
+    ]);
+
+    render(Root);
+    await nextTick();
+
+    const propsById = Object.fromEntries(
+      collector.register.mock.calls.map(([node]) => [node.id, node.props]),
+    );
+    expect(propsById.default.clockwise).toBeUndefined();
+    expect(propsById.counterclockwise.clockwise).toBe(false);
+    expect(propsById.clockwise.clockwise).toBe(true);
   });
 
   it("generates fallback id and warns when both id and key are missing", async () => {
