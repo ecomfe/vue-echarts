@@ -27,6 +27,7 @@ describe("graphic", () => {
         type: "rect",
         parentId: null,
         props: {
+          name: "main-rect",
           x: 10,
           y: 20,
           width: 30,
@@ -81,6 +82,7 @@ describe("graphic", () => {
     expect(text.width).toBeUndefined();
 
     expect(rect.type).toBe("rect");
+    expect(rect.name).toBe("main-rect");
     expect(rect.progressive).toBe(8);
     expect(rect.textContent).toMatchObject({ type: "text" });
     expect(rect.textConfig).toMatchObject({ position: "inside" });

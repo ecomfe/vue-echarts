@@ -12,6 +12,7 @@ type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
 
 type _progressiveType = Assert<IsAssignable<RectProps["progressive"], number | undefined>>;
+type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
 type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
 type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;

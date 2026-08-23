@@ -3,6 +3,7 @@ import type { Color } from "echarts";
 
 export const COMMON_PROP_KEYS = [
   "id",
+  "name",
   "x",
   "y",
   "rotation",
@@ -114,6 +115,7 @@ type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width
 
 const graphicCommonOnlyProps = {
   id: [String, Number] as PropType<string | number>,
+  name: String,
   x: Number,
   y: Number,
   rotation: Number,
