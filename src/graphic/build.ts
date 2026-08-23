@@ -118,6 +118,10 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
     };
   }
 
+  if (!out) {
+    node.handlerCache = undefined;
+  }
+
   return out;
 }
 
