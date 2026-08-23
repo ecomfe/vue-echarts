@@ -180,9 +180,15 @@ describe("graphic components", () => {
       ],
     };
     const stroke: PatternObject = { image: "pattern.png", repeat: "repeat" };
-    const Root = withGraphicProvider(collector, () =>
-      h(GRect, { id: "paint", fill, stroke, lineDash: false }),
-    );
+    const paint = {
+      fill,
+      stroke,
+      lineDash: false,
+      strokeNoScale: false,
+      fillOpacity: 0.5,
+      strokeOpacity: 0.75,
+    } as const;
+    const Root = withGraphicProvider(collector, () => h(GRect, { id: "paint", ...paint }));
 
     withConsoleWarn((warnSpy) => {
       render(Root);
@@ -195,9 +201,7 @@ describe("graphic components", () => {
     await nextTick();
 
     const props = getLastRegisterPayload(collector).props;
-    expect(props.fill).toBe(fill);
-    expect(props.stroke).toBe(stroke);
-    expect(props.lineDash).toBe(false);
+    expect(props).toMatchObject(paint);
   });
 
   it("preserves zrender defaults until explicitly overridden", async () => {
@@ -231,6 +235,7 @@ describe("graphic components", () => {
       ignore: undefined,
       invisible: undefined,
       lineDash: undefined,
+      strokeNoScale: undefined,
     });
     expect(propsById.flags).toMatchObject({
       silent: false,

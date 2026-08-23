@@ -47,6 +47,9 @@ export const COMMON_PROP_KEYS = [
 export const BASE_STYLE_KEYS = [
   "fill",
   "stroke",
+  "strokeNoScale",
+  "fillOpacity",
+  "strokeOpacity",
   "lineWidth",
   "lineDash",
   "lineDashOffset",
@@ -157,6 +160,9 @@ const graphicCommonOnlyProps = {
 const baseStyleProps = {
   fill: [String, Object] as PropType<Color>,
   stroke: [String, Object] as PropType<Color>,
+  strokeNoScale: withUndefinedDefault(Boolean),
+  fillOpacity: Number,
+  strokeOpacity: Number,
   lineWidth: Number,
   lineDash: withUndefinedDefault([String, Array, Boolean] as PropType<string | number[] | false>),
   lineDashOffset: Number,

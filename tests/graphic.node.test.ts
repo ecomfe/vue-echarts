@@ -15,6 +15,12 @@ function getRootGraphicElement(option: unknown): any {
 
 describe("graphic", () => {
   it("builds graphic option with ordered children and replace root", () => {
+    const paint = {
+      fill: "#f00",
+      strokeNoScale: false,
+      fillOpacity: 0.5,
+      strokeOpacity: 0.75,
+    };
     const nodes: GraphicNode[] = [
       {
         id: "rect",
@@ -29,7 +35,7 @@ describe("graphic", () => {
           textContent: { type: "text", style: { text: "label" } },
           textConfig: { position: "inside" },
           style: { fill: "#000", stroke: "#0f0" },
-          fill: "#f00",
+          ...paint,
         },
         handlers: {},
         order: 1,
@@ -79,7 +85,7 @@ describe("graphic", () => {
     expect(rect.textContent).toMatchObject({ type: "text" });
     expect(rect.textConfig).toMatchObject({ position: "inside" });
     expect(rect.shape).toMatchObject({ x: 10, y: 20, width: 30, height: 40 });
-    expect(rect.style).toMatchObject({ fill: "#f00", stroke: "#0f0" });
+    expect(rect.style).toMatchObject({ ...paint, stroke: "#0f0" });
 
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
