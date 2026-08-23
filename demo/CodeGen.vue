@@ -213,6 +213,10 @@ const importCode = computed(() => {
     return "// Paste your option code first";
   }
 
+  if (analysisState.status === "analyzing") {
+    return "// Analyzing option…";
+  }
+
   if (hasErrors.value) {
     const blockingIssues = analysisState.issues.filter((issue) => issue.severity === "error");
     return formatIssues(blockingIssues);
@@ -418,7 +422,9 @@ onBeforeUnmount(() => {
           aria-readonly="true"
           @copy="trackCopy('system')"
         ></div>
-        <button class="copy" :disabled="analysisState.hasBlockingIssue" @click="copy">Copy</button>
+        <button class="copy" :disabled="analysisState.status !== 'ready'" @click="copy">
+          Copy
+        </button>
       </section>
     </section>
     <aside class="message" :class="{ open: message }" role="status" aria-live="polite">

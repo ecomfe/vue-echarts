@@ -76,8 +76,7 @@ export function useOptionAnalysis(initialCode: string): UseOptionAnalysisResult 
     hasBlockingIssue: false,
   });
 
-  let requestId = 0;
-  let latestRequest = 0;
+  let latestRequestId = 0;
   let timer: number | null = null;
 
   const postWork = (source: string) => {
@@ -87,21 +86,24 @@ export function useOptionAnalysis(initialCode: string): UseOptionAnalysisResult 
     if (timer !== null) {
       window.clearTimeout(timer);
     }
+    const id = ++latestRequestId;
+    state.status = "analyzing";
+    state.diagnostics = [];
+    state.issues = [];
+    state.hasBlockingIssue = false;
+    state.runtimeError = null;
+    state.option = null;
+    state.output = null;
     timer = window.setTimeout(() => {
-      state.status = "analyzing";
-      state.issues = [];
-      state.hasBlockingIssue = false;
-      state.runtimeError = null;
-      requestId += 1;
-      latestRequest = requestId;
-      const payload: WorkerRequest = { id: requestId, code: source };
+      timer = null;
+      const payload: WorkerRequest = { id, code: source };
       worker.postMessage(payload);
     }, ANALYZE_DELAY);
   };
 
   const handleMessage = (event: MessageEvent<WorkerMessage>) => {
     const { id, diagnostics, issues, option, output, runtimeError, strategy } = event.data;
-    if (id !== latestRequest) {
+    if (id !== latestRequestId) {
       return;
     }
 

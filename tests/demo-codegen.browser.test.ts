@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { render } from "./helpers/testing";
 import CodeGen from "../demo/CodeGen.vue";
+import type { OptionAnalysisState } from "../demo/composables/useOptionAnalysis";
 
 const mocks = vi.hoisted(() => ({
+  editorChange: null as ((value: string) => void) | null,
   editorFocus: vi.fn(),
   track: vi.fn(),
   writeText: vi.fn<() => Promise<void>>(),
@@ -17,8 +19,41 @@ vi.mock("../demo/composables/useDemoDark", async () => {
   return { useDemoDark: () => ref(false) };
 });
 
+vi.mock("../demo/composables/useOptionAnalysis", async () => {
+  const { reactive, ref } = await import("vue");
+  return {
+    useOptionAnalysis(initialCode: string) {
+      const code = ref(initialCode);
+      const state = reactive<OptionAnalysisState>({
+        status: "ready",
+        strategy: "expression",
+        diagnostics: [],
+        issues: [],
+        runtimeError: null,
+        option: { series: [{ type: "pie" }] },
+        output: "",
+        hasBlockingIssue: false,
+      });
+      return {
+        code,
+        state,
+        updateSource(value: string) {
+          code.value = value;
+          state.status = "analyzing";
+          state.option = null;
+        },
+        dispose: vi.fn(),
+      };
+    },
+  };
+});
+
 vi.mock("../demo/services/monaco", () => ({
-  createOptionEditor(container: HTMLElement, { initialCode }: { initialCode: string }) {
+  createOptionEditor(
+    container: HTMLElement,
+    { initialCode, onChange }: { initialCode: string; onChange: (value: string) => void },
+  ) {
+    mocks.editorChange = onChange;
     let value = initialCode;
     return {
       editor: {
@@ -50,6 +85,7 @@ vi.mock("../demo/services/monaco", () => ({
 }));
 
 beforeEach(() => {
+  mocks.editorChange = null;
   mocks.editorFocus.mockReset();
   mocks.track.mockReset();
   mocks.writeText.mockReset().mockResolvedValue();
@@ -143,6 +179,7 @@ describe("code generator dialog", () => {
     if (!copyButton || !message) {
       throw new Error("Expected copy controls in the code generator dialog.");
     }
+    expect(copyButton.disabled).toBe(false);
 
     mocks.writeText.mockRejectedValueOnce(new Error("Permission denied"));
     copyButton.click();
@@ -162,6 +199,22 @@ describe("code generator dialog", () => {
     });
     expect(mocks.writeText).toHaveBeenCalledTimes(2);
     expect(mocks.track).toHaveBeenCalledWith("copy-code", { from: "button" });
+  });
+
+  it("disables copying while edited source is awaiting analysis", async () => {
+    const { trigger } = renderCodegen();
+    const modal = await openCodegen(trigger);
+    const copyButton = modal.querySelector<HTMLButtonElement>("button.copy");
+    if (!copyButton || !mocks.editorChange) {
+      throw new Error("Expected initialized code generator controls.");
+    }
+    expect(copyButton.disabled).toBe(false);
+
+    mocks.editorChange("{ series: [] }");
+    await vi.waitFor(() => expect(copyButton.disabled).toBe(true));
+    copyButton.click();
+
+    expect(mocks.writeText).not.toHaveBeenCalled();
   });
 
   it("closes only when a pointer gesture stays outside the dialog content", async () => {
