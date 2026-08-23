@@ -4,7 +4,6 @@ import { GraphicComponent } from "echarts/components";
 import { buildOption } from "./build";
 import { createCollector } from "./collector";
 import { GraphicMount } from "./mount";
-import type { GraphicContext } from "./runtime";
 import { registerRuntime } from "./runtime";
 
 const ROOT_ID = "__ve_graphic_root__";
@@ -17,7 +16,7 @@ export function registerExtension(): void {
     componentRegistered = true;
   }
 
-  registerRuntime((ctx: GraphicContext) => {
+  registerRuntime((ctx) => {
     const { slots, manualUpdate, requestUpdate } = ctx;
     let warnedOverride = false;
 

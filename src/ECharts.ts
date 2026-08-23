@@ -98,7 +98,6 @@ export default /* @__PURE__ */ defineComponent({
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
       useGraphic({
-        chart,
         slots,
         manualUpdate,
         requestUpdate,

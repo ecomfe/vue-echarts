@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { effectScope, nextTick, ref } from "vue";
+import { effectScope, ref } from "vue";
 import type { GraphicContext } from "../src/graphic/runtime";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
@@ -23,7 +23,6 @@ let extensionModule: ExtensionModule;
 
 function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext {
   return {
-    chart: ref(),
     slots: {},
     manualUpdate: ref(false),
     requestUpdate: () => true,
@@ -191,62 +190,6 @@ describe("graphic runtime", () => {
     const childB = patchedB.graphic.elements[0].children[0];
     expect(childB.onclick).toBeUndefined();
     expect(typeof childB.onmouseover).toBe("function");
-
-    scope.stop();
-  });
-
-  it("does not depend on chart instance for handler option output", async () => {
-    extensionModule.registerExtension();
-
-    const chartRef = ref<any>(undefined);
-    const scope = effectScope();
-
-    const context = createContext({
-      chart: chartRef as any,
-      slots: { graphic: () => null } as any,
-    });
-
-    const runtime = scope.run(() => runtimeModule.useRuntime(context));
-    if (!runtime) {
-      throw new Error("Expected runtime to be initialized.");
-    }
-
-    const vnode = runtime.render() as any;
-    const collector = vnode.props.collector as {
-      register: (node: any) => void;
-    };
-
-    collector.register({
-      id: "n1",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {
-        onClick: () => void 0,
-      },
-      sourceId: 1,
-    });
-    await flushMicrotasks();
-
-    const patchedA = runtime.patchOption({} as any) as any;
-    const childA = patchedA.graphic.elements[0].children[0];
-    expect(typeof childA.onclick).toBe("function");
-
-    const chart = {
-      getZr: vi.fn(() => ({
-        on: vi.fn(),
-        off: vi.fn(),
-      })),
-    };
-    chartRef.value = chart;
-    await nextTick();
-
-    chartRef.value = undefined;
-    await nextTick();
-
-    const patchedB = runtime.patchOption({} as any) as any;
-    const childB = patchedB.graphic.elements[0].children[0];
-    expect(typeof childB.onclick).toBe("function");
 
     scope.stop();
   });
