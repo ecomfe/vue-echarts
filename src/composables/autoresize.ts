@@ -23,7 +23,11 @@ export function useAutoresize(
   ] as const;
 
   watch(resizeSources, ([root, chart, enabled, wait], _, onCleanup) => {
-    if (!root || !chart) {
+    if (!chart) {
+      sizedChart = undefined;
+      return;
+    }
+    if (!root) {
       return;
     }
 

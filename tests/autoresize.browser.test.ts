@@ -252,10 +252,14 @@ describe("useAutoresize", () => {
 
     expect(observeSpy).toHaveBeenCalledWith(firstContainer);
 
-    root.value = secondContainer;
+    root.value = undefined;
     await nextTick();
 
     expect(disconnectSpy).toHaveBeenCalledTimes(1);
+
+    root.value = secondContainer;
+    await nextTick();
+
     expect(observeSpy).toHaveBeenCalledWith(secondContainer);
     expect(resize).toHaveBeenCalledTimes(1);
 
@@ -266,7 +270,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("targets the latest chart instance after chart ref switches", async () => {
+  it("resets sizing when the chart is removed and targets replacement instances", async () => {
     const firstResize = vi.fn();
     const secondResize = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -280,7 +284,8 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = { resize: firstResize } as unknown as EChartsType;
+    const firstChart = { resize: firstResize } as unknown as EChartsType;
+    chart.value = firstChart;
     root.value = container;
     await nextTick();
 
@@ -288,6 +293,14 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
     expect(firstResize).toHaveBeenCalledTimes(1);
     expect(secondResize).not.toHaveBeenCalled();
+
+    chart.value = undefined;
+    await nextTick();
+    container.style.width = "200px";
+    chart.value = firstChart;
+    await nextTick();
+
+    expect(firstResize).toHaveBeenCalledTimes(1);
 
     chart.value = { resize: secondResize } as unknown as EChartsType;
     await nextTick();
