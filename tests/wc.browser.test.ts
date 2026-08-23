@@ -97,17 +97,17 @@ describe("register", () => {
       expect(getSpy).not.toHaveBeenCalled();
     });
 
-    it("handles definition failures gracefully", async () => {
-      const defineSpy = vi.spyOn(registry, "define").mockImplementation(() => {
+    it("retries after a definition failure", async () => {
+      const defineSpy = vi.spyOn(registry, "define").mockImplementationOnce(() => {
         throw new Error("boom");
       });
 
       const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
-      expect(register()).toBe(false);
-      expect(defineSpy).toHaveBeenCalledTimes(1);
-      expect(registry.get(TAG_NAME)).toBeUndefined();
+      expect(register()).toBe(true);
+      expect(defineSpy).toHaveBeenCalledTimes(2);
+      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
     it("recognizes an element registered during definition", async () => {

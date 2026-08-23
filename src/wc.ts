@@ -1,7 +1,7 @@
 import { ensureStyles } from "./style";
 import { isBrowser } from "./utils";
 
-let registered: boolean | null = null;
+let registered = false;
 
 export const TAG_NAME = "x-vue-echarts";
 
@@ -10,8 +10,8 @@ export interface EChartsElement extends HTMLElement {
 }
 
 export function register(): boolean {
-  if (registered != null) {
-    return registered;
+  if (registered) {
+    return true;
   }
 
   const registry = globalThis.customElements;
@@ -52,5 +52,5 @@ export function register(): boolean {
 
 // Test helper to reset cached registration state.
 export function __resetRegisterState(): void {
-  registered = null;
+  registered = false;
 }
