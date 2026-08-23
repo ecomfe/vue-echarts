@@ -43,20 +43,6 @@ function buildNestedProps(
   return result;
 }
 
-function mergeCommon(
-  target: Record<string, unknown>,
-  props: Record<string, unknown>,
-  shapeKeys: readonly string[],
-  styleKeys: readonly string[],
-): void {
-  for (const key of COMMON_PROP_KEYS) {
-    const value = props[key];
-    if (value !== undefined && !shapeKeys.includes(key) && !styleKeys.includes(key)) {
-      target[key] = value;
-    }
-  }
-}
-
 function toEventHandler(value: unknown, once: boolean): EventHandler | undefined {
   const invoke = createEventInvoker(value);
   if (!invoke || !once) {
@@ -127,14 +113,21 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
   const { type, id, props } = node;
-  const shapeKeys = SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
-  const styleKeys = STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+  const shapeKeys: readonly string[] =
+    SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
+  const styleKeys: readonly string[] =
+    STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE] ?? EMPTY_PROP_KEYS;
   const out: Record<string, unknown> = {
     type,
     id,
   };
 
-  mergeCommon(out, props, shapeKeys, styleKeys);
+  for (const key of COMMON_PROP_KEYS) {
+    const value = props[key];
+    if (value !== undefined && !shapeKeys.includes(key) && !styleKeys.includes(key)) {
+      out[key] = value;
+    }
+  }
 
   const handlers = buildHandlers(node);
   if (handlers) {
