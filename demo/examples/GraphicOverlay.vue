@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, shallowRef, watch, watchEffect } from "vue";
 import type { ComponentExposed } from "vue-component-type-helpers";
+import { usePreferredReducedMotion } from "@vueuse/core";
 import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { GridComponent, GraphicComponent, TooltipComponent } from "echarts/components";
@@ -62,6 +63,10 @@ const { values, markers, focusedMarkerId, randomizeTrend, rotateFocus, focusMark
   useGraphicOverlayData();
 const CHART_UPDATE_ANIMATION_MS = 300;
 const CHART_UPDATE_ANIMATION_EASING = "cubicOut";
+const reducedMotion = usePreferredReducedMotion();
+const animationDuration = computed(() =>
+  reducedMotion.value === "reduce" ? 0 : CHART_UPDATE_ANIMATION_MS,
+);
 const overlayValues = shallowRef<number[]>([...values.value]);
 let overlayRaf = 0;
 
@@ -69,63 +74,58 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) * (1 - t) * (1 - t);
 }
 
-watch(
-  () => values.value,
-  (nextValues) => {
-    const to = [...nextValues];
-    const from = [...overlayValues.value];
+function stopOverlayAnimation(): void {
+  if (!overlayRaf) {
+    return;
+  }
+  cancelAnimationFrame(overlayRaf);
+  overlayRaf = 0;
+}
 
-    if (
-      typeof requestAnimationFrame === "undefined" ||
-      from.length !== to.length ||
-      CHART_UPDATE_ANIMATION_MS <= 0
-    ) {
-      overlayValues.value = to;
+watch([() => values.value, animationDuration], ([nextValues, duration]) => {
+  const to = [...nextValues];
+  const from = [...overlayValues.value];
+  stopOverlayAnimation();
+
+  if (from.length === to.length && from.every((value, index) => value === to[index])) {
+    return;
+  }
+
+  if (typeof requestAnimationFrame === "undefined" || from.length !== to.length || duration === 0) {
+    overlayValues.value = to;
+    return;
+  }
+
+  let startedAt = 0;
+  const tick = (now: number) => {
+    if (!startedAt) {
+      startedAt = now;
+    }
+    const elapsed = now - startedAt;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutCubic(progress);
+
+    overlayValues.value = to.map((target, index) =>
+      Math.round(from[index] + (target - from[index]) * eased),
+    );
+
+    if (progress < 1) {
+      overlayRaf = requestAnimationFrame(tick);
       return;
     }
-
-    if (overlayRaf) {
-      cancelAnimationFrame(overlayRaf);
-      overlayRaf = 0;
-    }
-
-    let startedAt = 0;
-    const tick = (now: number) => {
-      if (!startedAt) {
-        startedAt = now;
-      }
-      const elapsed = now - startedAt;
-      const progress = Math.min(elapsed / CHART_UPDATE_ANIMATION_MS, 1);
-      const eased = easeOutCubic(progress);
-
-      overlayValues.value = to.map((target, index) =>
-        Math.round(from[index] + (target - from[index]) * eased),
-      );
-
-      if (progress < 1) {
-        overlayRaf = requestAnimationFrame(tick);
-        return;
-      }
-      overlayRaf = 0;
-      overlayValues.value = to;
-    };
-
-    overlayRaf = requestAnimationFrame(tick);
-  },
-  { immediate: true },
-);
-
-onUnmounted(() => {
-  if (overlayRaf) {
-    cancelAnimationFrame(overlayRaf);
     overlayRaf = 0;
-  }
+    overlayValues.value = to;
+  };
+
+  overlayRaf = requestAnimationFrame(tick);
 });
+
+onUnmounted(stopOverlayAnimation);
 
 const option = computed(
   () =>
     ({
-      animationDurationUpdate: CHART_UPDATE_ANIMATION_MS,
+      animationDurationUpdate: animationDuration.value,
       animationEasingUpdate: CHART_UPDATE_ANIMATION_EASING,
       grid: {
         left: `${GRID.left}%`,
@@ -152,7 +152,7 @@ const option = computed(
       series: [
         {
           type: "line",
-          animationDurationUpdate: CHART_UPDATE_ANIMATION_MS,
+          animationDurationUpdate: animationDuration.value,
           animationEasingUpdate: CHART_UPDATE_ANIMATION_EASING,
           smooth: true,
           symbol: "circle",
