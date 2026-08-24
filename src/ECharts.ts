@@ -473,7 +473,7 @@ export default /* @__PURE__ */ defineComponent({
 
     const exposed = {
       setOption,
-      get root() {
+      get root(): HTMLElement | undefined {
         return root.value ?? undefined;
       },
       get chart() {
