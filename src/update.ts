@@ -20,9 +20,7 @@ type ArrayItemShape = {
 type ShapeMode = "option" | "media";
 
 function toIdentity(value: unknown): string | undefined {
-  return typeof value === "string" || (typeof value === "number" && Number.isFinite(value))
-    ? String(value)
-    : undefined;
+  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 }
 
 function isComponentOption(value: unknown): boolean {

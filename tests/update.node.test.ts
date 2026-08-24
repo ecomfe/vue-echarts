@@ -90,12 +90,18 @@ describe("smart-update", () => {
           { id: 1, type: "line" },
           { id: { nested: true } as unknown, type: "pie" },
           { id: true as unknown as string, type: "scatter" },
+          { id: Infinity, type: "bar" },
+          { id: -Infinity, type: "line" },
+          { id: NaN, type: "pie" },
           { type: "area" },
         ] as unknown as EChartsOption["series"],
       };
 
       const signature = buildSignature(option);
-      expect(signature.arrays.series).toMatchObject({ idsSorted: ["1", "2"], noIdCount: 3 });
+      expect(signature.arrays.series).toMatchObject({
+        idsSorted: ["-Infinity", "1", "2", "Infinity", "NaN"],
+        noIdCount: 3,
+      });
     });
 
     it("filters primitive component items and sorts leaf keys", () => {
@@ -605,6 +611,27 @@ describe("smart-update", () => {
         expect(plan).toEqual({ notMerge: true });
         expect(seriesByName.latte.label?.color).toBeUndefined();
         expect(seriesByName.mocha.label?.color).toBe("brown");
+      });
+
+      it("preserves removals when infinite numeric IDs reorder", () => {
+        const base: EChartsOption = {
+          series: [
+            { id: Infinity, type: "pie", label: { color: "red" } },
+            { id: -Infinity, type: "pie" },
+          ],
+        };
+        const update: EChartsOption = {
+          series: [
+            { id: -Infinity, type: "pie", label: { color: "blue" } },
+            { id: Infinity, type: "pie" },
+          ],
+        };
+
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.[0]?.label?.color).toBe("blue");
+        expect(applied.series?.[1]?.label?.color).toBeUndefined();
       });
 
       it("keeps merge across duplicate and renamed component names", () => {
