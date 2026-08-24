@@ -1,11 +1,11 @@
 import type { ElementEvent } from "echarts/core";
-import type { ElementEventAlias } from "../types";
+import type { ElementEventAlias, WithOnce } from "../types";
 
 export type GraphicEventName = Exclude<ElementEvent["type"], "globalout">;
 export type GraphicOnEventName = `on${GraphicEventName}`;
 
 type GraphicEventAlias = Exclude<ElementEventAlias, "globalOut">;
 
-export type GraphicEmits = {
+export type GraphicEmits = WithOnce<{
   [key in GraphicEventName | GraphicEventAlias]: (params: ElementEvent) => void;
-};
+}>;

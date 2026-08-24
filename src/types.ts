@@ -131,11 +131,16 @@ type OtherEmits = {
   [key in OtherEventName | OtherEventAlias]: (params: unknown) => void;
 };
 
-export type Emits = MouseEmits &
+export type WithOnce<T> = T & {
+  [key in keyof T as `${key & string}Once`]: T[key];
+};
+
+type ChartEmits = MouseEmits &
   OtherEmits & {
     axisbreakchanged: (params: AxisBreakChangedEvent) => void;
     axisBreakChanged: (params: AxisBreakChangedEvent) => void;
     rendered: (params: { elapsedTime: number }) => void;
     finished: () => void;
-  } & ZRenderEmits &
-  NativeEmits;
+  } & ZRenderEmits;
+
+export type Emits = WithOnce<ChartEmits> & NativeEmits;

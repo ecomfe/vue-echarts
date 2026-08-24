@@ -20,14 +20,17 @@ type HandlerName =
   | "onDrop"
   | `onMouse${Capitalize<"wheel" | "out" | "over" | "up" | "down" | "move">}`
   | `onDrag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`;
+type OnceHandlerName = `${HandlerName}Once`;
 type VueEventPropName = `on${Capitalize<GraphicEventName>}`;
 type HandlerPayload = Parameters<NonNullable<RectProps[HandlerName]>>[0];
 type VueEventPayload = Parameters<NonNullable<RectProps[VueEventPropName]>>[0];
 type ClickHandler = NonNullable<RectProps["onClick"]>;
 
 type _assertHandlerPayload = Assert<IsEqual<HandlerPayload, ElementEvent>>;
+type _assertOnceHandlers = Assert<OnceHandlerName extends keyof RectProps ? true : false>;
 type _assertVueEventPayload = Assert<IsEqual<VueEventPayload, ElementEvent>>;
 type _assertExportedPayload = Assert<IsEqual<Parameters<GraphicEmits["click"]>[0], ElementEvent>>;
+type _assertOncePayload = Assert<IsEqual<Parameters<GraphicEmits["clickOnce"]>[0], ElementEvent>>;
 type _assertEventNameExport = Assert<
   IsEqual<GraphicEventName, Exclude<ElementEvent["type"], "globalout">>
 >;

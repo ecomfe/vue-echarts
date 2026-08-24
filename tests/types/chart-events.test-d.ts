@@ -34,7 +34,13 @@ type CamelCaseHandlerName =
   | "onZr:globalOut"
   | `onZr:mouse${Capitalize<"wheel" | "out" | "over" | "up" | "down" | "move">}`
   | `onZr:drag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`;
+type OnceHandlerName =
+  | "onClickOnce"
+  | "onDataZoomOnce"
+  | "onAxisBreakChangedOnce"
+  | "onZr:mouseMoveOnce";
 type AxisBreakHandler = NonNullable<Props["onAxisBreakChanged"]>;
+type AxisBreakOnceHandler = NonNullable<Props["onAxisBreakChangedOnce"]>;
 type MouseMoveHandler = NonNullable<Props["onMouseMove"]>;
 type ZRenderMouseMoveHandler = NonNullable<Props["onZr:mouseMove"]>;
 type NativeHandler = NonNullable<
@@ -42,7 +48,11 @@ type NativeHandler = NonNullable<
 >;
 
 type _camelCaseEvents = Assert<CamelCaseHandlerName extends keyof Props ? true : false>;
+type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
 type _axisBreakPayload = Assert<IsEqual<Parameters<AxisBreakHandler>[0], AxisBreakChangedEvent>>;
+type _axisBreakOncePayload = Assert<
+  IsEqual<Parameters<AxisBreakOnceHandler>[0], AxisBreakChangedEvent>
+>;
 type _mouseMovePayload = Assert<IsEqual<Parameters<MouseMoveHandler>[0], ECElementEvent>>;
 type _zrMouseMovePayload = Assert<IsEqual<Parameters<ZRenderMouseMoveHandler>[0], ElementEvent>>;
 type _nativeAcceptsMouseHandler = Assert<IsAssignable<(params: MouseEvent) => void, NativeHandler>>;
