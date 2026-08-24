@@ -155,9 +155,7 @@ describe("graphic runtime", () => {
 
     await flushMicrotasks();
 
-    expect(requestUpdate).toHaveBeenCalledWith({
-      replaceMerge: ["graphic"],
-    });
+    expect(requestUpdate).toHaveBeenCalledWith();
 
     const patchedA = runtime.patchOption({} as any) as any;
     const childA = patchedA.graphic.elements[0].children[0];

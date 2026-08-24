@@ -1,11 +1,11 @@
 import type { Ref, Slots, VNodeChild } from "vue";
 
-import type { Option, UpdateOptions } from "../types";
+import type { Option } from "../types";
 
 export type GraphicContext = {
   slots: Slots;
   manualUpdate: Ref<boolean>;
-  requestUpdate: (updateOptions?: UpdateOptions) => boolean;
+  requestUpdate: () => boolean;
 };
 
 export type GraphicRuntime = {

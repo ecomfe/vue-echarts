@@ -7,7 +7,6 @@ import { GraphicMount } from "./mount";
 import { registerRuntime } from "./runtime";
 
 const ROOT_ID = "__ve_graphic_root__";
-const UPDATE_OPTIONS = { replaceMerge: ["graphic"] };
 let registered = false;
 
 export function registerExtension(): void {
@@ -28,7 +27,7 @@ export function registerExtension(): void {
     }
 
     function handleFlush(): void {
-      const updated = requestUpdate(UPDATE_OPTIONS);
+      const updated = requestUpdate();
 
       if (!updated && manualUpdate.value) {
         collector!.warn(

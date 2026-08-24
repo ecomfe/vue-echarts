@@ -666,6 +666,47 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
+  it("preserves update options for graphic-only changes", async () => {
+    registerExtension();
+
+    const x = ref(10);
+    const updateOptions = {
+      lazyUpdate: true,
+      silent: true,
+      replaceMerge: "series",
+    };
+    const Root = defineComponent({
+      setup: () => () =>
+        h(
+          ECharts,
+          {
+            option: { series: [{ type: "line", data: [1, 2, 3] }] },
+            updateOptions,
+          },
+          {
+            graphic: () => h(GRect, { id: "marker", x: x.value, y: 10, width: 20, height: 12 }),
+          },
+        ),
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    const chartStub = suite.getChartStub();
+    chartStub.setOption.mockClear();
+    x.value = 36;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      lazyUpdate: true,
+      silent: true,
+      replaceMerge: ["series", "graphic"],
+    });
+  });
+
   it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {
     registerExtension();
 

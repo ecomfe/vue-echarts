@@ -118,7 +118,7 @@ export default /* @__PURE__ */ defineComponent({
         slots,
         manualUpdate,
         // Graphic is always replaced, so slot-only changes do not alter the source signature.
-        requestUpdate: (updateOptions) => requestUpdate(updateOptions, "graphic"),
+        requestUpdate: () => requestUpdate(undefined, "graphic"),
       }) ?? {};
 
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
@@ -151,10 +151,13 @@ export default /* @__PURE__ */ defineComponent({
       );
     }
 
-    function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
+    function patchUpdateOptions(
+      updateOptions?: UpdateOptions,
+      forceGraphic = false,
+    ): UpdateOptions | undefined {
       updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
-      const replaceGraphic = graphicSlotApplied || hasGraphicSlot;
+      const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
       graphicSlotApplied = hasGraphicSlot;
       if (!replaceGraphic || updateOptions?.notMerge) {
         return updateOptions;
@@ -182,7 +185,9 @@ export default /* @__PURE__ */ defineComponent({
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
 
       if (mode) {
-        instance.setOption(patched, patchUpdateOptions(override));
+        const replaceGraphic = mode === "graphic";
+        const updateOptions = replaceGraphic ? (realUpdateOptions.value ?? undefined) : override;
+        instance.setOption(patched, patchUpdateOptions(updateOptions, replaceGraphic));
         if (mode === "manual") {
           lastSignature = undefined;
         }
