@@ -29,9 +29,9 @@ function isComponentOption(value: unknown): boolean {
 
 /** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
-  /** Unique string ids extracted from items' `id` field. */
+  /** Unique ids used to match component items; empty for positional arrays. */
   ids: ReadonlySet<string>;
-  /** Count of summarized items without an `id` field. */
+  /** Anonymous component items, or all items in a positional array. */
   noIdCount: number;
   /** Structural snapshots in merge order; invalid component entries are omitted. */
   shapes: ArrayItemShape[];
@@ -107,7 +107,7 @@ function analyzeArray(
       continue;
     }
     const itemShape: ArrayItemShape = { id: undefined, name: undefined, shape: true };
-    itemShape.shape = buildShape(item, stack, mode, itemShape);
+    itemShape.shape = buildShape(item, stack, mode, componentItems ? itemShape : undefined);
     shapes.push(itemShape);
     if (itemShape.id === undefined) {
       noIdCount++;

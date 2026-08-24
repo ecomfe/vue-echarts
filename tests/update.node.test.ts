@@ -357,6 +357,28 @@ describe("smart-update", () => {
         },
       );
 
+      it("matches timeline options by position when snapshots include names", () => {
+        const base = {
+          baseOption: { timeline: { currentIndex: 0 }, series: [] },
+          options: [
+            { name: "first", title: { text: "First", subtext: "stale" } },
+            { name: "second", title: { text: "Second" } },
+          ],
+        } as unknown as EChartsOption;
+        const update = {
+          baseOption: { timeline: { currentIndex: 0 }, series: [] },
+          options: [
+            { name: "second", title: { text: "Second" } },
+            { name: "first", title: { text: "First", subtext: "stale" } },
+          ],
+        } as unknown as EChartsOption;
+
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.title?.[0]?.subtext).not.toBe("stale");
+      });
+
       it.each(optionContainers)(
         "removes nested component properties from same-length %s entries",
         (container) => {
