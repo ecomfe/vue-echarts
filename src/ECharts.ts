@@ -129,6 +129,7 @@ export default /* @__PURE__ */ defineComponent({
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let mounted = false;
+    let manualUpdateAtInit = manualUpdate.value;
     let terminallyDisposed = false;
     let deferredCharts: WeakSet<EChartsType> | undefined;
     let graphicSlotApplied = false;
@@ -254,6 +255,7 @@ export default /* @__PURE__ */ defineComponent({
 
     function init(): void {
       initOptionsInvalidated = false;
+      manualUpdateAtInit = manualUpdate.value;
       isReady.value = false;
 
       ensureStyles(root.value?.getRootNode());
@@ -414,7 +416,12 @@ export default /* @__PURE__ */ defineComponent({
           }
         });
         const instance = chart.value;
-        if (isActive(instance) && instance !== themedChart) {
+        if (
+          !initOptionsInvalidated &&
+          manualUpdate.value === manualUpdateAtInit &&
+          isActive(instance) &&
+          instance !== themedChart
+        ) {
           themedChart = instance;
           // ECharts ignores empty theme names instead of resetting to its default theme.
           instance.setTheme(theme || {});

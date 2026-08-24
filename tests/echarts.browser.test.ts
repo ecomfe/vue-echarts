@@ -510,6 +510,7 @@ describe("ECharts component", () => {
       chartStub = replacementStub;
       init.mockClear();
       firstStub.dispose.mockClear();
+      firstStub.setTheme.mockClear();
 
       theme.value = { palette: ["#f97316"] };
       initOptions.value = { renderer: "svg" };
@@ -521,6 +522,7 @@ describe("ECharts component", () => {
       const [, passedTheme, passedInit] = init.mock.calls[0];
       expect(passedTheme).toEqual({ palette: ["#f97316"] });
       expect(passedInit).toEqual({ renderer: "svg" });
+      expect(firstStub.setTheme).not.toHaveBeenCalled();
       expect(replacementStub.setTheme).not.toHaveBeenCalled();
       expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
       expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
@@ -1879,7 +1881,7 @@ describe("ECharts component", () => {
     }
   });
 
-  it("keeps a single option apply when manualUpdate and theme change in the same tick", async () => {
+  it("skips theme replay when manualUpdate and theme trigger reinit together", async () => {
     const option = ref<Option>({ title: { text: "combo" } });
     const manualUpdate = ref(false);
     const theme = ref<Theme | undefined>("dark");
@@ -1898,7 +1900,9 @@ describe("ECharts component", () => {
     const firstStub = chartStub;
     const replacementStub = enqueueChart();
     chartStub = replacementStub;
+    init.mockClear();
     firstStub.dispose.mockClear();
+    firstStub.setTheme.mockClear();
     replacementStub.setOption.mockClear();
     replacementStub.setTheme.mockClear();
 
@@ -1907,12 +1911,11 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(init).toHaveBeenCalledTimes(1);
+    expect(init.mock.calls[0][1]).toBeNull();
+    expect(firstStub.setTheme).not.toHaveBeenCalled();
+    expect(replacementStub.setTheme).not.toHaveBeenCalled();
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
-    const themeSetOnFirst = firstStub.setTheme.mock.calls.some((call) => call[0] != null);
-    const themeSetOnReplacement = replacementStub.setTheme.mock.calls.some(
-      (call) => call[0] != null,
-    );
-    expect(themeSetOnFirst || themeSetOnReplacement).toBe(true);
   });
 
   it("applies latest option to the replacement chart when option and initOptions change together", async () => {
