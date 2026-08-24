@@ -5,6 +5,7 @@ import type {
   ECElementEvent,
   ElementEvent,
   AxisBreakChangedEvent,
+  SelectChangedEvent,
 } from "echarts/core";
 import type { MaybeRefOrGetter } from "vue";
 
@@ -75,7 +76,6 @@ type ZRenderEventName = `zr:${ElementEvent["type"] | ElementEventAlias}`;
 type OtherEventName =
   | "highlight"
   | "downplay"
-  | "selectchanged"
   | "legendselectchanged"
   | "legendselected"
   | "legendunselected"
@@ -102,7 +102,6 @@ type OtherEventName =
   | "globalcursortaken";
 
 type OtherEventAlias =
-  | "selectChanged"
   | `legend${Capitalize<
       "selectChanged" | "selected" | "unselected" | "selectAll" | "inverseSelect" | "scroll"
     >}`
@@ -137,6 +136,8 @@ export type WithOnce<T> = T & {
 
 type ChartEmits = MouseEmits &
   OtherEmits & {
+    selectchanged: (params: SelectChangedEvent) => void;
+    selectChanged: (params: SelectChangedEvent) => void;
     axisbreakchanged: (params: AxisBreakChangedEvent) => void;
     axisBreakChanged: (params: AxisBreakChangedEvent) => void;
     rendered: (params: { elapsedTime: number }) => void;

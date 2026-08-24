@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import type { AxisBreakChangedEvent, ECElementEvent, ElementEvent } from "echarts/core";
+import type {
+  AxisBreakChangedEvent,
+  ECElementEvent,
+  ElementEvent,
+  SelectChangedEvent,
+} from "echarts/core";
 
 import ECharts from "../../src";
 
@@ -37,8 +42,11 @@ type CamelCaseHandlerName =
 type OnceHandlerName =
   | "onClickOnce"
   | "onDataZoomOnce"
+  | "onSelectChangedOnce"
   | "onAxisBreakChangedOnce"
   | "onZr:mouseMoveOnce";
+type SelectChangedHandler = NonNullable<Props["onSelectchanged"]>;
+type SelectChangedOnceHandler = NonNullable<Props["onSelectChangedOnce"]>;
 type AxisBreakHandler = NonNullable<Props["onAxisBreakChanged"]>;
 type AxisBreakOnceHandler = NonNullable<Props["onAxisBreakChangedOnce"]>;
 type MouseMoveHandler = NonNullable<Props["onMouseMove"]>;
@@ -49,6 +57,12 @@ type NativeHandler = NonNullable<
 
 type _camelCaseEvents = Assert<CamelCaseHandlerName extends keyof Props ? true : false>;
 type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
+type _selectChangedPayload = Assert<
+  IsEqual<Parameters<SelectChangedHandler>[0], SelectChangedEvent>
+>;
+type _selectChangedOncePayload = Assert<
+  IsEqual<Parameters<SelectChangedOnceHandler>[0], SelectChangedEvent>
+>;
 type _axisBreakPayload = Assert<IsEqual<Parameters<AxisBreakHandler>[0], AxisBreakChangedEvent>>;
 type _axisBreakOncePayload = Assert<
   IsEqual<Parameters<AxisBreakOnceHandler>[0], AxisBreakChangedEvent>
