@@ -6,3 +6,4 @@ export interface VChartSlotsExtension {}
 
 export default ECharts;
 export * from "./ECharts";
+export type { AutoResize, LoadingOptions } from "./types";
