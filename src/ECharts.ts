@@ -476,10 +476,10 @@ export default /* @__PURE__ */ defineComponent({
     const exposed = {
       setOption,
       get root() {
-        return root.value;
+        return root.value ?? undefined;
       },
       get chart() {
-        return chart.value;
+        return terminallyDisposed ? undefined : chart.value;
       },
     };
     expose(Object.assign(exposed, publicApi));

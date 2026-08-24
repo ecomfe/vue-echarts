@@ -1551,7 +1551,7 @@ describe("ECharts component", () => {
     expect(instance?.isDisposed()).toBe(true);
   });
 
-  it("reports disposed after the component unmounts", async () => {
+  it("clears public state after the component unmounts", async () => {
     const exposed = shallowRef<Exposed>();
     const screen = renderChart(() => ({ option: { series: [] } }), exposed);
     await nextTick();
@@ -1560,6 +1560,8 @@ describe("ECharts component", () => {
     screen.unmount();
 
     expect(instance.isDisposed()).toBe(true);
+    expect(instance.chart).toBeUndefined();
+    expect(instance.root).toBeUndefined();
   });
 
   it("disposes when unmounted from a detached container", () => {
