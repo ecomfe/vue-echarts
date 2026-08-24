@@ -8,6 +8,7 @@ import type {
   SelectChangedEvent,
   HighlightPayload,
   DownplayPayload,
+  Payload,
 } from "echarts/core";
 import type { MaybeRefOrGetter } from "vue";
 
@@ -127,7 +128,7 @@ type NativeEmits = {
 };
 
 type OtherEmits = {
-  [key in OtherEventName | OtherEventAlias]: (params: unknown) => void;
+  [key in OtherEventName | OtherEventAlias]: (params: Payload) => void;
 };
 
 export type WithOnce<T> = T & {

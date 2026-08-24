@@ -6,6 +6,7 @@ import type {
   ECElementEvent,
   ElementEvent,
   HighlightPayload,
+  Payload,
   SelectChangedEvent,
 } from "echarts/core";
 
@@ -56,6 +57,7 @@ type _camelCaseEvents = Assert<CamelCaseHandlerName extends keyof Props ? true :
 type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
 type _highlightPayload = Assert<IsEqual<HandlerPayload<"onHighlight">, HighlightPayload>>;
 type _downplayOncePayload = Assert<IsEqual<HandlerPayload<"onDownplayOnce">, DownplayPayload>>;
+type _actionPayload = Assert<IsEqual<HandlerPayload<"onDataZoom">, Payload>>;
 type _selectChangedPayload = Assert<IsEqual<HandlerPayload<"onSelectchanged">, SelectChangedEvent>>;
 type _selectChangedOncePayload = Assert<
   IsEqual<HandlerPayload<"onSelectChangedOnce">, SelectChangedEvent>
