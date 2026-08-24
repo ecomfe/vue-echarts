@@ -20,15 +20,7 @@ type ListenerBinding = {
   handler: EventHandler;
 };
 
-function toNativeEventKey(key: string): string | null {
-  const prefix = "onNative:";
-  if (!key.startsWith(prefix)) {
-    return null;
-  }
-
-  const event = key.slice(prefix.length);
-  return event ? `on:${event}` : null;
-}
+const NATIVE_EVENT_PREFIX = "onNative:";
 
 export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
@@ -166,9 +158,11 @@ export function useRootAttrs(attrs: AttrMap): ComputedRef<AttrMap> {
     const result: AttrMap = {};
 
     for (const key in attrs) {
-      const nativeKey = toNativeEventKey(key);
-      if (nativeKey) {
-        result[nativeKey] = attrs[key];
+      if (key.startsWith(NATIVE_EVENT_PREFIX)) {
+        const event = key.slice(NATIVE_EVENT_PREFIX.length);
+        if (event) {
+          result[`on:${event}`] = attrs[key];
+        }
         continue;
       }
       if (!isOn(key)) {
