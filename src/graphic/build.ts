@@ -60,9 +60,9 @@ function toEventHandler(value: unknown, once: boolean): EventHandler | undefined
   };
 }
 
-function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefined {
+function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void {
   const { handlers } = node;
-  let out: Record<string, EventHandler> | undefined;
+  let merged = false;
 
   if (node.handlerCache) {
     for (const key of node.handlerCache.keys()) {
@@ -94,24 +94,22 @@ function buildHandlers(node: GraphicNode): Record<string, EventHandler> | undefi
     }
 
     const eventKey = `on${descriptor.event.toLowerCase()}`;
-    const result = (out ??= {});
-    const existing = result[eventKey];
+    const existing = target[eventKey] as EventHandler | undefined;
+    merged = true;
     if (!existing) {
-      result[eventKey] = handler;
+      target[eventKey] = handler;
       continue;
     }
 
-    result[eventKey] = (...args: unknown[]): void => {
+    target[eventKey] = (...args: unknown[]): void => {
       existing(...args);
       handler(...args);
     };
   }
 
-  if (!out) {
+  if (!merged) {
     node.handlerCache = undefined;
   }
-
-  return out;
 }
 
 function toElement(node: GraphicNode, children?: Option[]): Option {
@@ -132,10 +130,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     }
   }
 
-  const handlers = buildHandlers(node);
-  if (handlers) {
-    Object.assign(out, handlers);
-  }
+  mergeHandlers(node, out);
 
   if (type === "group") {
     if (children?.length) {
