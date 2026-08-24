@@ -133,8 +133,10 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function cancelPendingFlush(): void {
-    pending = false;
-    beginPass();
+    if (pending) {
+      pending = false;
+      beginPass();
+    }
   }
 
   function dispose(): void {
