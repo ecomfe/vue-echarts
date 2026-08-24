@@ -4,19 +4,10 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { getDistTag } from "./utils";
 
 // Prefer CLI arg, otherwise read package.json
 const version: string =
   process.argv[2] ?? JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")).version;
 
-const prerelease = version.split("+", 1)[0].match(/-(.+)$/)?.[1];
-const tag = prerelease
-  ?.split(".")
-  .find((identifier) => /\D/.test(identifier))
-  ?.toLowerCase();
-
-if (prerelease && !tag) {
-  throw new Error(`Cannot derive npm dist-tag from numeric prerelease "${prerelease}".`);
-}
-
-console.log(tag ?? "latest");
+console.log(getDistTag(version));

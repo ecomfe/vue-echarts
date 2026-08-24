@@ -2,6 +2,20 @@ import { execSync } from "node:child_process";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export function getDistTag(version: string): string {
+  const prerelease = version.split("+", 1)[0].match(/-(.+)$/)?.[1];
+  const tag = prerelease
+    ?.split(".")
+    .find((identifier) => /\D/.test(identifier))
+    ?.toLowerCase();
+
+  if (prerelease && !tag) {
+    throw new Error(`Cannot derive npm dist-tag from numeric prerelease "${prerelease}".`);
+  }
+
+  return tag ?? "latest";
+}
+
 export function resolvePath(url: string, ...parts: string[]) {
   return resolve(dirname(fileURLToPath(url)), ...parts);
 }
