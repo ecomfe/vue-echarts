@@ -189,9 +189,6 @@ export default /* @__PURE__ */ defineComponent({
         const replaceGraphic = mode === "graphic";
         const updateOptions = replaceGraphic ? (realUpdateOptions.value ?? undefined) : override;
         instance.setOption(patched, patchUpdateOptions(updateOptions, replaceGraphic));
-        if (mode === "manual") {
-          lastSignature = undefined;
-        }
         return;
       }
 
