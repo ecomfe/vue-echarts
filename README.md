@@ -175,7 +175,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `autoresize: boolean | { throttle?: number, onResize?: () => void }` (default: `false`)
 
-  Whether to resize the chart automatically when its rendering container changes size. Use the options object to specify a custom throttle delay (in milliseconds) and/or an extra resize callback function.
+  Whether to resize the chart automatically when its rendering container changes size. Use the options object to specify a custom throttle delay (in milliseconds) and/or an extra resize callback function. Recovery from a zero-sized container is immediate so the first visible frame uses the correct size.
 
 - `loading: boolean` (default: `false`)
 

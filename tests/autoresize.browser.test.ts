@@ -133,8 +133,9 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips stale throttled work and resizes after zero-sized recovery", async () => {
+  it("skips stale throttled work and resizes immediately after zero-sized recovery", async () => {
     let pendingResize: (() => void) | undefined;
+    const runPendingResize = () => pendingResize?.();
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
         pendingResize = fn as () => void;
@@ -146,7 +147,7 @@ describe("useAutoresize", () => {
     const resize = vi.fn();
     const onResize = vi.fn();
     const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>({ onResize });
+    const autoresize = ref<AutoResize | undefined>({ throttle: 1000, onResize });
     const root = ref<HTMLElement | undefined>();
     const container = createSizedContainer(120, 80);
 
@@ -166,28 +167,29 @@ describe("useAutoresize", () => {
     expect(resize).not.toHaveBeenCalled();
 
     container.style.width = "120px";
-    pendingResize?.();
+    runPendingResize();
     expect(resize).not.toHaveBeenCalled();
     expect(onResize).not.toHaveBeenCalled();
 
     container.style.width = "180px";
     await flushAnimationFrame();
     container.style.width = "0";
-    pendingResize?.();
+    await flushAnimationFrame();
+    runPendingResize();
     expect(resize).not.toHaveBeenCalled();
     expect(onResize).not.toHaveBeenCalled();
 
+    pendingResize = undefined;
     container.style.width = "180px";
     await flushAnimationFrame();
-    container.style.width = "120px";
-    pendingResize?.();
     expect(resize).toHaveBeenCalledOnce();
     expect(onResize).toHaveBeenCalledOnce();
+    expect(pendingResize).toBeUndefined();
 
     container.style.width = "200px";
     await flushAnimationFrame();
     chart.value.resize();
-    pendingResize?.();
+    runPendingResize();
     expect(resize).toHaveBeenCalledTimes(2);
     expect(onResize).toHaveBeenCalledOnce();
 

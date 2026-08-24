@@ -85,7 +85,9 @@ export function useAutoresize(
         wasZeroSized = true;
         return;
       }
-      if (!isSynchronized(offsetWidth, offsetHeight)) {
+      if (wasZeroSized) {
+        resize();
+      } else if (!isSynchronized(offsetWidth, offsetHeight)) {
         runResize();
       }
     };
