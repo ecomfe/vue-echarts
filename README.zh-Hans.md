@@ -339,6 +339,16 @@ export default {
 
 </details>
 
+### 属性
+
+- `chart: ECharts | undefined`
+
+  当前底层 ECharts 实例。此属性只读；组件重新初始化图表时它会随之更新，销毁后变为 `undefined`。对于已支持的操作，请优先使用下方方法。直接修改实例 option 不会被智能更新器追踪；需要命令式调用 `setOption` 时请使用 `manual-update`。
+
+- `root: HTMLElement | undefined`
+
+  组件只读的 `<x-vue-echarts>` 根元素，挂载后可用。
+
 ### 方法
 
 - `setOption` [→](https://echarts.apache.org/zh/api.html#echartsInstance.setOption)

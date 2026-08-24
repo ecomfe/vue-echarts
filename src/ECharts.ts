@@ -475,8 +475,12 @@ export default /* @__PURE__ */ defineComponent({
 
     const exposed = {
       setOption,
-      root,
-      chart,
+      get root() {
+        return root.value;
+      },
+      get chart() {
+        return chart.value;
+      },
     };
     expose(Object.assign(exposed, publicApi));
 

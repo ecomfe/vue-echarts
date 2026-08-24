@@ -49,24 +49,6 @@ function getExposed(exposed: Ref<Exposed | undefined>): Exposed {
   return instance;
 }
 
-function isRefLike(value: unknown): value is { value?: unknown } {
-  return typeof value === "object" && value !== null && "value" in value;
-}
-
-function getExposedField<T>(exposed: Exposed, key: "chart" | "root"): T | undefined {
-  const target = (exposed as Record<"chart" | "root", unknown>)[key];
-  return isRefLike(target) ? (target.value as T | undefined) : (target as T | undefined);
-}
-
-function setExposedField(exposed: Exposed, key: "chart" | "root", value: unknown): void {
-  const target = (exposed as Record<"chart" | "root", unknown>)[key];
-  if (isRefLike(target)) {
-    target.value = value;
-    return;
-  }
-  (exposed as Record<"chart" | "root", unknown>)[key] = value;
-}
-
 function getLastSetOptionCall(stub: ChartStub): [Option, UpdateOptions | undefined] {
   const lastCall = stub.setOption.mock.calls.at(-1);
   if (!lastCall) {
@@ -645,30 +627,6 @@ describe("ECharts component", () => {
     expect(typeof tooltip?.formatter).toBe("function");
   });
 
-  it("ignores theme updates when chart ref is missing", async () => {
-    const option = ref({ title: { text: "brew" } });
-    const theme = ref<Theme | undefined>("dark");
-    const exposed = shallowRef<Exposed>();
-
-    renderChart(
-      () => ({
-        option: option.value,
-        theme: theme.value,
-      }),
-      exposed,
-    );
-    await nextTick();
-
-    const instance = getExposed(exposed);
-    setExposedField(instance, "chart", undefined);
-
-    const callsBefore = chartStub.setTheme.mock.calls.length;
-    theme.value = { palette: ["#22d3ee"] };
-    await nextTick();
-
-    expect(chartStub.setTheme.mock.calls.length).toBe(callsBefore);
-  });
-
   it("re-initializes only when initOptions change", async () => {
     const option = ref({ title: { text: "coffee" } });
     const initOptions = ref({ useDirtyRect: true });
@@ -900,24 +858,24 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][1]).toEqual({ notMerge: true });
   });
 
-  it("handles manual setOption when chart instance is missing", async () => {
+  it("ignores manual setOption after disposal", async () => {
     const optionRef = ref({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
 
     renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
     await nextTick();
 
-    const replacement = enqueueChart();
+    const instance = getExposed(exposed);
     const initCallsBefore = init.mock.calls.length;
-    setExposedField(getExposed(exposed), "chart", undefined);
-    await nextTick();
+    instance.dispose();
+    chartStub.setOption.mockClear();
 
     const manualOption = { title: { text: "rehydrate" } };
-    getExposed(exposed).setOption(manualOption);
+    instance.setOption(manualOption);
 
     expect(init.mock.calls.length).toBe(initCallsBefore);
-    expect(replacement.setOption).not.toHaveBeenCalled();
-    expect(getExposedField(getExposed(exposed), "chart")).toBeUndefined();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+    expect(instance.chart).toBeUndefined();
   });
 
   it("ignores absent options without losing the last update signature", async () => {
@@ -1081,9 +1039,7 @@ describe("ECharts component", () => {
     expect(zr.off).toHaveBeenCalledWith("click", zrOnceListener);
 
     await nextTick();
-    const rootEl =
-      getExposedField<HTMLElement>(getExposed(exposed), "root") ??
-      document.querySelector<HTMLElement>("x-vue-echarts");
+    const rootEl = getExposed(exposed).root ?? document.querySelector<HTMLElement>("x-vue-echarts");
     if (!rootEl) {
       throw new Error("Expected root element to be available.");
     }
@@ -1169,9 +1125,7 @@ describe("ECharts component", () => {
     );
     await nextTick();
 
-    const rootEl =
-      getExposedField<HTMLElement>(getExposed(exposed), "root") ??
-      document.querySelector<HTMLElement>("x-vue-echarts");
+    const rootEl = getExposed(exposed).root ?? document.querySelector<HTMLElement>("x-vue-echarts");
     if (!rootEl) {
       throw new Error("Expected root element to be available.");
     }
@@ -1529,7 +1483,7 @@ describe("ECharts component", () => {
     await nextTick();
 
     const instance = getExposed(exposed);
-    const element = getExposedField<EChartsElement>(instance, "root");
+    const element = instance.root;
     if (!element) {
       throw new Error("Expected root element to be available.");
     }
@@ -1540,7 +1494,7 @@ describe("ECharts component", () => {
     instance.dispose();
 
     expect(chartStub.dispose).toHaveBeenCalledOnce();
-    expect(getExposedField<EChartsType>(instance, "chart")).toBeUndefined();
+    expect(instance.chart).toBeUndefined();
     expect(instance.isDisposed()).toBe(true);
 
     init.mockClear();
@@ -1554,6 +1508,23 @@ describe("ECharts component", () => {
 
     screen.unmount();
     expect(element.__dispose).toBeNull();
+  });
+
+  it("exposes chart and root as read-only accessors", async () => {
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: {} }), exposed);
+    await nextTick();
+
+    const instance = getExposed(exposed);
+    const { chart, root } = instance;
+
+    expect(chart).toBe(chartStub);
+    expect(root).toBeInstanceOf(HTMLElement);
+    expect(Reflect.set(instance, "chart", undefined)).toBe(false);
+    expect(Reflect.set(instance, "root", undefined)).toBe(false);
+    expect(instance.chart).toBe(chart);
+    expect(instance.root).toBe(root);
   });
 
   it("transitions to disposed when the exposed ref disposes before mounted initialization", async () => {
@@ -1613,9 +1584,7 @@ describe("ECharts component", () => {
     const screen = renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
-    const el =
-      getExposedField<EChartsElement>(getExposed(exposed), "root") ??
-      document.querySelector<EChartsElement>("x-vue-echarts");
+    const el = getExposed(exposed).root ?? document.querySelector<EChartsElement>("x-vue-echarts");
     if (!el) {
       throw new Error("Expected root element to be available.");
     }
@@ -1843,58 +1812,25 @@ describe("ECharts component", () => {
     expect(chartStub.on).not.toHaveBeenCalled();
   });
 
-  it("skips option watcher when chart instance is missing", async () => {
+  it("skips reactive updates when chart instance is missing", async () => {
     const option = ref<Option | null>(null);
+    const theme = ref<Theme>("dark");
     const exposed = shallowRef<Exposed>();
 
     init.mockImplementation(() => undefined as unknown as EChartsType);
 
-    renderChart(() => ({ option: option.value }), exposed);
+    renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
+    chartStub.setTheme.mockClear();
 
     option.value = { title: { text: "later" } };
+    theme.value = { color: ["#22d3ee"] };
     await nextTick();
 
     expect(chartStub.setOption).not.toHaveBeenCalled();
-  });
-
-  it("skips dispose when cleanup runs without a chart instance", async () => {
-    const option = ref({ title: { text: "missing-instance" } });
-    const manualUpdate = ref(false);
-    const exposed = shallowRef<Exposed>();
-
-    renderChart(() => ({ option: option.value, manualUpdate: manualUpdate.value }), exposed);
-    await nextTick();
-
-    chartStub.dispose.mockClear();
-    setExposedField(getExposed(exposed), "chart", undefined);
-
-    const replacementStub = enqueueChart();
-    manualUpdate.value = true;
-    await nextTick();
-
-    expect(chartStub.dispose).not.toHaveBeenCalled();
-    expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
-  });
-
-  it.each([
-    ["root ref is missing", () => undefined],
-    ["root has no disposal hook", () => document.createElement("x-incompatible-echarts")],
-  ])("falls back to direct cleanup when %s", async (_, createRoot) => {
-    const exposed = shallowRef<Exposed>();
-
-    const screen = renderChart(() => ({ option: { title: { text: "cleanup" } } }), exposed);
-    await nextTick();
-
-    chartStub.dispose.mockClear();
-    setExposedField(getExposed(exposed), "root", createRoot());
-
-    screen.unmount();
-    await nextTick();
-
-    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
+    expect(chartStub.setTheme).not.toHaveBeenCalled();
   });
 
   it("retries web component registration before cleanup", async () => {

@@ -339,6 +339,16 @@ export default {
 
 </details>
 
+### Properties
+
+- `chart: ECharts | undefined`
+
+  The current underlying ECharts instance. This property is read-only and changes when the component re-initializes the chart; it becomes `undefined` after disposal. Prefer the methods below for supported operations. Direct option mutations are not tracked by the smart updater, so use `manual-update` when driving `setOption` imperatively.
+
+- `root: HTMLElement | undefined`
+
+  The component's read-only `<x-vue-echarts>` root element, available after mounting.
+
 ### Methods
 
 - `setOption` [→](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
