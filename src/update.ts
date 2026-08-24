@@ -18,6 +18,7 @@ type ArrayItemShape = {
   shape: Shape;
 };
 type ShapeMode = "option" | "media";
+const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 function toIdentity(value: unknown): string | undefined {
   return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
@@ -97,7 +98,7 @@ function analyzeArray(
   mode: ShapeMode | undefined,
   componentItems: boolean,
 ): ArraySummary {
-  const ids = new Set<string>();
+  let ids: Set<string> | undefined;
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
@@ -113,11 +114,11 @@ function analyzeArray(
       noIdCount++;
       continue;
     }
-    ids.add(itemShape.id);
+    (ids ??= new Set()).add(itemShape.id);
   }
 
   return {
-    ids,
+    ids: ids ?? EMPTY_IDS,
     noIdCount,
     shapes,
   };
