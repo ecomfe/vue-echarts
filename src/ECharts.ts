@@ -239,7 +239,6 @@ export default /* @__PURE__ */ defineComponent({
       const instance = chart.value;
       chart.value = undefined;
       instance?.dispose();
-      themedChart = undefined;
       isReady.value = false;
       lastSignature = undefined;
       graphicSlotApplied = false;
@@ -253,7 +252,6 @@ export default /* @__PURE__ */ defineComponent({
     function init(): void {
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
-      isReady.value = false;
 
       ensureStyles(root.value?.getRootNode());
 
