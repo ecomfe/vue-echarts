@@ -106,6 +106,10 @@ import "echarts";
 
 Vue ECharts 会在首次渲染时将基础样式注入图表所在的 document 或 shadow root，通常无需导入 CSS。如果样式管线需要显式加载，可引入 `vue-echarts/style.css`；必须引入的情形请参见 [CSP](#csp-style-src-或-style-src-elem)。
 
+### 服务端渲染
+
+`VChart` 可以在 Vue SSR 框架中渲染和水合。服务端只输出图表容器；组件在浏览器中挂载后才会初始化 ECharts。`init-options` 中 ECharts 底层的 `ssr` 字段不会为 `VChart` 启用服务端图表渲染。
+
 ### CDN
 
 用如下方式在 HTML 中插入 `<script>` 标签，并且通过 `window.VueECharts` 来访问组件接口：

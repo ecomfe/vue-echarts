@@ -106,6 +106,10 @@ import "echarts";
 
 Vue ECharts injects its base styles into the chart's document or shadow root on first render, so no CSS import is normally required. If your stylesheet pipeline needs to load them explicitly, import `vue-echarts/style.css`; see [CSP](#csp-style-src-or-style-src-elem) for when this is required.
 
+### Server-side rendering
+
+`VChart` can be rendered and hydrated by Vue SSR frameworks. The server renders only the chart container; ECharts initializes after the component mounts in the browser. The low-level ECharts `ssr` field in `init-options` does not enable server-side chart rendering in `VChart`.
+
 ### CDN
 
 Drop `<script>` inside your HTML file and access the component via `window.VueECharts`.
