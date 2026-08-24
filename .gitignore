@@ -2,6 +2,7 @@
 node_modules
 /dist
 /coverage
+/.vitest-attachments
 /tests/__screenshots__
 
 
