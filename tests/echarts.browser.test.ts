@@ -1652,20 +1652,24 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBe(callsBefore);
   });
 
-  it("re-applies option when slot set changes (auto mode)", async () => {
-    const option = ref({ title: { text: "with-slots" } });
+  it("preserves update options when the callback slot set changes", async () => {
+    const option = { title: { text: "with-slots" } };
     const showExtra = ref(true);
-    const exposed = shallowRef<Exposed>();
+    const updateOptions = {
+      notMerge: false,
+      lazyUpdate: true,
+      silent: true,
+      replaceMerge: ["series"],
+    };
 
     const Root = defineComponent({
       setup() {
-        const setExposed = createExposedRef(exposed);
         return () =>
           h(
             ECharts,
             {
-              option: option.value,
-              ref: setExposed,
+              option,
+              updateOptions,
             },
             showExtra.value
               ? {
@@ -1681,16 +1685,17 @@ describe("ECharts component", () => {
 
     render(Root);
     await nextTick();
+    chartStub.setOption.mockClear();
 
-    // One initial setOption from mount
-    const initialCalls = chartStub.setOption.mock.calls.length;
-
-    // Changing slot set triggers useSlotOption onChange, which applies current option again
     showExtra.value = false;
     await nextTick();
     await nextTick();
 
-    expect(chartStub.setOption.mock.calls.length).toBeGreaterThan(initialCalls);
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      ...updateOptions,
+      notMerge: true,
+    });
   });
 
   it.each([

@@ -175,7 +175,7 @@ describe("useSlotOption", () => {
     await nextTick();
 
     expect(changeSpy).toHaveBeenCalledOnce();
-    expect(changeSpy).toHaveBeenCalledWith({ notMerge: true });
+    expect(changeSpy).toHaveBeenCalledWith();
   });
 
   it("creates callback containers in the component owner document", async () => {
@@ -378,7 +378,7 @@ describe("useSlotOption", () => {
     await nextTick();
 
     expect(changeSpy).toHaveBeenCalledOnce();
-    expect(changeSpy).toHaveBeenCalledWith({ notMerge: true });
+    expect(changeSpy).toHaveBeenCalledWith();
 
     const patchedAfterRemoval = getExposed(exposed).patchOption({});
     expect(patchedAfterRemoval).not.toHaveProperty("extra");

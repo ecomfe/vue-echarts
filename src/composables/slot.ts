@@ -80,11 +80,7 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
   parent[seg] = value;
 }
 
-export function useSlotOption(
-  slots: Slots,
-  onSlotsChange: (options?: UpdateOptions) => void,
-  ready: Ref<boolean>,
-) {
+export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Ref<boolean>) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
   let state: SlotState | undefined;
@@ -119,17 +115,17 @@ export function useSlotOption(
   let nextSlotNames = slotNames;
   let resetPending = false;
 
-  function syncSlotNames(names: readonly SlotName[]): boolean | undefined {
+  function syncSlotNames(names: readonly SlotName[]): boolean {
     let changed = names.length !== slotNames.length;
     for (let i = 0; !changed && i < slotNames.length; i++) {
       changed = names[i] !== slotNames[i];
     }
     if (!changed) {
-      return undefined;
+      return false;
     }
     if (slotNames.length === 0) {
       slotNames = names;
-      return false;
+      return true;
     }
 
     const nextSlotNameSet = new Set(names);
@@ -151,7 +147,7 @@ export function useSlotOption(
       resetPending = true;
     }
     slotNames = names;
-    return removed;
+    return true;
   }
 
   const render = () => {
@@ -253,11 +249,9 @@ export function useSlotOption(
   }
 
   onUpdated(() => {
-    const removed = syncSlotNames(nextSlotNames);
-    if (removed === undefined) {
-      return;
+    if (syncSlotNames(nextSlotNames)) {
+      onSlotsChange();
     }
-    onSlotsChange(removed ? { notMerge: true } : undefined);
   });
 
   onMounted(() => {
