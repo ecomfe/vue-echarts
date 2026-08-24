@@ -1515,6 +1515,7 @@ describe("ECharts component", () => {
     );
     expect(instance.chart).toBeUndefined();
     expect(instance.isDisposed()).toBe(true);
+    expect(() => instance.getWidth()).toThrowError("ECharts has been disposed.");
 
     init.mockClear();
     option.value = { title: { text: "after" } };

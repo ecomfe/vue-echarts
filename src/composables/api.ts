@@ -29,7 +29,9 @@ export function usePublicAPI(
   const getInstance = (): EChartsType => {
     const instance = chart.value;
     if (!instance) {
-      throw new Error("ECharts is not initialized yet.");
+      throw new Error(
+        isPubliclyDisposed() ? "ECharts has been disposed." : "ECharts is not initialized yet.",
+      );
     }
     return instance;
   };

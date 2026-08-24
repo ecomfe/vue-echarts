@@ -118,4 +118,11 @@ describe("usePublicAPI", () => {
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
   });
+
+  it("reports terminal disposal when a chart method can no longer run", () => {
+    const chart = shallowRef<EChartsType | undefined>();
+    const api = usePublicAPI(chart, vi.fn(), () => true);
+
+    expect(() => api.getWidth()).toThrowError("ECharts has been disposed.");
+  });
 });
