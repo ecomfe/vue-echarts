@@ -533,7 +533,7 @@ function onDrag(event: ElementEvent) {
           :x="10"
           :y="8"
           :text="`x: ${Math.round(overlay.x)} y: ${Math.round(overlay.y)}`"
-          text-fill="#fff"
+          fill="#fff"
         />
       </GGroup>
     </template>

@@ -85,6 +85,15 @@ export const TEXT_STYLE_KEYS = [
   "align",
   "verticalAlign",
   "lineHeight",
+  "backgroundColor",
+  "padding",
+  "margin",
+  "borderColor",
+  "borderWidth",
+  "borderRadius",
+  "borderDash",
+  "borderDashOffset",
+  "rich",
   "textFill",
   "textStroke",
   "textStrokeWidth",
@@ -131,6 +140,7 @@ export function withUndefinedDefault<T>(type: T) {
 
 type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width" | "height">;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
+type GraphicImageSource = string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement;
 
 const graphicCommonOnlyProps = {
   id: [String, Number] as PropType<string | number>,
@@ -211,6 +221,15 @@ const textStyleProps = {
   align: String,
   verticalAlign: String,
   lineHeight: Number,
+  backgroundColor: [String, Object] as PropType<string | { image: GraphicImageSource }>,
+  padding: [Number, Array] as PropType<number | number[]>,
+  margin: [Number, Array] as PropType<number | number[]>,
+  borderColor: String,
+  borderWidth: Number,
+  borderRadius: [Number, Array] as PropType<number | number[]>,
+  borderDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
+  borderDashOffset: Number,
+  rich: Object as PropType<Record<string, object>>,
   textFill: String,
   textStroke: String,
   textStrokeWidth: Number,
@@ -227,9 +246,7 @@ const textStyleProps = {
 } as const satisfies Record<GraphicTextStyleOnlyKey, unknown>;
 
 const imageStyleProps = {
-  image: [String, Object] as PropType<
-    string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement
-  >,
+  image: [String, Object] as PropType<GraphicImageSource>,
   sx: Number,
   sy: Number,
   sWidth: Number,

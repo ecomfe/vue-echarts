@@ -55,6 +55,15 @@ describe("graphic", () => {
       align: "center",
       verticalAlign: "middle",
       lineHeight: 20,
+      backgroundColor: "#fff",
+      padding: [2, 4],
+      margin: 3,
+      borderColor: "#333",
+      borderWidth: 1,
+      borderRadius: [2, 4],
+      borderDash: false,
+      borderDashOffset: 2,
+      rich: { accent: { fill: "#f00", fontWeight: "bold" } },
       lineOverflow: "truncate",
     };
     const paint = {

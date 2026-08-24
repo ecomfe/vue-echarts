@@ -88,3 +88,11 @@ type _fontSizeAcceptsString = Assert<IsAssignable<string, TextProps["fontSize"]>
 type _overflowType = Assert<IsAssignable<TextProps["overflow"], string | undefined>>;
 type _lineOverflowType = Assert<IsAssignable<TextProps["lineOverflow"], string | undefined>>;
 type _ellipsisType = Assert<IsAssignable<TextProps["ellipsis"], string | undefined>>;
+type _backgroundAcceptsImage = Assert<
+  IsAssignable<{ image: string }, TextProps["backgroundColor"]>
+>;
+type _paddingAcceptsBox = Assert<IsAssignable<number[], TextProps["padding"]>>;
+type _marginType = Assert<IsAssignable<TextProps["margin"], number | number[] | undefined>>;
+type _borderRadiusAcceptsBox = Assert<IsAssignable<number[], TextProps["borderRadius"]>>;
+type _borderDashAcceptsDisabled = Assert<IsAssignable<false, TextProps["borderDash"]>>;
+type _richAcceptsTextStyles = Assert<IsAssignable<Record<string, object>, TextProps["rich"]>>;

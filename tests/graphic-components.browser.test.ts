@@ -5,7 +5,7 @@ import type { LinearGradientObject, PatternObject } from "echarts";
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GArc, GGroup, GImage, GPolyline, GRect } from "../src/graphic/components";
+import { GArc, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
@@ -224,6 +224,36 @@ describe("graphic components", () => {
     expect(props).toMatchObject(paint);
   });
 
+  it("accepts native text box styles", async () => {
+    const collector = createCollectorMock();
+    const textStyle = {
+      backgroundColor: { image: "texture.png" },
+      padding: [2, 4],
+      margin: 3,
+      borderColor: "#334155",
+      borderWidth: 1,
+      borderRadius: [2, 4],
+      borderDash: false as const,
+      borderDashOffset: 2,
+      rich: { accent: { fill: "#0ea5e9" } },
+    };
+    const Root = withGraphicProvider(collector, () =>
+      h(GText, { id: "text-box", text: "Label", ...textStyle }),
+    );
+
+    withConsoleWarn((warnSpy) => {
+      render(Root);
+      expect(
+        warnSpy.mock.calls.some((call: unknown[]) =>
+          String(call[0]).includes("type check failed for prop"),
+        ),
+      ).toBe(false);
+    });
+    await nextTick();
+
+    expect(getLastRegisterPayload(collector).props).toMatchObject(textStyle);
+  });
+
   it("preserves zrender defaults until explicitly overridden", async () => {
     const collector = createCollectorMock();
 
@@ -257,6 +287,7 @@ describe("graphic components", () => {
       invisible: undefined,
       clipPath: undefined,
       lineDash: undefined,
+      borderDash: undefined,
       strokeNoScale: undefined,
       strokeFirst: undefined,
     });
