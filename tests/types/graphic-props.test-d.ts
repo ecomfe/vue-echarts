@@ -3,6 +3,7 @@
 import type {
   Color,
   CustomSeriesRenderItemReturn,
+  GraphicComponentOption,
   PatternObject,
   TooltipComponentOption,
 } from "echarts";
@@ -16,6 +17,7 @@ type TextProps = InstanceType<typeof GText>["$props"];
 
 type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
+type KeyframeAnimationOf<T> = T extends { keyframeAnimation?: infer A } ? A : never;
 
 type _unsupportedProps = Assert<
   IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
@@ -39,6 +41,12 @@ type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined
 type _anchorYType = Assert<IsAssignable<RectProps["anchorY"], number | undefined>>;
 type _textContentType = Assert<IsAssignable<RectProps["textContent"], object | undefined>>;
 type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | undefined>>;
+type _keyframeAnimationAcceptsEChartsOption = Assert<
+  IsAssignable<
+    NonNullable<KeyframeAnimationOf<GraphicComponentOption>>,
+    RectProps["keyframeAnimation"]
+  >
+>;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
 type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"]>>;

@@ -77,8 +77,12 @@ describe("graphic components", () => {
     await nextTick();
   });
 
-  it("uses vnode key as id and extracts handler props", async () => {
+  it("uses vnode key as id and forwards common props", async () => {
     const collector = createCollectorMock();
+    const keyframeAnimation = [
+      { duration: 1000, keyframes: [{ percent: 1, x: 20 }] },
+      { duration: 1000, keyframes: [{ percent: 1, rotation: 1 }] },
+    ];
 
     const Root = withGraphicProvider(collector, () =>
       h(GRect, {
@@ -87,11 +91,19 @@ describe("graphic components", () => {
         tooltip: { show: true },
         shape: { x: 1, y: 2, width: 3, height: 4 },
         style: { fill: "#0ea5e9" },
+        keyframeAnimation,
         onClick: () => void 0,
       }),
     );
 
-    render(Root);
+    withConsoleWarn((warnSpy) => {
+      render(Root);
+      expect(
+        warnSpy.mock.calls.some((call: unknown[]) =>
+          String(call[0]).includes('type check failed for prop "keyframeAnimation"'),
+        ),
+      ).toBe(false);
+    });
     await nextTick();
 
     expect(collector.register).toHaveBeenCalled();
@@ -102,6 +114,7 @@ describe("graphic components", () => {
     expect(payload.handlers).toMatchObject({ onClick: expect.any(Function) });
     expect(payload.props.shape).toMatchObject({ x: 1, y: 2, width: 3, height: 4 });
     expect(payload.props.style).toMatchObject({ fill: "#0ea5e9" });
+    expect(payload.props.keyframeAnimation).toBe(keyframeAnimation);
   });
 
   it("evaluates nested group slots once without updating stable children", async () => {

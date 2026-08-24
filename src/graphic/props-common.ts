@@ -175,7 +175,7 @@ const graphicCommonOnlyProps = {
   enterAnimation: Object as PropType<Record<string, unknown>>,
   updateAnimation: Object as PropType<Record<string, unknown>>,
   leaveAnimation: Object as PropType<Record<string, unknown>>,
-  keyframeAnimation: Object as PropType<Record<string, unknown>>,
+  keyframeAnimation: [Object, Array] as PropType<object>,
 } as const satisfies Record<GraphicCommonPropKey, unknown>;
 
 const baseStyleProps = {
