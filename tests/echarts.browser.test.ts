@@ -114,6 +114,24 @@ describe("ECharts component", () => {
     );
   });
 
+  it("stops initialization when a chart observer disposes synchronously", async () => {
+    const exposed = shallowRef<Exposed>();
+    const stop = watch(
+      () => exposed.value?.chart,
+      (instance) => instance && exposed.value?.dispose(),
+      { flush: "sync" },
+    );
+
+    renderChart(() => ({ option: {} }), exposed);
+    stop();
+    await nextTick();
+
+    expect(init).toHaveBeenCalledOnce();
+    expect(chartStub.dispose).toHaveBeenCalledOnce();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+    expect(getExposed(exposed).isDisposed()).toBe(true);
+  });
+
   it("exposes setOption for manual updates", async () => {
     const optionRef = ref();
     const exposed = shallowRef<Exposed>();

@@ -261,7 +261,11 @@ export default /* @__PURE__ */ defineComponent({
       ensureStyles(root.value?.getRootNode());
 
       const host = chartHost.value as HTMLDivElement;
-      const instance = (chart.value = initChart(host, realTheme.value, realInitOptions.value));
+      const instance = initChart(host, realTheme.value, realInitOptions.value);
+      chart.value = instance;
+      if (!isActive(instance)) {
+        return;
+      }
       themedChart = instance;
 
       function commit(): void {
