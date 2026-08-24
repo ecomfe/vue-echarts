@@ -29,8 +29,8 @@ function isComponentOption(value: unknown): boolean {
 
 /** Structural summary of an array option for deletion detection. */
 export interface ArraySummary {
-  /** Unique, sorted string ids extracted from items' `id` field. */
-  idsSorted: string[];
+  /** Unique string ids extracted from items' `id` field. */
+  ids: ReadonlySet<string>;
   /** Count of summarized items without an `id` field. */
   noIdCount: number;
   /** Structural snapshots in merge order; invalid component entries are omitted. */
@@ -97,7 +97,7 @@ function analyzeArray(
   mode: ShapeMode | undefined,
   componentItems: boolean,
 ): ArraySummary {
-  let ids: Set<string> | undefined;
+  const ids = new Set<string>();
   let noIdCount = 0;
   const shapes: ArrayItemShape[] = [];
 
@@ -113,11 +113,11 @@ function analyzeArray(
       noIdCount++;
       continue;
     }
-    (ids ??= new Set()).add(itemShape.id);
+    ids.add(itemShape.id);
   }
 
   return {
-    idsSorted: ids ? Array.from(ids).sort() : [],
+    ids,
     noIdCount,
     shapes,
   };
@@ -172,34 +172,20 @@ export function buildSignature(option: Option): Signature {
   };
 }
 
-function hasMissing(prev: readonly string[], next: readonly string[]): boolean {
-  if (prev.length > next.length) {
-    return true;
-  }
-
-  let nextIndex = 0;
-  for (const value of prev) {
-    while (nextIndex < next.length && next[nextIndex] < value) {
-      nextIndex++;
-    }
-    if (next[nextIndex] !== value) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): boolean {
   if (!next) {
     return prev.shapes.length > 0;
   }
 
-  return (
-    next.shapes.length < prev.shapes.length ||
-    next.noIdCount < prev.noIdCount ||
-    hasMissing(prev.idsSorted, next.idsSorted)
-  );
+  if (next.shapes.length < prev.shapes.length || next.noIdCount < prev.noIdCount) {
+    return true;
+  }
+  for (const id of prev.ids) {
+    if (!next.ids.has(id)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isArrayShape(shape: Shape): shape is ArraySummary {

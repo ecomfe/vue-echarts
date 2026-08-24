@@ -76,8 +76,8 @@ describe("smart-update", () => {
 
       expect(Object.keys(signature.objectShapes).sort()).toEqual(["title", "tooltip"]);
       expect(signature.leaves).toEqual(["color"]);
-      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["ds1"], noIdCount: 1 });
-      expect(signature.arrays.series).toMatchObject({ idsSorted: ["a"], noIdCount: 1 });
+      expect(signature.arrays.dataset).toMatchObject({ ids: new Set(["ds1"]), noIdCount: 1 });
+      expect(signature.arrays.series).toMatchObject({ ids: new Set(["a"]), noIdCount: 1 });
       expect(signature.objectShapes.color).toBeUndefined();
       expect(signature.leaves).not.toContain("title");
       expect(signature.arrays.tooltip).toBeUndefined();
@@ -99,7 +99,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
       expect(signature.arrays.series).toMatchObject({
-        idsSorted: ["-Infinity", "1", "2", "Infinity", "NaN"],
+        ids: new Set(["2", "1", "Infinity", "-Infinity", "NaN"]),
         noIdCount: 3,
       });
     });
@@ -114,7 +114,10 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.arrays.dataset).toMatchObject({ idsSorted: ["has-id"], noIdCount: 0 });
+      expect(signature.arrays.dataset).toMatchObject({
+        ids: new Set(["has-id"]),
+        noIdCount: 0,
+      });
       expect(signature.leaves).toEqual(["animation", "backgroundColor", "color"]);
     });
 
