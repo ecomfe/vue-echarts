@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { h } from "vue";
 
+import { resolveIdentity } from "../src/graphic/identity";
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
 import { createOrderTracker } from "../src/graphic/order";
 
@@ -50,6 +51,18 @@ describe("graphic order helpers", () => {
     order.update(h(RectGraphic, { id: "third" }));
     expect(orderMap.get("id:first")).toBe(0);
     expect(orderMap.get("id:second")).toBe(1);
+  });
+
+  it("keeps symbol vnode keys distinct and ordered", () => {
+    const keys = [Symbol("rect"), Symbol("rect")];
+    const identities = keys.map((key, uid) => resolveIdentity(undefined, key, uid));
+    const order = createOrderTracker();
+
+    order.update(keys.map((key) => h(RectGraphic, { key })));
+
+    expect(new Set(identities.map(({ id }) => id)).size).toBe(2);
+    expect(identities.every(({ missingIdentity }) => !missingIdentity)).toBe(true);
+    expect(keys.map((key) => order.ref.value.get(key))).toEqual([0, 1]);
   });
 
   it("leaves group slot collection to the group render", () => {

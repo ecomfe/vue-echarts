@@ -12,7 +12,7 @@ function isGraphic(vnode: VNode): boolean {
   return typeof (type as Record<string | symbol, unknown>)[GRAPHIC_COMPONENT_MARKER] === "string";
 }
 
-function collect(value: unknown, orderMap: Map<string, number>, order: number): number {
+function collect(value: unknown, orderMap: Map<PropertyKey, number>, order: number): number {
   if (Array.isArray(value)) {
     for (const child of value) {
       order = collect(child, orderMap, order);
@@ -42,7 +42,7 @@ function collect(value: unknown, orderMap: Map<string, number>, order: number): 
   return order;
 }
 
-function isSameOrder(current: Map<string, number>, next: Map<string, number>): boolean {
+function isSameOrder(current: Map<PropertyKey, number>, next: Map<PropertyKey, number>): boolean {
   if (current.size !== next.size) {
     return false;
   }
@@ -55,8 +55,8 @@ function isSameOrder(current: Map<string, number>, next: Map<string, number>): b
 }
 
 export function createOrderTracker() {
-  let current = new Map<string, number>();
-  const next = new Map<string, number>();
+  let current = new Map<PropertyKey, number>();
+  const next = new Map<PropertyKey, number>();
   const ref = shallowRef(current);
 
   return {
