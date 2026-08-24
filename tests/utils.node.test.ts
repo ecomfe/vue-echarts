@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   createEventInvoker,
+  isIgnorableWatchChange,
   isOn,
   isPlainObject,
   isValidArrayIndex,
@@ -103,6 +104,24 @@ describe("utils", () => {
       expect(shallowEqual({ value: 1 }, { value: 2 })).toBe(false);
       expect(shallowEqual({ value: 1 }, { value: 1, extra: undefined })).toBe(false);
       expect(shallowEqual({ nested: {} }, { nested: {} })).toBe(false);
+    });
+  });
+
+  describe("isIgnorableWatchChange", () => {
+    it("ignores stable scalars and shallow-equivalent replacements", () => {
+      const nested = {};
+
+      expect(isIgnorableWatchChange(undefined, undefined)).toBe(true);
+      expect(isIgnorableWatchChange("dark", "dark")).toBe(true);
+      expect(isIgnorableWatchChange({ nested }, { nested })).toBe(true);
+    });
+
+    it("preserves deep mutations and meaningful replacements", () => {
+      const options = {};
+
+      expect(isIgnorableWatchChange(options, options)).toBe(false);
+      expect(isIgnorableWatchChange({ nested: {} }, { nested: {} })).toBe(false);
+      expect(isIgnorableWatchChange({ renderer: "svg" }, { renderer: "canvas" })).toBe(false);
     });
   });
 });

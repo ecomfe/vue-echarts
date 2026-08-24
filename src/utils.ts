@@ -81,6 +81,14 @@ export function shallowEqual<T extends object>(left: T, right: T): boolean {
   );
 }
 
+export function isIgnorableWatchChange(value: unknown, previous: unknown): boolean {
+  if (Object.is(value, previous)) {
+    return value === null || typeof value !== "object";
+  }
+
+  return isPlainObject(value) && isPlainObject(previous) && shallowEqual(value, previous);
+}
+
 const LOG_PREFIX = "[vue-echarts]";
 
 export function warn(message: string): void {

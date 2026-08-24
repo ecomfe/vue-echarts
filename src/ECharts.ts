@@ -26,7 +26,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { isPlainObject, shallowEqual, warn } from "./utils";
+import { isIgnorableWatchChange, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -52,15 +52,6 @@ import { ensureStyles } from "./style";
 
 const SKIP_AUTO_UPDATE = Symbol();
 type ApplyMode = "manual" | "graphic";
-
-function isEquivalentReplacement(value: unknown, previous: unknown): boolean {
-  return (
-    value !== previous &&
-    isPlainObject(value) &&
-    isPlainObject(previous) &&
-    shallowEqual(value, previous)
-  );
-}
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -330,7 +321,7 @@ export default /* @__PURE__ */ defineComponent({
     watch(
       realTheme,
       (theme, previousTheme) => {
-        if (isEquivalentReplacement(theme, previousTheme)) {
+        if (isIgnorableWatchChange(theme, previousTheme)) {
           return;
         }
         themeInvalidated = true;
@@ -343,7 +334,7 @@ export default /* @__PURE__ */ defineComponent({
     watch(
       realInitOptions,
       (options, previousOptions) => {
-        if (!isEquivalentReplacement(options, previousOptions)) {
+        if (!isIgnorableWatchChange(options, previousOptions)) {
           initOptionsInvalidated = true;
         }
       },
