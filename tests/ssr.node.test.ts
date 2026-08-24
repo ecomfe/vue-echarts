@@ -3,8 +3,12 @@ import { createSSRApp, defineComponent, h, shallowRef } from "vue";
 import { renderToString } from "@vue/server-renderer";
 
 import { useSlotOption } from "../src/composables/slot";
+import ECharts from "../src/ECharts";
+import { GRect } from "../src/graphic/components";
+import { registerExtension } from "../src/graphic/extension";
 import type { Option } from "../src/types";
 import { makeTooltipParams } from "./helpers/tooltip";
+import { GRAPHIC_SSR_MARKUP } from "./helpers/ssr";
 import type { TooltipComponentOption } from "echarts";
 
 describe("SSR environment", () => {
@@ -47,5 +51,20 @@ describe("SSR environment", () => {
     }
     const container = tooltip.formatter(makeTooltipParams(0), "");
     expect(container).toBeUndefined();
+  });
+
+  it("renders graphic anchors that can be hydrated", async () => {
+    registerExtension();
+
+    const app = createSSRApp({
+      render: () =>
+        h(
+          ECharts,
+          { option: {} },
+          { graphic: () => h(GRect, { id: "server-rect", width: 20, height: 10 }) },
+        ),
+    });
+
+    expect(await renderToString(app)).toBe(GRAPHIC_SSR_MARKUP);
   });
 });

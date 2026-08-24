@@ -6,7 +6,7 @@ import { GraphicMount } from "../src/graphic/mount";
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
 
 describe("GraphicMount (node)", () => {
-  it("returns null without browser root but still drives collector pass", async () => {
+  it("renders empty teleport anchors while still driving the collector pass", async () => {
     const collector = {
       beginPass: vi.fn(),
       requestFlush: vi.fn(),
@@ -25,7 +25,7 @@ describe("GraphicMount (node)", () => {
     });
 
     const html = await renderToString(app);
-    expect(html).toBe("<!---->");
+    expect(html).toBe("<!--teleport start--><!--teleport end-->");
     expect(collector.beginPass).toHaveBeenCalledTimes(1);
     expect(collector.requestFlush).toHaveBeenCalledTimes(0);
   });
@@ -56,7 +56,7 @@ describe("GraphicMount (node)", () => {
     });
 
     const html = await renderToString(app);
-    expect(html).toBe("<!---->");
+    expect(html).toBe("<!--teleport start--><!--teleport end-->");
     expect(collector.beginPass).toHaveBeenCalledTimes(1);
     expect(collector.requestFlush).toHaveBeenCalledTimes(0);
   });

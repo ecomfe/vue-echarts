@@ -1,4 +1,12 @@
-import { Teleport, defineComponent, h, provide, shallowRef } from "vue";
+import {
+  Teleport,
+  defineComponent,
+  getCurrentInstance,
+  h,
+  onMounted,
+  provide,
+  shallowRef,
+} from "vue";
 
 import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
@@ -17,8 +25,12 @@ export const GraphicMount = defineComponent({
     const { collector } = props;
     const { beginPass } = collector;
     const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
+    // A pre-existing vnode element means Vue is hydrating the empty SSR Teleport.
+    const contentReady = shallowRef(!getCurrentInstance()!.vnode.el);
     const parentId = shallowRef<string | null>(null);
     const order = createOrderTracker();
+
+    onMounted(() => (contentReady.value = true));
 
     provide(GRAPHIC_COLLECTOR_KEY, collector);
     provide(GRAPHIC_PARENT_ID_KEY, parentId);
@@ -29,7 +41,14 @@ export const GraphicMount = defineComponent({
       const content = slots.default!();
       order.update(content);
 
-      return detachedRoot ? h(Teleport, { to: detachedRoot }, content) : null;
+      return h(
+        Teleport,
+        {
+          to: detachedRoot ?? "body",
+          disabled: !detachedRoot,
+        },
+        detachedRoot && contentReady.value ? content : [],
+      );
     };
   },
 });

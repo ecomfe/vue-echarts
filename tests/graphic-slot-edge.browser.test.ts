@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, reactive, ref } from "vue";
+import { createSSRApp, defineComponent, h, nextTick, reactive, ref } from "vue";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
@@ -11,6 +11,7 @@ import {
   getLastGraphicOption,
   setupGraphicSlotSuite,
 } from "./helpers/graphic-slot";
+import { GRAPHIC_SSR_MARKUP } from "./helpers/ssr";
 
 vi.mock("echarts/core", () => createEChartsModule());
 
@@ -76,6 +77,37 @@ describe("graphic slot edge and integration behavior", () => {
       await nextTick();
       expect(warnSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("hydrates a server-rendered graphic slot without mismatch warnings", async () => {
+    registerExtension();
+
+    const app = createSSRApp({
+      render: () =>
+        h(
+          ECharts,
+          { option: {} },
+          { graphic: () => h(GRect, { id: "server-rect", width: 20, height: 10 }) },
+        ),
+    });
+    const container = document.body.appendChild(document.createElement("div"));
+    container.innerHTML = GRAPHIC_SSR_MARKUP;
+
+    try {
+      await withConsoleWarnAsync(async (warnSpy) => {
+        app.mount(container);
+        await flushAnimationFrame();
+
+        expect(
+          warnSpy.mock.calls.some((call: unknown[]) =>
+            String(call[0]).toLowerCase().includes("hydration"),
+          ),
+        ).toBe(false);
+        expect(getLastGraphicIds(suite.getChartStub())).toContain("server-rect");
+      });
+    } finally {
+      app.unmount();
+    }
   });
 
   it("overrides option.graphic when the graphic entry is registered", async () => {
