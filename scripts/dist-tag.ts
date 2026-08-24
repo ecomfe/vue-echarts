@@ -9,7 +9,14 @@ import { join } from "node:path";
 const version: string =
   process.argv[2] ?? JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")).version;
 
-// Capture first recognised prerelease label
-const tag = version.match(/-(alpha|beta|rc)\b/i)?.[1].toLowerCase() ?? "latest";
+const prerelease = version.split("+", 1)[0].match(/-(.+)$/)?.[1];
+const tag = prerelease
+  ?.split(".")
+  .find((identifier) => /\D/.test(identifier))
+  ?.toLowerCase();
 
-console.log(tag);
+if (prerelease && !tag) {
+  throw new Error(`Cannot derive npm dist-tag from numeric prerelease "${prerelease}".`);
+}
+
+console.log(tag ?? "latest");
