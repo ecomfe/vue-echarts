@@ -382,15 +382,11 @@ export default /* @__PURE__ */ defineComponent({
 
     watch(
       [manualUpdate, realInitOptions],
-      ([manual, options], [previousManual, previousOptions]) => {
+      ([manual], [previousManual]) => {
         if (!mounted || terminallyDisposed) {
           return;
         }
-        if (
-          manual === previousManual &&
-          !initOptionsInvalidated &&
-          isEquivalentReplacement(options, previousOptions)
-        ) {
+        if (manual === previousManual && !initOptionsInvalidated) {
           return;
         }
         cleanup();
