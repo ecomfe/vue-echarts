@@ -239,10 +239,8 @@ export default /* @__PURE__ */ defineComponent({
 
     function cleanup(): void {
       const instance = chart.value;
-      if (instance) {
-        instance.dispose();
-        chart.value = undefined;
-      }
+      chart.value = undefined;
+      instance?.dispose();
       themedChart = undefined;
       isReady.value = false;
       lastSignature = undefined;

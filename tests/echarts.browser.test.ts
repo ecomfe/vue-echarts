@@ -1466,10 +1466,11 @@ describe("ECharts component", () => {
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
-  it("stays disposed when reactive inputs change after public disposal", async () => {
+  it("detaches listeners and stays disposed after public disposal", async () => {
     const option = ref<Option>({ title: { text: "before" } });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const manualUpdate = ref(false);
+    const onClick = vi.fn();
     const exposed = shallowRef<Exposed>();
 
     const screen = renderChart(
@@ -1477,6 +1478,7 @@ describe("ECharts component", () => {
         option: option.value,
         initOptions: initOptions.value,
         manualUpdate: manualUpdate.value,
+        onClick,
       }),
       exposed,
     );
@@ -1488,12 +1490,17 @@ describe("ECharts component", () => {
       throw new Error("Expected root element to be available.");
     }
     chartStub.dispose.mockClear();
+    chartStub.off.mockClear();
     chartStub.setOption.mockClear();
 
     instance.dispose();
     instance.dispose();
 
     expect(chartStub.dispose).toHaveBeenCalledOnce();
+    expect(chartStub.off).toHaveBeenCalledOnce();
+    expect(chartStub.off.mock.invocationCallOrder[0]).toBeLessThan(
+      chartStub.dispose.mock.invocationCallOrder[0],
+    );
     expect(instance.chart).toBeUndefined();
     expect(instance.isDisposed()).toBe(true);
 
