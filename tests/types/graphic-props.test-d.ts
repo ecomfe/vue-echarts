@@ -17,7 +17,8 @@ type TextProps = InstanceType<typeof GText>["$props"];
 
 type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
-type KeyframeAnimationOf<T> = T extends { keyframeAnimation?: infer A } ? A : never;
+type OptionProp<T, K extends PropertyKey> = T extends { [P in K]?: infer V } ? V : never;
+type GraphicOptionProp<K extends PropertyKey> = NonNullable<OptionProp<GraphicComponentOption, K>>;
 
 type _unsupportedProps = Assert<
   IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
@@ -41,11 +42,26 @@ type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined
 type _anchorYType = Assert<IsAssignable<RectProps["anchorY"], number | undefined>>;
 type _textContentType = Assert<IsAssignable<RectProps["textContent"], object | undefined>>;
 type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | undefined>>;
-type _keyframeAnimationAcceptsEChartsOption = Assert<
-  IsAssignable<
-    NonNullable<KeyframeAnimationOf<GraphicComponentOption>>,
-    RectProps["keyframeAnimation"]
-  >
+type _styleAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"style">, RectProps["style"]>
+>;
+type _textConfigAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"textConfig">, RectProps["textConfig"]>
+>;
+type _enterFromAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"enterFrom">, RectProps["enterFrom"]>
+>;
+type _leaveToAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"leaveTo">, RectProps["leaveTo"]>
+>;
+type _enterAnimationAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"enterAnimation">, RectProps["enterAnimation"]>
+>;
+type _updateAnimationAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"updateAnimation">, RectProps["updateAnimation"]>
+>;
+type _leaveAnimationAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"leaveAnimation">, RectProps["leaveAnimation"]>
 >;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
