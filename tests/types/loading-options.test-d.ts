@@ -1,0 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import type { LoadingOptions } from "../../src/types";
+
+type Assert<T extends true> = T;
+type IsEqual<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+
+type _fontSize = Assert<IsEqual<LoadingOptions["fontSize"], number | undefined>>;
+type _fontWeight = Assert<
+  IsEqual<
+    LoadingOptions["fontWeight"],
+    "normal" | "bold" | "bolder" | "lighter" | number | undefined
+  >
+>;
+type _fontStyle = Assert<
+  IsEqual<LoadingOptions["fontStyle"], "normal" | "italic" | "oblique" | undefined>
+>;

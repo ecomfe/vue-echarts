@@ -34,9 +34,9 @@ export type AutoResize =
 export type LoadingOptions = {
   text?: string;
   textColor?: string;
-  fontSize?: number | string;
-  fontWeight?: number | string;
-  fontStyle?: string;
+  fontSize?: number;
+  fontWeight?: "normal" | "bold" | "bolder" | "lighter" | number;
+  fontStyle?: "normal" | "italic" | "oblique";
   fontFamily?: string;
   maskColor?: string;
   showSpinner?: boolean;
