@@ -76,7 +76,7 @@ describe("ECharts component", () => {
     expect(init).toHaveBeenCalledTimes(1);
     const [rootEl, theme, initOptions] = init.mock.calls[0];
     expect(rootEl).toBeInstanceOf(HTMLElement);
-    expect(theme).toBeNull();
+    expect(theme).toBeUndefined();
     expect(initOptions).toBeUndefined();
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
@@ -739,6 +739,26 @@ describe("ECharts component", () => {
     await nextTick();
     expect(init).toHaveBeenCalledTimes(1);
     expect(chartStub.dispose).not.toHaveBeenCalled();
+  });
+
+  it("treats null and undefined injected themes as unavailable", async () => {
+    const theme = ref<Theme | null | undefined>();
+    const Root = defineComponent({
+      setup() {
+        provide(THEME_KEY, theme);
+        return () => h(ECharts, { option: {} });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    chartStub.setOption.mockClear();
+
+    theme.value = null;
+    await nextTick();
+
+    expect(chartStub.setTheme).not.toHaveBeenCalled();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
   it("passes updateOptions when provided", async () => {
@@ -1961,7 +1981,7 @@ describe("ECharts component", () => {
 
     expect(firstStub.dispose).toHaveBeenCalledTimes(1);
     expect(init).toHaveBeenCalledTimes(1);
-    expect(init.mock.calls[0][1]).toBeNull();
+    expect(init.mock.calls[0][1]).toBeUndefined();
     expect(firstStub.setTheme).not.toHaveBeenCalled();
     expect(replacementStub.setTheme).not.toHaveBeenCalled();
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);

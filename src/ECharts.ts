@@ -99,7 +99,7 @@ export default /* @__PURE__ */ defineComponent({
     const loading = toRef(props, "loading");
     const loadingOptions = toRef(props, "loadingOptions");
 
-    const realTheme = computed(() => props.theme ?? toValue(defaultTheme));
+    const realTheme = computed(() => props.theme ?? toValue(defaultTheme) ?? undefined);
     const realInitOptions = computed(
       () => props.initOptions ?? toValue(defaultInitOptions) ?? undefined,
     );
