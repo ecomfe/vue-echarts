@@ -11,10 +11,10 @@ export function useAutoresize(
   autoresize: Ref<AutoResize | undefined>,
   container: Ref<HTMLElement | undefined>,
 ): void {
-  // Preserve the last synchronized size while observation is disabled or being rebound.
+  // Cache observer work, but invalidate it while disabled so autoresize can retake control.
   let sizedChart: EChartsType | undefined;
-  let sizedWidth = 0;
-  let sizedHeight = 0;
+  let sizedWidth: number | undefined;
+  let sizedHeight: number | undefined;
   let wasZeroSized = false;
 
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
@@ -42,6 +42,7 @@ export function useAutoresize(
       wasZeroSized = isZeroSize(offsetWidth, offsetHeight);
     }
     if (!enabled) {
+      sizedWidth = sizedHeight = undefined;
       return;
     }
 

@@ -16,11 +16,11 @@ function createChart(
 ): EChartsType {
   let width = initialRoot.offsetWidth;
   let height = initialRoot.offsetHeight;
-  resize.mockImplementation(() => {
+  resize.mockImplementation((options?: Parameters<EChartsType["resize"]>[0]) => {
     const element = root();
     if (element) {
-      width = element.offsetWidth;
-      height = element.offsetHeight;
+      width = typeof options?.width === "number" ? options.width : element.offsetWidth;
+      height = typeof options?.height === "number" ? options.height : element.offsetHeight;
     }
   });
   return {
@@ -248,7 +248,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("disconnects observer when autoresize toggles off and reactivates cleanly", async () => {
+  it("disconnects while disabled and resynchronizes when reactivated", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const autoresize = ref<AutoResize | undefined>(true);
@@ -287,6 +287,17 @@ describe("useAutoresize", () => {
     expect(observeSpy).toHaveBeenCalledTimes(2);
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledTimes(1);
+
+    autoresize.value = false;
+    await nextTick();
+    chart.value.resize({ width: 70, height: 45 });
+
+    autoresize.value = true;
+    await nextTick();
+
+    expect(resize).toHaveBeenCalledTimes(3);
+    expect(chart.value.getWidth()).toBe(140);
+    expect(chart.value.getHeight()).toBe(120);
 
     scope.stop();
     expect(throttledResize.clear).toHaveBeenCalledTimes(1);
