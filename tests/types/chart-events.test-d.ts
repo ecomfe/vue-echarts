@@ -2,8 +2,10 @@
 
 import type {
   AxisBreakChangedEvent,
+  DownplayPayload,
   ECElementEvent,
   ElementEvent,
+  HighlightPayload,
   SelectChangedEvent,
 } from "echarts/core";
 
@@ -15,6 +17,8 @@ type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
 type IsEqual<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+type HandlerPayload<K extends keyof Props> =
+  NonNullable<Props[K]> extends (params: infer P) => unknown ? P : never;
 
 type CamelCaseHandlerName =
   | "onDblClick"
@@ -42,33 +46,28 @@ type CamelCaseHandlerName =
 type OnceHandlerName =
   | "onClickOnce"
   | "onDataZoomOnce"
-  | "onSelectChangedOnce"
   | "onAxisBreakChangedOnce"
   | "onZr:mouseMoveOnce";
-type SelectChangedHandler = NonNullable<Props["onSelectchanged"]>;
-type SelectChangedOnceHandler = NonNullable<Props["onSelectChangedOnce"]>;
-type AxisBreakHandler = NonNullable<Props["onAxisBreakChanged"]>;
-type AxisBreakOnceHandler = NonNullable<Props["onAxisBreakChangedOnce"]>;
-type MouseMoveHandler = NonNullable<Props["onMouseMove"]>;
-type ZRenderMouseMoveHandler = NonNullable<Props["onZr:mouseMove"]>;
 type NativeHandler = NonNullable<
   Props["onNative:click" | "onNative:clickOnce" | "onNative:chart-ready"]
 >;
 
 type _camelCaseEvents = Assert<CamelCaseHandlerName extends keyof Props ? true : false>;
 type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
-type _selectChangedPayload = Assert<
-  IsEqual<Parameters<SelectChangedHandler>[0], SelectChangedEvent>
->;
+type _highlightPayload = Assert<IsEqual<HandlerPayload<"onHighlight">, HighlightPayload>>;
+type _downplayOncePayload = Assert<IsEqual<HandlerPayload<"onDownplayOnce">, DownplayPayload>>;
+type _selectChangedPayload = Assert<IsEqual<HandlerPayload<"onSelectchanged">, SelectChangedEvent>>;
 type _selectChangedOncePayload = Assert<
-  IsEqual<Parameters<SelectChangedOnceHandler>[0], SelectChangedEvent>
+  IsEqual<HandlerPayload<"onSelectChangedOnce">, SelectChangedEvent>
 >;
-type _axisBreakPayload = Assert<IsEqual<Parameters<AxisBreakHandler>[0], AxisBreakChangedEvent>>;
+type _axisBreakPayload = Assert<
+  IsEqual<HandlerPayload<"onAxisBreakChanged">, AxisBreakChangedEvent>
+>;
 type _axisBreakOncePayload = Assert<
-  IsEqual<Parameters<AxisBreakOnceHandler>[0], AxisBreakChangedEvent>
+  IsEqual<HandlerPayload<"onAxisBreakChangedOnce">, AxisBreakChangedEvent>
 >;
-type _mouseMovePayload = Assert<IsEqual<Parameters<MouseMoveHandler>[0], ECElementEvent>>;
-type _zrMouseMovePayload = Assert<IsEqual<Parameters<ZRenderMouseMoveHandler>[0], ElementEvent>>;
+type _mouseMovePayload = Assert<IsEqual<HandlerPayload<"onMouseMove">, ECElementEvent>>;
+type _zrMouseMovePayload = Assert<IsEqual<HandlerPayload<"onZr:mouseMove">, ElementEvent>>;
 type _nativeAcceptsMouseHandler = Assert<IsAssignable<(params: MouseEvent) => void, NativeHandler>>;
 type _nativeAcceptsCustomHandler = Assert<
   IsAssignable<(params: CustomEvent) => void, NativeHandler>

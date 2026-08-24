@@ -6,6 +6,8 @@ import type {
   ElementEvent,
   AxisBreakChangedEvent,
   SelectChangedEvent,
+  HighlightPayload,
+  DownplayPayload,
 } from "echarts/core";
 import type { MaybeRefOrGetter } from "vue";
 
@@ -74,8 +76,6 @@ export type ElementEventAlias =
 type ZRenderEventName = `zr:${ElementEvent["type"] | ElementEventAlias}`;
 
 type OtherEventName =
-  | "highlight"
-  | "downplay"
   | "legendselectchanged"
   | "legendselected"
   | "legendunselected"
@@ -136,6 +136,8 @@ export type WithOnce<T> = T & {
 
 type ChartEmits = MouseEmits &
   OtherEmits & {
+    highlight: (params: HighlightPayload) => void;
+    downplay: (params: DownplayPayload) => void;
     selectchanged: (params: SelectChangedEvent) => void;
     selectChanged: (params: SelectChangedEvent) => void;
     axisbreakchanged: (params: AxisBreakChangedEvent) => void;
