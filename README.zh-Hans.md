@@ -191,6 +191,14 @@ app.component('VChart', VueECharts)
 
   适用于性能敏感的场景（例如 `option` 很大或更新频繁）。设为 `true` 时，`option` 只参与首次渲染，此后 Vue 不会再深度观察它；后续的 prop 变更不会触发图表更新，需要你通过模板 `ref` 手动调用 `setOption`。如果 `autoresize` 推迟了首次渲染，而你先调用了 `setOption`，则以这次手动调用为准。如果图表因为修改 `init-options`、切换 `manual-update` 或重新挂载而被重新初始化，之前通过 `setOption` 写入的状态会丢失，并重新使用当前的 `option` 值渲染。
 
+#### TypeScript
+
+组件专属的 prop 类型可直接从包入口导入：
+
+```ts
+import type { AutoResize, LoadingOptions } from "vue-echarts";
+```
+
 ### 事件
 
 可以使用 Vue 的 `v-on` 指令绑定事件。

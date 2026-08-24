@@ -191,6 +191,14 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   Handy for performance-sensitive charts (large or high-frequency updates). When set to `true`, Vue uses the `option` prop for the initial render but does not deeply observe it afterwards; later prop changes do nothing and you must drive updates via `setOption` on a template ref. If `autoresize` defers that first render and you call `setOption` first, the manual call takes precedence. If the chart re-initializes (for example due to `init-options` changes, flipping `manual-update`, or a remount), the manual state is discarded and the chart is rendered again from the current `option` value.
 
+#### TypeScript
+
+Component-specific prop types are available from the package root:
+
+```ts
+import type { AutoResize, LoadingOptions } from "vue-echarts";
+```
+
 ### Events
 
 You can bind events with Vue's `v-on` directive.
