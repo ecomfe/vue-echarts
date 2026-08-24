@@ -30,6 +30,5 @@ We run Vitest in two projects:
 
 ## CI
 
-- CI runs tests with coverage and uploads LCOV to Codecov (non-blocking).
-- Chromium is installed via Playwright CLI with system deps: `pnpm exec playwright install --with-deps chromium`.
-- Optional: restrict Codecov uploads to PRs and `main` via a workflow condition.
+- CI installs Chromium with `pnpm run test:setup` and runs `pnpm run test:coverage`.
+- Coverage is uploaded from `coverage/lcov.info` to Codecov for pull requests and `main`.
