@@ -1628,6 +1628,7 @@ describe("ECharts component", () => {
     expect(instance.isDisposed()).toBe(true);
     expect(instance.chart).toBeUndefined();
     expect(instance.root).toBeUndefined();
+    expect(() => instance.getOption()).toThrowError("ECharts has been disposed.");
   });
 
   it("disposes when unmounted from a detached container", () => {
@@ -1679,14 +1680,15 @@ describe("ECharts component", () => {
     // Capture the function reference before unmount; template ref becomes null on unmount
     const callSetOption: SetOptionType = getExposed(exposed).setOption;
 
-    // Unmount disposes and clears chart.value internally
+    // Public calls stop synchronously even if custom-element cleanup is deferred.
     screen.unmount();
-    await nextTick();
 
     // Calling setOption after unmount should be a no-op and not throw
     expect(() => callSetOption({ title: { text: "after" } })).not.toThrow();
 
     expect(chartStub.setOption.mock.calls.length).toBe(callsBefore);
+
+    await nextTick();
   });
 
   it("preserves update options when the callback slot set changes", async () => {

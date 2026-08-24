@@ -27,11 +27,12 @@ export function usePublicAPI(
   isPubliclyDisposed: () => boolean,
 ): PublicMethods {
   const getInstance = (): EChartsType => {
+    if (isPubliclyDisposed()) {
+      throw new Error("ECharts has been disposed.");
+    }
     const instance = chart.value;
     if (!instance) {
-      throw new Error(
-        isPubliclyDisposed() ? "ECharts has been disposed." : "ECharts is not initialized yet.",
-      );
+      throw new Error("ECharts is not initialized yet.");
     }
     return instance;
   };

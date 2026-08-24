@@ -318,15 +318,15 @@ export default /* @__PURE__ */ defineComponent({
         return;
       }
 
+      const instance = chart.value;
+      if (!instance || terminallyDisposed) {
+        return;
+      }
+
       const updateOptions =
         typeof notMerge === "boolean"
           ? { notMerge, lazyUpdate }
           : (notMerge ?? (lazyUpdate === undefined ? undefined : { lazyUpdate }));
-
-      const instance = chart.value;
-      if (!instance) {
-        return;
-      }
 
       applyOption(instance, option, updateOptions, "manual");
     };
