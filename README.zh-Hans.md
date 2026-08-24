@@ -202,7 +202,7 @@ app.component('VChart', VueECharts)
 ```
 
 > [!NOTE]
-> 仅支持 `.once` 修饰符，因为其它修饰符都与 DOM 事件机制强耦合。
+> ECharts 和 ZRender 事件仅支持 `.once` 修饰符；其它修饰符属于 DOM 事件。使用 `native:` 前缀的监听器支持 Vue 常规的 DOM 事件修饰符。
 
 Vue ECharts 支持如下事件：
 

@@ -202,7 +202,7 @@ You can bind events with Vue's `v-on` directive.
 ```
 
 > [!NOTE]
-> Only the `.once` event modifier is supported as other modifiers are tightly coupled with the DOM event system.
+> ECharts and ZRender events only support the `.once` modifier; other modifiers are specific to DOM events. Listeners using the `native:` prefix support Vue's normal DOM event modifiers.
 
 Vue ECharts supports the following events:
 
