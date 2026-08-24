@@ -48,7 +48,7 @@ describe("core events", () => {
       class: "chart",
       onClick: vi.fn(),
       "onNative:click": vi.fn(),
-      "onNative:Once": vi.fn(),
+      "onNative:": vi.fn(),
     });
 
     const scope = effectScope();
@@ -59,15 +59,15 @@ describe("core events", () => {
 
     expect(rootAttrs.value).toEqual({
       class: "chart",
-      onClick: attrs["onNative:click"],
+      "on:click": attrs["onNative:click"],
     });
 
     attrs["onNative:clickOnce"] = vi.fn();
     await nextTick();
 
     expect(rootAttrs.value).toMatchObject({
-      onClick: attrs["onNative:click"],
-      onClickOnce: attrs["onNative:clickOnce"],
+      "on:click": attrs["onNative:click"],
+      "on:clickOnce": attrs["onNative:clickOnce"],
     });
 
     scope.stop();

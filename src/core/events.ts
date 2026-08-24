@@ -2,7 +2,7 @@ import { computed, onScopeDispose, watchSyncEffect } from "vue";
 
 import type { ComputedRef, Ref } from "vue";
 import type { EChartsType } from "../types";
-import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
+import { createEventInvoker, hasEventHandler, isOn, parseOnEvent } from "../utils";
 import type { AttrMap, EventHandler } from "../utils";
 
 type EventEmitter = {
@@ -20,19 +20,14 @@ type ListenerBinding = {
   handler: EventHandler;
 };
 
-function toNativeEventKey(event: string, once: boolean): string | null {
-  if (!event.startsWith("native:")) {
+function toNativeEventKey(key: string): string | null {
+  const prefix = "onNative:";
+  if (!key.startsWith(prefix)) {
     return null;
   }
 
-  const nativeEvent = event.slice(7);
-  if (!nativeEvent) {
-    return null;
-  }
-
-  const head = nativeEvent.charAt(0).toUpperCase();
-  const tail = nativeEvent.slice(1);
-  return `on${head}${tail}${once ? "Once" : ""}`;
+  const event = key.slice(prefix.length);
+  return event ? `on:${event}` : null;
 }
 
 export function useReactiveChartListeners(
@@ -171,17 +166,14 @@ export function useRootAttrs(attrs: AttrMap): ComputedRef<AttrMap> {
     const result: AttrMap = {};
 
     for (const key in attrs) {
-      const parsed = parseOnEvent(key);
-      if (!parsed) {
+      const nativeKey = toNativeEventKey(key);
+      if (nativeKey) {
+        result[nativeKey] = attrs[key];
+        continue;
+      }
+      if (!isOn(key)) {
         result[key] = attrs[key];
-        continue;
       }
-
-      const nativeKey = toNativeEventKey(parsed.event, parsed.once);
-      if (!nativeKey) {
-        continue;
-      }
-      result[nativeKey] = attrs[key];
     }
 
     return result;

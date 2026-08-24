@@ -1059,6 +1059,34 @@ describe("ECharts component", () => {
     expect(nativeClick).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves native event names and Vue event options", async () => {
+    const onChartReady = vi.fn();
+    const onClickOnce = vi.fn();
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: {},
+        "onNative:ChartReady": onChartReady,
+        "onNative:clickOnceCapture": onClickOnce,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const rootEl = getExposed(exposed).root;
+    if (!rootEl) {
+      throw new Error("Expected root element to be available.");
+    }
+
+    rootEl.dispatchEvent(new CustomEvent("ChartReady"));
+    rootEl.dispatchEvent(new MouseEvent("click"));
+    rootEl.dispatchEvent(new MouseEvent("click"));
+
+    expect(onChartReady).toHaveBeenCalledOnce();
+    expect(onClickOnce).toHaveBeenCalledOnce();
+  });
+
   it("reactively updates chart and zr handlers without rebinding", async () => {
     const option = ref({});
     const onClickA = vi.fn();
