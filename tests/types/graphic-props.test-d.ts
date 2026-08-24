@@ -8,10 +8,11 @@ import type {
   TooltipComponentOption,
 } from "echarts";
 
-import { GEllipse, GImage, GRect, GText } from "../../src/graphic/components";
+import { GEllipse, GImage, GPolyline, GRect, GText } from "../../src/graphic/components";
 
 type ImageProps = InstanceType<typeof GImage>["$props"];
 type EllipseProps = InstanceType<typeof GEllipse>["$props"];
+type PolylineProps = InstanceType<typeof GPolyline>["$props"];
 type RectProps = InstanceType<typeof GRect>["$props"];
 type TextProps = InstanceType<typeof GText>["$props"];
 
@@ -76,6 +77,10 @@ type _sxType = Assert<IsAssignable<ImageProps["sx"], number | undefined>>;
 type _syType = Assert<IsAssignable<ImageProps["sy"], number | undefined>>;
 type _sWidthType = Assert<IsAssignable<ImageProps["sWidth"], number | undefined>>;
 type _sHeightType = Assert<IsAssignable<ImageProps["sHeight"], number | undefined>>;
+type _pointsAcceptVectors = Assert<IsAssignable<number[][], PolylineProps["points"]>>;
+type _smoothConstraintAcceptsVectors = Assert<
+  IsAssignable<number[][], PolylineProps["smoothConstraint"]>
+>;
 type _rxType = Assert<IsAssignable<EllipseProps["rx"], number | undefined>>;
 type _ryType = Assert<IsAssignable<EllipseProps["ry"], number | undefined>>;
 type _fontWeightAcceptsNumber = Assert<IsAssignable<number, TextProps["fontWeight"]>>;
