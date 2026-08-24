@@ -1,4 +1,4 @@
-import { inject, watchEffect, toValue } from "vue";
+import { inject, watchSyncEffect, toValue } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
@@ -14,7 +14,7 @@ export function useLoading(
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
   let shownOptions: WeakMap<EChartsType, LoadingOptions> | undefined;
 
-  watchEffect(() => {
+  watchSyncEffect(() => {
     const instance = chart.value;
     if (!instance) {
       return;

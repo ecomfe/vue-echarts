@@ -104,6 +104,16 @@ describe("ECharts component", () => {
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
   });
 
+  it("shows initial loading before applying the option", async () => {
+    renderChart(() => ({ option: { series: [] }, loading: true }), shallowRef<Exposed>());
+    await nextTick();
+
+    expect(chartStub.showLoading).toHaveBeenCalledOnce();
+    expect(chartStub.showLoading.mock.invocationCallOrder[0]).toBeLessThan(
+      chartStub.setOption.mock.invocationCallOrder[0],
+    );
+  });
+
   it("exposes setOption for manual updates", async () => {
     const optionRef = ref();
     const exposed = shallowRef<Exposed>();
