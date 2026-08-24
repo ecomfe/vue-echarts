@@ -31,6 +31,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      - name: Check generated docs
+        run: pnpm run docs && git diff --exit-code -- README.md README.zh-Hans.md
+
       - name: Typecheck
         run: pnpm run typecheck && pnpm run dev:typecheck
 
