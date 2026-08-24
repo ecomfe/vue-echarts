@@ -27,6 +27,9 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      - name: Verify release tag
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+
       - name: Install dependencies
         run: pnpm install
 
@@ -42,6 +45,10 @@ jobs:
       - name: Extract release notes
         run: pnpm releaselog --format=notes ${{ github.ref_name }} > RELEASE_NOTES.md
 
+      - name: Get dist tag
+        id: tag
+        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts)" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
@@ -49,10 +56,6 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get dist tag
-        id: tag
-        run: echo "tag=$(pnpm exec jiti scripts/dist-tag.ts '${{ github.ref_name }}')" >> $GITHUB_OUTPUT
 
       - name: Publish to npm
         run: npm i -g npm && pnpm publish --access public --tag ${{ steps.tag.outputs.tag }} --no-git-checks
