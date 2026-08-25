@@ -12,6 +12,8 @@ type GraphicExtra = Record<string, unknown> & {
   transition?: string | string[];
 };
 
+export const TEXT_ATTACHMENT_PROP_KEYS = ["textContent", "textConfig"] as const;
+
 export const COMMON_PROP_KEYS = [
   "id",
   "name",
@@ -38,8 +40,7 @@ export const COMMON_PROP_KEYS = [
   "info",
   "tooltip",
   "clipPath",
-  "textContent",
-  "textConfig",
+  ...TEXT_ATTACHMENT_PROP_KEYS,
   "transition",
   "enterFrom",
   "leaveTo",
@@ -147,6 +148,7 @@ export type GraphicCommonPropKey = (typeof COMMON_PROP_KEYS)[number];
 export type GraphicGroupPropKey = (typeof GROUP_PROP_KEYS)[number];
 export type GraphicDisplayablePropKey = (typeof DISPLAYABLE_PROP_KEYS)[number];
 export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
+export type GraphicTextAttachmentPropKey = (typeof TEXT_ATTACHMENT_PROP_KEYS)[number];
 export type GraphicCommonStyleKey = (typeof COMMON_STYLE_KEYS)[number];
 export type GraphicPathStyleKey = (typeof PATH_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];

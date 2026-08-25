@@ -22,6 +22,7 @@ import type {
   GraphicImageStyleKey,
   GraphicPathPropKey,
   GraphicPathStyleKey,
+  GraphicTextAttachmentPropKey,
   GraphicTextStyleKey,
 } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE, shapeProps } from "./props-shape";
@@ -53,9 +54,10 @@ type SpecializedPropKey =
   | NestedShapePropKey
   | NestedStylePropKey
   | keyof typeof shapeProps;
-type SharedPropKey =
-  | Exclude<keyof typeof componentProps, SpecializedPropKey>
-  | GraphicCommonPropKey;
+type SharedPropKey<T extends GraphicComponentType> = Exclude<
+  Exclude<keyof typeof componentProps, SpecializedPropKey> | GraphicCommonPropKey,
+  T extends "text" ? GraphicTextAttachmentPropKey : never
+>;
 type StylePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   :
@@ -86,7 +88,7 @@ type ComponentPropDefinitions<T extends GraphicComponentType> = Omit<
 type ComponentProps<T extends GraphicComponentType> = Pick<
   ComponentPropDefinitions<T>,
   Extract<
-    SharedPropKey | GroupPropKey<T> | DisplayablePropKey<T> | PathPropKey<T> | StylePropKey<T>,
+    SharedPropKey<T> | GroupPropKey<T> | DisplayablePropKey<T> | PathPropKey<T> | StylePropKey<T>,
     keyof typeof componentProps
   >
 >;

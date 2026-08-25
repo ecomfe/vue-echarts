@@ -60,7 +60,15 @@ type _circleRejectsForeignProps = Assert<
 type _textRejectsForeignProps = Assert<
   IsEqual<
     Extract<
-      "cx" | "points" | "image" | "sx" | "decal" | "strokePercent" | "lineCap",
+      | "cx"
+      | "points"
+      | "image"
+      | "sx"
+      | "decal"
+      | "strokePercent"
+      | "lineCap"
+      | "textContent"
+      | "textConfig",
       keyof TextProps
     >,
     never

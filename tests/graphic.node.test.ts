@@ -237,7 +237,16 @@ describe("graphic", () => {
               ignore: true,
             },
           },
-          { ...common, id: "text", type: "text", props: { shape: { x: 1 } } },
+          {
+            ...common,
+            id: "text",
+            type: "text",
+            props: {
+              shape: { x: 1 },
+              textContent: { type: "text", style: { text: "nested" } },
+              textConfig: { position: "inside" },
+            },
+          },
           { ...common, id: "image", type: "image", props: { shapeTransition: "all" } },
         ],
         "root",
