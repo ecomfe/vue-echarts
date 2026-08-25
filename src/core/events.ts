@@ -32,13 +32,15 @@ export function useReactiveChartListeners(
   let scan = 0;
 
   function clearBindings(): void {
-    if (!bindings) {
+    const current = bindings;
+    bindings = undefined;
+    // ECharts disposal already releases both emitters and rejects later off calls.
+    if (!current || activeInstance?.isDisposed()) {
       return;
     }
-    for (const binding of bindings.values()) {
+    for (const binding of current.values()) {
       binding.emitter.off(binding.event, binding.handler);
     }
-    bindings = undefined;
   }
 
   watchSyncEffect(() => {

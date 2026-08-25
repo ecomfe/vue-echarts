@@ -152,7 +152,7 @@ describe("core events", () => {
     scope.stop();
   });
 
-  it("stops binding listeners after the chart is externally disposed", async () => {
+  it("drops listeners without touching an externally disposed chart", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({ onClick: vi.fn() });
     const target = createChartStub();
@@ -163,7 +163,6 @@ describe("core events", () => {
     chartRef.value = target.chart;
     await nextTick();
 
-    const clickBinding = findBoundHandler(emitter.on, "click");
     target.isDisposed.mockReturnValue(true);
     target.getZr.mockImplementation(() => {
       throw new Error("Disposed ZRender accessed");
@@ -171,7 +170,7 @@ describe("core events", () => {
     attrs["onZr:mousemove"] = vi.fn();
     await nextTick();
 
-    expect(emitter.off).toHaveBeenCalledWith("click", clickBinding);
+    expect(emitter.off).not.toHaveBeenCalled();
 
     scope.stop();
   });
