@@ -149,6 +149,28 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][1]).toBeUndefined();
   });
 
+  it("uses updateOptions for the initial manual-mode render but not manual calls", async () => {
+    const exposed = shallowRef<Exposed>();
+    const updateOptions: UpdateOptions = { lazyUpdate: true };
+
+    renderChart(
+      () => ({
+        option: { title: { text: "initial" } },
+        updateOptions,
+        manualUpdate: true,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual(updateOptions);
+
+    chartStub.setOption.mockClear();
+    getExposed(exposed).setOption({ title: { text: "manual" } });
+
+    expect(getLastSetOptionCall(chartStub)[1]).toBeUndefined();
+  });
+
   it("ignores setOption when manual-update is false", async () => {
     const option = ref({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();

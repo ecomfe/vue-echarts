@@ -284,7 +284,7 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         if (manualUpdate.value) {
-          applyOption(instance, option, undefined, "manual");
+          applyOption(instance, option, realUpdateOptions.value ?? undefined, "manual");
           return;
         }
 
