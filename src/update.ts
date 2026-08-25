@@ -338,6 +338,10 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
 
     const nextCollection = next.collections[key];
+    // Empty setting arrays can override defaults, so removing them is still meaningful.
+    if (!nextCollection && !ComponentModel.hasClass(key)) {
+      return null;
+    }
     const shapeRemoval = nextCollection
       ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
       : undefined;

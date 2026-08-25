@@ -13,6 +13,7 @@ const linearGradient = {
 };
 type AppliedOption = {
   backgroundColor?: unknown;
+  color?: unknown;
   dataset?: unknown;
   legend?: Array<{ selected?: Record<string, boolean> }>;
   title?: Array<{ subtext?: string }>;
@@ -328,7 +329,7 @@ describe("smart-update", () => {
     });
 
     describe("removal detection", () => {
-      it("does not mark replace when previously empty array is removed", () => {
+      it("does not mark replace when an empty component array is removed", () => {
         const base: EChartsOption = {
           series: [] as EChartsOption["series"],
         };
@@ -341,6 +342,20 @@ describe("smart-update", () => {
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();
       });
+
+      it.each(["root", ...optionContainers] as const)(
+        "restores defaults when an empty setting array is removed from %s",
+        (container) => {
+          const withEmptyColor: EChartsOption = { color: [] };
+          const base =
+            container === "root" ? withEmptyColor : wrapOption(container, withEmptyColor);
+          const update = container === "root" ? {} : wrapOption(container, {});
+          const { applied, plan } = applyPlannedUpdate(base, update);
+
+          expect(plan).toEqual({ notMerge: true });
+          expect(applied.color).toEqual(expect.arrayContaining([expect.any(String)]));
+        },
+      );
 
       it("forces rebuild when options shrink", () => {
         const prev = buildSignature({ options: [{}, {}] });
