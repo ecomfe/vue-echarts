@@ -261,19 +261,19 @@ describe("graphic components", () => {
     expect(props).toMatchObject(paint);
   });
 
-  it("validates array radii only for rectangles", async () => {
+  it("validates shape prop types", async () => {
     const collector = createCollectorMock();
     const Root = withGraphicProvider(collector, () => [
       h(GRect, { id: "rect", r: [2, 4] }),
       h(GCircle, { id: "circle", r: [2, 4] as unknown as number }),
+      h(GPolyline, { id: "polyline", smooth: true as unknown as number }),
     ]);
 
     withConsoleWarn((warnSpy) => {
       render(Root);
-      const radiusWarnings = warnSpy.mock.calls.filter((call: unknown[]) =>
-        String(call[0]).includes('type check failed for prop "r"'),
-      );
-      expect(radiusWarnings).toHaveLength(1);
+      const warnings = warnSpy.mock.calls.flat().join(" ");
+      expect(warnings.match(/type check failed for prop "r"/g)).toHaveLength(1);
+      expect(warnings).toContain('type check failed for prop "smooth"');
     });
     await nextTick();
   });
@@ -356,7 +356,7 @@ describe("graphic components", () => {
         clipPath: false,
       }),
       h(GPolyline, { id: "smooth-default" }),
-      h(GPolyline, { id: "smooth-explicit", smooth: false }),
+      h(GPolyline, { id: "smooth-zero", smooth: 0 }),
       h(GArc, { id: "default" }),
       h(GArc, { id: "counterclockwise", clockwise: false }),
       h(GArc, { id: "clockwise", clockwise: true }),
@@ -388,7 +388,7 @@ describe("graphic components", () => {
       clipPath: false,
     });
     expect(propsById["smooth-default"].smooth).toBeUndefined();
-    expect(propsById["smooth-explicit"].smooth).toBe(false);
+    expect(propsById["smooth-zero"].smooth).toBe(0);
     expect(propsById.default.clockwise).toBeUndefined();
     expect(propsById.counterclockwise.clockwise).toBe(false);
     expect(propsById.clockwise.clockwise).toBe(true);
