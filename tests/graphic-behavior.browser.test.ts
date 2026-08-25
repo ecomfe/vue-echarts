@@ -68,10 +68,16 @@ function rect(id: string, x: number, y: number, width = 20, height = 10) {
 }
 
 describe("graphic update behavior (real echarts)", () => {
-  it("keeps omitted elements when using default merge", async () => {
+  it("removes omitted nested elements during smart updates", async () => {
     const option = ref({
       graphic: {
-        elements: [rect("a", 0, 0), rect("b", 40, 0)],
+        elements: [
+          {
+            type: "group",
+            id: "group",
+            children: [rect("a", 0, 0), rect("b", 40, 0)],
+          },
+        ],
       },
     });
 
@@ -98,7 +104,13 @@ describe("graphic update behavior (real echarts)", () => {
 
     option.value = {
       graphic: {
-        elements: [rect("b", 40, 0)],
+        elements: [
+          {
+            type: "group",
+            id: "group",
+            children: [rect("b", 40, 0)],
+          },
+        ],
       },
     };
 
@@ -106,13 +118,13 @@ describe("graphic update behavior (real echarts)", () => {
     await flushAnimationFrame();
 
     ids = collectGraphicIds(chart);
-    // Expect the omitted "a" to remain because merge does not delete by default.
-    expect(ids.has("a")).toBe(true);
+    expect(ids.has("a")).toBe(false);
     expect(ids.has("b")).toBe(true);
   });
 
   it("removes elements when $action: 'remove' is provided", async () => {
-    const option = ref({
+    const option = ref<Option>({
+      backgroundColor: "#ef4444",
       graphic: {
         elements: [rect("a", 0, 0), rect("b", 40, 0)],
       },
@@ -151,6 +163,7 @@ describe("graphic update behavior (real echarts)", () => {
     ids = collectGraphicIds(chart);
     expect(ids.has("a")).toBe(false);
     expect(ids.has("b")).toBe(true);
+    expect(chart.getOption().backgroundColor).toBe("#ef4444");
   });
 
   it.each([false, true])(

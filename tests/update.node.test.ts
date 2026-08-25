@@ -55,6 +55,10 @@ function wrapOption(
   };
 }
 
+function graphicOption(children: unknown[]): EChartsOption {
+  return { graphic: { elements: [{ id: "group", children }] } } as unknown as EChartsOption;
+}
+
 function applyPlannedUpdate(base: EChartsOption, update: EChartsOption) {
   const { plan } = planUpdate(buildSignature(base), update);
   const chart = createChart();
@@ -473,6 +477,37 @@ describe("smart-update", () => {
           expect(applied.series?.[0]?.label?.color).not.toBe("red");
           expect(plan).toEqual({ notMerge: true });
           expect(planUpdate(buildSignature(update), base).plan).toEqual({ notMerge: false });
+        },
+      );
+
+      it.each(["root", ...optionContainers] as const)(
+        "replaces omitted graphic children in %s",
+        (container) => {
+          const baseOption = graphicOption([{ id: "a" }, { id: "b" }]);
+          const updateOption = graphicOption([{ id: "b" }]);
+          const base = container === "root" ? baseOption : wrapOption(container, baseOption);
+          const update = container === "root" ? updateOption : wrapOption(container, updateOption);
+
+          expect(planUpdate(buildSignature(base), update).plan).toEqual(
+            container === "root"
+              ? { notMerge: false, replaceMerge: ["graphic"] }
+              : { notMerge: true },
+          );
+        },
+      );
+
+      it.each(["root", ...optionContainers] as const)(
+        "preserves explicit graphic actions in %s",
+        (container) => {
+          const baseOption = {
+            ...graphicOption([{ id: "a" }, { id: "b" }]),
+            color: "red",
+          };
+          const updateOption = graphicOption([{ id: "a", $action: "remove" }, { id: "b" }]);
+          const base = container === "root" ? baseOption : wrapOption(container, baseOption);
+          const update = container === "root" ? updateOption : wrapOption(container, updateOption);
+
+          expect(planUpdate(buildSignature(base), update).plan).toEqual({ notMerge: false });
         },
       );
 

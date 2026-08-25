@@ -17,7 +17,7 @@ type ItemShape = {
   name: string | undefined;
   shape: Shape;
 };
-type ShapeMode = "option" | "media";
+type ShapeMode = "option" | "media" | "graphic";
 const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 function toIdentity(value: unknown): string | undefined {
@@ -36,6 +36,8 @@ export interface CollectionSummary {
   noIdCount: number;
   /** Structural snapshots in merge order; invalid component entries are omitted. */
   shapes: ItemShape[];
+  /** Whether a graphic element explicitly controls its native merge action. */
+  hasAction?: true;
 }
 
 /** Minimal signature of an option used to decide setOption behavior. */
@@ -46,6 +48,8 @@ export interface Signature {
   objectShapes: Record<string, Shape | undefined>;
   /** Sorted top-level keys whose values are not traversed. */
   leaves: string[];
+  /** Whether the option delegates graphic element changes to `$action`. */
+  hasAction: boolean;
 }
 
 export interface PlannedUpdate {
@@ -81,13 +85,17 @@ function buildShape(
     if (child === undefined) {
       continue;
     }
+    if (mode === "graphic" && (key === "elements" || key === "children") && Array.isArray(child)) {
+      shape[key] = analyzeItems(child, stack, "graphic", true);
+      continue;
+    }
     if (mode === "option") {
       const componentItems = ComponentModel.hasClass(key);
       if (Array.isArray(child) || (componentItems && isPlainObject(child))) {
         shape[key] = analyzeItems(
           Array.isArray(child) ? child : [child],
           stack,
-          undefined,
+          key === "graphic" ? "graphic" : undefined,
           componentItems,
         );
         continue;
@@ -102,6 +110,26 @@ function buildShape(
   return shape;
 }
 
+function isCollectionShape(shape: Shape): shape is CollectionSummary {
+  return shape !== true && Array.isArray(shape.shapes);
+}
+
+function hasExplicitAction(shape: Shape): boolean {
+  if (shape === true) {
+    return false;
+  }
+  if (isCollectionShape(shape)) {
+    return shape.hasAction === true;
+  }
+  for (const key in shape) {
+    const child = shape[key];
+    if (child !== undefined && hasExplicitAction(child)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function analyzeItems(
   items: unknown[],
   stack: WeakSet<object>,
@@ -110,6 +138,7 @@ function analyzeItems(
 ): CollectionSummary {
   let ids: Set<string> | undefined;
   let noIdCount = 0;
+  let hasAction = false;
   const shapes: ItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
@@ -120,6 +149,11 @@ function analyzeItems(
     const itemShape: ItemShape = { id: undefined, name: undefined, shape: true };
     itemShape.shape = buildShape(item, stack, mode, componentItems ? itemShape : undefined);
     shapes.push(itemShape);
+    if (mode !== undefined && !hasAction && itemShape.shape !== true) {
+      hasAction =
+        (mode === "graphic" && itemShape.shape.$action !== undefined) ||
+        hasExplicitAction(itemShape.shape);
+    }
     if (itemShape.id === undefined) {
       noIdCount++;
       continue;
@@ -127,17 +161,21 @@ function analyzeItems(
     (ids ??= new Set()).add(itemShape.id);
   }
 
-  return {
+  const summary: CollectionSummary = {
     ids: ids ?? EMPTY_IDS,
     noIdCount,
     shapes,
   };
+  if (hasAction) {
+    summary.hasAction = true;
+  }
+  return summary;
 }
 
 /**
  * Build a structural signature that retains component identities but not option payload values.
- * Arrays inside component items remain leaves to avoid traversing chart data. Nested option units
- * (`baseOption`, timeline options, and media options) reuse summaries for component collections.
+ * Data arrays inside component items remain leaves. Graphic element trees and nested option units
+ * (`baseOption`, timeline options, and media options) reuse collection summaries.
  */
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
@@ -146,24 +184,36 @@ export function buildSignature(option: Option): Signature {
   const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
+  let hasAction = false;
 
   for (const key of Object.keys(opt)) {
     const value = opt[key];
     const componentItems = ComponentModel.hasClass(key);
     if (Array.isArray(value) || (componentItems && isPlainObject(value))) {
-      const mode = key === "options" ? "option" : key === "media" ? "media" : undefined;
-      collections[key] = analyzeItems(
+      const mode =
+        key === "options"
+          ? "option"
+          : key === "media"
+            ? "media"
+            : key === "graphic"
+              ? "graphic"
+              : undefined;
+      const summary = analyzeItems(
         Array.isArray(value) ? value : [value],
         (stack ??= new WeakSet()),
         mode,
         componentItems,
       );
+      collections[key] = summary;
+      hasAction ||= summary.hasAction === true;
       continue;
     }
 
     if (isPlainObject(value)) {
       const mode = key === "baseOption" ? "option" : undefined;
-      objectShapes[key] = buildShape(value, (stack ??= new WeakSet()), mode);
+      const shape = buildShape(value, (stack ??= new WeakSet()), mode);
+      objectShapes[key] = shape;
+      hasAction ||= hasExplicitAction(shape);
       continue;
     }
 
@@ -181,6 +231,7 @@ export function buildSignature(option: Option): Signature {
     collections,
     objectShapes,
     leaves,
+    hasAction,
   };
 }
 
@@ -266,10 +317,6 @@ function preservesReplacementOrder(prev: ItemShape[], next: ItemShape[]): boolea
     const previousIndex = item.id === undefined ? undefined : positions.get(item.id);
     return previousIndex === undefined || previousIndex === index;
   });
-}
-
-function isCollectionShape(shape: Shape): shape is CollectionSummary {
-  return shape !== true && Array.isArray(shape.shapes);
 }
 
 function hasShapeRemoval(prev: Shape, next: Shape): boolean {
@@ -447,7 +494,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
 export function planUpdate(prev: Signature | undefined, option: Option): PlannedUpdate {
   const next = buildSignature(option);
 
-  if (!prev) {
+  if (!prev || next.hasAction) {
     return {
       signature: next,
       plan: { notMerge: false },
