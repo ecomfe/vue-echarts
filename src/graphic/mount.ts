@@ -22,15 +22,23 @@ export const GraphicMount = defineComponent({
     },
   },
   setup(props, { slots }) {
+    const instance = getCurrentInstance()!;
     const { collector } = props;
     const { beginPass } = collector;
-    const detachedRoot = isBrowser() ? document.createElement("div") : undefined;
+    const detachedRoot = shallowRef(isBrowser() ? document.createElement("div") : undefined);
     // A pre-existing vnode element means Vue is hydrating the empty SSR Teleport.
-    const contentReady = shallowRef(!getCurrentInstance()!.vnode.el);
+    const contentReady = shallowRef(!instance.vnode.el);
     const parentId = shallowRef<string | null>(null);
     const order = createOrderTracker();
 
-    onMounted(() => (contentReady.value = true));
+    onMounted(() => {
+      // Only the inserted Teleport anchor reveals the component's actual document realm.
+      const ownerDocument = (instance.vnode.el as Node).ownerDocument!;
+      if (detachedRoot.value?.ownerDocument !== ownerDocument) {
+        detachedRoot.value = ownerDocument.createElement("div");
+      }
+      contentReady.value = true;
+    });
 
     provide(GRAPHIC_COLLECTOR_KEY, collector);
     provide(GRAPHIC_PARENT_ID_KEY, parentId);
@@ -40,14 +48,15 @@ export const GraphicMount = defineComponent({
       beginPass();
       const content = slots.default!();
       order.update(content);
+      const target = detachedRoot.value;
 
       return h(
         Teleport,
         {
-          to: detachedRoot ?? "body",
-          disabled: !detachedRoot,
+          to: target ?? "body",
+          disabled: !target,
         },
-        detachedRoot && contentReady.value ? content : [],
+        target && contentReady.value ? content : [],
       );
     };
   },

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
+import { createApp, defineComponent, h, nextTick, provide, ref, shallowRef } from "vue";
 import type { LinearGradientObject, PatternObject } from "echarts";
 
 import { render } from "./helpers/testing";
@@ -56,6 +56,15 @@ function getLastRegisterPayload(collector: CollectorMock): any {
     throw new Error("Expected collector.register to be called at least once.");
   }
   return lastCall[0];
+}
+
+function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
+  const iframe = document.body.appendChild(document.createElement("iframe"));
+  const ownerDocument = iframe.contentDocument;
+  if (!ownerDocument) {
+    throw new Error("Expected iframe document to be available.");
+  }
+  return { iframe, ownerDocument };
 }
 
 describe("graphic components", () => {
@@ -150,11 +159,7 @@ describe("graphic components", () => {
 
   it("accepts media elements from another document", async () => {
     const collector = createCollectorMock();
-    const iframe = document.body.appendChild(document.createElement("iframe"));
-    const ownerDocument = iframe.contentDocument;
-    if (!ownerDocument) {
-      throw new Error("Expected iframe document to be available.");
-    }
+    const { iframe, ownerDocument } = createFrame();
     const media = [
       ownerDocument.createElement("img"),
       ownerDocument.createElement("canvas"),
@@ -179,6 +184,38 @@ describe("graphic components", () => {
       expect(collector.register.mock.calls.map(([node]) => node.props.image)).toEqual(media);
       expect(getLastRegisterPayload(collector).props).toMatchObject(crop);
     } finally {
+      iframe.remove();
+    }
+  });
+
+  it("moves hidden graphic content to the component owner document", async () => {
+    const collector = createCollectorMock();
+    const { iframe, ownerDocument } = createFrame();
+    const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
+    const teleported = shallowRef<HTMLElement>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h("div", [
+            h(
+              GraphicMount,
+              { collector: collector as any },
+              {
+                default: () => h("span", { ref: teleported }),
+              },
+            ),
+          ]);
+      },
+    });
+    const app = createApp(Root);
+
+    try {
+      app.mount(container);
+      await nextTick();
+
+      expect(teleported.value?.ownerDocument).toBe(ownerDocument);
+    } finally {
+      app.unmount();
       iframe.remove();
     }
   });
