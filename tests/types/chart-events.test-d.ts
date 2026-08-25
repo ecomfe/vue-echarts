@@ -26,8 +26,6 @@ type CamelCaseHandlerName =
   | "onContextMenu"
   | "onGlobalOut"
   | `onMouse${Capitalize<"out" | "over" | "up" | "down" | "move">}`
-  | "onMouseWheel"
-  | `onDrag${Capitalize<"start" | "end" | "enter" | "leave" | "over">}`
   | "onSelectChanged"
   | `onLegend${Capitalize<
       "selectChanged" | "selected" | "unselected" | "selectAll" | "inverseSelect" | "scroll"
@@ -59,10 +57,16 @@ type OnceHandlerName =
 type NativeHandler = NonNullable<
   Props["onNative:click" | "onNative:clickOnce" | "onNative:chart-ready"]
 >;
-type ElementHandlerName = `on${Capitalize<ElementEvent["type"]>}`;
+type ZRenderHandlerName = `onZr:${ElementEvent["type"]}`;
 
 type _camelCaseEvents = Assert<CamelCaseHandlerName extends keyof Props ? true : false>;
-type _elementEvents = Assert<ElementHandlerName extends keyof Props ? true : false>;
+type _zrElementEvents = Assert<ZRenderHandlerName extends keyof Props ? true : false>;
+type _unsupportedChartElementEvents = Assert<
+  IsEqual<
+    Extract<"onMousewheel" | "onMouseWheel" | "onDrag" | "onDragStart" | "onDrop", keyof Props>,
+    never
+  >
+>;
 type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
 type _highlightPayload = Assert<IsEqual<HandlerPayload<"onHighlight">, HighlightPayload>>;
 type _downplayOncePayload = Assert<IsEqual<HandlerPayload<"onDownplayOnce">, DownplayPayload>>;

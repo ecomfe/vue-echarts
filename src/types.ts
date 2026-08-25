@@ -54,6 +54,17 @@ export type LoadingOptions = {
 };
 export type LoadingOptionsInjection = Injection<LoadingOptions>;
 
+type ChartMouseEventName =
+  | "click"
+  | "dblclick"
+  | "mouseover"
+  | "mouseout"
+  | "mousemove"
+  | "mousedown"
+  | "mouseup"
+  | "globalout"
+  | "contextmenu";
+
 // Vue only capitalizes the first letter; runtime listeners also accept these idiomatic aliases.
 type MouseEventAlias =
   | "dblClick"
@@ -113,8 +124,8 @@ type OtherEventAlias =
   | "updateAxisPointer"
   | "globalCursorTaken";
 
-type ElementEmits = {
-  [key in ElementEvent["type"] | ElementEventAlias]: (params: ECElementEvent) => void;
+type MouseEmits = {
+  [key in ChartMouseEventName | MouseEventAlias]: (params: ECElementEvent) => void;
 };
 
 type ZRenderEmits = {
@@ -133,7 +144,7 @@ export type WithOnce<T> = T & {
   [key in keyof T as `${key & string}Once`]: T[key];
 };
 
-type ChartEmits = ElementEmits &
+type ChartEmits = MouseEmits &
   OtherEmits & {
     highlight: (params: HighlightPayload) => void;
     downplay: (params: DownplayPayload) => void;

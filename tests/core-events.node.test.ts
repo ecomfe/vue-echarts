@@ -111,9 +111,6 @@ describe("core events", () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({
       onMouseMove: vi.fn(),
-      onMouseWheel: vi.fn(),
-      onDragStart: vi.fn(),
-      onDrop: vi.fn(),
       onDataZoom: vi.fn(),
       onBrushEnd: vi.fn(),
       onSankeyRoam: vi.fn(),
@@ -122,6 +119,9 @@ describe("core events", () => {
       onShowTip: vi.fn(),
       onUpdateAxisPointer: vi.fn(),
       "onZr:mouseMove": vi.fn(),
+      "onZr:mouseWheel": vi.fn(),
+      "onZr:dragStart": vi.fn(),
+      "onZr:drop": vi.fn(),
     });
     const target = createChartStub();
     const emitter = target.chart as unknown as EmitterStub;
@@ -136,9 +136,6 @@ describe("core events", () => {
 
     expect(emitter.on.mock.calls.map(([event]) => event)).toEqual([
       "mousemove",
-      "mousewheel",
-      "dragstart",
-      "drop",
       "datazoom",
       "brushend",
       "sankeyroam",
@@ -147,7 +144,12 @@ describe("core events", () => {
       "showtip",
       "updateaxispointer",
     ]);
-    expect(target.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+    expect(target.zr.on.mock.calls.map(([event]) => event)).toEqual([
+      "mousemove",
+      "mousewheel",
+      "dragstart",
+      "drop",
+    ]);
 
     scope.stop();
   });
