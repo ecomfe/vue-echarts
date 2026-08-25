@@ -53,7 +53,7 @@ export function useReactiveChartListeners(
         consumedSources = undefined;
       }
     }
-    if (!instance) {
+    if (!instance || instance.isDisposed()) {
       clearBindings();
       activeInstance = undefined;
       return;

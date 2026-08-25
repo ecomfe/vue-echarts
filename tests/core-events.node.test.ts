@@ -29,15 +29,18 @@ function findBoundHandler(mockFn: ReturnType<typeof vi.fn>, event: string): Even
 function createChartStub() {
   const zr = createEmitterStub();
   const getZr = vi.fn(() => zr);
+  const isDisposed = vi.fn(() => false);
   const chart = {
     on: vi.fn(),
     off: vi.fn(),
     getZr,
+    isDisposed,
   } as unknown as EChartsType;
 
   return {
     chart,
     getZr,
+    isDisposed,
     zr,
   };
 }
@@ -133,6 +136,30 @@ describe("core events", () => {
       "updateaxispointer",
     ]);
     expect(target.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+
+    scope.stop();
+  });
+
+  it("stops binding listeners after the chart is externally disposed", async () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const attrs = reactive<Record<string, unknown>>({ onClick: vi.fn() });
+    const target = createChartStub();
+    const emitter = target.chart as unknown as EmitterStub;
+    const scope = effectScope();
+
+    scope.run(() => useReactiveChartListeners(chartRef, attrs));
+    chartRef.value = target.chart;
+    await nextTick();
+
+    const clickBinding = findBoundHandler(emitter.on, "click");
+    target.isDisposed.mockReturnValue(true);
+    target.getZr.mockImplementation(() => {
+      throw new Error("Disposed ZRender accessed");
+    });
+    attrs["onZr:mousemove"] = vi.fn();
+    await nextTick();
+
+    expect(emitter.off).toHaveBeenCalledWith("click", clickBinding);
 
     scope.stop();
   });
