@@ -3,9 +3,19 @@ import { ensureStyles } from "./style";
 let registered = new WeakSet<CustomElementRegistry>();
 
 export const TAG_NAME = "x-vue-echarts";
+// Shared across bundles so one copy can trust another copy's disconnect hook.
+const LIFECYCLE_MARKER = Symbol.for("vue-echarts.lifecycle");
+
+type LifecycleConstructor = CustomElementConstructor & {
+  [LIFECYCLE_MARKER]?: true;
+};
 
 export interface EChartsElement extends HTMLElement {
   __dispose: (() => void) | null;
+}
+
+function supportsLifecycle(ctor: CustomElementConstructor | undefined): boolean {
+  return Boolean((ctor as LifecycleConstructor | undefined)?.[LIFECYCLE_MARKER]);
 }
 
 export function register(root?: Element): boolean {
@@ -20,7 +30,11 @@ export function register(root?: Element): boolean {
     return true;
   }
 
-  if (!registry.get(TAG_NAME)) {
+  const existing = registry.get(TAG_NAME);
+  if (existing && !supportsLifecycle(existing)) {
+    return false;
+  }
+  if (!existing) {
     try {
       class ECElement extends realm.HTMLElement implements EChartsElement {
         __dispose: (() => void) | null = null;
@@ -42,9 +56,10 @@ export function register(root?: Element): boolean {
         }
       }
 
+      Object.defineProperty(ECElement, LIFECYCLE_MARKER, { value: true });
       registry.define(TAG_NAME, ECElement);
     } catch {
-      if (!registry.get(TAG_NAME)) {
+      if (!supportsLifecycle(registry.get(TAG_NAME))) {
         return false;
       }
     }

@@ -31,6 +31,14 @@ describe("register", () => {
 
     let registry: CustomElementRegistryStub;
 
+    function installDuringDefinition(ctor: CustomElementConstructor): void {
+      const define = registry.define.bind(registry);
+      vi.spyOn(registry, "define").mockImplementation((name) => {
+        define(name, ctor);
+        throw new DOMException("already defined", "NotSupportedError");
+      });
+    }
+
     beforeEach(() => {
       vi.resetModules();
       vi.unstubAllGlobals();
@@ -110,13 +118,20 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
-    it("recognizes an element registered during definition", async () => {
+    it("rejects an incompatible element registered during definition", async () => {
       const competing = class extends HTMLElement {};
-      const define = registry.define.bind(registry);
-      vi.spyOn(registry, "define").mockImplementation((name) => {
-        define(name, competing);
-        throw new DOMException("already defined", "NotSupportedError");
-      });
+      installDuringDefinition(competing);
+
+      const { register, TAG_NAME } = await loadModule();
+
+      expect(register()).toBe(false);
+      expect(registry.get(TAG_NAME)).toBe(competing);
+    });
+
+    it("accepts a compatible element registered during definition", async () => {
+      const competing = class extends HTMLElement {};
+      Object.defineProperty(competing, Symbol.for("vue-echarts.lifecycle"), { value: true });
+      installDuringDefinition(competing);
 
       const { register, TAG_NAME } = await loadModule();
 
@@ -124,16 +139,28 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBe(competing);
     });
 
-    it("skips redefinition when element already registered", async () => {
+    it("rejects an incompatible element already registered", async () => {
       const existing = class extends HTMLElement {};
       const { register, TAG_NAME } = await loadModule();
       registry.define(TAG_NAME, existing);
 
       const defineSpy = vi.spyOn(registry, "define");
 
-      expect(register()).toBe(true);
+      expect(register()).toBe(false);
       expect(defineSpy).not.toHaveBeenCalled();
       expect(registry.get(TAG_NAME)).toBe(existing);
+    });
+
+    it("recognizes its lifecycle implementation from another module instance", async () => {
+      const { register } = await loadModule();
+
+      expect(register()).toBe(true);
+      vi.resetModules();
+
+      const defineSpy = vi.spyOn(registry, "define");
+      const reloaded = await loadModule();
+      expect(reloaded.register()).toBe(true);
+      expect(defineSpy).not.toHaveBeenCalled();
     });
 
     it("exposes a constructor that skips disconnect work without a disposal hook", async () => {
