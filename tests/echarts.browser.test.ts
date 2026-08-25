@@ -1181,7 +1181,7 @@ describe("ECharts component", () => {
     expect(chartStub.off).toHaveBeenCalledWith("click", secondListener);
   });
 
-  it("plans replaceMerge when series id is removed", async () => {
+  it("rebuilds when removing a series ID would shift another", async () => {
     const option = ref({
       series: [
         { id: "a", type: "bar", data: [1] },
@@ -1194,7 +1194,6 @@ describe("ECharts component", () => {
     await nextTick();
     chartStub.setOption.mockClear();
 
-    // Remove one id to trigger replaceMerge planning
     option.value = {
       series: [{ id: "b", type: "bar", data: [3] }],
     };
@@ -1202,7 +1201,7 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const updateOptions = chartStub.setOption.mock.calls[0][1];
-    expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
+    expect(updateOptions).toEqual({ notMerge: true });
   });
 
   it("observes the chart host and resizes before the initial commit", async () => {

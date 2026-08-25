@@ -298,16 +298,41 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toBeUndefined();
       });
 
-      it("keeps merge when new IDs surround existing IDs", () => {
-        const prev = buildSignature({ series: [{ id: "b" }, { id: "d" }] });
-        const next = planUpdate(prev, {
-          series: [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }],
-        });
+      it("rebuilds when new IDs surround existing IDs", () => {
+        const base: EChartsOption = {
+          series: [
+            { id: "b", type: "pie", data: [2] },
+            { id: "d", type: "pie", data: [4] },
+          ],
+        };
+        const update: EChartsOption = {
+          series: [
+            { id: "a", type: "pie", data: [1] },
+            { id: "b", type: "pie", data: [2] },
+            { id: "c", type: "pie", data: [3] },
+            { id: "d", type: "pie", data: [4] },
+          ],
+        };
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(next.plan).toEqual({ notMerge: false });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ id }) => id)).toEqual(["a", "b", "c", "d"]);
       });
 
-      it("keeps merge when dataset items reorder without shrink", () => {
+      it("rebuilds when an ID moves across a named item", () => {
+        const series = [
+          { name: "named", type: "pie", data: [1] },
+          { id: "identified", type: "pie", data: [2] },
+        ] satisfies NonNullable<EChartsOption["series"]>;
+        const base: EChartsOption = { series };
+        const update: EChartsOption = { series: [series[1], series[0]] };
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ id, name }) => id ?? name)).toEqual(["identified", "named"]);
+      });
+
+      it("rebuilds when dataset items reorder without shrink", () => {
         const prev = buildSignature({
           dataset: [
             { id: "a", source: [[1]] },
@@ -323,8 +348,7 @@ describe("smart-update", () => {
 
         const result = planUpdate(prev, update);
 
-        expect(result.plan.notMerge).toBe(false);
-        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.plan).toEqual({ notMerge: true });
       });
     });
 
@@ -430,6 +454,19 @@ describe("smart-update", () => {
           expect(planUpdate(buildSignature(update), base).plan).toEqual({ notMerge: false });
         },
       );
+
+      it.each(optionContainers)("rebuilds reordered components in %s", (container) => {
+        const series = [
+          { id: "a", type: "pie", data: [1] },
+          { id: "b", type: "pie", data: [2] },
+        ] satisfies NonNullable<EChartsOption["series"]>;
+        const base = wrapOption(container, { series });
+        const update = wrapOption(container, { series: [series[1], series[0]] });
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ id }) => id)).toEqual(["b", "a"]);
+      });
 
       it("forces rebuild when leaves disappear", () => {
         const prev = buildSignature({ color: "red", title: { text: "foo" } });
@@ -594,6 +631,22 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
+      it("rebuilds when removing an ID would leave a leading hole", () => {
+        const base: EChartsOption = {
+          series: [
+            { id: "a", type: "pie", data: [1] },
+            { id: "b", type: "pie", data: [2] },
+          ],
+        };
+        const update: EChartsOption = {
+          series: [{ id: "b", type: "pie", data: [2] }],
+        };
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ id }) => id)).toEqual(["b"]);
+      });
+
       it("adds replaceMerge when an id changes without shrinking", () => {
         const prev = buildSignature({ series: [{ id: "a" }, { id: "b" }] });
         const next = planUpdate(prev, { series: [{ id: "a" }, { id: "c" }] });
@@ -701,15 +754,25 @@ describe("smart-update", () => {
         expect(applied.series?.map(({ label }) => label?.color)).toEqual([undefined, undefined]);
       });
 
-      it("aligns anonymous item shapes around named items", () => {
-        const prev = buildSignature({
-          series: [{}, { id: "named" }, { label: { color: "red" } }],
-        });
-        const next = planUpdate(prev, {
-          series: [{ id: "named" }, {}, { label: {} }],
-        });
+      it("rebuilds when an ID moves around anonymous items", () => {
+        const base: EChartsOption = {
+          series: [
+            { type: "pie", data: [1] },
+            { id: "named", type: "pie", data: [2] },
+            { type: "pie", data: [3], label: { color: "red" } },
+          ],
+        };
+        const update: EChartsOption = {
+          series: [
+            { id: "named", type: "pie", data: [2] },
+            { type: "pie", data: [1] },
+            { type: "pie", data: [3], label: {} },
+          ],
+        };
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ id }) => id)).toEqual(["named", undefined, undefined]);
       });
 
       it("matches anonymous component shapes by name before index", () => {
@@ -753,7 +816,7 @@ describe("smart-update", () => {
               },
             ],
           }).plan,
-        ).toEqual({ notMerge: false });
+        ).toEqual({ notMerge: false, replaceMerge: ["series"] });
 
         const { applied, plan } = applyPlannedUpdate(base, update);
         const seriesByName = Object.fromEntries(
@@ -761,6 +824,7 @@ describe("smart-update", () => {
         );
 
         expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
+        expect(applied.series?.map(({ name }) => name)).toEqual(["mocha", "latte"]);
         expect(seriesByName.latte.label?.color).toBeUndefined();
         expect(seriesByName.mocha.label?.color).toBe("brown");
       });
@@ -786,25 +850,32 @@ describe("smart-update", () => {
         expect(applied.series?.[1]?.label?.color).toBeUndefined();
       });
 
-      it("keeps merge across duplicate and renamed component names", () => {
-        const prev = buildSignature({
+      it("rebuilds when an ID moves across duplicate and renamed components", () => {
+        const base: EChartsOption = {
           series: [
-            { name: "duplicate", label: { show: true } },
-            { name: "duplicate", label: { show: true } },
-            { name: "before", label: { show: true } },
-            { id: "fixed", name: "fixed", label: { show: true } },
+            { name: "duplicate", type: "pie", data: [1] },
+            { name: "duplicate", type: "pie", data: [2] },
+            { name: "before", type: "pie", data: [3] },
+            { id: "fixed", name: "fixed", type: "pie", data: [4] },
           ],
-        });
-        const next = planUpdate(prev, {
+        };
+        const update: EChartsOption = {
           series: [
-            { id: "fixed", name: "fixed", label: { show: true } },
-            { name: "duplicate", label: { show: true } },
-            { name: "duplicate", label: { show: true } },
-            { name: "after", label: { show: true } },
+            { id: "fixed", name: "fixed", type: "pie", data: [4] },
+            { name: "duplicate", type: "pie", data: [1] },
+            { name: "duplicate", type: "pie", data: [2] },
+            { name: "after", type: "pie", data: [3] },
           ],
-        });
+        };
+        const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(next.plan).toEqual({ notMerge: false });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ name }) => name)).toEqual([
+          "fixed",
+          "duplicate",
+          "duplicate",
+          "after",
+        ]);
       });
     });
 

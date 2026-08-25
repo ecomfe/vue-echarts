@@ -203,6 +203,50 @@ function hasCollectionRemoval(
   return false;
 }
 
+function getItemIdentity(item: ItemShape): string | undefined {
+  return item.id !== undefined
+    ? `id:${item.id}`
+    : item.name !== undefined
+      ? `name:${item.name}`
+      : undefined;
+}
+
+function hasIdentityPositionChange(prev: ItemShape[], next: ItemShape[]): boolean {
+  const positions = new Map<string, number[]>();
+  for (let i = prev.length - 1; i >= 0; i--) {
+    const identity = getItemIdentity(prev[i]);
+    if (identity !== undefined) {
+      const matches = positions.get(identity);
+      if (matches) {
+        matches.push(i);
+      } else {
+        positions.set(identity, [i]);
+      }
+    }
+  }
+
+  return next.some((item, index) => {
+    const identity = getItemIdentity(item);
+    const previousIndex = identity === undefined ? undefined : positions.get(identity)?.pop();
+    return previousIndex !== undefined && previousIndex !== index;
+  });
+}
+
+function preservesReplacementOrder(prev: ItemShape[], next: ItemShape[]): boolean {
+  const positions = new Map<string, number>();
+  for (let index = 0; index < prev.length; index++) {
+    const item = prev[index];
+    if (item.id !== undefined) {
+      positions.set(item.id, index);
+    }
+  }
+
+  return next.every((item, index) => {
+    const previousIndex = item.id === undefined ? undefined : positions.get(item.id);
+    return previousIndex === undefined || previousIndex === index;
+  });
+}
+
 function isCollectionShape(shape: Shape): shape is CollectionSummary {
   return shape !== true && Array.isArray(shape.shapes);
 }
@@ -219,6 +263,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
       !prevIsCollection ||
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
+      hasIdentityPositionChange(prev.shapes, next.shapes) ||
       findItemShapeRemoval(prev.shapes, next.shapes) !== undefined
     );
   }
@@ -343,6 +388,11 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     if (!nextCollection && !ComponentModel.hasClass(key)) {
       return null;
     }
+    const collectionRemoval = hasCollectionRemoval(prevCollection, nextCollection);
+    const orderChange =
+      nextCollection &&
+      !collectionRemoval &&
+      hasIdentityPositionChange(prevCollection.shapes, nextCollection.shapes);
     const shapeRemoval = nextCollection
       ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
       : undefined;
@@ -351,10 +401,16 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       return null;
     }
 
-    if (!shapeRemoval && !hasCollectionRemoval(prevCollection, nextCollection)) {
+    if (!shapeRemoval && !collectionRemoval && !orderChange) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {
+      return null;
+    }
+    if (
+      nextCollection &&
+      !preservesReplacementOrder(prevCollection.shapes, nextCollection.shapes)
+    ) {
       return null;
     }
     (replaceMerge ??= []).push(key);
