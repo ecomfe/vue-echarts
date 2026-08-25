@@ -98,6 +98,26 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("does not observe an already disposed chart", async () => {
+    const container = createSizedContainer(120, 80);
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>(container);
+    const instance = createChart(resize, () => root.value, container);
+    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
+    instance.dispose();
+
+    const scope = effectScope();
+    scope.run(() => useAutoresize(chart, autoresize, root));
+    chart.value = instance;
+    await nextTick();
+
+    expect(observeSpy).not.toHaveBeenCalled();
+    expect(resize).not.toHaveBeenCalled();
+    scope.stop();
+  });
+
   it("stops observer and pending resize work after external disposal", async () => {
     let pendingResize: (() => void) | undefined;
     vi.mocked(throttle).mockImplementation((fn) => {

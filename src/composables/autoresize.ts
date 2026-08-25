@@ -28,7 +28,7 @@ export function useAutoresize(
   watch(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
-      if (!chart) {
+      if (!chart || chart.isDisposed()) {
         sizedChart = undefined;
         return;
       }
