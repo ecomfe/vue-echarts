@@ -288,6 +288,7 @@ describe("graphic components", () => {
       ignore: undefined,
       invisible: undefined,
       clipPath: undefined,
+      autoBatch: undefined,
       lineDash: undefined,
       borderDash: undefined,
       strokeNoScale: undefined,

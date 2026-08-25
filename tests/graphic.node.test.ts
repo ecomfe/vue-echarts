@@ -94,6 +94,7 @@ describe("graphic", () => {
           clipPath: { type: "circle", shape: { cx: 15, cy: 20, r: 10 } },
           textContent: { type: "text", style: { text: "label" } },
           textConfig: { position: "inside" },
+          autoBatch: true,
           style: { fill: "#000", stroke: "#0f0" },
           ...paint,
         },
@@ -160,6 +161,7 @@ describe("graphic", () => {
 
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");
+    expect(rect.autoBatch).toBe(true);
     expect(rect.extra).toBe(extra);
     expect(rect.during).toBe(during);
     expect(rect.tooltip).toEqual({ show: true, formatter: "main-rect" });
@@ -346,6 +348,7 @@ describe("graphic", () => {
           width: 3,
           height: 4,
           image: "https://example.com/a.png",
+          autoBatch: true,
           ...crop,
           styleTransition: "all",
         },
@@ -448,6 +451,7 @@ describe("graphic", () => {
       ...crop,
       transition: "all",
     });
+    expect(image.autoBatch).toBeUndefined();
     expect(line.shape).toMatchObject({
       x1: 0,
       y1: 0,

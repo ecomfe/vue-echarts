@@ -1,7 +1,12 @@
 import type { Option } from "../types";
 import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
 import type { EventHandler } from "../utils";
-import { BASE_STYLE_KEYS, COMMON_PROP_KEYS, STYLE_KEYS_BY_TYPE } from "./props-common";
+import {
+  BASE_STYLE_KEYS,
+  COMMON_PROP_KEYS,
+  PATH_PROP_KEYS,
+  STYLE_KEYS_BY_TYPE,
+} from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 
@@ -128,6 +133,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     if (value !== undefined && !shapeKeys?.includes(key) && !styleKeys?.includes(key)) {
       out[key] = value;
     }
+  }
+  if (shapeKeys) {
+    mergeProps(out, PATH_PROP_KEYS, props);
   }
 
   mergeHandlers(node, out);

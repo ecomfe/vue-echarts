@@ -18,6 +18,7 @@ import type {
   GraphicBaseStyleKey,
   GraphicCommonPropKey,
   GraphicImageStyleKey,
+  GraphicPathPropKey,
   GraphicTextStyleKey,
 } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE, shapeProps } from "./props-shape";
@@ -30,6 +31,7 @@ const componentProps = {
 
 type SpecializedPropKey =
   | GraphicBaseStyleKey
+  | GraphicPathPropKey
   | GraphicTextStyleKey
   | GraphicImageStyleKey
   | keyof typeof shapeProps;
@@ -41,12 +43,12 @@ type StylePropKey<T extends GraphicComponentType> = T extends "group"
   :
       | GraphicBaseStyleKey
       | (T extends "text" ? GraphicTextStyleKey : T extends "image" ? GraphicImageStyleKey : never);
-type ShapePropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
-  ? (typeof SHAPE_KEYS_BY_TYPE)[T][number]
+type PathPropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
+  ? GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
   : never;
 type ComponentProps<T extends GraphicComponentType> = Pick<
   typeof componentProps,
-  Extract<SharedPropKey | StylePropKey<T> | ShapePropKey<T>, keyof typeof componentProps>
+  Extract<SharedPropKey | PathPropKey<T> | StylePropKey<T>, keyof typeof componentProps>
 >;
 
 /* @__NO_SIDE_EFFECTS__ */

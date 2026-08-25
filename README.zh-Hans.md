@@ -499,6 +499,7 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 >
 > - graphic 元素事件额外支持 `dblclick`、`contextmenu`。
 > - 事件支持 `.once` 修饰符。
+> - 路径组件支持通过 `auto-batch` 启用 ZRender 的 Canvas 路径批处理。
 > - 仅使用 graphic 插槽时可以省略 `option` prop。
 > - `#graphic` 会覆盖 `option.graphic`。`manual-update` 模式下需调用 `chartRef.setOption(...)` 提交变更。
 

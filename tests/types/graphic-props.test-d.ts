@@ -51,6 +51,9 @@ type _textRejectsForeignProps = Assert<
 type _imageRejectsForeignProps = Assert<
   IsEqual<Extract<"cx" | "points" | "text" | "overflow", keyof ImageProps>, never>
 >;
+type _nonPathRejectsAutoBatch = Assert<
+  IsEqual<Extract<"autoBatch", keyof GroupProps | keyof TextProps | keyof ImageProps>, never>
+>;
 type _duringType = Assert<
   IsAssignable<
     NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>,
@@ -99,6 +102,7 @@ type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
 type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"]>>;
 type _strokePercentType = Assert<IsAssignable<RectProps["strokePercent"], number | undefined>>;
+type _autoBatchType = Assert<IsEqual<RectProps["autoBatch"], boolean | undefined>>;
 type _strokeFirstAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeFirst"]>>;
 type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]>>;
 type _lineDashType = Assert<

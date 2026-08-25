@@ -57,6 +57,8 @@ export const COMMON_PROP_KEYS = [
   "keyframeAnimation",
 ] as const;
 
+export const PATH_PROP_KEYS = ["autoBatch"] as const;
+
 export const BASE_STYLE_KEYS = [
   "fill",
   "stroke",
@@ -137,6 +139,7 @@ export const STYLE_KEYS_BY_TYPE = {
 } as const;
 
 export type GraphicCommonPropKey = (typeof COMMON_PROP_KEYS)[number];
+export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
 export type GraphicBaseStyleKey = (typeof BASE_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];
 export type GraphicImageStyleKey = (typeof IMAGE_STYLE_KEYS)[number];
@@ -199,6 +202,10 @@ const graphicCommonOnlyProps = {
   leaveAnimation: Object as PropType<object>,
   keyframeAnimation: [Object, Array] as PropType<object>,
 } as const satisfies Record<GraphicCommonPropKey, unknown>;
+
+const pathProps = {
+  autoBatch: withUndefinedDefault(Boolean),
+} as const satisfies Record<GraphicPathPropKey, unknown>;
 
 const baseStyleProps = {
   fill: [String, Object] as PropType<Color>,
@@ -272,6 +279,7 @@ const imageStyleProps = {
 
 export const commonProps = {
   ...graphicCommonOnlyProps,
+  ...pathProps,
   shape: Object as PropType<Record<string, unknown>>,
   style: Object as PropType<object>,
   shapeTransition: [String, Array] as PropType<string | string[]>,
