@@ -14,7 +14,20 @@ import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from 
 import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { createOrderTracker } from "./order";
-import { commonProps, withUndefinedDefault } from "./props-common";
+import {
+  COMMON_PROP_KEYS,
+  COMMON_STYLE_KEYS,
+  DISPLAYABLE_PROP_KEYS,
+  GROUP_PROP_KEYS,
+  IMAGE_STYLE_KEYS,
+  PATH_PROP_KEYS,
+  PATH_STYLE_KEYS,
+  TEXT_ATTACHMENT_PROP_KEYS,
+  TEXT_COMMON_STYLE_KEYS,
+  TEXT_STYLE_KEYS,
+  commonProps,
+  withUndefinedDefault,
+} from "./props-common";
 import type {
   GraphicCommonPropKey,
   GraphicCommonStyleKey,
@@ -34,20 +47,17 @@ const componentProps = {
   ...commonProps,
   ...shapeProps,
 } as const;
-const scalarRadiusProps = {
-  ...componentProps,
-  r: Number,
-} as const;
-const textComponentProps = {
-  ...componentProps,
+const textPropOverrides = {
   width: [String, Number] as PropType<string | number>,
   fill: String,
   stroke: String,
   lineDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
 } as const;
 
-type NestedShapePropKey = "shape" | "shapeTransition";
-type NestedStylePropKey = "style" | "styleTransition";
+const NESTED_SHAPE_PROP_KEYS = ["shape", "shapeTransition"] as const;
+const NESTED_STYLE_PROP_KEYS = ["style", "styleTransition"] as const;
+type NestedShapePropKey = (typeof NESTED_SHAPE_PROP_KEYS)[number];
+type NestedStylePropKey = (typeof NESTED_STYLE_PROP_KEYS)[number];
 type SpecializedPropKey =
   | GraphicCommonStyleKey
   | GraphicDisplayablePropKey
@@ -82,10 +92,10 @@ type DisplayablePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   : GraphicDisplayablePropKey;
 type ComponentPropDefinitions<T extends GraphicComponentType> = T extends "text"
-  ? typeof textComponentProps
+  ? Omit<typeof componentProps, keyof typeof textPropOverrides> & typeof textPropOverrides
   : T extends "rect"
     ? typeof componentProps
-    : typeof scalarRadiusProps;
+    : Omit<typeof componentProps, "r"> & { r: NumberConstructor };
 type ComponentProps<T extends GraphicComponentType> = Pick<
   ComponentPropDefinitions<T>,
   Extract<
@@ -94,16 +104,53 @@ type ComponentProps<T extends GraphicComponentType> = Pick<
   >
 >;
 
+function getComponentProps(type: GraphicComponentType): Record<string, unknown> {
+  const shapeKeys: readonly string[] | undefined =
+    SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
+  const commonKeys =
+    type === "text"
+      ? COMMON_PROP_KEYS.filter(
+          (key) => !TEXT_ATTACHMENT_PROP_KEYS.includes(key as GraphicTextAttachmentPropKey),
+        )
+      : COMMON_PROP_KEYS;
+  const keys: string[] = [...commonKeys];
+  if (type === "group") {
+    keys.push(...GROUP_PROP_KEYS);
+  } else {
+    keys.push(...DISPLAYABLE_PROP_KEYS, ...NESTED_STYLE_PROP_KEYS);
+    if (shapeKeys) {
+      keys.push(
+        ...NESTED_SHAPE_PROP_KEYS,
+        ...PATH_PROP_KEYS,
+        ...shapeKeys,
+        ...COMMON_STYLE_KEYS,
+        ...PATH_STYLE_KEYS,
+      );
+    } else if (type === "text") {
+      keys.push(...TEXT_COMMON_STYLE_KEYS, ...TEXT_STYLE_KEYS);
+    } else {
+      keys.push(...COMMON_STYLE_KEYS, ...IMAGE_STYLE_KEYS);
+    }
+  }
+  const props = Object.fromEntries(
+    keys.map((key) => [key, componentProps[key as keyof typeof componentProps]]),
+  );
+
+  if (type === "text") {
+    Object.assign(props, textPropOverrides);
+  } else if (type !== "rect" && "r" in props) {
+    props.r = Number;
+  }
+
+  return props;
+}
+
 /* @__NO_SIDE_EFFECTS__ */
 export function createComponent<T extends GraphicComponentType>(name: string, type: T) {
   const component = defineComponent({
     name,
     inheritAttrs: false,
-    props: (type === "text"
-      ? textComponentProps
-      : type === "rect"
-        ? componentProps
-        : scalarRadiusProps) as unknown as ComponentProps<T>,
+    props: getComponentProps(type) as unknown as ComponentProps<T>,
     emits: {} as unknown as GraphicEmits,
     setup(props, { attrs, slots }) {
       const instance = getCurrentInstance()!;

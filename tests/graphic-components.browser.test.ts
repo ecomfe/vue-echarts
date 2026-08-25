@@ -68,6 +68,21 @@ function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
 }
 
 describe("graphic components", () => {
+  it("declares only props supported by each element type", () => {
+    const propsOf = (component: unknown) => (component as { props: Record<string, unknown> }).props;
+
+    expect(propsOf(GGroup)).toHaveProperty("width");
+    expect(propsOf(GGroup)).not.toHaveProperty("fill");
+    expect(propsOf(GRect)).toHaveProperty("width");
+    expect(propsOf(GRect)).not.toHaveProperty("cx");
+    expect(propsOf(GCircle)).toHaveProperty("cx");
+    expect(propsOf(GCircle)).not.toHaveProperty("width");
+    expect(propsOf(GText)).toHaveProperty("text");
+    expect(propsOf(GText)).not.toHaveProperty("textContent");
+    expect(propsOf(GImage)).toHaveProperty("image");
+    expect(propsOf(GImage)).not.toHaveProperty("fill");
+  });
+
   it("warns when component is used outside #graphic slot", async () => {
     const Root = defineComponent({
       setup() {
@@ -377,7 +392,6 @@ describe("graphic components", () => {
       clipPath: undefined,
       autoBatch: undefined,
       lineDash: undefined,
-      borderDash: undefined,
       strokeNoScale: undefined,
       strokeFirst: undefined,
     });
