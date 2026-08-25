@@ -5,6 +5,7 @@ import {
   onBeforeUnmount,
   provide,
   shallowRef,
+  type PropType,
   watch,
 } from "vue";
 
@@ -13,7 +14,7 @@ import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from 
 import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { createOrderTracker } from "./order";
-import { commonProps } from "./props-common";
+import { commonProps, withUndefinedDefault } from "./props-common";
 import type {
   GraphicCommonPropKey,
   GraphicCommonStyleKey,
@@ -41,6 +42,7 @@ const textComponentProps = {
   ...componentProps,
   fill: String,
   stroke: String,
+  lineDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
 } as const;
 
 type NestedShapePropKey = "shape" | "shapeTransition";
@@ -78,14 +80,11 @@ type GroupPropKey<T extends GraphicComponentType> = T extends "group" ? GraphicG
 type DisplayablePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   : GraphicDisplayablePropKey;
-type ComponentPropDefinitions<T extends GraphicComponentType> = Omit<
-  typeof componentProps,
-  "r" | "fill" | "stroke"
-> & {
-  readonly r: T extends "rect" ? (typeof componentProps)["r"] : NumberConstructor;
-  readonly fill: T extends "text" ? StringConstructor : (typeof componentProps)["fill"];
-  readonly stroke: T extends "text" ? StringConstructor : (typeof componentProps)["stroke"];
-};
+type ComponentPropDefinitions<T extends GraphicComponentType> = T extends "text"
+  ? typeof textComponentProps
+  : T extends "rect"
+    ? typeof componentProps
+    : typeof scalarRadiusProps;
 type ComponentProps<T extends GraphicComponentType> = Pick<
   ComponentPropDefinitions<T>,
   Extract<

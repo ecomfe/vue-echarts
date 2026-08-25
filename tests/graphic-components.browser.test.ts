@@ -287,6 +287,7 @@ describe("graphic components", () => {
       borderColor: "#334155",
       borderWidth: 1,
       borderRadius: [2, 4],
+      lineDash: [2, 1],
       borderDash: false as const,
       borderDashOffset: 2,
       rich: { accent: { fill: "#0ea5e9" } },
@@ -310,7 +311,7 @@ describe("graphic components", () => {
     expect(getLastRegisterPayload(collector).props).toMatchObject(textStyle);
   });
 
-  it("validates text paints as colors", async () => {
+  it("validates text paint values", async () => {
     const collector = createCollectorMock();
     const gradient: LinearGradientObject = {
       type: "linear",
@@ -327,6 +328,7 @@ describe("graphic components", () => {
         text: "Label",
         fill: gradient as unknown as string,
         stroke: pattern as unknown as string,
+        lineDash: "dashed" as unknown as number[],
       }),
     );
 
@@ -335,6 +337,7 @@ describe("graphic components", () => {
       const warnings = warnSpy.mock.calls.flat().join(" ");
       expect(warnings).toContain('type check failed for prop "fill"');
       expect(warnings).toContain('type check failed for prop "stroke"');
+      expect(warnings).toContain('type check failed for prop "lineDash"');
     });
     await nextTick();
   });

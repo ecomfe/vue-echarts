@@ -164,6 +164,7 @@ type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]
 type _lineDashType = Assert<
   IsEqual<RectProps["lineDash"], false | number[] | "solid" | "dashed" | "dotted" | undefined>
 >;
+type _textLineDashType = Assert<IsEqual<TextProps["lineDash"], false | number[] | undefined>>;
 type _lineCapType = Assert<IsEqual<RectProps["lineCap"], CanvasLineCap | undefined>>;
 type _lineJoinType = Assert<IsEqual<RectProps["lineJoin"], CanvasLineJoin | undefined>>;
 type _strokeNoScaleAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeNoScale"]>>;
