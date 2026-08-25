@@ -49,6 +49,7 @@ describe("graphic", () => {
     const during = vi.fn();
     const extra = { progress: 0 };
     const typography = {
+      textFont: "italic 20px serif",
       fontStyle: "italic",
       fontWeight: 600,
       fontFamily: "sans-serif",

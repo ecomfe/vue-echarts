@@ -83,6 +83,7 @@ export const BASE_STYLE_KEYS = [
 export const TEXT_STYLE_KEYS = [
   "text",
   "font",
+  "textFont",
   "fontStyle",
   "fontWeight",
   "fontFamily",
@@ -227,6 +228,7 @@ const baseStyleProps = {
 const textStyleProps = {
   text: String,
   font: String,
+  textFont: String,
   fontStyle: String as PropType<FontStyle>,
   fontWeight: [String, Number] as PropType<FontWeight>,
   fontFamily: String,

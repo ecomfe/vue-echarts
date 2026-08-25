@@ -120,6 +120,7 @@ type _smoothConstraintAcceptsVectors = Assert<
 type _rxType = Assert<IsAssignable<EllipseProps["rx"], number | undefined>>;
 type _ryType = Assert<IsAssignable<EllipseProps["ry"], number | undefined>>;
 type _fontWeightAcceptsNumber = Assert<IsAssignable<number, TextProps["fontWeight"]>>;
+type _textFontType = Assert<IsEqual<TextProps["textFont"], string | undefined>>;
 type _fontStyleType = Assert<
   IsEqual<TextProps["fontStyle"], "normal" | "italic" | "oblique" | undefined>
 >;
