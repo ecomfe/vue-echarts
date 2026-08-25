@@ -242,6 +242,7 @@ export default /* @__PURE__ */ defineComponent({
       }
       isReady.value = false;
       lastSignature = undefined;
+      themedChart = undefined;
       graphicSlotApplied = false;
     }
 
