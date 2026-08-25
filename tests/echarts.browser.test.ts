@@ -316,6 +316,41 @@ describe("ECharts component", () => {
     expect(currentStub.setOption).not.toHaveBeenCalled();
   });
 
+  it("traverses reactive initialization inputs once per change", async () => {
+    const readTheme = vi.fn(() => "#0ea5e9");
+    const palette = reactive({
+      get color() {
+        return readTheme();
+      },
+      revision: 0,
+    });
+    const readLocale = vi.fn(() => "Chart");
+    const locale = reactive({
+      get title() {
+        return readLocale();
+      },
+      revision: 0,
+    });
+    const theme = { palette } as unknown as Theme;
+    const initOptions = { locale } as unknown as InitOptions;
+
+    renderChart(() => ({ option: {}, theme, initOptions }), shallowRef<Exposed>());
+    await nextTick();
+    readTheme.mockClear();
+    readLocale.mockClear();
+
+    palette.revision++;
+    await nextTick();
+    expect(readTheme).toHaveBeenCalledOnce();
+    expect(readLocale).not.toHaveBeenCalled();
+
+    readTheme.mockClear();
+    locale.revision++;
+    await nextTick();
+    expect(readTheme).not.toHaveBeenCalled();
+    expect(readLocale).toHaveBeenCalledOnce();
+  });
+
   it("stops option replay when a theme event disposes the component", async () => {
     const option = ref<Option>({ title: { text: "theme-dispose" } });
     const theme = ref<Theme | undefined>("dark");

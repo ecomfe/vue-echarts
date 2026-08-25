@@ -81,6 +81,8 @@ export default /* @__PURE__ */ defineComponent({
     const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
     const isReady = shallowRef(false);
+    const themeRevision = shallowRef(0);
+    const initOptionsRevision = shallowRef(0);
     const defaultTheme = inject(THEME_KEY, null);
     const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
     const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
@@ -115,7 +117,6 @@ export default /* @__PURE__ */ defineComponent({
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
     let lastSignature: Signature | null | undefined;
     let themedChart: EChartsType | undefined;
-    let themeInvalidated = false;
     let initOptionsInvalidated = false;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
@@ -335,7 +336,7 @@ export default /* @__PURE__ */ defineComponent({
         if (isIgnorableWatchChange(theme, previousTheme)) {
           return;
         }
-        themeInvalidated = true;
+        themeRevision.value++;
         themedChart = undefined;
         themeUpdatePending = true;
       },
@@ -347,6 +348,7 @@ export default /* @__PURE__ */ defineComponent({
       (options, previousOptions) => {
         if (!isIgnorableWatchChange(options, previousOptions)) {
           initOptionsInvalidated = true;
+          initOptionsRevision.value++;
         }
       },
       { deep: true, flush: "sync" },
@@ -380,30 +382,18 @@ export default /* @__PURE__ */ defineComponent({
       { deep: true, flush: updateFlush },
     );
 
-    watch(
-      [manualUpdate, realInitOptions],
-      ([manual], [previousManual]) => {
-        if (!mounted || terminallyDisposed) {
-          return;
-        }
-        if (manual === previousManual && !initOptionsInvalidated) {
-          return;
-        }
-        cleanup();
-        init();
-      },
-      {
-        deep: true,
-      },
-    );
+    watch([manualUpdate, initOptionsRevision], () => {
+      if (!mounted || terminallyDisposed) {
+        return;
+      }
+      cleanup();
+      init();
+    });
 
     watch(
-      realTheme,
-      (theme) => {
-        if (!themeInvalidated) {
-          return;
-        }
-        themeInvalidated = false;
+      themeRevision,
+      () => {
+        const theme = realTheme.value;
         // ECharts rebuilds from its initial option snapshot when applying a theme.
         const replayOption = optionReplayRequired || optionUpdatePending;
         optionUpdatePending = false;
@@ -441,7 +431,6 @@ export default /* @__PURE__ */ defineComponent({
         }
       },
       {
-        deep: true,
         flush: updateFlush,
       },
     );
