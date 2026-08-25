@@ -98,7 +98,18 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("ignores observer work after the chart is externally disposed", async () => {
+  it("stops observer and pending resize work after external disposal", async () => {
+    let pendingResize: (() => void) | undefined;
+    vi.mocked(throttle).mockImplementation((fn) => {
+      const throttled = (() => {
+        pendingResize = fn as () => void;
+      }) as ReturnType<typeof throttle>;
+      throttled.clear = vi.fn(() => {
+        pendingResize = undefined;
+      });
+      return throttled;
+    });
+
     const container = createSizedContainer(120, 80);
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -106,6 +117,7 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
     const instance = createChart(resize, () => root.value, container);
     const getWidth = vi.spyOn(instance, "getWidth");
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
 
     const scope = effectScope();
     scope.run(() => {
@@ -123,6 +135,24 @@ describe("useAutoresize", () => {
 
     expect(getWidth).not.toHaveBeenCalled();
     expect(resize).not.toHaveBeenCalled();
+    expect(disconnectSpy).toHaveBeenCalledOnce();
+
+    const nextResize = vi.fn();
+    const nextInstance = createChart(nextResize, () => root.value, container);
+    chart.value = nextInstance;
+    await nextTick();
+    disconnectSpy.mockClear();
+
+    container.style.width = "240px";
+    await flushAnimationFrame();
+    expect(pendingResize).toBeTypeOf("function");
+
+    nextInstance.dispose();
+    pendingResize?.();
+
+    expect(nextResize).not.toHaveBeenCalled();
+    expect(pendingResize).toBeUndefined();
+    expect(disconnectSpy).toHaveBeenCalledOnce();
 
     scope.stop();
   });

@@ -49,11 +49,7 @@ export function useAutoresize(
         sizedWidth = sizedHeight = undefined;
         return;
       }
-
       const isSynchronized = (width: number, height: number): boolean => {
-        if (chart.isDisposed()) {
-          return true;
-        }
         if (wasZeroSized) {
           return false;
         }
@@ -70,6 +66,10 @@ export function useAutoresize(
 
       const resize = () => {
         // Observer notifications can repeat, and throttled work can outlive its triggering size.
+        if (chart.isDisposed()) {
+          stop();
+          return;
+        }
         if (isZeroSize(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
@@ -85,8 +85,16 @@ export function useAutoresize(
       };
       const throttledResize = wait ? throttle(resize, wait) : undefined;
       const runResize = throttledResize ?? resize;
+      function stop(): void {
+        observer.disconnect();
+        throttledResize?.clear();
+      }
 
       const observeResize = (entries?: ResizeObserverEntry[]) => {
+        if (chart.isDisposed()) {
+          stop();
+          return;
+        }
         const rect = entries?.find(({ target }) => target === container)?.contentRect;
         observedWidth = rect?.width ?? container.offsetWidth;
         observedHeight = rect?.height ?? container.offsetHeight;
@@ -101,14 +109,11 @@ export function useAutoresize(
         }
       };
 
-      observeResize();
       const observer = new ResizeObserver(observeResize);
+      observeResize();
       observer.observe(container);
 
-      onCleanup(() => {
-        observer.disconnect();
-        throttledResize?.clear();
-      });
+      onCleanup(stop);
     },
     // Stop observer work before the outgoing chart can be disposed.
     { flush: "sync" },
