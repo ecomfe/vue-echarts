@@ -26,7 +26,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { isIgnorableWatchChange, warn } from "./utils";
+import { appendReplaceMerge, isIgnorableWatchChange, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -153,19 +153,7 @@ export default /* @__PURE__ */ defineComponent({
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
       const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
       graphicSlotApplied = hasGraphicSlot;
-      if (!replaceGraphic || updateOptions?.notMerge) {
-        return updateOptions;
-      }
-
-      const replaceMerge = updateOptions?.replaceMerge;
-      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
-      if (replacements?.includes("graphic")) {
-        return updateOptions;
-      }
-      return {
-        ...updateOptions,
-        replaceMerge: replacements ? [...replacements, "graphic"] : ["graphic"],
-      };
+      return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;
     }
 
     function applyOption(

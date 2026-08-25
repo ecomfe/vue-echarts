@@ -498,6 +498,31 @@ describe("useSlotOption", () => {
     expect(handle.patchUpdateOptions()).toBeUndefined();
   });
 
+  it.each([
+    ["tooltip", "tooltip"],
+    ["tooltip-0", "tooltip"],
+    ["dataView", "toolbox"],
+    ["dataView-0", "toolbox"],
+  ])("targets %s callback removal to its root component", async (slotName, replacement) => {
+    const visible = ref(true);
+    const { exposed } = renderSlotComponent(() =>
+      visible.value ? { [slotName]: () => h("span", slotName) } : {},
+    );
+
+    await nextTick();
+    const handle = getExposed(exposed);
+    handle.patchOption({});
+    handle.patchUpdateOptions();
+
+    visible.value = false;
+    await nextTick();
+    handle.patchOption({});
+
+    expect(handle.patchUpdateOptions({ replaceMerge: "series" })).toEqual({
+      replaceMerge: ["series", replacement],
+    });
+  });
+
   it("preserves an existing rebuild option when a callback slot is removed", async () => {
     const visible = ref(true);
     const { exposed } = renderSlotComponent(() => {

@@ -3,7 +3,7 @@ import type { VNodeRef } from "vue";
 import { describe, expect, it } from "vitest";
 import { use, registerTheme } from "echarts/core";
 import { GraphChart } from "echarts/charts";
-import { TooltipComponent } from "echarts/components";
+import { LegendComponent, TooltipComponent } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
 import type { ComponentExposed } from "vue-component-type-helpers";
 import ECharts from "../src/ECharts";
@@ -11,7 +11,7 @@ import type { EChartsType, Option, Theme } from "../src/types";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
 
-use([SVGRenderer, GraphChart, TooltipComponent]);
+use([SVGRenderer, GraphChart, LegendComponent, TooltipComponent]);
 registerTheme("dark", { backgroundColor: "#111827" });
 
 type Exposed = ComponentExposed<typeof ECharts>;
@@ -202,11 +202,16 @@ describe("ECharts theme behavior (real echarts)", () => {
 });
 
 describe("ECharts callback slots (real echarts)", () => {
-  it("keeps a callback through theme changes and restores the built-in tooltip after removal", async () => {
+  it("keeps a callback through theme changes and preserves legend state after removal", async () => {
     const showTooltipSlot = ref(true);
     const theme = ref<Theme | undefined>("dark");
     const option: Option = {
+      legend: { data: ["A", "B"] },
       tooltip: { trigger: "item" },
+      series: [
+        { name: "A", type: "graph", data: [] },
+        { name: "B", type: "graph", data: [] },
+      ],
     };
     const exposed = shallowRef<Exposed>();
 
@@ -239,11 +244,17 @@ describe("ECharts callback slots (real echarts)", () => {
     await nextTick();
 
     expect(getFormatter()).toBeTypeOf("function");
+    chart.dispatchAction({ type: "legendUnSelect", name: "B" });
+    const getLegendSelection = () =>
+      (chart.getOption() as { legend?: Array<{ selected?: Record<string, boolean> }> }).legend?.[0]
+        ?.selected?.B;
+    expect(getLegendSelection()).toBe(false);
 
     showTooltipSlot.value = false;
     await nextTick();
     await nextTick();
 
     expect(getFormatter()).toBeUndefined();
+    expect(getLegendSelection()).toBe(false);
   });
 });

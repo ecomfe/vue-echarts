@@ -1,4 +1,5 @@
 import { warn as vueWarn } from "vue";
+import type { UpdateOptions } from "./types";
 
 export type AttrMap = Record<string, unknown>;
 export type EventHandler = (...args: unknown[]) => void;
@@ -79,6 +80,24 @@ export function shallowEqual<T extends object>(left: T, right: T): boolean {
     keys.length === Object.keys(right).length &&
     keys.every((key) => Object.is(left[key], right[key]))
   );
+}
+
+export function appendReplaceMerge(
+  options: UpdateOptions | undefined,
+  replacement: string,
+): UpdateOptions | undefined {
+  if (options?.notMerge) {
+    return options;
+  }
+  const replaceMerge = options?.replaceMerge;
+  const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
+  if (replacements?.includes(replacement)) {
+    return options;
+  }
+  return {
+    ...options,
+    replaceMerge: replacements ? [...replacements, replacement] : [replacement],
+  };
 }
 
 export function isIgnorableWatchChange(value: unknown, previous: unknown): boolean {

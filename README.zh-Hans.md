@@ -472,6 +472,7 @@ Vue ECharts 当前支持三类插槽：
 
 > [!NOTE]
 > 插槽会优先于 `props.option` 中对应的回调函数。
+> 移除根级 `tooltip`/`dataView` 回调插槽时只会替换其所属组件；移除嵌套回调时会重建图表，确保旧函数不会被 ECharts 合并保留。
 > 在 `manual-update` 模式下新增或移除回调插槽后，需要调用 `chartRef.setOption(...)` 提交最新的插槽集合。
 
 #### Graphic 插槽&nbsp;<sup><a href="#插槽"><img src="https://img.shields.io/badge/%E6%96%B0%E5%8A%9F%E8%83%BD-A855F7" alt="新功能" align="middle" height="16"></a></sup>

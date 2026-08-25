@@ -10,7 +10,7 @@ import {
 } from "vue";
 import type { Ref, Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
-import { isPlainObject, isValidArrayIndex, warn } from "../utils";
+import { appendReplaceMerge, isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
 
@@ -44,6 +44,16 @@ function isValidSlotName(key: string): key is SlotName {
     !key.includes("--") &&
     !PROTOTYPE_SEGMENT_RE.test(key)
   );
+}
+
+function getSlotPrefix(key: SlotName): SlotPrefix {
+  return key.startsWith("tooltip") ? "tooltip" : "dataView";
+}
+
+function getRootComponent(key: SlotName): string | undefined {
+  const prefix = getSlotPrefix(key);
+  const suffix = key.slice(prefix.length);
+  return !suffix || isValidArrayIndex(suffix.slice(1)) ? SLOT_OPTION_PATHS[prefix][0] : undefined;
 }
 
 type Container = Record<string, unknown> | unknown[];
@@ -199,7 +209,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     for (const key of names) {
       let binding = bindings.get(key);
       if (!binding) {
-        const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
+        const prefix = getSlotPrefix(key);
         const rest = key.slice(prefix.length);
         const parts = rest ? rest.slice(1).split("-") : [];
         const target = SLOT_OPTION_PATHS[prefix];
@@ -247,12 +257,23 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
     // ECharts merge retains formatter fields omitted after a slot is removed.
-    const removed = appliedSlotNames.some((key) => !patchedSlotNames.includes(key));
+    const previousSlotNames = appliedSlotNames;
     appliedSlotNames = patchedSlotNames;
-    if (!removed) {
-      return updateOptions;
+    let replacements: Set<string> | undefined;
+    for (const key of previousSlotNames) {
+      if (patchedSlotNames.includes(key)) {
+        continue;
+      }
+      const replacement = getRootComponent(key);
+      if (!replacement) {
+        return { ...updateOptions, notMerge: true };
+      }
+      (replacements ??= new Set()).add(replacement);
     }
-    return updateOptions?.notMerge ? updateOptions : { ...updateOptions, notMerge: true };
+    for (const replacement of replacements ?? []) {
+      updateOptions = appendReplaceMerge(updateOptions, replacement);
+    }
+    return updateOptions;
   }
 
   onUpdated(() => {
