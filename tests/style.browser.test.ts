@@ -54,7 +54,7 @@ describe("style entry", () => {
     }
   });
 
-  it("injects one fallback style tag across repeated module loads", async () => {
+  it("injects and restores one fallback style tag across repeated module loads", async () => {
     useFallbackStyles();
 
     const replaceSpy = vi.spyOn(CSSStyleSheet.prototype, "replaceSync");
@@ -79,6 +79,10 @@ describe("style entry", () => {
     ensureDuplicateStyles();
 
     expect(document.head.querySelectorAll("style")).toHaveLength(1);
+
+    styleEl.remove();
+    ensureDuplicateStyles();
+    expect(document.head.querySelector("style")).toBe(styleEl);
   });
 
   it("injects styles when the component is first rendered", async () => {
@@ -187,7 +191,7 @@ describe("style entry", () => {
     }
   });
 
-  it("constructs adopted stylesheets in the target document's realm", async () => {
+  it("constructs and restores adopted stylesheets in the target document's realm", async () => {
     const { iframe, ownerDocument } = createFrame();
     const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
     if (!StyleSheet) {
@@ -200,8 +204,13 @@ describe("style entry", () => {
       ensureStyles(ownerDocument);
 
       expect(ownerDocument.adoptedStyleSheets).toHaveLength(1);
-      expect(ownerDocument.adoptedStyleSheets[0]).toBeInstanceOf(StyleSheet);
-      expect(document.adoptedStyleSheets).not.toContain(ownerDocument.adoptedStyleSheets[0]);
+      const sheet = ownerDocument.adoptedStyleSheets[0];
+      expect(sheet).toBeInstanceOf(StyleSheet);
+      expect(document.adoptedStyleSheets).not.toContain(sheet);
+
+      ownerDocument.adoptedStyleSheets = [];
+      ensureStyles(ownerDocument);
+      expect(ownerDocument.adoptedStyleSheets).toEqual([sheet]);
     } finally {
       iframe.remove();
     }

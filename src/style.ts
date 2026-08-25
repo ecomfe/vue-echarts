@@ -2,6 +2,7 @@ import cssRules from "./style.css?raw";
 import { isBrowser } from "./utils";
 
 const STYLE_REGISTRY = Symbol.for("vue-echarts.styles");
+type StyleRegistration = { sheet: CSSStyleSheet } | { element: HTMLStyleElement };
 
 export function ensureStyles(root?: Node): void {
   if (!isBrowser()) {
@@ -14,15 +15,24 @@ export function ensureStyles(root?: Node): void {
     (candidate.nodeType === Node.DOCUMENT_FRAGMENT_NODE && "host" in candidate)
       ? candidate
       : candidate.ownerDocument
-  ) as (Document | ShadowRoot) & Record<symbol, Set<string> | undefined>;
-  const styles = (target[STYLE_REGISTRY] ??= new Set());
-
-  if (styles.has(cssRules)) {
-    return;
-  }
+  ) as (Document | ShadowRoot) & Record<symbol, Map<string, StyleRegistration> | undefined>;
+  const styles = (target[STYLE_REGISTRY] ??= new Map());
 
   const isDocument = target.nodeType === Node.DOCUMENT_NODE;
   const ownerDocument = isDocument ? (target as Document) : target.ownerDocument!;
+  const container = isDocument ? ownerDocument.head : target;
+  const existing = styles.get(cssRules);
+  if (existing) {
+    if ("sheet" in existing) {
+      if (!target.adoptedStyleSheets.includes(existing.sheet)) {
+        target.adoptedStyleSheets = [...target.adoptedStyleSheets, existing.sheet];
+      }
+    } else if (existing.element.parentNode !== container) {
+      container.appendChild(existing.element);
+    }
+    return;
+  }
+
   const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
 
   if (
@@ -33,10 +43,11 @@ export function ensureStyles(root?: Node): void {
     const sheet = new StyleSheet();
     sheet.replaceSync(cssRules);
     target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+    styles.set(cssRules, { sheet });
   } else {
     const styleEl = ownerDocument.createElement("style");
     styleEl.textContent = cssRules;
-    (isDocument ? ownerDocument.head : target).appendChild(styleEl);
+    container.appendChild(styleEl);
+    styles.set(cssRules, { element: styleEl });
   }
-  styles.add(cssRules);
 }
