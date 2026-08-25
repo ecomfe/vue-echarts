@@ -20,6 +20,8 @@ type CurrentEChartsMethod =
   | "getId"
   | "isSSR"
   | "getDevicePixelRatio"
+  | "convertToLayout"
+  | "getVisual"
   | "renderToCanvas"
   | "renderToSVGString"
   | "getSvgDataURL";
