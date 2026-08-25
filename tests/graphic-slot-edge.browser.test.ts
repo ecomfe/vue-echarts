@@ -821,7 +821,10 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    expect(getLastSetOptionCall(chartStub)[1]).toMatchObject({ notMerge: true });
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      notMerge: false,
+      replaceMerge: ["series", "graphic"],
+    });
   });
 
   it("skips reapplying 100+ unchanged nodes when parent rerenders", async () => {

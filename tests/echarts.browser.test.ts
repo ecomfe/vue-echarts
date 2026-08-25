@@ -1399,7 +1399,10 @@ describe("ECharts component", () => {
       option.value = ownerWindow.JSON.parse('{"title":{"text":"Coffee"}}');
       await nextTick();
 
-      expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: true });
+      expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+        notMerge: false,
+        replaceMerge: ["title"],
+      });
     } finally {
       screen.unmount();
       iframe.remove();

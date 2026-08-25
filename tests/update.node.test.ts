@@ -525,6 +525,44 @@ describe("smart-update", () => {
         }
       });
 
+      it("preserves legend state when replacing anonymous series for property removal", () => {
+        const base: EChartsOption = {
+          legend: { data: ["A", "B"] },
+          series: [
+            {
+              name: "A",
+              type: "pie",
+              data: [1],
+              label: { show: true, color: "red" },
+            },
+            { name: "B", type: "pie", data: [2] },
+          ],
+        };
+        const update: EChartsOption = {
+          legend: { data: ["A", "B"] },
+          series: [
+            { name: "A", type: "pie", data: [1], label: { show: true } },
+            { name: "B", type: "pie", data: [2] },
+          ],
+        };
+        const chart = createChart();
+
+        try {
+          chart.setOption(base);
+          chart.dispatchAction({ type: "legendUnSelect", name: "B" });
+
+          const plan = planUpdate(buildSignature(base), update).plan;
+          chart.setOption(update, plan);
+          const applied = chart.getOption() as AppliedOption;
+
+          expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
+          expect(applied.series?.[0]?.label?.color).toBeUndefined();
+          expect(applied.legend?.[0]?.selected?.B).toBe(false);
+        } finally {
+          chart.dispose();
+        }
+      });
+
       it("adds replaceMerge when an array option is removed", () => {
         const prev = buildSignature({ series: [{ id: "a" }, {}] });
         const next = planUpdate(prev, {});
@@ -626,7 +664,7 @@ describe("smart-update", () => {
         const { applied, plan } = applyPlannedUpdate(base, update);
 
         expect(applied.title?.[0]?.subtext).not.toBe("Daily sales");
-        expect(plan).toEqual({ notMerge: true });
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
       });
 
       it("removes nested properties from retained component IDs", () => {
@@ -650,7 +688,7 @@ describe("smart-update", () => {
           series: [{ id: "named" }, {}, { label: {} }],
         });
 
-        expect(next.plan).toEqual({ notMerge: true });
+        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
       });
 
       it("matches anonymous component shapes by name before index", () => {
@@ -701,7 +739,7 @@ describe("smart-update", () => {
           (applied.series ?? []).map((series) => [series.name, series]),
         );
 
-        expect(plan).toEqual({ notMerge: true });
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
         expect(seriesByName.latte.label?.color).toBeUndefined();
         expect(seriesByName.mocha.label?.color).toBe("brown");
       });

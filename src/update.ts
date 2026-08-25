@@ -219,7 +219,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
       !prevIsCollection ||
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
-      hasItemShapeRemoval(prev.shapes, next.shapes)
+      findItemShapeRemoval(prev.shapes, next.shapes) !== undefined
     );
   }
 
@@ -232,7 +232,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
   return false;
 }
 
-function hasItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): boolean {
+function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape | undefined {
   let nextById: Map<string, Shape> | undefined;
   let nextByName: Map<string, ItemShape[]> | undefined;
   let namedMatches: Set<ItemShape> | undefined;
@@ -249,7 +249,7 @@ function hasItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): boolean {
       }
       const nextShape = nextById.get(item.id);
       if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
-        return true;
+        return item;
       }
       continue;
     }
@@ -276,7 +276,7 @@ function hasItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): boolean {
         matches.add(item);
         matches.add(nextItem);
         if (hasShapeRemoval(item.shape, nextItem.shape)) {
-          return true;
+          return item;
         }
       }
     }
@@ -292,10 +292,10 @@ function hasItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): boolean {
     }
     const nextShape = next[nextIndex++]?.shape;
     if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
-      return true;
+      return item;
     }
   }
-  return false;
+  return undefined;
 }
 
 /** Returns replacements, undefined for a plain merge, or null when a rebuild is required. */
@@ -338,11 +338,15 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
 
     const nextCollection = next.collections[key];
-    if (nextCollection && hasItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)) {
+    const shapeRemoval = nextCollection
+      ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
+      : undefined;
+    // replaceMerge recreates anonymous items, but explicit ids are merged into existing models.
+    if (shapeRemoval?.id !== undefined) {
       return null;
     }
 
-    if (!hasCollectionRemoval(prevCollection, nextCollection)) {
+    if (!shapeRemoval && !hasCollectionRemoval(prevCollection, nextCollection)) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {

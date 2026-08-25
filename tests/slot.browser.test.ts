@@ -498,6 +498,29 @@ describe("useSlotOption", () => {
     expect(handle.patchUpdateOptions()).toBeUndefined();
   });
 
+  it("preserves an existing rebuild option when a callback slot is removed", async () => {
+    const visible = ref(true);
+    const { exposed } = renderSlotComponent(() => {
+      const slots: SlotDictionary = {};
+      if (visible.value) {
+        slots.tooltip = () => h("span", "tooltip");
+      }
+      return slots;
+    });
+
+    await nextTick();
+    const handle = getExposed(exposed);
+    handle.patchOption({});
+    handle.patchUpdateOptions();
+
+    visible.value = false;
+    await nextTick();
+    handle.patchOption({});
+    const updateOptions = { notMerge: true };
+
+    expect(handle.patchUpdateOptions(updateOptions)).toBe(updateOptions);
+  });
+
   it("warns and skips invalid slot names", async () => {
     const changeSpy = vi.fn();
     await withConsoleWarnAsync(async (warnSpy) => {
