@@ -37,6 +37,8 @@ export function useAutoresize(
       }
 
       const { offsetWidth, offsetHeight } = container;
+      let observedWidth = offsetWidth;
+      let observedHeight = offsetHeight;
       if (chart !== sizedChart) {
         sizedChart = chart;
         sizedWidth = offsetWidth;
@@ -67,33 +69,34 @@ export function useAutoresize(
       };
 
       const resize = () => {
-        const { offsetWidth, offsetHeight } = container;
         // Observer notifications can repeat, and throttled work can outlive its triggering size.
-        if (isZeroSize(offsetWidth, offsetHeight)) {
+        if (isZeroSize(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
         }
-        if (isSynchronized(offsetWidth, offsetHeight)) {
+        if (isSynchronized(observedWidth, observedHeight)) {
           return;
         }
         chart.resize();
-        sizedWidth = offsetWidth;
-        sizedHeight = offsetHeight;
+        sizedWidth = observedWidth;
+        sizedHeight = observedHeight;
         wasZeroSized = false;
         getOptions()?.onResize?.();
       };
       const throttledResize = wait ? throttle(resize, wait) : undefined;
       const runResize = throttledResize ?? resize;
 
-      const observeResize = () => {
-        const { offsetWidth, offsetHeight } = container;
-        if (isZeroSize(offsetWidth, offsetHeight)) {
+      const observeResize = (entries?: ResizeObserverEntry[]) => {
+        const rect = entries?.find(({ target }) => target === container)?.contentRect;
+        observedWidth = rect?.width ?? container.offsetWidth;
+        observedHeight = rect?.height ?? container.offsetHeight;
+        if (isZeroSize(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
         }
         if (wasZeroSized) {
           resize();
-        } else if (!isSynchronized(offsetWidth, offsetHeight)) {
+        } else if (!isSynchronized(observedWidth, observedHeight)) {
           runResize();
         }
       };

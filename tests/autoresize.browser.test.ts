@@ -433,6 +433,43 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("resizes when the content box changes without changing the outer size", async () => {
+    const container = createSizedContainer(120, 80);
+    container.style.boxSizing = "border-box";
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+    let width = 120;
+    const instance = {
+      resize: resize.mockImplementation(() => {
+        const style = getComputedStyle(container);
+        width =
+          container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      }),
+      getWidth: () => width,
+      getHeight: () => 80,
+      isDisposed: () => false,
+    } as unknown as EChartsType;
+    const scope = effectScope();
+
+    scope.run(() => useAutoresize(chart, autoresize, root));
+    chart.value = instance;
+    root.value = container;
+    await nextTick();
+    await flushAnimationFrame();
+    resize.mockClear();
+
+    container.style.padding = "0 10px";
+    await flushAnimationFrame();
+
+    expect(resize).toHaveBeenCalledOnce();
+    expect(instance.getWidth()).toBe(100);
+    expect(container.offsetWidth).toBe(120);
+
+    scope.stop();
+  });
+
   it("deduplicates unchanged dimensions except after zero-sized recovery", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
