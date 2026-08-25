@@ -9,18 +9,24 @@ import type {
 } from "echarts";
 
 import {
+  GArc,
   GCircle,
   GEllipse,
   GGroup,
   GImage,
   GPolyline,
   GRect,
+  GRing,
+  GSector,
   GText,
 } from "../../src/graphic/components";
 
 type GroupProps = InstanceType<typeof GGroup>["$props"];
 type ImageProps = InstanceType<typeof GImage>["$props"];
 type CircleProps = InstanceType<typeof GCircle>["$props"];
+type SectorProps = InstanceType<typeof GSector>["$props"];
+type RingProps = InstanceType<typeof GRing>["$props"];
+type ArcProps = InstanceType<typeof GArc>["$props"];
 type EllipseProps = InstanceType<typeof GEllipse>["$props"];
 type PolylineProps = InstanceType<typeof GPolyline>["$props"];
 type RectProps = InstanceType<typeof GRect>["$props"];
@@ -101,6 +107,9 @@ type _otherShapesRejectDimensions = Assert<
     never
   >
 >;
+type _rectRadiusType = Assert<IsEqual<RectProps["r"], number | number[] | undefined>>;
+type ScalarRadiusProps = CircleProps | SectorProps | RingProps | ArcProps;
+type _scalarRadiusType = Assert<IsEqual<ScalarRadiusProps["r"], number | undefined>>;
 type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
 type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
 type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined>>;

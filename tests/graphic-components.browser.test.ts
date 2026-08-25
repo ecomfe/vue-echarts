@@ -5,7 +5,7 @@ import type { LinearGradientObject, PatternObject } from "echarts";
 import { render } from "./helpers/testing";
 import { withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GArc, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
+import { GArc, GCircle, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
@@ -222,6 +222,23 @@ describe("graphic components", () => {
 
     const props = getLastRegisterPayload(collector).props;
     expect(props).toMatchObject(paint);
+  });
+
+  it("validates array radii only for rectangles", async () => {
+    const collector = createCollectorMock();
+    const Root = withGraphicProvider(collector, () => [
+      h(GRect, { id: "rect", r: [2, 4] }),
+      h(GCircle, { id: "circle", r: [2, 4] as unknown as number }),
+    ]);
+
+    withConsoleWarn((warnSpy) => {
+      render(Root);
+      const radiusWarnings = warnSpy.mock.calls.filter((call: unknown[]) =>
+        String(call[0]).includes('type check failed for prop "r"'),
+      );
+      expect(radiusWarnings).toHaveLength(1);
+    });
+    await nextTick();
   });
 
   it("accepts native text styles", async () => {
