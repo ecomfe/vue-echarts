@@ -103,6 +103,8 @@ type OtherEventName =
   | "brush"
   | "brushend"
   | "brushselected"
+  | `${"show" | "hide"}tip`
+  | "updateaxispointer"
   | "globalcursortaken";
 
 type OtherEventAlias =
@@ -116,6 +118,8 @@ type OtherEventAlias =
   | `geo${Capitalize<"selectChanged" | "selected" | "unselected">}`
   | "axisAreaSelected"
   | `brush${Capitalize<"end" | "selected">}`
+  | `${"show" | "hide"}Tip`
+  | "updateAxisPointer"
   | "globalCursorTaken";
 
 type MouseEmits = {

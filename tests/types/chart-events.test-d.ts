@@ -38,6 +38,8 @@ type CamelCaseHandlerName =
   | "onAxisBreakChanged"
   | "onAxisAreaSelected"
   | `onBrush${Capitalize<"end" | "selected">}`
+  | `on${Capitalize<"show" | "hide">}Tip`
+  | "onUpdateAxisPointer"
   | "onGlobalCursorTaken"
   | "onZr:dblClick"
   | "onZr:contextMenu"
@@ -47,6 +49,7 @@ type CamelCaseHandlerName =
 type OnceHandlerName =
   | "onClickOnce"
   | "onDataZoomOnce"
+  | "onShowTipOnce"
   | "onAxisBreakChangedOnce"
   | "onZr:mouseMoveOnce";
 type NativeHandler = NonNullable<
@@ -75,5 +78,11 @@ type _nativeAcceptsCustomHandler = Assert<
   IsAssignable<(params: CustomEvent) => void, NativeHandler>
 >;
 type _lowercaseEventsRemain = Assert<
-  "onAxisbreakchanged" | "onBrushend" | "onZr:mousemove" extends keyof Props ? true : false
+    | "onAxisbreakchanged"
+    | "onBrushend"
+    | "onShowtip"
+    | "onUpdateaxispointer"
+    | "onZr:mousemove" extends keyof Props
+    ? true
+    : false
 >;

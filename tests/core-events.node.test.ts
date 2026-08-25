@@ -110,6 +110,8 @@ describe("core events", () => {
       onMouseMove: vi.fn(),
       onDataZoom: vi.fn(),
       onBrushEnd: vi.fn(),
+      onShowTip: vi.fn(),
+      onUpdateAxisPointer: vi.fn(),
       "onZr:mouseMove": vi.fn(),
     });
     const target = createChartStub();
@@ -127,6 +129,8 @@ describe("core events", () => {
       "mousemove",
       "datazoom",
       "brushend",
+      "showtip",
+      "updateaxispointer",
     ]);
     expect(target.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
 
