@@ -78,6 +78,10 @@ export function useAutoresize(
           return;
         }
         chart.resize();
+        if (chart.isDisposed()) {
+          stop();
+          return;
+        }
         sizedWidth = observedWidth;
         sizedHeight = observedHeight;
         wasZeroSized = false;

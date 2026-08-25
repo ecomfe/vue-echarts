@@ -157,6 +157,37 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("stops immediately when resize disposes the chart", async () => {
+    const container = createSizedContainer(120, 80);
+    const resize = vi.fn();
+    const onResize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>({ throttle: 0, onResize });
+    const root = ref<HTMLElement | undefined>();
+    const instance = createChart(resize, () => root.value, container);
+    resize.mockImplementation(() => instance.dispose());
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = instance;
+    root.value = container;
+    await nextTick();
+
+    container.style.width = "200px";
+    await flushAnimationFrame();
+
+    expect(resize).toHaveBeenCalledOnce();
+    expect(instance.isDisposed()).toBe(true);
+    expect(disconnectSpy).toHaveBeenCalledOnce();
+    expect(onResize).not.toHaveBeenCalled();
+
+    scope.stop();
+  });
+
   it("skips resize when autoresize is disabled or container is empty", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
