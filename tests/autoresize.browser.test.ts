@@ -16,6 +16,7 @@ function createChart(
 ): EChartsType {
   let width = initialRoot.offsetWidth;
   let height = initialRoot.offsetHeight;
+  let disposed = false;
   resize.mockImplementation((options?: Parameters<EChartsType["resize"]>[0]) => {
     const element = root();
     if (element) {
@@ -27,6 +28,8 @@ function createChart(
     resize,
     getWidth: () => width,
     getHeight: () => height,
+    dispose: () => (disposed = true),
+    isDisposed: () => disposed,
   } as unknown as EChartsType;
 }
 
@@ -91,6 +94,35 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
 
     expect(resize).toHaveBeenCalledOnce();
+
+    scope.stop();
+  });
+
+  it("ignores observer work after the chart is externally disposed", async () => {
+    const container = createSizedContainer(120, 80);
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(true);
+    const root = ref<HTMLElement | undefined>();
+    const instance = createChart(resize, () => root.value, container);
+    const getWidth = vi.spyOn(instance, "getWidth");
+
+    const scope = effectScope();
+    scope.run(() => {
+      useAutoresize(chart, autoresize, root);
+    });
+
+    chart.value = instance;
+    root.value = container;
+    await nextTick();
+
+    instance.dispose();
+    getWidth.mockClear();
+    container.style.width = "200px";
+    await flushAnimationFrame();
+
+    expect(getWidth).not.toHaveBeenCalled();
+    expect(resize).not.toHaveBeenCalled();
 
     scope.stop();
   });

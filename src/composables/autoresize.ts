@@ -49,6 +49,9 @@ export function useAutoresize(
       }
 
       const isSynchronized = (width: number, height: number): boolean => {
+        if (chart.isDisposed()) {
+          return true;
+        }
         if (wasZeroSized) {
           return false;
         }
