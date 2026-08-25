@@ -57,14 +57,15 @@ export const DISPLAYABLE_PROP_KEYS = ["z", "z2", "zlevel", "cursor", "invisible"
 
 export const PATH_PROP_KEYS = ["autoBatch"] as const;
 
-export const COMMON_STYLE_KEYS = [
+export const TEXT_COMMON_STYLE_KEYS = [
   "shadowBlur",
   "shadowOffsetX",
   "shadowOffsetY",
   "shadowColor",
   "opacity",
-  "blend",
 ] as const;
+
+export const COMMON_STYLE_KEYS = [...TEXT_COMMON_STYLE_KEYS, "blend"] as const;
 
 const PAINT_STYLE_KEYS = [
   "fill",
@@ -149,6 +150,7 @@ export type GraphicGroupPropKey = (typeof GROUP_PROP_KEYS)[number];
 export type GraphicDisplayablePropKey = (typeof DISPLAYABLE_PROP_KEYS)[number];
 export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
 export type GraphicTextAttachmentPropKey = (typeof TEXT_ATTACHMENT_PROP_KEYS)[number];
+export type GraphicTextCommonStyleKey = (typeof TEXT_COMMON_STYLE_KEYS)[number];
 export type GraphicCommonStyleKey = (typeof COMMON_STYLE_KEYS)[number];
 export type GraphicPathStyleKey = (typeof PATH_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];

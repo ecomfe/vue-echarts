@@ -10,6 +10,7 @@ import {
   PATH_STYLE_KEYS,
   STYLE_KEYS_BY_TYPE,
   TEXT_ATTACHMENT_PROP_KEYS,
+  TEXT_COMMON_STYLE_KEYS,
 } from "./props-common";
 import type { GraphicTextAttachmentPropKey } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
@@ -127,6 +128,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const styleKeys: readonly string[] | undefined = shapeKeys
     ? PATH_STYLE_KEYS
     : STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE];
+  const commonStyleKeys = type === "text" ? TEXT_COMMON_STYLE_KEYS : COMMON_STYLE_KEYS;
   const out: Record<string, unknown> = {
     type,
     id,
@@ -171,7 +173,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const style = buildNestedProps(
     props.style,
     props,
-    COMMON_STYLE_KEYS,
+    commonStyleKeys,
     props.styleTransition,
     styleKeys,
   );

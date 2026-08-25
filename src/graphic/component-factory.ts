@@ -23,6 +23,7 @@ import type {
   GraphicPathPropKey,
   GraphicPathStyleKey,
   GraphicTextAttachmentPropKey,
+  GraphicTextCommonStyleKey,
   GraphicTextStyleKey,
 } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE, shapeProps } from "./props-shape";
@@ -62,7 +63,7 @@ type StylePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   :
       | NestedStylePropKey
-      | GraphicCommonStyleKey
+      | (T extends "text" ? GraphicTextCommonStyleKey : GraphicCommonStyleKey)
       | (T extends keyof typeof SHAPE_KEYS_BY_TYPE
           ? GraphicPathStyleKey
           : T extends "text"

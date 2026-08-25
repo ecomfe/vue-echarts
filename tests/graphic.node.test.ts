@@ -221,7 +221,12 @@ describe("graphic", () => {
     const root = getRootGraphicElement(
       buildOption(
         [
-          { ...common, id: "polyline", type: "polyline", props: { percent: 0.5 } },
+          {
+            ...common,
+            id: "polyline",
+            type: "polyline",
+            props: { percent: 0.5, blend: "multiply" },
+          },
           { ...common, id: "arc", type: "arc", props: { r0: 5 } },
           { ...common, id: "circle", type: "circle", props: { width: 10, height: 20 } },
           {
@@ -243,6 +248,7 @@ describe("graphic", () => {
             type: "text",
             props: {
               shape: { x: 1 },
+              blend: "screen",
               textContent: { type: "text", style: { text: "nested" } },
               textConfig: { position: "inside" },
             },
@@ -254,7 +260,12 @@ describe("graphic", () => {
     );
 
     expect(root.children).toEqual([
-      { type: "polyline", id: "polyline", shape: { percent: 0.5 } },
+      {
+        type: "polyline",
+        id: "polyline",
+        shape: { percent: 0.5 },
+        style: { blend: "multiply" },
+      },
       { type: "arc", id: "arc" },
       { type: "circle", id: "circle" },
       { type: "group", id: "group", ignore: true },

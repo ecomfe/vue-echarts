@@ -67,6 +67,7 @@ type _textRejectsForeignProps = Assert<
       | "decal"
       | "strokePercent"
       | "lineCap"
+      | "blend"
       | "textContent"
       | "textConfig",
       keyof TextProps
@@ -168,6 +169,7 @@ type _lineJoinType = Assert<IsEqual<RectProps["lineJoin"], CanvasLineJoin | unde
 type _strokeNoScaleAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeNoScale"]>>;
 type _fillOpacityType = Assert<IsAssignable<RectProps["fillOpacity"], number | undefined>>;
 type _strokeOpacityType = Assert<IsAssignable<RectProps["strokeOpacity"], number | undefined>>;
+type _blendType = Assert<IsEqual<RectProps["blend"], string | undefined>>;
 type _sxType = Assert<IsAssignable<ImageProps["sx"], number | undefined>>;
 type _syType = Assert<IsAssignable<ImageProps["sy"], number | undefined>>;
 type _sWidthType = Assert<IsAssignable<ImageProps["sWidth"], number | undefined>>;
