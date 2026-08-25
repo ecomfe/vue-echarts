@@ -1313,6 +1313,24 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
+  it("starts the next smart update from an empty baseline after clear", async () => {
+    const option = ref<Option>({
+      color: ["red", "blue"],
+      title: { text: "Initial" },
+    });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: option.value }), exposed);
+    await nextTick();
+
+    getExposed(exposed).clear();
+    chartStub.setOption.mockClear();
+    option.value = { title: { text: "Updated" } };
+    await nextTick();
+
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
+  });
+
   it.each([false, true])(
     "coalesces option and theme changes before autoresize initialization (manual: %s)",
     async (manualUpdate) => {

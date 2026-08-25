@@ -458,6 +458,7 @@ export default /* @__PURE__ */ defineComponent({
       const instance = chart.value!;
       clear();
       deferredCharts?.delete(instance);
+      lastSignature = undefined;
       optionReplayRequired = false;
     };
 
