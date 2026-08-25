@@ -682,17 +682,23 @@ describe("smart-update", () => {
         expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
       });
 
-      it("removes nested properties from retained component IDs", () => {
+      it("removes nested properties from identified and named items together", () => {
         const base: EChartsOption = {
-          series: [{ id: "sales", type: "pie", data: [1], label: { show: true, color: "red" } }],
+          series: [
+            { name: "named", type: "pie", data: [1], label: { color: "red" } },
+            { id: "identified", type: "pie", data: [2], label: { color: "blue" } },
+          ],
         };
         const update: EChartsOption = {
-          series: [{ id: "sales", type: "pie", data: [1], label: { show: true } }],
+          series: [
+            { name: "named", type: "pie", data: [1], label: {} },
+            { id: "identified", type: "pie", data: [2], label: {} },
+          ],
         };
         const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(applied.series?.[0]?.label?.color).not.toBe("red");
         expect(plan).toEqual({ notMerge: true });
+        expect(applied.series?.map(({ label }) => label?.color)).toEqual([undefined, undefined]);
       });
 
       it("aligns anonymous item shapes around named items", () => {

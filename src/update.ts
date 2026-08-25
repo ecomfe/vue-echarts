@@ -236,6 +236,7 @@ function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape |
   let nextById: Map<string, Shape> | undefined;
   let nextByName: Map<string, ItemShape[]> | undefined;
   let namedMatches: Set<ItemShape> | undefined;
+  let anonymousRemoval: ItemShape | undefined;
 
   for (const item of prev) {
     if (item.id !== undefined) {
@@ -276,7 +277,7 @@ function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape |
         matches.add(item);
         matches.add(nextItem);
         if (hasShapeRemoval(item.shape, nextItem.shape)) {
-          return item;
+          anonymousRemoval ??= item;
         }
       }
     }
@@ -295,7 +296,7 @@ function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape |
       return item;
     }
   }
-  return undefined;
+  return anonymousRemoval;
 }
 
 /** Returns replacements, undefined for a plain merge, or null when a rebuild is required. */
