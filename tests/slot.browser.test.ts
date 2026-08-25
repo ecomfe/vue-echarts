@@ -404,6 +404,28 @@ describe("useSlotOption", () => {
     expect(patchedAfterRemoval).toHaveProperty("next.tooltip.formatter", expect.any(Function));
   });
 
+  it("ignores slot declaration order changes", async () => {
+    const changeSpy = vi.fn();
+    const reversed = ref(false);
+    const tooltip = () => [h("span", "root")];
+    const nested = () => [h("span", "series")];
+    renderSlotComponent(
+      () =>
+        reversed.value
+          ? { "tooltip-series-0": nested, tooltip }
+          : { tooltip, "tooltip-series-0": nested },
+      changeSpy,
+    );
+
+    await nextTick();
+    changeSpy.mockClear();
+
+    reversed.value = true;
+    await nextTick();
+
+    expect(changeSpy).not.toHaveBeenCalled();
+  });
+
   it("cleans formatter containers when dynamic tooltip/dataView slot paths are removed", async () => {
     const changeSpy = vi.fn();
     const showNested = ref(true);
