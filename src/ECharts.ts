@@ -124,7 +124,7 @@ export default /* @__PURE__ */ defineComponent({
     let optionApplied = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
-    let terminallyDisposed = false;
+    const terminallyDisposed = shallowRef(false);
     let deferredCharts: WeakSet<EChartsType> | undefined;
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
@@ -141,7 +141,7 @@ export default /* @__PURE__ */ defineComponent({
       return (
         instance !== undefined &&
         chart.value === instance &&
-        !terminallyDisposed &&
+        !terminallyDisposed.value &&
         !instance.isDisposed()
       );
     }
@@ -379,7 +379,7 @@ export default /* @__PURE__ */ defineComponent({
     );
 
     const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
-      if (!mounted || terminallyDisposed) {
+      if (!mounted || terminallyDisposed.value) {
         return;
       }
       cleanup();
@@ -439,10 +439,10 @@ export default /* @__PURE__ */ defineComponent({
     });
 
     function dispose(): void {
-      if (terminallyDisposed) {
+      if (terminallyDisposed.value) {
         return;
       }
-      terminallyDisposed = true;
+      terminallyDisposed.value = true;
       stopThemeWatch();
       stopInitOptionsWatch();
       stopOptionWatch();
@@ -452,7 +452,7 @@ export default /* @__PURE__ */ defineComponent({
       cleanup();
     }
 
-    const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed);
+    const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed.value);
     const clear = publicApi.clear;
     publicApi.clear = () => {
       const instance = chart.value!;
@@ -469,16 +469,16 @@ export default /* @__PURE__ */ defineComponent({
     onMounted(() => {
       register(root.value);
       mounted = true;
-      if (!terminallyDisposed) {
+      if (!terminallyDisposed.value) {
         init();
       }
     });
 
     onBeforeUnmount(() => {
-      if (terminallyDisposed) {
+      if (terminallyDisposed.value) {
         return;
       }
-      terminallyDisposed = true;
+      terminallyDisposed.value = true;
       const element = root.value;
       if (register(element) && element?.isConnected && element.__dispose === null) {
         element.__dispose = cleanup;
@@ -513,7 +513,7 @@ export default /* @__PURE__ */ defineComponent({
         children.push(teleported);
       }
 
-      if (renderGraphic) {
+      if (renderGraphic && !terminallyDisposed.value) {
         const graphic = renderGraphic();
         if (graphic) {
           children.push(graphic);

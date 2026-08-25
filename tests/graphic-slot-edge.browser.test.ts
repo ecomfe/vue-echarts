@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createSSRApp, defineComponent, h, nextTick, reactive, ref } from "vue";
+import { createSSRApp, defineComponent, h, nextTick, onUnmounted, reactive, ref } from "vue";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
@@ -389,6 +389,34 @@ describe("graphic slot edge and integration behavior", () => {
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(chartStub)).toEqual(["graphic-only"]);
+  });
+
+  it("unmounts the graphic slot after terminal disposal", async () => {
+    registerExtension();
+
+    let dispose: (() => void) | undefined;
+    const onGraphicUnmounted = vi.fn();
+    const Graphic = defineComponent(() => {
+      onUnmounted(onGraphicUnmounted);
+      return () => h(GRect, { id: "disposed-graphic", width: 10, height: 10 });
+    });
+    const Root = defineComponent(
+      () => () =>
+        h(
+          ECharts,
+          { ref: (value) => (dispose = (value as { dispose: () => void } | null)?.dispose) },
+          { graphic: () => h(Graphic) },
+        ),
+    );
+
+    render(Root);
+    await nextTick();
+    expect(onGraphicUnmounted).not.toHaveBeenCalled();
+
+    dispose?.();
+    await nextTick();
+
+    expect(onGraphicUnmounted).toHaveBeenCalledOnce();
   });
 
   it("applies dynamic empty #graphic slot presence changes", async () => {
