@@ -298,14 +298,13 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       continue;
     }
 
-    if (next.arrays[key]) {
-      if (!ComponentModel.hasClass(key)) {
-        return null;
-      }
-      (replaceMerge ??= []).push(key);
-    } else if (!next.leaves.includes(key)) {
+    if (next.leaves.includes(key)) {
+      continue;
+    }
+    if (!ComponentModel.hasClass(key)) {
       return null;
     }
+    (replaceMerge ??= []).push(key);
   }
 
   let nextLeafIndex = 0;

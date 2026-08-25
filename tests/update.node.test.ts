@@ -14,6 +14,7 @@ const linearGradient = {
 type AppliedOption = {
   backgroundColor?: unknown;
   dataset?: unknown;
+  legend?: Array<{ selected?: Record<string, boolean> }>;
   title?: Array<{ subtext?: string }>;
   series?: Array<{ name?: string; datasetId?: string; label?: { color?: string } }>;
 };
@@ -410,12 +411,11 @@ describe("smart-update", () => {
         expect(plan.replaceMerge).toBeUndefined();
       });
 
-      it("forces rebuild when an object option is removed", () => {
+      it("replaces a removed object component", () => {
         const prev = buildSignature({ legend: { show: true } });
         const next = planUpdate(prev, {});
 
-        expect(next.plan.notMerge).toBe(true);
-        expect(next.plan.replaceMerge).toBeUndefined();
+        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["legend"] });
       });
 
       it.each([null, false])("removes top-level components replaced with %s", (value) => {
@@ -423,7 +423,7 @@ describe("smart-update", () => {
         const update = { title: value } as unknown as EChartsOption;
         const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(plan).toEqual({ notMerge: true });
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
         expect(applied.title?.[0]).toBeUndefined();
       });
 
@@ -469,11 +469,45 @@ describe("smart-update", () => {
         try {
           chart.setOption(title);
           chart.setOption(empty, planUpdate(buildSignature(title), empty).plan);
-          expect(chart.getOption().title).toBeUndefined();
+          expect(chart.getOption().title).toEqual([]);
 
           chart.setOption(series, { notMerge: true });
           chart.setOption(empty, planUpdate(buildSignature(series), empty).plan);
           expect(chart.getOption().series).toEqual([]);
+        } finally {
+          chart.dispose();
+        }
+      });
+
+      it("preserves unrelated interaction state when removing an object component", () => {
+        const base: EChartsOption = {
+          title: { text: "before" },
+          legend: { data: ["A", "B"] },
+          series: [
+            { name: "A", type: "pie", data: [1] },
+            { name: "B", type: "pie", data: [2] },
+          ],
+        };
+        const update: EChartsOption = {
+          legend: { data: ["A", "B"] },
+          series: [
+            { name: "A", type: "pie", data: [1] },
+            { name: "B", type: "pie", data: [2] },
+          ],
+        };
+        const chart = createChart();
+
+        try {
+          chart.setOption(base);
+          chart.dispatchAction({ type: "legendUnSelect", name: "B" });
+
+          const plan = planUpdate(buildSignature(base), update).plan;
+          chart.setOption(update, plan);
+          const applied = chart.getOption() as AppliedOption;
+
+          expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
+          expect(applied.title).toEqual([]);
+          expect(applied.legend?.[0]?.selected?.B).toBe(false);
         } finally {
           chart.dispose();
         }
@@ -682,7 +716,7 @@ describe("smart-update", () => {
     });
 
     describe("real data scenarios", () => {
-      it("prioritizes rebuild when object removal accompanies series shrink", () => {
+      it("combines object removal with a series replacement", () => {
         const base: EChartsOption = {
           legend: { show: true },
           dataset: [
@@ -715,8 +749,10 @@ describe("smart-update", () => {
 
         const result = planUpdate(buildSignature(base), update);
 
-        expect(result.plan.notMerge).toBe(true);
-        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.plan).toEqual({
+          notMerge: false,
+          replaceMerge: ["legend", "series"],
+        });
       });
 
       it("clears dataset when removed entirely", () => {
@@ -775,11 +811,13 @@ describe("smart-update", () => {
 
         const result = planUpdate(buildSignature(base), update);
 
-        expect(result.plan.notMerge).toBe(true);
-        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.plan).toEqual({
+          notMerge: false,
+          replaceMerge: ["dataset", "legend", "series"],
+        });
       });
 
-      it("forces rebuild when tooltip is removed", () => {
+      it("replaces a removed tooltip", () => {
         const base: EChartsOption = {
           tooltip: { trigger: "axis" },
           xAxis: [{ type: "category", data: ["Jan", "Feb"] }],
@@ -793,8 +831,7 @@ describe("smart-update", () => {
 
         const result = planUpdate(buildSignature(base), update);
 
-        expect(result.plan.notMerge).toBe(true);
-        expect(result.plan.replaceMerge).toBeUndefined();
+        expect(result.plan).toEqual({ notMerge: false, replaceMerge: ["tooltip"] });
       });
 
       it("tracks series ID removal while keeping modifications", () => {

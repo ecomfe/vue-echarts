@@ -1636,11 +1636,11 @@ describe("ECharts component", () => {
   });
 
   it.each([
-    ["added", false, true, { notMerge: false }],
-    ["removed", true, false, { notMerge: true }],
+    ["added", false, true, false],
+    ["removed", true, false, true],
   ] as const)(
     "coalesces option and callback slot changes when a slot is %s in the same tick",
-    async (_, initiallyVisible, nextVisible, expectedUpdateOptions) => {
+    async (_, initiallyVisible, nextVisible, expectedNotMerge) => {
       const option = ref({ title: { text: "first" } });
       const showExtra = ref(initiallyVisible);
 
@@ -1672,7 +1672,7 @@ describe("ECharts component", () => {
       expect(chartStub.setOption).toHaveBeenCalledOnce();
       const [patched, updateOptions] = getLastSetOptionCall(chartStub);
       expect(patched).toMatchObject({ title: { text: "second" } });
-      expect(updateOptions).toEqual(expectedUpdateOptions);
+      expect(updateOptions?.notMerge).toBe(expectedNotMerge);
     },
   );
 
