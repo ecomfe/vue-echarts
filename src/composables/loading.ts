@@ -31,7 +31,8 @@ export function useLoading(
         return;
       }
 
-      instance.showLoading(options);
+      // Loading renderers may fill defaults in place; keep the dedupe snapshot unchanged.
+      instance.showLoading({ ...options });
       (shownOptions ??= new WeakMap()).set(instance, options);
       return;
     }

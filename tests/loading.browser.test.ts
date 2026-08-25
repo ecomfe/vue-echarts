@@ -96,8 +96,10 @@ describe("useLoading", () => {
     expect(hideLoading).not.toHaveBeenCalled();
   });
 
-  it("replays showLoading only when effective options change", async () => {
-    const showLoading = vi.fn();
+  it("replays showLoading only for effective changes despite renderer mutations", async () => {
+    const showLoading = vi.fn((options: LoadingOptions) => {
+      options.maskColor ??= "rgba(255,255,255,0.8)";
+    });
     const hideLoading = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
@@ -112,6 +114,7 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#fff",
+      maskColor: "rgba(255,255,255,0.8)",
       text: "Loading",
     });
     expect(hideLoading).not.toHaveBeenCalled();
@@ -128,6 +131,7 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#000",
+      maskColor: "rgba(255,255,255,0.8)",
       text: "Loading",
     });
     expect(hideLoading).not.toHaveBeenCalled();
@@ -139,6 +143,7 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#0f0",
+      maskColor: "rgba(255,255,255,0.8)",
       text: "Updated",
     });
     expect(hideLoading).not.toHaveBeenCalled();
