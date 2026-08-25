@@ -26,8 +26,10 @@ export function usePublicAPI(
   dispose: () => void,
   isPubliclyDisposed: () => boolean,
 ): PublicMethods {
+  const isDisposed = () => isPubliclyDisposed() || (chart.value?.isDisposed() ?? false);
+
   const getInstance = (): EChartsType => {
-    if (isPubliclyDisposed()) {
+    if (isDisposed()) {
       throw new Error("ECharts has been disposed.");
     }
     const instance = chart.value;
@@ -45,6 +47,6 @@ export function usePublicAPI(
     };
   }
   api.dispose = dispose;
-  api.isDisposed = () => isPubliclyDisposed() || (chart.value?.isDisposed() ?? false);
+  api.isDisposed = isDisposed;
   return api as PublicMethods;
 }
