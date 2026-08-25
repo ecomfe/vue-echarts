@@ -217,6 +217,7 @@ describe("graphic", () => {
         [
           { ...common, id: "polyline", type: "polyline", props: { percent: 0.5 } },
           { ...common, id: "arc", type: "arc", props: { r0: 5 } },
+          { ...common, id: "circle", type: "circle", props: { width: 10, height: 20 } },
         ],
         "root",
       ),
@@ -225,6 +226,7 @@ describe("graphic", () => {
     expect(root.children).toEqual([
       { type: "polyline", id: "polyline", shape: { percent: 0.5 } },
       { type: "arc", id: "arc" },
+      { type: "circle", id: "circle" },
     ]);
   });
 
@@ -333,6 +335,8 @@ describe("graphic", () => {
         parentId: null,
         props: {
           info: "root",
+          width: 80,
+          height: 40,
         },
         handlers: {},
         order: 0,
@@ -446,6 +450,7 @@ describe("graphic", () => {
     const text = root.children.find((item: any) => item.id === "txt");
 
     expect(group.info).toBe("root");
+    expect(group).toMatchObject({ width: 80, height: 40 });
     expect(image.style).toMatchObject({
       image: "https://example.com/a.png",
       ...crop,

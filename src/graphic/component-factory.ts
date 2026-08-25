@@ -17,6 +17,7 @@ import { commonProps } from "./props-common";
 import type {
   GraphicBaseStyleKey,
   GraphicCommonPropKey,
+  GraphicGroupPropKey,
   GraphicImageStyleKey,
   GraphicPathPropKey,
   GraphicTextStyleKey,
@@ -46,9 +47,13 @@ type StylePropKey<T extends GraphicComponentType> = T extends "group"
 type PathPropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
   ? GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
   : never;
+type GroupPropKey<T extends GraphicComponentType> = T extends "group" ? GraphicGroupPropKey : never;
 type ComponentProps<T extends GraphicComponentType> = Pick<
   typeof componentProps,
-  Extract<SharedPropKey | PathPropKey<T> | StylePropKey<T>, keyof typeof componentProps>
+  Extract<
+    SharedPropKey | GroupPropKey<T> | PathPropKey<T> | StylePropKey<T>,
+    keyof typeof componentProps
+  >
 >;
 
 /* @__NO_SIDE_EFFECTS__ */

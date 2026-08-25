@@ -30,8 +30,6 @@ export const COMMON_PROP_KEYS = [
   "right",
   "top",
   "bottom",
-  "width",
-  "height",
   "bounding",
   "z",
   "z2",
@@ -56,6 +54,8 @@ export const COMMON_PROP_KEYS = [
   "leaveAnimation",
   "keyframeAnimation",
 ] as const;
+
+export const GROUP_PROP_KEYS = ["width", "height"] as const;
 
 export const PATH_PROP_KEYS = ["autoBatch"] as const;
 
@@ -139,6 +139,7 @@ export const STYLE_KEYS_BY_TYPE = {
 } as const;
 
 export type GraphicCommonPropKey = (typeof COMMON_PROP_KEYS)[number];
+export type GraphicGroupPropKey = (typeof GROUP_PROP_KEYS)[number];
 export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
 export type GraphicBaseStyleKey = (typeof BASE_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];
@@ -174,8 +175,6 @@ const graphicCommonOnlyProps = {
   right: [String, Number] as PropType<string | number>,
   top: [String, Number] as PropType<string | number>,
   bottom: [String, Number] as PropType<string | number>,
-  width: [String, Number] as PropType<string | number>,
-  height: [String, Number] as PropType<string | number>,
   bounding: String as PropType<"raw" | "all">,
   z: Number,
   z2: Number,
@@ -202,6 +201,11 @@ const graphicCommonOnlyProps = {
   leaveAnimation: Object as PropType<object>,
   keyframeAnimation: [Object, Array] as PropType<object>,
 } as const satisfies Record<GraphicCommonPropKey, unknown>;
+
+const groupProps = {
+  width: Number,
+  height: Number,
+} as const satisfies Record<GraphicGroupPropKey, unknown>;
 
 const pathProps = {
   autoBatch: withUndefinedDefault(Boolean),
@@ -279,6 +283,7 @@ const imageStyleProps = {
 
 export const commonProps = {
   ...graphicCommonOnlyProps,
+  ...groupProps,
   ...pathProps,
   shape: Object as PropType<Record<string, unknown>>,
   style: Object as PropType<object>,

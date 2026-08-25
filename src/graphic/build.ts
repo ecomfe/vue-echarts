@@ -4,6 +4,7 @@ import type { EventHandler } from "../utils";
 import {
   BASE_STYLE_KEYS,
   COMMON_PROP_KEYS,
+  GROUP_PROP_KEYS,
   PATH_PROP_KEYS,
   STYLE_KEYS_BY_TYPE,
 } from "./props-common";
@@ -141,6 +142,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   mergeHandlers(node, out);
 
   if (type === "group") {
+    mergeProps(out, GROUP_PROP_KEYS, props);
     if (children?.length) {
       out.children = children;
     }
