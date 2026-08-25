@@ -211,7 +211,7 @@ function getItemIdentity(item: ItemShape): string | undefined {
       : undefined;
 }
 
-function hasIdentityPositionChange(prev: ItemShape[], next: ItemShape[]): boolean {
+function hasMergeOrderChange(prev: ItemShape[], next: ItemShape[]): boolean {
   const positions = new Map<string, number[]>();
   for (let i = prev.length - 1; i >= 0; i--) {
     const identity = getItemIdentity(prev[i]);
@@ -228,7 +228,10 @@ function hasIdentityPositionChange(prev: ItemShape[], next: ItemShape[]): boolea
   return next.some((item, index) => {
     const identity = getItemIdentity(item);
     const previousIndex = identity === undefined ? undefined : positions.get(identity)?.pop();
-    return previousIndex !== undefined && previousIndex !== index;
+    // Normal merge appends unmatched explicit ids after every existing model.
+    return previousIndex === undefined
+      ? item.id !== undefined && index < prev.length
+      : previousIndex !== index;
   });
 }
 
@@ -263,7 +266,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
       !prevIsCollection ||
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
-      hasIdentityPositionChange(prev.shapes, next.shapes) ||
+      hasMergeOrderChange(prev.shapes, next.shapes) ||
       findItemShapeRemoval(prev.shapes, next.shapes) !== undefined
     );
   }
@@ -392,7 +395,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     const orderChange =
       nextCollection &&
       !collectionRemoval &&
-      hasIdentityPositionChange(prevCollection.shapes, nextCollection.shapes);
+      hasMergeOrderChange(prevCollection.shapes, nextCollection.shapes);
     const shapeRemoval = nextCollection
       ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
       : undefined;

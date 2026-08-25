@@ -222,7 +222,7 @@ describe("smart-update", () => {
   });
 
   describe("planUpdate", () => {
-    describe("bootstrap & neutral cases", () => {
+    describe("bootstrap & non-removal changes", () => {
       it("returns neutral plan when previous signature missing", () => {
         const option: EChartsOption = {
           legend: { show: true },
@@ -296,6 +296,18 @@ describe("smart-update", () => {
 
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();
+      });
+
+      it("replaces components when a new ID precedes an anonymous item", () => {
+        const anonymous = { type: "pie" as const, data: [1] };
+        const base: EChartsOption = { series: [anonymous] };
+        const update: EChartsOption = {
+          series: [{ id: "identified", type: "pie", data: [2] }, anonymous],
+        };
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
+        expect(applied.series?.map(({ id }) => id)).toEqual(["identified", undefined]);
       });
 
       it("rebuilds when new IDs surround existing IDs", () => {
