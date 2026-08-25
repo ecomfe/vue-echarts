@@ -57,6 +57,9 @@ type _duringType = Assert<
     RectProps["during"]
   >
 >;
+type _extraType = Assert<
+  IsAssignable<NonNullable<NonNullable<CustomSeriesRenderItemReturn>["extra"]>, RectProps["extra"]>
+>;
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _boundingType = Assert<IsEqual<RectProps["bounding"], "raw" | "all" | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<

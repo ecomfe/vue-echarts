@@ -8,6 +8,9 @@ import type {
 import type { FontStyle, FontWeight } from "../types";
 
 export type GraphicDuring = NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>;
+type GraphicExtra = Record<string, unknown> & {
+  transition?: string | string[];
+};
 
 export const COMMON_PROP_KEYS = [
   "id",
@@ -38,6 +41,7 @@ export const COMMON_PROP_KEYS = [
   "cursor",
   "ignore",
   "invisible",
+  "extra",
   "info",
   "tooltip",
   "clipPath",
@@ -179,6 +183,7 @@ const graphicCommonOnlyProps = {
   cursor: String,
   ignore: withUndefinedDefault(Boolean),
   invisible: withUndefinedDefault(Boolean),
+  extra: Object as PropType<GraphicExtra>,
   info: null as unknown as PropType<unknown>,
   tooltip: Object as PropType<TooltipComponentOption>,
   clipPath: withUndefinedDefault([Boolean, Object] as PropType<false | object>),

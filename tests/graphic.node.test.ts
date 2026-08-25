@@ -47,6 +47,7 @@ describe("graphic", () => {
 
   it("builds graphic option with ordered children and replace root", () => {
     const during = vi.fn();
+    const extra = { progress: 0 };
     const typography = {
       fontStyle: "italic",
       fontWeight: 600,
@@ -86,6 +87,7 @@ describe("graphic", () => {
           y: 20,
           width: 30,
           height: 40,
+          extra,
           during,
           tooltip: { show: true, formatter: "main-rect" },
           clipPath: { type: "circle", shape: { cx: 15, cy: 20, r: 10 } },
@@ -157,6 +159,7 @@ describe("graphic", () => {
 
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");
+    expect(rect.extra).toBe(extra);
     expect(rect.during).toBe(during);
     expect(rect.tooltip).toEqual({ show: true, formatter: "main-rect" });
     expect(rect.clipPath).toEqual({ type: "circle", shape: { cx: 15, cy: 20, r: 10 } });
