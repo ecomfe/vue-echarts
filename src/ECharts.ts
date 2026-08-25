@@ -378,10 +378,9 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (!isActive(instance) || deferredCharts?.has(instance)) {
+        if (initOptionsInvalidated || !isActive(instance) || deferredCharts?.has(instance)) {
           return;
         }
-
         if (themeUpdatePending) {
           optionUpdatePending = true;
           return;

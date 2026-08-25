@@ -1924,7 +1924,7 @@ describe("ECharts component", () => {
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
   });
 
-  it("applies latest option to the replacement chart when option and initOptions change together", async () => {
+  it("applies latest option only to the replacement chart when initOptions change", async () => {
     const option = ref<Option>({ title: { text: "first" } });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<Exposed>();
@@ -1941,6 +1941,7 @@ describe("ECharts component", () => {
     const firstStub = chartStub;
     const replacementStub = enqueueChart();
     chartStub = replacementStub;
+    firstStub.setOption.mockClear();
     replacementStub.setOption.mockClear();
 
     option.value = { title: { text: "latest" } };
@@ -1948,6 +1949,7 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(firstStub.dispose).toHaveBeenCalledTimes(1);
+    expect(firstStub.setOption).not.toHaveBeenCalled();
     expect(replacementStub.setOption).toHaveBeenCalledTimes(1);
     expect(replacementStub.setOption.mock.calls[0][0]).toMatchObject({
       title: { text: "latest" },
