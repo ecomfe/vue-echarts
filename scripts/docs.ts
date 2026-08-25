@@ -29,17 +29,15 @@ function getCodeBlock(code: string) {
 const README_FILES = ["README.md", "README.zh-Hans.md"].map((name) =>
   resolvePath(import.meta.url, "..", name),
 );
+const scripts = getCodeBlock(getScripts());
 
-README_FILES.forEach((file) => {
+for (const file of README_FILES) {
   const content = readFileSync(file, "utf8");
+  const nextContent = commentMark(content, { scripts });
 
-  writeFileSync(
-    file,
-    commentMark(content, {
-      scripts: getCodeBlock(getScripts()),
-    }),
-    "utf8",
-  );
-});
+  if (nextContent !== content) {
+    writeFileSync(file, nextContent, "utf8");
+  }
+}
 
-console.log("README files updated.");
+console.log("README files are up to date.");
