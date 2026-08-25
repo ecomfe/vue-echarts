@@ -46,10 +46,22 @@ type _circleRejectsForeignProps = Assert<
   IsEqual<Extract<"x1" | "points" | "text" | "image", keyof CircleProps>, never>
 >;
 type _textRejectsForeignProps = Assert<
-  IsEqual<Extract<"cx" | "points" | "image" | "sx", keyof TextProps>, never>
+  IsEqual<
+    Extract<
+      "cx" | "points" | "image" | "sx" | "decal" | "strokePercent" | "lineCap",
+      keyof TextProps
+    >,
+    never
+  >
 >;
 type _imageRejectsForeignProps = Assert<
-  IsEqual<Extract<"cx" | "points" | "text" | "overflow", keyof ImageProps>, never>
+  IsEqual<
+    Extract<
+      "cx" | "points" | "text" | "overflow" | "fill" | "lineWidth" | "lineDash",
+      keyof ImageProps
+    >,
+    never
+  >
 >;
 type _nonPathRejectsShape = Assert<
   IsEqual<

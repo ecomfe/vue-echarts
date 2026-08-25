@@ -15,11 +15,12 @@ import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { createOrderTracker } from "./order";
 import { commonProps } from "./props-common";
 import type {
-  GraphicBaseStyleKey,
   GraphicCommonPropKey,
+  GraphicCommonStyleKey,
   GraphicGroupPropKey,
   GraphicImageStyleKey,
   GraphicPathPropKey,
+  GraphicPathStyleKey,
   GraphicTextStyleKey,
 } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE, shapeProps } from "./props-shape";
@@ -33,8 +34,9 @@ const componentProps = {
 type NestedShapePropKey = "shape" | "shapeTransition";
 type NestedStylePropKey = "style" | "styleTransition";
 type SpecializedPropKey =
-  | GraphicBaseStyleKey
+  | GraphicCommonStyleKey
   | GraphicPathPropKey
+  | GraphicPathStyleKey
   | GraphicTextStyleKey
   | GraphicImageStyleKey
   | NestedShapePropKey
@@ -47,8 +49,14 @@ type StylePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   :
       | NestedStylePropKey
-      | GraphicBaseStyleKey
-      | (T extends "text" ? GraphicTextStyleKey : T extends "image" ? GraphicImageStyleKey : never);
+      | GraphicCommonStyleKey
+      | (T extends keyof typeof SHAPE_KEYS_BY_TYPE
+          ? GraphicPathStyleKey
+          : T extends "text"
+            ? GraphicTextStyleKey
+            : T extends "image"
+              ? GraphicImageStyleKey
+              : never);
 type PathPropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
   ? NestedShapePropKey | GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
   : never;

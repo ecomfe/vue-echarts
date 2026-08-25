@@ -59,21 +59,7 @@ export const GROUP_PROP_KEYS = ["width", "height"] as const;
 
 export const PATH_PROP_KEYS = ["autoBatch"] as const;
 
-export const BASE_STYLE_KEYS = [
-  "fill",
-  "stroke",
-  "decal",
-  "strokePercent",
-  "strokeNoScale",
-  "fillOpacity",
-  "strokeOpacity",
-  "lineWidth",
-  "lineDash",
-  "lineDashOffset",
-  "lineCap",
-  "lineJoin",
-  "miterLimit",
-  "strokeFirst",
+export const COMMON_STYLE_KEYS = [
   "shadowBlur",
   "shadowOffsetX",
   "shadowOffsetY",
@@ -82,7 +68,29 @@ export const BASE_STYLE_KEYS = [
   "blend",
 ] as const;
 
+const PAINT_STYLE_KEYS = [
+  "fill",
+  "stroke",
+  "strokeNoScale",
+  "fillOpacity",
+  "strokeOpacity",
+  "lineWidth",
+  "lineDash",
+  "lineDashOffset",
+] as const;
+
+export const PATH_STYLE_KEYS = [
+  ...PAINT_STYLE_KEYS,
+  "decal",
+  "strokePercent",
+  "lineCap",
+  "lineJoin",
+  "miterLimit",
+  "strokeFirst",
+] as const;
+
 export const TEXT_STYLE_KEYS = [
+  ...PAINT_STYLE_KEYS,
   "text",
   "font",
   "textFont",
@@ -141,7 +149,8 @@ export const STYLE_KEYS_BY_TYPE = {
 export type GraphicCommonPropKey = (typeof COMMON_PROP_KEYS)[number];
 export type GraphicGroupPropKey = (typeof GROUP_PROP_KEYS)[number];
 export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
-export type GraphicBaseStyleKey = (typeof BASE_STYLE_KEYS)[number];
+export type GraphicCommonStyleKey = (typeof COMMON_STYLE_KEYS)[number];
+export type GraphicPathStyleKey = (typeof PATH_STYLE_KEYS)[number];
 export type GraphicTextStyleKey = (typeof TEXT_STYLE_KEYS)[number];
 export type GraphicImageStyleKey = (typeof IMAGE_STYLE_KEYS)[number];
 
@@ -150,7 +159,10 @@ export function withUndefinedDefault<T>(type: T) {
   return { type, default: undefined };
 }
 
-type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width" | "height">;
+type GraphicTextStyleOnlyKey = Exclude<
+  GraphicTextStyleKey,
+  GraphicPathStyleKey | "width" | "height"
+>;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
 type GraphicImageSource = string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement;
 type GraphicTextAlign = "left" | "center" | "right";
@@ -211,7 +223,16 @@ const pathProps = {
   autoBatch: withUndefinedDefault(Boolean),
 } as const satisfies Record<GraphicPathPropKey, unknown>;
 
-const baseStyleProps = {
+const commonStyleProps = {
+  shadowBlur: Number,
+  shadowOffsetX: Number,
+  shadowOffsetY: Number,
+  shadowColor: String,
+  opacity: Number,
+  blend: String,
+} as const satisfies Record<GraphicCommonStyleKey, unknown>;
+
+const pathStyleProps = {
   fill: [String, Object] as PropType<Color>,
   stroke: [String, Object] as PropType<Color>,
   decal: Object as PropType<PatternObject>,
@@ -228,13 +249,7 @@ const baseStyleProps = {
   lineJoin: String as PropType<CanvasLineJoin>,
   miterLimit: Number,
   strokeFirst: withUndefinedDefault(Boolean),
-  shadowBlur: Number,
-  shadowOffsetX: Number,
-  shadowOffsetY: Number,
-  shadowColor: String,
-  opacity: Number,
-  blend: String,
-} as const satisfies Record<GraphicBaseStyleKey, unknown>;
+} as const satisfies Record<GraphicPathStyleKey, unknown>;
 
 const textStyleProps = {
   text: String,
@@ -289,7 +304,8 @@ export const commonProps = {
   style: Object as PropType<object>,
   shapeTransition: [String, Array] as PropType<string | string[]>,
   styleTransition: [String, Array] as PropType<string | string[]>,
-  ...baseStyleProps,
+  ...commonStyleProps,
+  ...pathStyleProps,
   ...textStyleProps,
   ...imageStyleProps,
 } as const;

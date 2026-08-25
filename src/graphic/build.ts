@@ -2,10 +2,11 @@ import type { Option } from "../types";
 import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
 import type { EventHandler } from "../utils";
 import {
-  BASE_STYLE_KEYS,
   COMMON_PROP_KEYS,
+  COMMON_STYLE_KEYS,
   GROUP_PROP_KEYS,
   PATH_PROP_KEYS,
+  PATH_STYLE_KEYS,
   STYLE_KEYS_BY_TYPE,
 } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
@@ -120,8 +121,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const { type, id, props } = node;
   const shapeKeys: readonly string[] | undefined =
     SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
-  const styleKeys: readonly string[] | undefined =
-    STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE];
+  const styleKeys: readonly string[] | undefined = shapeKeys
+    ? PATH_STYLE_KEYS
+    : STYLE_KEYS_BY_TYPE[type as keyof typeof STYLE_KEYS_BY_TYPE];
   const out: Record<string, unknown> = {
     type,
     id,
@@ -157,7 +159,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
   const style = buildNestedProps(
     props.style,
     props,
-    BASE_STYLE_KEYS,
+    COMMON_STYLE_KEYS,
     props.styleTransition,
     styleKeys,
   );

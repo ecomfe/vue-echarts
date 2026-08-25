@@ -117,6 +117,9 @@ describe("graphic", () => {
           truncateMinChar: 2,
           text: "Hi",
           ...typography,
+          fill: "#123",
+          decal: paint.decal,
+          strokePercent: 0.25,
           textFill: "#000",
         },
         handlers: {},
@@ -148,6 +151,7 @@ describe("graphic", () => {
     expect(text.style).toMatchObject({
       text: "Hi",
       ...typography,
+      fill: "#123",
       textFill: "#000",
       width: 120,
       height: 40,
@@ -158,6 +162,8 @@ describe("graphic", () => {
     });
     expect(text.width).toBeUndefined();
     expect(text.height).toBeUndefined();
+    expect(text.style.decal).toBeUndefined();
+    expect(text.style.strokePercent).toBeUndefined();
 
     expect(rect.type).toBe("rect");
     expect(rect.name).toBe("main-rect");
@@ -357,6 +363,9 @@ describe("graphic", () => {
           height: 4,
           image: "https://example.com/a.png",
           autoBatch: true,
+          fill: "#f00",
+          lineWidth: 2,
+          opacity: 0.5,
           ...crop,
           styleTransition: "all",
         },
@@ -457,10 +466,13 @@ describe("graphic", () => {
     expect(group).toMatchObject({ width: 80, height: 40 });
     expect(image.style).toMatchObject({
       image: "https://example.com/a.png",
+      opacity: 0.5,
       ...crop,
       transition: "all",
     });
     expect(image.autoBatch).toBeUndefined();
+    expect(image.style.fill).toBeUndefined();
+    expect(image.style.lineWidth).toBeUndefined();
     expect(line.shape).toMatchObject({
       x1: 0,
       y1: 0,
