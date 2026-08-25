@@ -93,17 +93,17 @@ describe("style entry", () => {
     expect(document.head.querySelector("style")).not.toBeNull();
   });
 
-  it("shrinks in column layouts and passes root rounding to both renderers", async () => {
+  it("contains root spacing, shrinks in columns, and passes rounding to renderers", async () => {
     useFallbackStyles();
     const { ensureStyles } = await import("../src/style");
     ensureStyles();
 
     const container = document.body.appendChild(document.createElement("div"));
-    container.style.cssText = "display:flex;flex-direction:column;height:100px";
+    container.style.cssText = "display:flex;flex-direction:column;width:100px;height:100px";
     const header = container.appendChild(document.createElement("div"));
     header.style.cssText = "height:40px;flex:none";
     const root = container.appendChild(document.createElement("x-vue-echarts"));
-    root.style.borderRadius = "12px";
+    root.style.cssText = "padding:10px;border:2px solid transparent;border-radius:12px";
     const chartHost = root.appendChild(document.createElement("div"));
     chartHost.className = "echarts-host";
     const renderer = chartHost.appendChild(document.createElement("div"));
@@ -112,6 +112,7 @@ describe("style entry", () => {
     const svg = renderer.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "svg"));
 
     expect(root.getBoundingClientRect().height).toBe(60);
+    expect(root.getBoundingClientRect().width).toBe(100);
     expect(getComputedStyle(chartHost).borderRadius).toBe("12px");
     expect(getComputedStyle(renderer).borderRadius).toBe("12px");
     expect(getComputedStyle(canvas).borderRadius).toBe("12px");
