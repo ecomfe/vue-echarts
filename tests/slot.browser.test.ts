@@ -101,6 +101,22 @@ function renderSlotComponent(
   };
 }
 
+async function removeSlot(slotName: string, option: Option): Promise<SlotTestHandle> {
+  const visible = ref(true);
+  const { exposed } = renderSlotComponent(() =>
+    visible.value ? { [slotName]: () => h("span", slotName) } : {},
+  );
+
+  await nextTick();
+  const handle = getExposed(exposed);
+  handle.patchOption(option);
+  handle.patchUpdateOptions();
+
+  visible.value = false;
+  await nextTick();
+  return handle;
+}
+
 function getTooltipFormatter(option: Option, label: string): TooltipFormatter {
   const tooltip = (
     option as {
@@ -520,6 +536,36 @@ describe("useSlotOption", () => {
 
     expect(handle.patchUpdateOptions({ replaceMerge: "series" })).toEqual({
       replaceMerge: ["series", replacement],
+    });
+  });
+
+  it.each([
+    ["tooltip", { tooltip: { id: "main" } }, "tooltip.formatter"],
+    ["dataView", { toolbox: { id: 1 } }, "toolbox.feature.dataView.optionToContent"],
+  ])("clears a removed %s callback on an identified root", async (slotName, option, path) => {
+    const handle = await removeSlot(slotName, option);
+
+    expect(handle.patchOption(option)).toHaveProperty(path, null);
+  });
+
+  it("restores a callback supplied after an identified slot is removed", async () => {
+    const formatter = vi.fn();
+    const option = { tooltip: { id: "main", formatter } };
+    const handle = await removeSlot("tooltip", option);
+
+    expect(handle.patchOption(option)).toHaveProperty("tooltip.formatter", formatter);
+  });
+
+  it.each([
+    ["tooltip-0", { tooltip: [{ id: "main" }] }],
+    ["dataView-0", { toolbox: [{ id: "main" }] }],
+  ])("rebuilds when removing %s from an identified collection", async (slotName, option) => {
+    const handle = await removeSlot(slotName, option);
+    handle.patchOption(option);
+
+    expect(handle.patchUpdateOptions({ replaceMerge: "series" })).toEqual({
+      notMerge: true,
+      replaceMerge: "series",
     });
   });
 

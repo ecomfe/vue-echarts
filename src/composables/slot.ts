@@ -56,6 +56,13 @@ function getRootComponent(key: SlotName): string | undefined {
   return !suffix || isValidArrayIndex(suffix.slice(1)) ? SLOT_OPTION_PATHS[prefix][0] : undefined;
 }
 
+function hasExplicitId(value: unknown): boolean {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+  return typeof value.id === "string" || typeof value.id === "number";
+}
+
 type Container = Record<string, unknown> | unknown[];
 
 function ensureChild(parent: Container, seg: string, nextSeg?: string): Container | undefined {
@@ -89,6 +96,29 @@ function writeSegment(parent: Container, seg: string, value: unknown): void {
     return;
   }
   parent[seg] = value;
+}
+
+function writePath(
+  root: Option,
+  path: readonly string[],
+  value: unknown,
+  preserveDefined = false,
+): boolean {
+  let current: Container | undefined = root;
+  for (let i = 0; i < path.length - 1; i++) {
+    current = ensureChild(current, path[i], path[i + 1]);
+    if (!current) {
+      return false;
+    }
+  }
+  if (!current || Array.isArray(current)) {
+    return false;
+  }
+  const leaf = path[path.length - 1];
+  if (!preserveDefined || current[leaf] === undefined) {
+    writeSegment(current, leaf, value);
+  }
+  return true;
 }
 
 export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Ref<boolean>) {
@@ -126,10 +156,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   let nextSlotNames = slotNames;
   let appliedSlotNames = slotNames;
   let patchedSlotNames = slotNames;
+  let rebuildOnRemoval = false;
 
   watchSyncEffect(() => {
     if (!ready.value) {
       appliedSlotNames = patchedSlotNames = EMPTY_SLOT_NAMES;
+      rebuildOnRemoval = false;
     }
   });
 
@@ -196,14 +228,40 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   };
 
   function patchOption(src: Option): Option {
+    rebuildOnRemoval = false;
     const names = collectSlotNames();
     syncSlotNames(names);
+    let root: Option | undefined;
+
+    for (const key of appliedSlotNames) {
+      if (names.includes(key)) {
+        continue;
+      }
+      const replacement = getRootComponent(key);
+      if (!replacement) {
+        continue;
+      }
+      const prefix = getSlotPrefix(key);
+      const component = (src as Record<string, unknown>)[replacement];
+      if (key !== prefix) {
+        if (Array.isArray(component) && component.some(hasExplicitId)) {
+          rebuildOnRemoval = true;
+        }
+        continue;
+      }
+      const path = SLOT_OPTION_PATHS[prefix];
+      if (hasExplicitId(component)) {
+        root ??= { ...src };
+        writePath(root, path, null, true);
+      }
+    }
+
     if (names.length === 0) {
       patchedSlotNames = EMPTY_SLOT_NAMES;
-      return src;
+      return root ?? src;
     }
     const { bindings, initialized, params, containers } = getState();
-    const root: Option = { ...src };
+    root ??= { ...src };
     let patchedNames: SlotName[] | undefined;
 
     for (const key of names) {
@@ -235,19 +293,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
       const { path, formatter } = binding;
 
-      let current: Container | undefined = root;
-      for (let i = 0; i < path.length - 1; i++) {
-        current = ensureChild(current, path[i], path[i + 1]);
-        if (!current) {
-          break;
-        }
-      }
-      if (!current || Array.isArray(current)) {
+      if (!writePath(root, path, formatter)) {
         continue;
       }
-
-      const leaf = path[path.length - 1];
-      writeSegment(current, leaf, formatter);
       (patchedNames ??= []).push(key);
     }
 
@@ -265,7 +313,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
         continue;
       }
       const replacement = getRootComponent(key);
-      if (!replacement) {
+      if (!replacement || rebuildOnRemoval) {
         return { ...updateOptions, notMerge: true };
       }
       (replacements ??= new Set()).add(replacement);

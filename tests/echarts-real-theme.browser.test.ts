@@ -207,7 +207,7 @@ describe("ECharts callback slots (real echarts)", () => {
     const theme = ref<Theme | undefined>("dark");
     const option: Option = {
       legend: { data: ["A", "B"] },
-      tooltip: { trigger: "item" },
+      tooltip: { id: "tooltip", trigger: "item" },
       series: [
         { name: "A", type: "graph", data: [] },
         { name: "B", type: "graph", data: [] },
@@ -254,7 +254,7 @@ describe("ECharts callback slots (real echarts)", () => {
     await nextTick();
     await nextTick();
 
-    expect(getFormatter()).toBeUndefined();
+    expect(getFormatter()).not.toBeTypeOf("function");
     expect(getLegendSelection()).toBe(false);
   });
 });
