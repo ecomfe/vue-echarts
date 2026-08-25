@@ -224,7 +224,7 @@ describe("graphic components", () => {
     expect(props).toMatchObject(paint);
   });
 
-  it("accepts native text box styles", async () => {
+  it("accepts native text styles", async () => {
     const collector = createCollectorMock();
     const textStyle = {
       backgroundColor: { image: "texture.png" },
@@ -236,6 +236,8 @@ describe("graphic components", () => {
       borderDash: false as const,
       borderDashOffset: 2,
       rich: { accent: { fill: "#0ea5e9" } },
+      placeholder: "…",
+      truncateMinChar: 2,
     };
     const Root = withGraphicProvider(collector, () =>
       h(GText, { id: "text-box", text: "Label", ...textStyle }),

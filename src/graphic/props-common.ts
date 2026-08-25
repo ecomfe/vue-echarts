@@ -109,6 +109,8 @@ export const TEXT_STYLE_KEYS = [
   "overflow",
   "lineOverflow",
   "ellipsis",
+  "placeholder",
+  "truncateMinChar",
 ] as const;
 
 export const IMAGE_STYLE_KEYS = [
@@ -243,6 +245,8 @@ const textStyleProps = {
   overflow: String,
   lineOverflow: String,
   ellipsis: String,
+  placeholder: String,
+  truncateMinChar: Number,
 } as const satisfies Record<GraphicTextStyleOnlyKey, unknown>;
 
 const imageStyleProps = {

@@ -88,6 +88,8 @@ type _fontSizeAcceptsString = Assert<IsAssignable<string, TextProps["fontSize"]>
 type _overflowType = Assert<IsAssignable<TextProps["overflow"], string | undefined>>;
 type _lineOverflowType = Assert<IsAssignable<TextProps["lineOverflow"], string | undefined>>;
 type _ellipsisType = Assert<IsAssignable<TextProps["ellipsis"], string | undefined>>;
+type _placeholderType = Assert<IsAssignable<TextProps["placeholder"], string | undefined>>;
+type _truncateMinCharType = Assert<IsAssignable<TextProps["truncateMinChar"], number | undefined>>;
 type _backgroundAcceptsImage = Assert<
   IsAssignable<{ image: string }, TextProps["backgroundColor"]>
 >;

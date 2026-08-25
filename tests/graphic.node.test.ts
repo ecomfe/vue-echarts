@@ -109,6 +109,8 @@ describe("graphic", () => {
           height: 40,
           overflow: "truncate",
           ellipsis: "...",
+          placeholder: "…",
+          truncateMinChar: 2,
           text: "Hi",
           ...typography,
           textFill: "#000",
@@ -147,6 +149,8 @@ describe("graphic", () => {
       height: 40,
       overflow: "truncate",
       ellipsis: "...",
+      placeholder: "…",
+      truncateMinChar: 2,
     });
     expect(text.width).toBeUndefined();
     expect(text.height).toBeUndefined();
