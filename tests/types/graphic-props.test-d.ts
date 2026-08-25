@@ -68,6 +68,8 @@ type _textRejectsForeignProps = Assert<
       | "strokePercent"
       | "lineCap"
       | "blend"
+      | "textFill"
+      | "textStroke"
       | "textContent"
       | "textConfig",
       keyof TextProps
