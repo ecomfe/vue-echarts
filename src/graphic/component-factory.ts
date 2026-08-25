@@ -35,6 +35,11 @@ const scalarRadiusProps = {
   ...componentProps,
   r: Number,
 } as const;
+const textComponentProps = {
+  ...componentProps,
+  fill: String,
+  stroke: String,
+} as const;
 
 type NestedShapePropKey = "shape" | "shapeTransition";
 type NestedStylePropKey = "style" | "styleTransition";
@@ -70,10 +75,16 @@ type GroupPropKey<T extends GraphicComponentType> = T extends "group" ? GraphicG
 type DisplayablePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   : GraphicDisplayablePropKey;
+type ComponentPropDefinitions<T extends GraphicComponentType> = Omit<
+  typeof componentProps,
+  "r" | "fill" | "stroke"
+> & {
+  readonly r: T extends "rect" ? (typeof componentProps)["r"] : NumberConstructor;
+  readonly fill: T extends "text" ? StringConstructor : (typeof componentProps)["fill"];
+  readonly stroke: T extends "text" ? StringConstructor : (typeof componentProps)["stroke"];
+};
 type ComponentProps<T extends GraphicComponentType> = Pick<
-  Omit<typeof componentProps, "r"> & {
-    readonly r: T extends "rect" ? (typeof componentProps)["r"] : NumberConstructor;
-  },
+  ComponentPropDefinitions<T>,
   Extract<
     SharedPropKey | GroupPropKey<T> | DisplayablePropKey<T> | PathPropKey<T> | StylePropKey<T>,
     keyof typeof componentProps
@@ -85,7 +96,11 @@ export function createComponent<T extends GraphicComponentType>(name: string, ty
   const component = defineComponent({
     name,
     inheritAttrs: false,
-    props: (type === "rect" ? componentProps : scalarRadiusProps) as ComponentProps<T>,
+    props: (type === "text"
+      ? textComponentProps
+      : type === "rect"
+        ? componentProps
+        : scalarRadiusProps) as unknown as ComponentProps<T>,
     emits: {} as unknown as GraphicEmits,
     setup(props, { attrs, slots }) {
       const instance = getCurrentInstance()!;

@@ -273,6 +273,35 @@ describe("graphic components", () => {
     expect(getLastRegisterPayload(collector).props).toMatchObject(textStyle);
   });
 
+  it("validates text paints as colors", async () => {
+    const collector = createCollectorMock();
+    const gradient: LinearGradientObject = {
+      type: "linear",
+      x: 0,
+      y: 0,
+      x2: 1,
+      y2: 0,
+      colorStops: [],
+    };
+    const pattern: PatternObject = { image: "pattern.png", repeat: "repeat" };
+    const Root = withGraphicProvider(collector, () =>
+      h(GText, {
+        id: "text-paint",
+        text: "Label",
+        fill: gradient as unknown as string,
+        stroke: pattern as unknown as string,
+      }),
+    );
+
+    withConsoleWarn((warnSpy) => {
+      render(Root);
+      const warnings = warnSpy.mock.calls.flat().join(" ");
+      expect(warnings).toContain('type check failed for prop "fill"');
+      expect(warnings).toContain('type check failed for prop "stroke"');
+    });
+    await nextTick();
+  });
+
   it("preserves zrender defaults until explicitly overridden", async () => {
     const collector = createCollectorMock();
 

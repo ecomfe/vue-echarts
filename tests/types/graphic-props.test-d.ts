@@ -145,6 +145,8 @@ type _leaveAnimationAcceptsEChartsOption = Assert<
 >;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
+type _textFillType = Assert<IsEqual<TextProps["fill"], string | undefined>>;
+type _textStrokeType = Assert<IsEqual<TextProps["stroke"], string | undefined>>;
 type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"]>>;
 type _strokePercentType = Assert<IsAssignable<RectProps["strokePercent"], number | undefined>>;
 type _autoBatchType = Assert<IsEqual<RectProps["autoBatch"], boolean | undefined>>;
