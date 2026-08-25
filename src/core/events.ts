@@ -72,7 +72,7 @@ export function useReactiveChartListeners(
       }
 
       const zr = parsed.event.startsWith("zr:");
-      const event = zr ? parsed.event.slice(3).toLowerCase() : parsed.event;
+      const event = (zr ? parsed.event.slice(3) : parsed.event).toLowerCase();
       const source = attrs[key];
       const existing = bindings?.get(key);
 

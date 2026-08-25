@@ -104,6 +104,35 @@ describe("core events", () => {
     scope.stop();
   });
 
+  it("normalizes camel-case chart and ZRender event names", async () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const attrs = reactive<Record<string, unknown>>({
+      onMouseMove: vi.fn(),
+      onDataZoom: vi.fn(),
+      onBrushEnd: vi.fn(),
+      "onZr:mouseMove": vi.fn(),
+    });
+    const target = createChartStub();
+    const emitter = target.chart as unknown as EmitterStub;
+
+    const scope = effectScope();
+    scope.run(() => {
+      useReactiveChartListeners(chartRef, attrs);
+    });
+
+    chartRef.value = target.chart;
+    await nextTick();
+
+    expect(emitter.on.mock.calls.map(([event]) => event)).toEqual([
+      "mousemove",
+      "datazoom",
+      "brushend",
+    ]);
+    expect(target.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+
+    scope.stop();
+  });
+
   it.each(["onClick", "onClickOnce"])(
     "unbinds and rebinds %s when its array is emptied in place",
     async (key) => {
