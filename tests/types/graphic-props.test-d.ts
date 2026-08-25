@@ -179,7 +179,7 @@ type _syType = Assert<IsAssignable<ImageProps["sy"], number | undefined>>;
 type _sWidthType = Assert<IsAssignable<ImageProps["sWidth"], number | undefined>>;
 type _sHeightType = Assert<IsAssignable<ImageProps["sHeight"], number | undefined>>;
 type _pointsAcceptVectors = Assert<IsAssignable<number[][], PolylineProps["points"]>>;
-type _smoothType = Assert<IsEqual<PolylineProps["smooth"], number | undefined>>;
+type _smoothType = Assert<IsEqual<PolylineProps["smooth"], boolean | number | undefined>>;
 type _smoothConstraintAcceptsVectors = Assert<
   IsAssignable<number[][], PolylineProps["smoothConstraint"]>
 >;

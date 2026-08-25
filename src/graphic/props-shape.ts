@@ -37,7 +37,7 @@ export const shapeProps = {
   endAngle: Number,
   percent: Number,
   points: Array as PropType<number[][]>,
-  smooth: Number,
+  smooth: withUndefinedDefault([Boolean, Number] as PropType<boolean | number>),
   smoothConstraint: Array as PropType<number[][]>,
   clockwise: withUndefinedDefault(Boolean),
   cornerRadius: [Number, Array] as PropType<number | number[]>,
