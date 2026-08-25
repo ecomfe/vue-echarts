@@ -11,8 +11,8 @@ export interface UpdatePlan {
 interface ObjectShape {
   [key: string]: Shape | undefined;
 }
-type Shape = true | ObjectShape | ArraySummary;
-type ArrayItemShape = {
+type Shape = true | ObjectShape | CollectionSummary;
+type ItemShape = {
   id: string | undefined;
   name: string | undefined;
   shape: Shape;
@@ -28,20 +28,20 @@ function isComponentOption(value: unknown): boolean {
   return typeof value === "function" || (typeof value === "object" && value !== null);
 }
 
-/** Structural summary of an array option for deletion detection. */
-export interface ArraySummary {
+/** Structural summary of an option collection for deletion detection. */
+export interface CollectionSummary {
   /** Unique ids used to match component items; empty for positional arrays. */
   ids: ReadonlySet<string>;
   /** Anonymous component items, or all items in a positional array. */
   noIdCount: number;
   /** Structural snapshots in merge order; invalid component entries are omitted. */
-  shapes: ArrayItemShape[];
+  shapes: ItemShape[];
 }
 
 /** Minimal signature of an option used to decide setOption behavior. */
 export interface Signature {
-  /** Map of array-typed top-level keys to their summaries. */
-  arrays: Record<string, ArraySummary | undefined>;
+  /** Map of top-level arrays and singleton components to their summaries. */
+  collections: Record<string, CollectionSummary | undefined>;
   /** Structural snapshots used to detect nested property removal without retaining option values. */
   objectShapes: Record<string, Shape | undefined>;
   /** Sorted top-level keys whose values are not traversed. */
@@ -57,7 +57,7 @@ function buildShape(
   value: unknown,
   stack: WeakSet<object>,
   mode?: ShapeMode,
-  itemShape?: ArrayItemShape,
+  itemShape?: ItemShape,
 ): true | ObjectShape {
   if (!isPlainObject(value)) {
     return true;
@@ -81,33 +81,43 @@ function buildShape(
     if (child === undefined) {
       continue;
     }
+    if (mode === "option") {
+      const componentItems = ComponentModel.hasClass(key);
+      if (Array.isArray(child) || (componentItems && isPlainObject(child))) {
+        shape[key] = analyzeItems(
+          Array.isArray(child) ? child : [child],
+          stack,
+          undefined,
+          componentItems,
+        );
+        continue;
+      }
+    }
     shape[key] =
-      mode === "option" && Array.isArray(child)
-        ? analyzeArray(child, stack, undefined, ComponentModel.hasClass(key))
-        : mode === "media" && key === "option"
-          ? buildShape(child, stack, "option")
-          : buildShape(child, stack);
+      mode === "media" && key === "option"
+        ? buildShape(child, stack, "option")
+        : buildShape(child, stack);
   }
   stack.delete(value);
   return shape;
 }
 
-function analyzeArray(
+function analyzeItems(
   items: unknown[],
   stack: WeakSet<object>,
   mode: ShapeMode | undefined,
   componentItems: boolean,
-): ArraySummary {
+): CollectionSummary {
   let ids: Set<string> | undefined;
   let noIdCount = 0;
-  const shapes: ArrayItemShape[] = [];
+  const shapes: ItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     if (componentItems && !isComponentOption(item)) {
       continue;
     }
-    const itemShape: ArrayItemShape = { id: undefined, name: undefined, shape: true };
+    const itemShape: ItemShape = { id: undefined, name: undefined, shape: true };
     itemShape.shape = buildShape(item, stack, mode, componentItems ? itemShape : undefined);
     shapes.push(itemShape);
     if (itemShape.id === undefined) {
@@ -127,25 +137,26 @@ function analyzeArray(
 /**
  * Build a structural signature that retains component identities but not option payload values.
  * Arrays inside component items remain leaves to avoid traversing chart data. Nested option units
- * (`baseOption`, timeline options, and media options) reuse summaries for their component arrays.
+ * (`baseOption`, timeline options, and media options) reuse summaries for component collections.
  */
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
   let stack: WeakSet<object> | undefined;
-  const arrays: Record<string, ArraySummary | undefined> = Object.create(null);
+  const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
 
   for (const key of Object.keys(opt)) {
     const value = opt[key];
-    if (Array.isArray(value)) {
+    const componentItems = ComponentModel.hasClass(key);
+    if (Array.isArray(value) || (componentItems && isPlainObject(value))) {
       const mode = key === "options" ? "option" : key === "media" ? "media" : undefined;
-      arrays[key] = analyzeArray(
-        value,
+      collections[key] = analyzeItems(
+        Array.isArray(value) ? value : [value],
         (stack ??= new WeakSet()),
         mode,
-        ComponentModel.hasClass(key),
+        componentItems,
       );
       continue;
     }
@@ -157,7 +168,7 @@ export function buildSignature(option: Option): Signature {
     }
 
     // ECharts ignores nullish values and non-object component options during top-level merge.
-    if (value != null && (!ComponentModel.hasClass(key) || isComponentOption(value))) {
+    if (value != null && (!componentItems || isComponentOption(value))) {
       leaves.push(key);
     }
   }
@@ -167,13 +178,16 @@ export function buildSignature(option: Option): Signature {
   }
 
   return {
-    arrays,
+    collections,
     objectShapes,
     leaves,
   };
 }
 
-function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): boolean {
+function hasCollectionRemoval(
+  prev: CollectionSummary,
+  next: CollectionSummary | undefined,
+): boolean {
   if (!next) {
     return prev.shapes.length > 0;
   }
@@ -189,7 +203,7 @@ function hasArrayRemoval(prev: ArraySummary, next: ArraySummary | undefined): bo
   return false;
 }
 
-function isArrayShape(shape: Shape): shape is ArraySummary {
+function isCollectionShape(shape: Shape): shape is CollectionSummary {
   return shape !== true && Array.isArray(shape.shapes);
 }
 
@@ -198,13 +212,13 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
     return false;
   }
 
-  const prevIsArray = isArrayShape(prev);
-  const nextIsArray = isArrayShape(next);
-  if (prevIsArray || nextIsArray) {
+  const prevIsCollection = isCollectionShape(prev);
+  const nextIsCollection = isCollectionShape(next);
+  if (prevIsCollection || nextIsCollection) {
     return (
-      !prevIsArray ||
-      !nextIsArray ||
-      hasArrayRemoval(prev, next) ||
+      !prevIsCollection ||
+      !nextIsCollection ||
+      hasCollectionRemoval(prev, next) ||
       hasItemShapeRemoval(prev.shapes, next.shapes)
     );
   }
@@ -218,10 +232,10 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
   return false;
 }
 
-function hasItemShapeRemoval(prev: ArrayItemShape[], next: ArrayItemShape[]): boolean {
+function hasItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): boolean {
   let nextById: Map<string, Shape> | undefined;
-  let nextByName: Map<string, ArrayItemShape[]> | undefined;
-  let namedMatches: Set<ArrayItemShape> | undefined;
+  let nextByName: Map<string, ItemShape[]> | undefined;
+  let namedMatches: Set<ItemShape> | undefined;
 
   for (const item of prev) {
     if (item.id !== undefined) {
@@ -298,13 +312,9 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       continue;
     }
 
-    if (next.leaves.includes(key)) {
-      continue;
-    }
-    if (!ComponentModel.hasClass(key)) {
+    if (!next.leaves.includes(key)) {
       return null;
     }
-    (replaceMerge ??= []).push(key);
   }
 
   let nextLeafIndex = 0;
@@ -314,25 +324,25 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
     if (
       next.leaves[nextLeafIndex] !== key &&
-      next.arrays[key] === undefined &&
+      next.collections[key] === undefined &&
       next.objectShapes[key] === undefined
     ) {
       return null;
     }
   }
 
-  for (const key in prev.arrays) {
-    const prevArray = prev.arrays[key];
-    if (!prevArray) {
+  for (const key in prev.collections) {
+    const prevCollection = prev.collections[key];
+    if (!prevCollection) {
       continue;
     }
 
-    const nextArray = next.arrays[key];
-    if (nextArray && hasItemShapeRemoval(prevArray.shapes, nextArray.shapes)) {
+    const nextCollection = next.collections[key];
+    if (nextCollection && hasItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)) {
       return null;
     }
 
-    if (!hasArrayRemoval(prevArray, nextArray)) {
+    if (!hasCollectionRemoval(prevCollection, nextCollection)) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {

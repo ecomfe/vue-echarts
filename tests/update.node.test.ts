@@ -16,7 +16,12 @@ type AppliedOption = {
   dataset?: unknown;
   legend?: Array<{ selected?: Record<string, boolean> }>;
   title?: Array<{ subtext?: string }>;
-  series?: Array<{ name?: string; datasetId?: string; label?: { color?: string } }>;
+  series?: Array<{
+    id?: string;
+    name?: string;
+    datasetId?: string;
+    label?: { color?: string };
+  }>;
 };
 
 function createChart() {
@@ -64,10 +69,11 @@ function applyPlannedUpdate(base: EChartsOption, update: EChartsOption) {
 
 describe("smart-update", () => {
   describe("buildSignature", () => {
-    it("collects leaves, objects, and array summaries", () => {
+    it("collects leaves, objects, and component collections", () => {
       const option: EChartsOption = {
         title: { text: "foo" },
         tooltip: { show: true },
+        backgroundColor: linearGradient,
         color: "#000",
         dataset: [{ id: "ds1", source: [] }, { source: [] }],
         series: [{ id: "a", type: "bar" }, { type: "line" }],
@@ -75,13 +81,19 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(Object.keys(signature.objectShapes).sort()).toEqual(["title", "tooltip"]);
+      expect(Object.keys(signature.objectShapes)).toEqual(["backgroundColor"]);
       expect(signature.leaves).toEqual(["color"]);
-      expect(signature.arrays.dataset).toMatchObject({ ids: new Set(["ds1"]), noIdCount: 1 });
-      expect(signature.arrays.series).toMatchObject({ ids: new Set(["a"]), noIdCount: 1 });
+      expect(signature.collections.dataset).toMatchObject({
+        ids: new Set(["ds1"]),
+        noIdCount: 1,
+      });
+      expect(signature.collections.series).toMatchObject({
+        ids: new Set(["a"]),
+        noIdCount: 1,
+      });
+      expect(signature.collections.tooltip).toMatchObject({ noIdCount: 1 });
       expect(signature.objectShapes.color).toBeUndefined();
       expect(signature.leaves).not.toContain("title");
-      expect(signature.arrays.tooltip).toBeUndefined();
     });
 
     it("treats numeric ids as strings and ignores unsupported ids", () => {
@@ -99,7 +111,7 @@ describe("smart-update", () => {
       };
 
       const signature = buildSignature(option);
-      expect(signature.arrays.series).toMatchObject({
+      expect(signature.collections.series).toMatchObject({
         ids: new Set(["2", "1", "Infinity", "-Infinity", "NaN"]),
         noIdCount: 3,
       });
@@ -115,7 +127,7 @@ describe("smart-update", () => {
 
       const signature = buildSignature(option);
 
-      expect(signature.arrays.dataset).toMatchObject({
+      expect(signature.collections.dataset).toMatchObject({
         ids: new Set(["has-id"]),
         noIdCount: 0,
       });
@@ -128,8 +140,8 @@ describe("smart-update", () => {
         media: [null, { query: {} }],
       } as unknown as EChartsOption);
 
-      expect(signature.arrays.options?.noIdCount).toBe(1);
-      expect(signature.arrays.media?.noIdCount).toBe(2);
+      expect(signature.collections.options?.noIdCount).toBe(1);
+      expect(signature.collections.media?.noIdCount).toBe(2);
     });
 
     it("ignores explicit undefined values in leaves", () => {
@@ -537,6 +549,28 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
+      it.each(["root", ...optionContainers] as const)(
+        "replaces a singleton component when its id changes in %s",
+        (container) => {
+          const baseOption: EChartsOption = {
+            series: { id: "a", type: "pie", data: [1] },
+          };
+          const updateOption: EChartsOption = {
+            series: { id: "b", type: "pie", data: [2] },
+          };
+          const base = container === "root" ? baseOption : wrapOption(container, baseOption);
+          const update = container === "root" ? updateOption : wrapOption(container, updateOption);
+          const { applied, plan } = applyPlannedUpdate(base, update);
+
+          expect(plan).toEqual(
+            container === "root"
+              ? { notMerge: false, replaceMerge: ["series"] }
+              : { notMerge: true },
+          );
+          expect(applied.series?.map(({ id }) => id)).toEqual(["b"]);
+        },
+      );
+
       it("adds replaceMerge when anonymous count shrinks", () => {
         const prev = buildSignature({ series: [{}, {}] });
         const next = planUpdate(prev, { series: [{}] });
@@ -877,7 +911,7 @@ describe("smart-update", () => {
         const prev = buildSignature(base);
         const signatureWithPhantom = {
           ...prev,
-          arrays: { ...prev.arrays, phantom: undefined },
+          collections: { ...prev.collections, phantom: undefined },
         };
 
         const result = planUpdate(signatureWithPhantom, base);
