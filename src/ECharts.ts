@@ -437,6 +437,12 @@ export default /* @__PURE__ */ defineComponent({
     });
 
     const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed);
+    const clear = publicApi.clear;
+    publicApi.clear = () => {
+      const instance = chart.value!;
+      clear();
+      deferredCharts?.delete(instance);
+    };
 
     useLoading(chart, loading, loadingOptions);
 

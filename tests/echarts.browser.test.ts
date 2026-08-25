@@ -1382,6 +1382,25 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
   });
 
+  it("keeps a public clear during autoresize mount without disabling updates", async () => {
+    const option = ref<Option>({ series: [] });
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    getExposed(exposed).clear();
+    await nextTick();
+
+    expect(chartStub.resize).toHaveBeenCalledOnce();
+    expect(chartStub.clear).toHaveBeenCalledOnce();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+
+    option.value = { title: { text: "updated" } };
+    await nextTick();
+
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
+  });
+
   it.each([false, true])(
     "coalesces option and theme changes before autoresize initialization (manual: %s)",
     async (manualUpdate) => {

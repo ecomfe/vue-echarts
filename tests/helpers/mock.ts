@@ -42,6 +42,7 @@ type MockedMethod<T> = T extends (...args: infer Args) => infer R
 
 type ChartMethodKeys =
   | "setOption"
+  | "clear"
   | "resize"
   | "dispose"
   | "isDisposed"
@@ -76,6 +77,9 @@ export function createChartStub(): ChartStub {
       lastOption = option;
     }),
     getOption: vi.fn(() => lastOption),
+    clear: vi.fn(() => {
+      lastOption = undefined;
+    }),
     resize: vi.fn(),
     dispose: vi.fn(),
     isDisposed: vi.fn(() => false),
