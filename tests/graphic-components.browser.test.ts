@@ -266,14 +266,14 @@ describe("graphic components", () => {
     const Root = withGraphicProvider(collector, () => [
       h(GRect, { id: "rect", r: [2, 4] }),
       h(GCircle, { id: "circle", r: [2, 4] as unknown as number }),
-      h(GPolyline, { id: "polyline", smooth: true }),
+      h(GPolyline, { id: "polyline", smooth: true as unknown as number }),
     ]);
 
     withConsoleWarn((warnSpy) => {
       render(Root);
       const warnings = warnSpy.mock.calls.flat().join(" ");
       expect(warnings.match(/type check failed for prop "r"/g)).toHaveLength(1);
-      expect(warnings).not.toContain('type check failed for prop "smooth"');
+      expect(warnings).toContain('type check failed for prop "smooth"');
     });
     await nextTick();
   });
@@ -358,7 +358,6 @@ describe("graphic components", () => {
       }),
       h(GPolyline, { id: "smooth-default" }),
       h(GPolyline, { id: "smooth-zero", smooth: 0 }),
-      h(GPolyline, { id: "smooth-enabled", smooth: true }),
       h(GArc, { id: "default" }),
       h(GArc, { id: "counterclockwise", clockwise: false }),
       h(GArc, { id: "clockwise", clockwise: true }),
@@ -391,7 +390,6 @@ describe("graphic components", () => {
     });
     expect(propsById["smooth-default"].smooth).toBeUndefined();
     expect(propsById["smooth-zero"].smooth).toBe(0);
-    expect(propsById["smooth-enabled"].smooth).toBe(true);
     expect(propsById.default.clockwise).toBeUndefined();
     expect(propsById.counterclockwise.clockwise).toBe(false);
     expect(propsById.clockwise.clockwise).toBe(true);
