@@ -31,7 +31,9 @@ type CamelCaseHandlerName =
       "selectChanged" | "selected" | "unselected" | "selectAll" | "inverseSelect" | "scroll"
     >}`
   | `onData${Capitalize<"zoom" | "rangeSelected" | "viewChanged">}`
-  | `on${Capitalize<"graph" | "geo" | "tree">}Roam`
+  | `on${Capitalize<"graph" | "geo" | "tree" | "sankey">}Roam`
+  | "onDragNode"
+  | "onTreeExpandAndCollapse"
   | `onTimeline${Capitalize<"changed" | "playChanged">}`
   | "onMagicTypeChanged"
   | `onGeo${Capitalize<"selectChanged" | "selected" | "unselected">}`
@@ -61,6 +63,9 @@ type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
 type _highlightPayload = Assert<IsEqual<HandlerPayload<"onHighlight">, HighlightPayload>>;
 type _downplayOncePayload = Assert<IsEqual<HandlerPayload<"onDownplayOnce">, DownplayPayload>>;
 type _actionPayload = Assert<IsEqual<HandlerPayload<"onDataZoom">, Payload>>;
+type _hierarchyActionPayload = Assert<
+  IsEqual<HandlerPayload<"onSankeyRoam" | "onDragNode" | "onTreeExpandAndCollapse">, Payload>
+>;
 type _selectChangedPayload = Assert<IsEqual<HandlerPayload<"onSelectchanged">, SelectChangedEvent>>;
 type _selectChangedOncePayload = Assert<
   IsEqual<HandlerPayload<"onSelectChangedOnce">, SelectChangedEvent>
@@ -80,6 +85,9 @@ type _nativeAcceptsCustomHandler = Assert<
 type _lowercaseEventsRemain = Assert<
     | "onAxisbreakchanged"
     | "onBrushend"
+    | "onSankeyroam"
+    | "onDragnode"
+    | "onTreeexpandandcollapse"
     | "onShowtip"
     | "onUpdateaxispointer"
     | "onZr:mousemove" extends keyof Props

@@ -88,9 +88,9 @@ type OtherEventName =
   | "legendscroll"
   | "datazoom"
   | "datarangeselected"
-  | "graphroam"
-  | "georoam"
-  | "treeroam"
+  | `${"graph" | "geo" | "tree" | "sankey"}roam`
+  | "dragnode"
+  | "treeexpandandcollapse"
   | "timelinechanged"
   | "timelineplaychanged"
   | "restore"
@@ -112,7 +112,9 @@ type OtherEventAlias =
       "selectChanged" | "selected" | "unselected" | "selectAll" | "inverseSelect" | "scroll"
     >}`
   | `data${Capitalize<"zoom" | "rangeSelected" | "viewChanged">}`
-  | `${"graph" | "geo" | "tree"}Roam`
+  | `${"graph" | "geo" | "tree" | "sankey"}Roam`
+  | "dragNode"
+  | "treeExpandAndCollapse"
   | `timeline${Capitalize<"changed" | "playChanged">}`
   | "magicTypeChanged"
   | `geo${Capitalize<"selectChanged" | "selected" | "unselected">}`
