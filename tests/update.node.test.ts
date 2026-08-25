@@ -298,6 +298,15 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toBeUndefined();
       });
 
+      it("keeps merge when anonymous series are appended", () => {
+        const prev = buildSignature({ series: [{ type: "bar" }] });
+        const result = planUpdate(prev, {
+          series: [{ type: "bar" }, { type: "line" }],
+        });
+
+        expect(result.plan).toEqual({ notMerge: false });
+      });
+
       it("replaces components when a new ID precedes an anonymous item", () => {
         const anonymous = { type: "pie" as const, data: [1] };
         const base: EChartsOption = { series: [anonymous] };
