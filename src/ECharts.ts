@@ -120,6 +120,7 @@ export default /* @__PURE__ */ defineComponent({
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let optionReplayRequired = false;
+    let optionApplied = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
     let terminallyDisposed = false;
@@ -180,12 +181,12 @@ export default /* @__PURE__ */ defineComponent({
       if (mode) {
         const replaceGraphic = mode === "graphic";
         const updateOptions = replaceGraphic ? (realUpdateOptions.value ?? undefined) : override;
-        instance.setOption(patched, patchUpdateOptions(updateOptions, replaceGraphic));
+        commitOption(instance, patched, patchUpdateOptions(updateOptions, replaceGraphic));
         return;
       }
 
       if (!override && realUpdateOptions.value) {
-        instance.setOption(patched, patchUpdateOptions(realUpdateOptions.value));
+        commitOption(instance, patched, patchUpdateOptions(realUpdateOptions.value));
         lastSignature = null;
         return;
       }
@@ -195,8 +196,24 @@ export default /* @__PURE__ */ defineComponent({
       if (lastSignature === null) {
         updateOptions = { ...updateOptions, notMerge: true };
       }
-      instance.setOption(patched, patchUpdateOptions(updateOptions));
+      commitOption(instance, patched, patchUpdateOptions(updateOptions));
       lastSignature = planned.signature;
+    }
+
+    function commitOption(
+      instance: EChartsType,
+      option: Option,
+      updateOptions?: UpdateOptions,
+    ): void {
+      const firstOption = !optionApplied;
+      instance.setOption(option, updateOptions);
+      optionApplied = true;
+
+      // ECharts ignores setTheme until its first option creates the chart model.
+      if (firstOption && isActive(instance) && instance !== themedChart) {
+        themedChart = instance;
+        instance.setTheme(realTheme.value || {});
+      }
     }
 
     function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
@@ -246,6 +263,7 @@ export default /* @__PURE__ */ defineComponent({
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
       optionReplayRequired = false;
+      optionApplied = false;
 
       ensureStyles(root.value?.getRootNode());
 
@@ -414,9 +432,11 @@ export default /* @__PURE__ */ defineComponent({
           isActive(instance) &&
           instance !== themedChart
         ) {
-          themedChart = instance;
-          // ECharts ignores empty theme names instead of resetting to its default theme.
-          instance.setTheme(theme || {});
+          if (optionApplied) {
+            themedChart = instance;
+            // ECharts ignores empty theme names instead of resetting to its default theme.
+            instance.setTheme(theme || {});
+          }
 
           const option = getAutoOption();
           if (

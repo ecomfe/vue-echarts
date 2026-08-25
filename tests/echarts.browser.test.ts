@@ -374,7 +374,7 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
-  it("skips theme replay when option is absent and applies once option becomes available", async () => {
+  it("defers theme changes until the first option becomes available", async () => {
     const option = ref<Option | undefined>(undefined);
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
@@ -389,15 +389,20 @@ describe("ECharts component", () => {
     await nextTick();
 
     chartStub.setOption.mockClear();
+    chartStub.setTheme.mockClear();
     theme.value = undefined;
     await nextTick();
 
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
+    expect(chartStub.setTheme).not.toHaveBeenCalled();
     expect(chartStub.setOption).not.toHaveBeenCalled();
 
     option.value = { title: { text: "late-option" } };
     await nextTick();
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setTheme).toHaveBeenCalledWith({});
+    expect(chartStub.setOption.mock.invocationCallOrder[0]).toBeLessThan(
+      chartStub.setTheme.mock.invocationCallOrder[0],
+    );
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
       title: { text: "late-option" },
     });

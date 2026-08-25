@@ -68,6 +68,37 @@ function buildGraphLinks() {
 }
 
 describe("ECharts theme behavior (real echarts)", () => {
+  it("applies a theme change made before the first option", async () => {
+    const option = ref<Option>();
+    const theme = ref<Theme>("dark");
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(ECharts, {
+            option: option.value,
+            theme: theme.value,
+            style: "width: 640px; height: 420px;",
+            ref: createExposeSetter(exposed),
+          });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    const chart = getChart(exposed.value);
+    expect(chart.getOption()).toBeUndefined();
+
+    theme.value = "";
+    await nextTick();
+    option.value = { series: [] };
+    await nextTick();
+    await flushFrames();
+
+    expect(chart.getOption().backgroundColor).not.toBe("#111827");
+  });
+
   it("keeps delayed graph data after theme toggles", async () => {
     const isDark = ref(true);
     const theme = computed(() => (isDark.value ? "dark" : undefined));
