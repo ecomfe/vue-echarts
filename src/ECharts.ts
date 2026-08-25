@@ -219,7 +219,7 @@ export default /* @__PURE__ */ defineComponent({
     function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
       const instance = chart.value;
       const option = getAutoOption();
-      if (!instance || !option || manualUpdate.value || deferredCharts?.has(instance)) {
+      if (!isActive(instance) || !option || manualUpdate.value || deferredCharts?.has(instance)) {
         return false;
       }
 
@@ -248,7 +248,9 @@ export default /* @__PURE__ */ defineComponent({
     function cleanup(): void {
       const instance = chart.value;
       chart.value = undefined;
-      instance?.dispose();
+      if (instance && !instance.isDisposed()) {
+        instance.dispose();
+      }
       isReady.value = false;
       lastSignature = undefined;
       graphicSlotApplied = false;
@@ -326,7 +328,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       const instance = chart.value;
-      if (!instance || terminallyDisposed) {
+      if (!isActive(instance)) {
         return;
       }
 
@@ -376,7 +378,7 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (!instance || deferredCharts?.has(instance)) {
+        if (!isActive(instance) || deferredCharts?.has(instance)) {
           return;
         }
 
@@ -459,7 +461,7 @@ export default /* @__PURE__ */ defineComponent({
 
     watchSyncEffect(() => {
       const instance = chart.value;
-      if (instance) {
+      if (isActive(instance)) {
         instance.group = props.group ?? "";
       }
     });
@@ -505,7 +507,8 @@ export default /* @__PURE__ */ defineComponent({
         return root.value ?? undefined;
       },
       get chart() {
-        return terminallyDisposed ? undefined : chart.value;
+        const instance = chart.value;
+        return isActive(instance) ? instance : undefined;
       },
     };
     expose(Object.assign(exposed, publicApi));

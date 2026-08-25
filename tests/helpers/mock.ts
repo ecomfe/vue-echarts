@@ -71,6 +71,7 @@ export function createChartStub(): ChartStub {
     off: vi.fn(),
   };
   let lastOption: unknown;
+  let disposed = false;
 
   return {
     setOption: vi.fn((option: unknown) => {
@@ -81,8 +82,10 @@ export function createChartStub(): ChartStub {
       lastOption = undefined;
     }),
     resize: vi.fn(),
-    dispose: vi.fn(),
-    isDisposed: vi.fn(() => false),
+    dispose: vi.fn(() => {
+      disposed = true;
+    }),
+    isDisposed: vi.fn(() => disposed),
     getZr: vi.fn(() => zr),
     on: vi.fn(),
     off: vi.fn(),

@@ -1176,9 +1176,6 @@ describe("ECharts component", () => {
 
   it("stops deferred initialization when resize disposes the chart", async () => {
     const exposed = shallowRef<Exposed>();
-    chartStub.dispose.mockImplementation(() => {
-      chartStub.isDisposed.mockReturnValue(true);
-    });
     chartStub.resize.mockImplementation(() => getExposed(exposed).dispose());
 
     renderChart(() => ({ option: {}, autoresize: true }), exposed);
@@ -1477,6 +1474,47 @@ describe("ECharts component", () => {
     expect(element.__dispose).toBeNull();
   });
 
+  it("stops reactive work after the underlying chart is externally disposed", async () => {
+    const option = ref<Option>({ title: { text: "before" } });
+    const loading = ref(true);
+    const loadingOptions = ref({ text: "before" });
+    const group = ref("before");
+    const exposed = shallowRef<Exposed>();
+
+    const screen = renderChart(
+      () => ({
+        option: option.value,
+        loading: loading.value,
+        loadingOptions: loadingOptions.value,
+        group: group.value,
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    const instance = getExposed(exposed);
+    instance.chart?.dispose();
+    chartStub.setOption.mockClear();
+    chartStub.showLoading.mockClear();
+    chartStub.hideLoading.mockClear();
+
+    option.value = { title: { text: "after" } };
+    loadingOptions.value = { text: "after" };
+    loading.value = false;
+    group.value = "after";
+    await nextTick();
+
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+    expect(chartStub.showLoading).not.toHaveBeenCalled();
+    expect(chartStub.hideLoading).not.toHaveBeenCalled();
+    expect(chartStub.group).toBe("before");
+    expect(instance.chart).toBeUndefined();
+    expect(instance.isDisposed()).toBe(true);
+
+    screen.unmount();
+    expect(chartStub.dispose).toHaveBeenCalledOnce();
+  });
+
   it("exposes chart and root as read-only accessors", async () => {
     const exposed = shallowRef<Exposed>();
 
@@ -1729,10 +1767,6 @@ describe("ECharts component", () => {
   it("abandons deferred autoresize initialization after unmount", async () => {
     const option = ref({});
     const exposed = shallowRef<Exposed>();
-
-    chartStub.dispose.mockImplementation(() => {
-      chartStub.isDisposed.mockReturnValue(true);
-    });
 
     const screen = renderChart(() => ({ option: option.value, autoresize: true }), exposed);
     screen.unmount();

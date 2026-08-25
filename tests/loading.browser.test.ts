@@ -36,6 +36,10 @@ function renderUseLoading(
   return render(Host, renderOptions);
 }
 
+function createChart(showLoading: unknown, hideLoading: unknown): EChartsType {
+  return { showLoading, hideLoading, isDisposed: () => false } as unknown as EChartsType;
+}
+
 describe("useLoading", () => {
   it("merges injected defaults with explicit options when showing loading", async () => {
     const showLoading = vi.fn();
@@ -50,7 +54,7 @@ describe("useLoading", () => {
       maskColor: "rgba(0,0,0,0.5)",
     }));
 
-    chart.value = { showLoading, hideLoading } as unknown as EChartsType;
+    chart.value = createChart(showLoading, hideLoading);
     await nextTick();
 
     expect(showLoading).not.toHaveBeenCalled();
@@ -89,7 +93,7 @@ describe("useLoading", () => {
     expect(showLoading).not.toHaveBeenCalled();
     expect(hideLoading).not.toHaveBeenCalled();
 
-    chart.value = { showLoading, hideLoading } as unknown as EChartsType;
+    chart.value = createChart(showLoading, hideLoading);
     await nextTick();
 
     expect(showLoading).toHaveBeenCalledTimes(1);
@@ -108,7 +112,7 @@ describe("useLoading", () => {
 
     renderUseLoading(chart, loading, loadingOptions, () => defaults.value);
 
-    chart.value = { showLoading, hideLoading } as unknown as EChartsType;
+    chart.value = createChart(showLoading, hideLoading);
     await nextTick();
 
     expect(showLoading).toHaveBeenCalledTimes(1);
@@ -163,8 +167,8 @@ describe("useLoading", () => {
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
     const loadingOptions = ref<LoadingOptions | undefined>({ text: "Switching" });
-    const first = { showLoading: firstShow, hideLoading: firstHide } as unknown as EChartsType;
-    const second = { showLoading: secondShow, hideLoading: secondHide } as unknown as EChartsType;
+    const first = createChart(firstShow, firstHide);
+    const second = createChart(secondShow, secondHide);
 
     renderUseLoading(chart, loading, loadingOptions);
 

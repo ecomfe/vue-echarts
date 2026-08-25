@@ -16,7 +16,7 @@ export function useLoading(
 
   watchSyncEffect(() => {
     const instance = chart.value;
-    if (!instance) {
+    if (!instance || instance.isDisposed()) {
       return;
     }
 
