@@ -111,6 +111,9 @@ describe("core events", () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({
       onMouseMove: vi.fn(),
+      onMouseWheel: vi.fn(),
+      onDragStart: vi.fn(),
+      onDrop: vi.fn(),
       onDataZoom: vi.fn(),
       onBrushEnd: vi.fn(),
       onSankeyRoam: vi.fn(),
@@ -133,6 +136,9 @@ describe("core events", () => {
 
     expect(emitter.on.mock.calls.map(([event]) => event)).toEqual([
       "mousemove",
+      "mousewheel",
+      "dragstart",
+      "drop",
       "datazoom",
       "brushend",
       "sankeyroam",
