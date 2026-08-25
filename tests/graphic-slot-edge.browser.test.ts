@@ -326,10 +326,12 @@ describe("graphic slot edge and integration behavior", () => {
     const chartStub = suite.getChartStub();
     expect(getLastGraphicIds(chartStub)).toEqual(["slot-rect"]);
 
+    chartStub.setOption.mockClear();
     showGraphic.value = false;
     await nextTick();
     await flushAnimationFrame();
 
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
     const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic).toBeUndefined();
     expect(updateArg?.replaceMerge).toContain("graphic");

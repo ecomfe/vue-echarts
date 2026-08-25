@@ -44,6 +44,9 @@ export function registerExtension(): void {
         return;
       }
       hasGraphicSlot = nextHasGraphicSlot;
+      if (!hasGraphicSlot) {
+        collector?.cancelPendingFlush();
+      }
       handleFlush();
     });
 
