@@ -31,14 +31,9 @@ export const COMMON_PROP_KEYS = [
   "top",
   "bottom",
   "bounding",
-  "z",
-  "z2",
-  "zlevel",
   "silent",
   "draggable",
-  "cursor",
   "ignore",
-  "invisible",
   "extra",
   "info",
   "tooltip",
@@ -56,6 +51,8 @@ export const COMMON_PROP_KEYS = [
 ] as const;
 
 export const GROUP_PROP_KEYS = ["width", "height"] as const;
+
+export const DISPLAYABLE_PROP_KEYS = ["z", "z2", "zlevel", "cursor", "invisible"] as const;
 
 export const PATH_PROP_KEYS = ["autoBatch"] as const;
 
@@ -148,6 +145,7 @@ export const STYLE_KEYS_BY_TYPE = {
 
 export type GraphicCommonPropKey = (typeof COMMON_PROP_KEYS)[number];
 export type GraphicGroupPropKey = (typeof GROUP_PROP_KEYS)[number];
+export type GraphicDisplayablePropKey = (typeof DISPLAYABLE_PROP_KEYS)[number];
 export type GraphicPathPropKey = (typeof PATH_PROP_KEYS)[number];
 export type GraphicCommonStyleKey = (typeof COMMON_STYLE_KEYS)[number];
 export type GraphicPathStyleKey = (typeof PATH_STYLE_KEYS)[number];
@@ -169,7 +167,7 @@ type GraphicTextAlign = "left" | "center" | "right";
 type GraphicTextVerticalAlign = "top" | "middle" | "bottom";
 type GraphicTextOverflow = "break" | "breakAll" | "truncate" | "none";
 
-const graphicCommonOnlyProps = {
+const elementProps = {
   id: [String, Number] as PropType<string | number>,
   name: String,
   x: Number,
@@ -212,7 +210,7 @@ const graphicCommonOnlyProps = {
   updateAnimation: Object as PropType<object>,
   leaveAnimation: Object as PropType<object>,
   keyframeAnimation: [Object, Array] as PropType<object>,
-} as const satisfies Record<GraphicCommonPropKey, unknown>;
+} as const satisfies Record<GraphicCommonPropKey | GraphicDisplayablePropKey, unknown>;
 
 const groupProps = {
   width: Number,
@@ -297,7 +295,7 @@ const imageStyleProps = {
 } as const satisfies Record<GraphicImageStyleOnlyKey, unknown>;
 
 export const commonProps = {
-  ...graphicCommonOnlyProps,
+  ...elementProps,
   ...groupProps,
   ...pathProps,
   shape: Object as PropType<Record<string, unknown>>,

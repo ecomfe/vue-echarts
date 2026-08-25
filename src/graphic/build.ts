@@ -4,6 +4,7 @@ import type { EventHandler } from "../utils";
 import {
   COMMON_PROP_KEYS,
   COMMON_STYLE_KEYS,
+  DISPLAYABLE_PROP_KEYS,
   GROUP_PROP_KEYS,
   PATH_PROP_KEYS,
   PATH_STYLE_KEYS,
@@ -148,6 +149,8 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     }
     return out as Option;
   }
+
+  mergeProps(out, DISPLAYABLE_PROP_KEYS, props);
 
   const shape = shapeKeys
     ? buildNestedProps(props.shape, props, shapeKeys, props.shapeTransition)

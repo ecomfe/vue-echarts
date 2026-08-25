@@ -17,6 +17,7 @@ import { commonProps } from "./props-common";
 import type {
   GraphicCommonPropKey,
   GraphicCommonStyleKey,
+  GraphicDisplayablePropKey,
   GraphicGroupPropKey,
   GraphicImageStyleKey,
   GraphicPathPropKey,
@@ -39,6 +40,7 @@ type NestedShapePropKey = "shape" | "shapeTransition";
 type NestedStylePropKey = "style" | "styleTransition";
 type SpecializedPropKey =
   | GraphicCommonStyleKey
+  | GraphicDisplayablePropKey
   | GraphicPathPropKey
   | GraphicPathStyleKey
   | GraphicTextStyleKey
@@ -65,12 +67,15 @@ type PathPropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_
   ? NestedShapePropKey | GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
   : never;
 type GroupPropKey<T extends GraphicComponentType> = T extends "group" ? GraphicGroupPropKey : never;
+type DisplayablePropKey<T extends GraphicComponentType> = T extends "group"
+  ? never
+  : GraphicDisplayablePropKey;
 type ComponentProps<T extends GraphicComponentType> = Pick<
   Omit<typeof componentProps, "r"> & {
     readonly r: T extends "rect" ? (typeof componentProps)["r"] : NumberConstructor;
   },
   Extract<
-    SharedPropKey | GroupPropKey<T> | PathPropKey<T> | StylePropKey<T>,
+    SharedPropKey | GroupPropKey<T> | DisplayablePropKey<T> | PathPropKey<T> | StylePropKey<T>,
     keyof typeof componentProps
   >
 >;

@@ -43,7 +43,13 @@ type _unsupportedProps = Assert<
   IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
 >;
 type _groupRejectsElementProps = Assert<
-  IsEqual<Extract<"fill" | "text" | "image" | "cx", keyof GroupProps>, never>
+  IsEqual<
+    Extract<
+      "fill" | "text" | "image" | "cx" | "z" | "z2" | "zlevel" | "cursor" | "invisible",
+      keyof GroupProps
+    >,
+    never
+  >
 >;
 type _rectRejectsForeignProps = Assert<
   IsEqual<Extract<"cx" | "points" | "text" | "image", keyof RectProps>, never>
