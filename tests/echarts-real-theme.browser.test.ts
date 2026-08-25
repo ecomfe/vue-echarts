@@ -7,7 +7,7 @@ import { TooltipComponent } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
 import type { ComponentExposed } from "vue-component-type-helpers";
 import ECharts from "../src/ECharts";
-import type { EChartsType, Option } from "../src/types";
+import type { EChartsType, Option, Theme } from "../src/types";
 import { render } from "./helpers/testing";
 import { flushAnimationFrame } from "./helpers/dom";
 
@@ -157,8 +157,9 @@ describe("ECharts theme behavior (real echarts)", () => {
 });
 
 describe("ECharts callback slots (real echarts)", () => {
-  it("restores the built-in tooltip after its slot is removed", async () => {
+  it("keeps a callback through theme changes and restores the built-in tooltip after removal", async () => {
     const showTooltipSlot = ref(true);
+    const theme = ref<Theme | undefined>("dark");
     const option: Option = {
       tooltip: { trigger: "item" },
     };
@@ -171,6 +172,7 @@ describe("ECharts callback slots (real echarts)", () => {
             ECharts,
             {
               option,
+              theme: theme.value,
               style: "width: 640px; height: 420px;",
               ref: createExposeSetter(exposed),
             },
@@ -185,6 +187,11 @@ describe("ECharts callback slots (real echarts)", () => {
     const chart = getChart(exposed.value);
     const getFormatter = () =>
       (chart.getOption() as { tooltip?: Array<{ formatter?: unknown }> }).tooltip?.[0]?.formatter;
+
+    expect(getFormatter()).toBeTypeOf("function");
+
+    theme.value = undefined;
+    await nextTick();
 
     expect(getFormatter()).toBeTypeOf("function");
 

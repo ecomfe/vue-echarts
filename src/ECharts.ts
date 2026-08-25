@@ -119,6 +119,7 @@ export default /* @__PURE__ */ defineComponent({
     let initOptionsInvalidated = false;
     let themeUpdatePending = false;
     let optionUpdatePending = false;
+    let optionReplayRequired = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
     let terminallyDisposed = false;
@@ -206,6 +207,7 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       applyOption(instance, option, updateOptions, mode);
+      optionReplayRequired = true;
       return true;
     }
 
@@ -243,6 +245,7 @@ export default /* @__PURE__ */ defineComponent({
     function init(): void {
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
+      optionReplayRequired = false;
 
       ensureStyles(root.value?.getRootNode());
 
@@ -364,6 +367,7 @@ export default /* @__PURE__ */ defineComponent({
           return;
         }
         applyOption(instance, nextOption);
+        optionReplayRequired = true;
       },
       // Graphic nodes register during render, so update after the collected tree is current.
       { deep: true, flush: updateFlush },
@@ -393,6 +397,8 @@ export default /* @__PURE__ */ defineComponent({
           return;
         }
         themeInvalidated = false;
+        // ECharts rebuilds from its initial option snapshot when applying a theme.
+        const replayOption = optionReplayRequired || optionUpdatePending;
         optionUpdatePending = false;
         nextTick(() => {
           themeUpdatePending = false;
@@ -414,12 +420,14 @@ export default /* @__PURE__ */ defineComponent({
 
           const option = getAutoOption();
           if (
+            replayOption &&
             isActive(instance) &&
             option &&
             !manualUpdate.value &&
             !deferredCharts?.has(instance)
           ) {
             applyOption(instance, option);
+            optionReplayRequired = true;
           }
         }
       },

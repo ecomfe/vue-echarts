@@ -266,9 +266,11 @@ describe("ECharts component", () => {
     expect(passedInit).toEqual({ renderer: "svg" });
 
     const currentStub = chartStub;
+    currentStub.setOption.mockClear();
     theme.value = { color: colors };
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
+    expect(currentStub.setOption).not.toHaveBeenCalled();
 
     currentStub.setTheme.mockClear();
     currentStub.setOption.mockClear();
@@ -284,21 +286,22 @@ describe("ECharts component", () => {
 
     expect(currentStub.setTheme).toHaveBeenCalledOnce();
     expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
-    expect(currentStub.setOption).toHaveBeenCalledOnce();
+    expect(currentStub.setOption).not.toHaveBeenCalled();
 
     theme.value = undefined;
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({});
+    expect(currentStub.setOption).not.toHaveBeenCalled();
   });
 
   it("stops option replay when a theme event disposes the component", async () => {
-    const option = { title: { text: "theme-dispose" } };
+    const option = ref<Option>({ title: { text: "theme-dispose" } });
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
 
     renderChart(
       () => ({
-        option,
+        option: option.value,
         theme: theme.value,
         onRendered: () => getExposed(exposed).dispose(),
       }),
@@ -312,6 +315,7 @@ describe("ECharts component", () => {
       binding?.[1]({ elapsedTime: 1 });
     });
 
+    option.value = { title: { text: "discarded" } };
     theme.value = undefined;
     await nextTick();
 
@@ -343,48 +347,6 @@ describe("ECharts component", () => {
     theme.value = "";
     await nextTick();
     expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-  });
-
-  it("reapplies latest graph option after theme changes when data is assigned later", async () => {
-    const option = ref<Option>({
-      series: {
-        type: "graph",
-        layout: "none",
-      } as Option["series"],
-    });
-    const theme = ref<Theme | undefined>("dark");
-    const exposed = shallowRef<Exposed>();
-
-    renderChart(
-      () => ({
-        option: option.value,
-        theme: theme.value,
-      }),
-      exposed,
-    );
-    await nextTick();
-
-    const series = option.value.series as Record<string, unknown>;
-    series.data = [
-      { id: "root", x: 0, y: 0 },
-      { id: "child", x: 100, y: 0 },
-    ];
-    series.links = [{ source: "root", target: "child" }];
-    await nextTick();
-
-    const callsBeforeTheme = chartStub.setOption.mock.calls.length;
-    theme.value = undefined;
-    await nextTick();
-
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-    expect(chartStub.setOption.mock.calls.length).toBe(callsBeforeTheme + 1);
-
-    const [optionArg] = getLastSetOptionCall(chartStub);
-    const seriesArg = (
-      Array.isArray(optionArg.series) ? optionArg.series[0] : optionArg.series
-    ) as Record<string, unknown>;
-    expect((seriesArg.data as unknown[])?.length).toBe(2);
-    expect((seriesArg.links as unknown[])?.length).toBe(1);
   });
 
   it("does not auto-apply option on theme changes in manual-update mode", async () => {
@@ -548,114 +510,6 @@ describe("ECharts component", () => {
       });
     },
   );
-
-  it("reapplies option with explicit updateOptions after theme changes", async () => {
-    const option = ref<Option>({ series: [{ type: "line", data: [1, 2, 3] }] });
-    const theme = ref<Theme | undefined>("dark");
-    const updateOptions = ref<UpdateOptions>({
-      notMerge: true,
-      replaceMerge: ["series"],
-    });
-    const exposed = shallowRef<Exposed>();
-
-    renderChart(
-      () => ({
-        option: option.value,
-        theme: theme.value,
-        updateOptions: updateOptions.value,
-      }),
-      exposed,
-    );
-    await nextTick();
-
-    chartStub.setOption.mockClear();
-    theme.value = undefined;
-    await nextTick();
-
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
-      notMerge: true,
-      replaceMerge: ["series"],
-    });
-  });
-
-  it("reapplies option with injected updateOptions after theme changes", async () => {
-    const option = ref<Option>({ series: [{ type: "line", data: [3, 2, 1] }] });
-    const theme = ref<Theme | undefined>("dark");
-    const defaults = ref<UpdateOptions>({
-      lazyUpdate: true,
-      replaceMerge: ["dataset"],
-    });
-    const exposed = shallowRef<Exposed>();
-
-    const Root = defineComponent({
-      setup() {
-        const setExposed = createExposedRef(exposed);
-        provide(UPDATE_OPTIONS_KEY, () => defaults.value);
-        return () =>
-          h(ECharts, {
-            option: option.value,
-            theme: theme.value,
-            ref: setExposed,
-          });
-      },
-    });
-
-    render(Root);
-    await nextTick();
-
-    chartStub.setOption.mockClear();
-    theme.value = undefined;
-    await nextTick();
-
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
-      lazyUpdate: true,
-      replaceMerge: ["dataset"],
-    });
-  });
-
-  it("reapplies slot-patched option after theme changes", async () => {
-    const option = ref<Option>({});
-    const theme = ref<Theme | undefined>("dark");
-    const exposed = shallowRef<Exposed>();
-
-    const Root = defineComponent({
-      setup() {
-        const setExposed = createExposedRef(exposed);
-        return () =>
-          h(
-            ECharts,
-            {
-              option: option.value,
-              theme: theme.value,
-              ref: setExposed,
-            },
-            {
-              tooltip: (params: unknown) => [
-                h("span", String((params as { dataIndex: number }).dataIndex)),
-              ],
-            },
-          );
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    await nextTick();
-
-    chartStub.setOption.mockClear();
-    theme.value = undefined;
-    await nextTick();
-
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    const [patchedOption] = chartStub.setOption.mock.calls[0] as [Record<string, unknown>, unknown];
-    const tooltip = patchedOption.tooltip as { formatter?: unknown } | undefined;
-    expect(typeof tooltip?.formatter).toBe("function");
-  });
 
   it("re-initializes only when initOptions change", async () => {
     const option = ref({ title: { text: "coffee" } });
@@ -2036,7 +1890,7 @@ describe("ECharts component", () => {
     });
   });
 
-  it("uses latest updateOptions when updateOptions and theme change in the same tick", async () => {
+  it("uses latest updateOptions when option and theme change in the same tick", async () => {
     const option = ref<Option>({ series: [{ type: "bar", data: [1, 2] }] });
     const theme = ref<Theme | undefined>("dark");
     const updateOptions = ref<UpdateOptions>({ notMerge: false });
@@ -2054,6 +1908,7 @@ describe("ECharts component", () => {
 
     chartStub.setOption.mockClear();
 
+    option.value = { series: [{ type: "bar", data: [3, 4] }] };
     updateOptions.value = { notMerge: true, replaceMerge: ["series"] };
     theme.value = undefined;
     await nextTick();
@@ -2064,6 +1919,7 @@ describe("ECharts component", () => {
       notMerge: true,
       replaceMerge: ["series"],
     });
+    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
   it("keeps slot patching intact when slot set and theme change in the same tick", async () => {
