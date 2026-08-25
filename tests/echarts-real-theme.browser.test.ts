@@ -99,7 +99,7 @@ describe("ECharts theme behavior (real echarts)", () => {
     expect(chart.getOption().backgroundColor).not.toBe("#111827");
   });
 
-  it("keeps delayed graph data after theme toggles", async () => {
+  it("replays reactive data but preserves a later public clear across theme changes", async () => {
     const isDark = ref(true);
     const theme = computed(() => (isDark.value ? "dark" : undefined));
     const option = ref<Option>({
@@ -135,7 +135,11 @@ describe("ECharts theme behavior (real echarts)", () => {
     await nextTick();
     await flushFrames();
 
-    const chart = getChart(exposed.value);
+    const instance = exposed.value;
+    if (!instance) {
+      throw new Error("Expected exposed instance to be defined.");
+    }
+    const chart = getChart(instance);
     expect(getSeriesDataLength(chart)).toBe(3);
 
     isDark.value = false;
@@ -143,6 +147,16 @@ describe("ECharts theme behavior (real echarts)", () => {
     await flushFrames();
 
     expect(getSeriesDataLength(chart)).toBe(3);
+    instance.clear();
+    expect(getSeriesDataLength(chart)).toBe(0);
+
+    isDark.value = true;
+    await nextTick();
+    expect(getSeriesDataLength(chart)).toBe(0);
+
+    series.data = buildGraphData().slice(0, 1);
+    await nextTick();
+    expect(getSeriesDataLength(chart)).toBe(1);
   });
 
   it("resets an empty theme without losing existing graph data", async () => {

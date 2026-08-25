@@ -470,6 +470,7 @@ export default /* @__PURE__ */ defineComponent({
       const instance = chart.value!;
       clear();
       deferredCharts?.delete(instance);
+      optionReplayRequired = false;
     };
 
     useLoading(chart, loading, loadingOptions);
