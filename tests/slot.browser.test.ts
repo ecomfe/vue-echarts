@@ -14,9 +14,7 @@ import type {
   TooltipComponentOption,
 } from "echarts";
 
-type SlotTestHandle = {
-  patchOption: ReturnType<typeof useSlotOption>["patchOption"];
-  render: ReturnType<typeof useSlotOption>["render"];
+type SlotTestHandle = ReturnType<typeof useSlotOption> & {
   setReady: (value: boolean) => void;
 };
 
@@ -29,10 +27,15 @@ const SlotTestComponent = defineComponent({
   },
   setup(props, ctx) {
     const ready = shallowRef(true);
-    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}), ready);
+    const { render, patchOption, patchUpdateOptions } = useSlotOption(
+      ctx.slots,
+      props.onChange ?? (() => {}),
+      ready,
+    );
 
     ctx.expose({
       patchOption,
+      patchUpdateOptions,
       render,
       setReady: (value: boolean) => {
         ready.value = value;
@@ -471,6 +474,30 @@ describe("useSlotOption", () => {
     expect(changeSpy.mock.calls[0]?.[0]).toBeUndefined();
   });
 
+  it("does not rebuild when a removed callback slot is restored before submission", async () => {
+    const visible = ref(true);
+    const { exposed } = renderSlotComponent(() => {
+      const slots: SlotDictionary = {};
+      if (visible.value) {
+        slots.tooltip = () => h("span", "tooltip");
+      }
+      return slots;
+    });
+
+    await nextTick();
+    const handle = getExposed(exposed);
+    handle.patchOption({});
+    expect(handle.patchUpdateOptions()).toBeUndefined();
+
+    visible.value = false;
+    await nextTick();
+    visible.value = true;
+    await nextTick();
+
+    handle.patchOption({});
+    expect(handle.patchUpdateOptions()).toBeUndefined();
+  });
+
   it("warns and skips invalid slot names", async () => {
     const changeSpy = vi.fn();
     await withConsoleWarnAsync(async (warnSpy) => {
@@ -560,17 +587,29 @@ describe("useSlotOption", () => {
   });
 
   it("skips slot patch when path is blocked by non-object", async () => {
-    const { exposed } = renderSlotComponent(() => ({
-      "tooltip-series-0": () => [h("span", "series-0")],
-    }));
+    const visible = ref(true);
+    const { exposed } = renderSlotComponent(() => {
+      const slots: SlotDictionary = {};
+      if (visible.value) {
+        slots["tooltip-series-0"] = () => [h("span", "series-0")];
+      }
+      return slots;
+    });
 
     await nextTick();
 
     const option = { series: 1 } as unknown as Option;
-    const patched = getExposed(exposed).patchOption(option);
+    const handle = getExposed(exposed);
+    const patched = handle.patchOption(option);
 
     expect(patched.series).toBe(1);
     expect(typeof patched.series).toBe("number");
+    expect(handle.patchUpdateOptions()).toBeUndefined();
+
+    visible.value = false;
+    await nextTick();
+    handle.patchOption(option);
+    expect(handle.patchUpdateOptions()).toBeUndefined();
   });
 
   it("does not create properties for non-index array segments", async () => {

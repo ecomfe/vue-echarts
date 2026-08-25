@@ -6,6 +6,7 @@ import {
   onMounted,
   shallowRef,
   shallowReactive,
+  watchSyncEffect,
 } from "vue";
 import type { Ref, Slots, SlotsType } from "vue";
 import type { Option, UpdateOptions } from "../types";
@@ -113,7 +114,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   let slotNames = EMPTY_SLOT_NAMES;
   let nextSlotNames = slotNames;
-  let resetPending = false;
+  let appliedSlotNames = slotNames;
+  let patchedSlotNames = slotNames;
+
+  watchSyncEffect(() => {
+    if (!ready.value) {
+      appliedSlotNames = patchedSlotNames = EMPTY_SLOT_NAMES;
+    }
+  });
 
   function syncSlotNames(names: readonly SlotName[]): boolean {
     let changed = names.length !== slotNames.length;
@@ -129,10 +137,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     }
 
     const nextSlotNameSet = new Set(names);
-    let removed = false;
     for (const key of slotNames) {
       if (!nextSlotNameSet.has(key)) {
-        removed = true;
         if (state) {
           delete state.params[key];
           delete state.initialized[key];
@@ -140,11 +146,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
           state.bindings.delete(key);
         }
       }
-    }
-
-    // ECharts merge retains formatter fields omitted after a slot is removed.
-    if (removed) {
-      resetPending = true;
     }
     slotNames = names;
     return true;
@@ -188,10 +189,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     const names = collectSlotNames();
     syncSlotNames(names);
     if (names.length === 0) {
+      patchedSlotNames = EMPTY_SLOT_NAMES;
       return src;
     }
     const { bindings, initialized, params, containers } = getState();
     const root: Option = { ...src };
+    let patchedNames: SlotName[] | undefined;
 
     for (const key of names) {
       let binding = bindings.get(key);
@@ -235,16 +238,20 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
       const leaf = path[path.length - 1];
       writeSegment(current, leaf, formatter);
+      (patchedNames ??= []).push(key);
     }
 
+    patchedSlotNames = patchedNames ?? EMPTY_SLOT_NAMES;
     return root;
   }
 
   function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
-    if (!resetPending) {
+    // ECharts merge retains formatter fields omitted after a slot is removed.
+    const removed = appliedSlotNames.some((key) => !patchedSlotNames.includes(key));
+    appliedSlotNames = patchedSlotNames;
+    if (!removed) {
       return updateOptions;
     }
-    resetPending = false;
     return updateOptions?.notMerge ? updateOptions : { ...updateOptions, notMerge: true };
   }
 
