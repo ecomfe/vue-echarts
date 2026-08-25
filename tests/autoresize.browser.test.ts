@@ -133,14 +133,20 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("skips stale throttled work and resizes immediately after zero-sized recovery", async () => {
+  it("cancels obsolete throttled work and resizes immediately after zero-sized recovery", async () => {
     let pendingResize: (() => void) | undefined;
-    const runPendingResize = () => pendingResize?.();
+    const runPendingResize = () => {
+      const resize = pendingResize;
+      pendingResize = undefined;
+      resize?.();
+    };
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
         pendingResize = fn as () => void;
       }) as ReturnType<typeof throttle>;
-      throttled.clear = vi.fn();
+      throttled.clear = vi.fn(() => {
+        pendingResize = undefined;
+      });
       return throttled;
     });
 
@@ -167,6 +173,7 @@ describe("useAutoresize", () => {
     expect(resize).not.toHaveBeenCalled();
 
     container.style.width = "120px";
+    await flushAnimationFrame();
     runPendingResize();
     expect(resize).not.toHaveBeenCalled();
     expect(onResize).not.toHaveBeenCalled();
@@ -179,7 +186,6 @@ describe("useAutoresize", () => {
     expect(resize).not.toHaveBeenCalled();
     expect(onResize).not.toHaveBeenCalled();
 
-    pendingResize = undefined;
     container.style.width = "180px";
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledOnce();
@@ -192,6 +198,13 @@ describe("useAutoresize", () => {
     runPendingResize();
     expect(resize).toHaveBeenCalledTimes(2);
     expect(onResize).toHaveBeenCalledOnce();
+
+    container.style.width = "220px";
+    await flushAnimationFrame();
+    expect(pendingResize).toBeTypeOf("function");
+
+    chart.value = undefined;
+    expect(pendingResize).toBeUndefined();
 
     scope.stop();
   });
