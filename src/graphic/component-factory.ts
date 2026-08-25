@@ -14,7 +14,13 @@ import { resolveIdentity } from "./identity";
 import { GRAPHIC_COMPONENT_MARKER, type GraphicComponentType } from "./marker";
 import { createOrderTracker } from "./order";
 import { commonProps } from "./props-common";
-import { shapeProps } from "./props-shape";
+import type {
+  GraphicBaseStyleKey,
+  GraphicCommonPropKey,
+  GraphicImageStyleKey,
+  GraphicTextStyleKey,
+} from "./props-common";
+import { SHAPE_KEYS_BY_TYPE, shapeProps } from "./props-shape";
 import type { GraphicEmits } from "./types";
 
 const componentProps = {
@@ -22,12 +28,33 @@ const componentProps = {
   ...shapeProps,
 } as const;
 
+type SpecializedPropKey =
+  | GraphicBaseStyleKey
+  | GraphicTextStyleKey
+  | GraphicImageStyleKey
+  | keyof typeof shapeProps;
+type SharedPropKey =
+  | Exclude<keyof typeof componentProps, SpecializedPropKey>
+  | GraphicCommonPropKey;
+type StylePropKey<T extends GraphicComponentType> = T extends "group"
+  ? never
+  :
+      | GraphicBaseStyleKey
+      | (T extends "text" ? GraphicTextStyleKey : T extends "image" ? GraphicImageStyleKey : never);
+type ShapePropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
+  ? (typeof SHAPE_KEYS_BY_TYPE)[T][number]
+  : never;
+type ComponentProps<T extends GraphicComponentType> = Pick<
+  typeof componentProps,
+  Extract<SharedPropKey | StylePropKey<T> | ShapePropKey<T>, keyof typeof componentProps>
+>;
+
 /* @__NO_SIDE_EFFECTS__ */
-export function createComponent(name: string, type: GraphicComponentType) {
+export function createComponent<T extends GraphicComponentType>(name: string, type: T) {
   const component = defineComponent({
     name,
     inheritAttrs: false,
-    props: componentProps,
+    props: componentProps as ComponentProps<T>,
     emits: {} as unknown as GraphicEmits,
     setup(props, { attrs, slots }) {
       const instance = getCurrentInstance()!;
@@ -45,7 +72,11 @@ export function createComponent(name: string, type: GraphicComponentType) {
       watch([props, () => attrs], requestFlush, { deep: true });
 
       function register(): string {
-        const identity = resolveIdentity(props.id, instance.vnode.key, instance.uid);
+        const identity = resolveIdentity(
+          (props as { id?: string | number }).id,
+          instance.vnode.key,
+          instance.uid,
+        );
         if (identity.missingIdentity) {
           warnScoped(
             `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
@@ -100,4 +131,6 @@ export function createComponent(name: string, type: GraphicComponentType) {
   return component;
 }
 
-export type GraphicComponent = ReturnType<typeof createComponent>;
+export type GraphicComponent<T extends GraphicComponentType> = ReturnType<
+  typeof createComponent<T>
+>;

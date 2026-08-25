@@ -8,9 +8,19 @@ import type {
   TooltipComponentOption,
 } from "echarts";
 
-import { GEllipse, GImage, GPolyline, GRect, GText } from "../../src/graphic/components";
+import {
+  GCircle,
+  GEllipse,
+  GGroup,
+  GImage,
+  GPolyline,
+  GRect,
+  GText,
+} from "../../src/graphic/components";
 
+type GroupProps = InstanceType<typeof GGroup>["$props"];
 type ImageProps = InstanceType<typeof GImage>["$props"];
+type CircleProps = InstanceType<typeof GCircle>["$props"];
 type EllipseProps = InstanceType<typeof GEllipse>["$props"];
 type PolylineProps = InstanceType<typeof GPolyline>["$props"];
 type RectProps = InstanceType<typeof GRect>["$props"];
@@ -25,6 +35,21 @@ type GraphicOptionProp<K extends PropertyKey> = NonNullable<OptionProp<GraphicCo
 
 type _unsupportedProps = Assert<
   IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
+>;
+type _groupRejectsElementProps = Assert<
+  IsEqual<Extract<"fill" | "text" | "image" | "cx", keyof GroupProps>, never>
+>;
+type _rectRejectsForeignProps = Assert<
+  IsEqual<Extract<"cx" | "points" | "text" | "image", keyof RectProps>, never>
+>;
+type _circleRejectsForeignProps = Assert<
+  IsEqual<Extract<"x1" | "points" | "text" | "image", keyof CircleProps>, never>
+>;
+type _textRejectsForeignProps = Assert<
+  IsEqual<Extract<"cx" | "points" | "image" | "sx", keyof TextProps>, never>
+>;
+type _imageRejectsForeignProps = Assert<
+  IsEqual<Extract<"cx" | "points" | "text" | "overflow", keyof ImageProps>, never>
 >;
 type _duringType = Assert<
   IsAssignable<
