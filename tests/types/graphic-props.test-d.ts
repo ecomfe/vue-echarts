@@ -18,6 +18,8 @@ type TextProps = InstanceType<typeof GText>["$props"];
 
 type Assert<T extends true> = T;
 type IsAssignable<From, To> = [From] extends [To] ? true : false;
+type IsEqual<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 type OptionProp<T, K extends PropertyKey> = T extends { [P in K]?: infer V } ? V : never;
 type GraphicOptionProp<K extends PropertyKey> = NonNullable<OptionProp<GraphicComponentOption, K>>;
 
@@ -31,6 +33,7 @@ type _duringType = Assert<
   >
 >;
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
+type _boundingType = Assert<IsEqual<RectProps["bounding"], "raw" | "all" | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<
   IsAssignable<TooltipComponentOption, RectProps["tooltip"]>
 >;
@@ -70,6 +73,11 @@ type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"
 type _strokePercentType = Assert<IsAssignable<RectProps["strokePercent"], number | undefined>>;
 type _strokeFirstAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeFirst"]>>;
 type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]>>;
+type _lineDashType = Assert<
+  IsEqual<RectProps["lineDash"], false | number[] | "solid" | "dashed" | "dotted" | undefined>
+>;
+type _lineCapType = Assert<IsEqual<RectProps["lineCap"], CanvasLineCap | undefined>>;
+type _lineJoinType = Assert<IsEqual<RectProps["lineJoin"], CanvasLineJoin | undefined>>;
 type _strokeNoScaleAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeNoScale"]>>;
 type _fillOpacityType = Assert<IsAssignable<RectProps["fillOpacity"], number | undefined>>;
 type _strokeOpacityType = Assert<IsAssignable<RectProps["strokeOpacity"], number | undefined>>;
@@ -84,9 +92,25 @@ type _smoothConstraintAcceptsVectors = Assert<
 type _rxType = Assert<IsAssignable<EllipseProps["rx"], number | undefined>>;
 type _ryType = Assert<IsAssignable<EllipseProps["ry"], number | undefined>>;
 type _fontWeightAcceptsNumber = Assert<IsAssignable<number, TextProps["fontWeight"]>>;
+type _fontStyleType = Assert<
+  IsEqual<TextProps["fontStyle"], "normal" | "italic" | "oblique" | undefined>
+>;
+type _fontWeightType = Assert<
+  IsEqual<TextProps["fontWeight"], "normal" | "bold" | "bolder" | "lighter" | number | undefined>
+>;
 type _fontSizeAcceptsString = Assert<IsAssignable<string, TextProps["fontSize"]>>;
-type _overflowType = Assert<IsAssignable<TextProps["overflow"], string | undefined>>;
-type _lineOverflowType = Assert<IsAssignable<TextProps["lineOverflow"], string | undefined>>;
+type _alignType = Assert<IsEqual<TextProps["align"], "left" | "center" | "right" | undefined>>;
+type _verticalAlignType = Assert<
+  IsEqual<TextProps["verticalAlign"], "top" | "middle" | "bottom" | undefined>
+>;
+type _legacyAlignType = Assert<IsEqual<TextProps["textAlign"], TextProps["align"]>>;
+type _legacyVerticalAlignType = Assert<
+  IsEqual<TextProps["textVerticalAlign"], TextProps["verticalAlign"]>
+>;
+type _overflowType = Assert<
+  IsEqual<TextProps["overflow"], "break" | "breakAll" | "truncate" | "none" | undefined>
+>;
+type _lineOverflowType = Assert<IsEqual<TextProps["lineOverflow"], "truncate" | undefined>>;
 type _ellipsisType = Assert<IsAssignable<TextProps["ellipsis"], string | undefined>>;
 type _placeholderType = Assert<IsAssignable<TextProps["placeholder"], string | undefined>>;
 type _truncateMinCharType = Assert<IsAssignable<TextProps["truncateMinChar"], number | undefined>>;

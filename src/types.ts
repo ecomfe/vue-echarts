@@ -35,12 +35,15 @@ export type AutoResize =
       onResize?: () => void;
     };
 
+export type FontStyle = "normal" | "italic" | "oblique";
+export type FontWeight = "normal" | "bold" | "bolder" | "lighter" | number;
+
 export type LoadingOptions = {
   text?: string;
   textColor?: string;
   fontSize?: number;
-  fontWeight?: "normal" | "bold" | "bolder" | "lighter" | number;
-  fontStyle?: "normal" | "italic" | "oblique";
+  fontWeight?: FontWeight;
+  fontStyle?: FontStyle;
   fontFamily?: string;
   maskColor?: string;
   showSpinner?: boolean;

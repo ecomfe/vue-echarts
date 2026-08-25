@@ -5,6 +5,7 @@ import type {
   PatternObject,
   TooltipComponentOption,
 } from "echarts";
+import type { FontStyle, FontWeight } from "../types";
 
 export type GraphicDuring = NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>;
 
@@ -143,6 +144,9 @@ export function withUndefinedDefault<T>(type: T) {
 type GraphicTextStyleOnlyKey = Exclude<GraphicTextStyleKey, "width" | "height">;
 type GraphicImageStyleOnlyKey = Exclude<GraphicImageStyleKey, "x" | "y" | "width" | "height">;
 type GraphicImageSource = string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement;
+type GraphicTextAlign = "left" | "center" | "right";
+type GraphicTextVerticalAlign = "top" | "middle" | "bottom";
+type GraphicTextOverflow = "break" | "breakAll" | "truncate" | "none";
 
 const graphicCommonOnlyProps = {
   id: [String, Number] as PropType<string | number>,
@@ -164,7 +168,7 @@ const graphicCommonOnlyProps = {
   bottom: [String, Number] as PropType<string | number>,
   width: [String, Number] as PropType<string | number>,
   height: [String, Number] as PropType<string | number>,
-  bounding: String,
+  bounding: String as PropType<"raw" | "all">,
   z: Number,
   z2: Number,
   zlevel: Number,
@@ -199,10 +203,12 @@ const baseStyleProps = {
   fillOpacity: Number,
   strokeOpacity: Number,
   lineWidth: Number,
-  lineDash: withUndefinedDefault([String, Array, Boolean] as PropType<string | number[] | false>),
+  lineDash: withUndefinedDefault([String, Array, Boolean] as PropType<
+    "solid" | "dashed" | "dotted" | number[] | false
+  >),
   lineDashOffset: Number,
-  lineCap: String,
-  lineJoin: String,
+  lineCap: String as PropType<CanvasLineCap>,
+  lineJoin: String as PropType<CanvasLineJoin>,
   miterLimit: Number,
   strokeFirst: withUndefinedDefault(Boolean),
   shadowBlur: Number,
@@ -216,12 +222,12 @@ const baseStyleProps = {
 const textStyleProps = {
   text: String,
   font: String,
-  fontStyle: String,
-  fontWeight: [String, Number] as PropType<string | number>,
+  fontStyle: String as PropType<FontStyle>,
+  fontWeight: [String, Number] as PropType<FontWeight>,
   fontFamily: String,
   fontSize: [String, Number] as PropType<string | number>,
-  align: String,
-  verticalAlign: String,
+  align: String as PropType<GraphicTextAlign>,
+  verticalAlign: String as PropType<GraphicTextVerticalAlign>,
   lineHeight: Number,
   backgroundColor: [String, Object] as PropType<string | { image: GraphicImageSource }>,
   padding: [Number, Array] as PropType<number | number[]>,
@@ -235,15 +241,15 @@ const textStyleProps = {
   textFill: String,
   textStroke: String,
   textStrokeWidth: Number,
-  textAlign: String,
-  textVerticalAlign: String,
+  textAlign: String as PropType<GraphicTextAlign>,
+  textVerticalAlign: String as PropType<GraphicTextVerticalAlign>,
   textLineHeight: Number,
   textShadowBlur: Number,
   textShadowOffsetX: Number,
   textShadowOffsetY: Number,
   textShadowColor: String,
-  overflow: String,
-  lineOverflow: String,
+  overflow: String as PropType<GraphicTextOverflow>,
+  lineOverflow: String as PropType<"truncate">,
   ellipsis: String,
   placeholder: String,
   truncateMinChar: Number,
