@@ -1479,8 +1479,15 @@ describe("ECharts component", () => {
     expect(updateOptions).toEqual(expect.objectContaining({ replaceMerge: ["series"] }));
   });
 
-  it("detaches listeners and stays disposed after public disposal", async () => {
-    const option = ref<Option>({ title: { text: "before" } });
+  it("detaches listeners and stops reactive work after public disposal", async () => {
+    const readTitle = vi.fn(() => "before");
+    const title = reactive({
+      get text() {
+        return readTitle();
+      },
+      revision: 0,
+    });
+    const option = ref<Option>({ title });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const manualUpdate = ref(false);
     const onClick = vi.fn();
@@ -1496,6 +1503,7 @@ describe("ECharts component", () => {
       exposed,
     );
     await nextTick();
+    readTitle.mockClear();
 
     const instance = getExposed(exposed);
     const element = instance.root;
@@ -1517,6 +1525,10 @@ describe("ECharts component", () => {
     expect(instance.chart).toBeUndefined();
     expect(instance.isDisposed()).toBe(true);
     expect(() => instance.getWidth()).toThrowError("ECharts has been disposed.");
+
+    title.revision++;
+    await nextTick();
+    expect(readTitle).not.toHaveBeenCalled();
 
     init.mockClear();
     option.value = { title: { text: "after" } };

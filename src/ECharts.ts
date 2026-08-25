@@ -245,11 +245,6 @@ export default /* @__PURE__ */ defineComponent({
       graphicSlotApplied = false;
     }
 
-    function dispose(): void {
-      terminallyDisposed = true;
-      cleanup();
-    }
-
     function init(): void {
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
@@ -330,7 +325,7 @@ export default /* @__PURE__ */ defineComponent({
     };
 
     // Mark synchronously so later batched replacements cannot mask nested changes.
-    watch(
+    const stopThemeWatch = watch(
       realTheme,
       (theme, previousTheme) => {
         if (isIgnorableWatchChange(theme, previousTheme)) {
@@ -343,7 +338,7 @@ export default /* @__PURE__ */ defineComponent({
       { deep: true, flush: "sync" },
     );
 
-    watch(
+    const stopInitOptionsWatch = watch(
       realInitOptions,
       (options, previousOptions) => {
         if (!isIgnorableWatchChange(options, previousOptions)) {
@@ -354,7 +349,7 @@ export default /* @__PURE__ */ defineComponent({
       { deep: true, flush: "sync" },
     );
 
-    watch(
+    const stopOptionWatch = watch(
       () => (manualUpdate.value ? SKIP_AUTO_UPDATE : props.option),
       (option, previousOption) => {
         // Mode changes reinitialize the chart, so the watcher must not update the outgoing instance.
@@ -382,7 +377,7 @@ export default /* @__PURE__ */ defineComponent({
       { deep: true, flush: updateFlush },
     );
 
-    watch([manualUpdate, initOptionsRevision], () => {
+    const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
       if (!mounted || terminallyDisposed) {
         return;
       }
@@ -390,7 +385,7 @@ export default /* @__PURE__ */ defineComponent({
       init();
     });
 
-    watch(
+    const stopThemeApplyWatch = watch(
       themeRevision,
       () => {
         const theme = realTheme.value;
@@ -435,12 +430,26 @@ export default /* @__PURE__ */ defineComponent({
       },
     );
 
-    watchSyncEffect(() => {
+    const stopGroupWatch = watchSyncEffect(() => {
       const instance = chart.value;
       if (isActive(instance)) {
         instance.group = props.group ?? "";
       }
     });
+
+    function dispose(): void {
+      if (terminallyDisposed) {
+        return;
+      }
+      terminallyDisposed = true;
+      stopThemeWatch();
+      stopInitOptionsWatch();
+      stopOptionWatch();
+      stopReinitWatch();
+      stopThemeApplyWatch();
+      stopGroupWatch();
+      cleanup();
+    }
 
     const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed);
     const clear = publicApi.clear;
