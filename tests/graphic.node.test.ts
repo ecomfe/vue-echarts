@@ -218,6 +218,8 @@ describe("graphic", () => {
           { ...common, id: "polyline", type: "polyline", props: { percent: 0.5 } },
           { ...common, id: "arc", type: "arc", props: { r0: 5 } },
           { ...common, id: "circle", type: "circle", props: { width: 10, height: 20 } },
+          { ...common, id: "text", type: "text", props: { shape: { x: 1 } } },
+          { ...common, id: "image", type: "image", props: { shapeTransition: "all" } },
         ],
         "root",
       ),
@@ -227,6 +229,8 @@ describe("graphic", () => {
       { type: "polyline", id: "polyline", shape: { percent: 0.5 } },
       { type: "arc", id: "arc" },
       { type: "circle", id: "circle" },
+      { type: "text", id: "text" },
+      { type: "image", id: "image" },
     ]);
   });
 

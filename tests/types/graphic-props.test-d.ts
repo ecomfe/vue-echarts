@@ -51,6 +51,15 @@ type _textRejectsForeignProps = Assert<
 type _imageRejectsForeignProps = Assert<
   IsEqual<Extract<"cx" | "points" | "text" | "overflow", keyof ImageProps>, never>
 >;
+type _nonPathRejectsShape = Assert<
+  IsEqual<
+    Extract<"shape" | "shapeTransition", keyof GroupProps | keyof TextProps | keyof ImageProps>,
+    never
+  >
+>;
+type _groupRejectsStyleTransition = Assert<
+  IsEqual<Extract<"styleTransition", keyof GroupProps>, never>
+>;
 type _nonPathRejectsAutoBatch = Assert<
   IsEqual<Extract<"autoBatch", keyof GroupProps | keyof TextProps | keyof ImageProps>, never>
 >;

@@ -30,11 +30,15 @@ const componentProps = {
   ...shapeProps,
 } as const;
 
+type NestedShapePropKey = "shape" | "shapeTransition";
+type NestedStylePropKey = "style" | "styleTransition";
 type SpecializedPropKey =
   | GraphicBaseStyleKey
   | GraphicPathPropKey
   | GraphicTextStyleKey
   | GraphicImageStyleKey
+  | NestedShapePropKey
+  | NestedStylePropKey
   | keyof typeof shapeProps;
 type SharedPropKey =
   | Exclude<keyof typeof componentProps, SpecializedPropKey>
@@ -42,10 +46,11 @@ type SharedPropKey =
 type StylePropKey<T extends GraphicComponentType> = T extends "group"
   ? never
   :
+      | NestedStylePropKey
       | GraphicBaseStyleKey
       | (T extends "text" ? GraphicTextStyleKey : T extends "image" ? GraphicImageStyleKey : never);
 type PathPropKey<T extends GraphicComponentType> = T extends keyof typeof SHAPE_KEYS_BY_TYPE
-  ? GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
+  ? NestedShapePropKey | GraphicPathPropKey | (typeof SHAPE_KEYS_BY_TYPE)[T][number]
   : never;
 type GroupPropKey<T extends GraphicComponentType> = T extends "group" ? GraphicGroupPropKey : never;
 type ComponentProps<T extends GraphicComponentType> = Pick<

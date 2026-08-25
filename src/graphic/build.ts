@@ -30,15 +30,13 @@ function mergeProps(
 function buildNestedProps(
   source: unknown,
   props: Record<string, unknown>,
-  keys: readonly string[] | undefined,
+  keys: readonly string[],
   transition: unknown,
   extraKeys?: readonly string[],
 ): Record<string, unknown> | undefined {
   const nested = source as Record<string, unknown> | undefined;
   let result = nested && Object.keys(nested).length > 0 ? { ...nested } : undefined;
-  if (keys) {
-    result = mergeProps(result, keys, props);
-  }
+  result = mergeProps(result, keys, props);
   if (extraKeys) {
     result = mergeProps(result, extraKeys, props);
   }
@@ -149,7 +147,9 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     return out as Option;
   }
 
-  const shape = buildNestedProps(props.shape, props, shapeKeys, props.shapeTransition);
+  const shape = shapeKeys
+    ? buildNestedProps(props.shape, props, shapeKeys, props.shapeTransition)
+    : undefined;
   if (shape) {
     out.shape = shape;
   }
