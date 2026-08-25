@@ -281,6 +281,7 @@ describe("graphic components", () => {
   it("accepts native text styles", async () => {
     const collector = createCollectorMock();
     const textStyle = {
+      width: "50%",
       backgroundColor: { image: "texture.png" },
       padding: [2, 4],
       margin: 3,

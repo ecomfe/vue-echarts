@@ -113,9 +113,12 @@ type _tooltipAcceptsEChartsOption = Assert<
 type _clipPathAcceptsObject = Assert<IsAssignable<object, RectProps["clipPath"]>>;
 type _clipPathAcceptsFalse = Assert<IsAssignable<false, RectProps["clipPath"]>>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
-type DimensionProps = GroupProps | ImageProps | RectProps | TextProps;
-type _widthType = Assert<IsEqual<DimensionProps["width"], number | undefined>>;
-type _heightType = Assert<IsEqual<DimensionProps["height"], number | undefined>>;
+type NumericDimensionProps = GroupProps | ImageProps | RectProps;
+type _numericWidthType = Assert<IsEqual<NumericDimensionProps["width"], number | undefined>>;
+type _textWidthType = Assert<IsEqual<TextProps["width"], string | number | undefined>>;
+type _heightType = Assert<
+  IsEqual<(NumericDimensionProps | TextProps)["height"], number | undefined>
+>;
 type _otherShapesRejectDimensions = Assert<
   IsEqual<
     Extract<"width" | "height", keyof CircleProps | keyof EllipseProps | keyof PolylineProps>,

@@ -40,6 +40,7 @@ const scalarRadiusProps = {
 } as const;
 const textComponentProps = {
   ...componentProps,
+  width: [String, Number] as PropType<string | number>,
   fill: String,
   stroke: String,
   lineDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
