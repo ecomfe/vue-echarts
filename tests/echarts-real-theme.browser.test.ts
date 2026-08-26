@@ -46,6 +46,10 @@ function getSeriesDataLength(chart: EChartsType): number {
   return option.series?.[0]?.data?.length ?? 0;
 }
 
+function getSeriesCount(chart: EChartsType): number {
+  return (chart.getOption() as { series?: unknown[] }).series?.length ?? 0;
+}
+
 async function flushFrames(count = 3): Promise<void> {
   for (let i = 0; i < count; i++) {
     await flushAnimationFrame();
@@ -157,6 +161,48 @@ describe("ECharts theme behavior (real echarts)", () => {
     series.data = buildGraphData().slice(0, 1);
     await nextTick();
     expect(getSeriesDataLength(chart)).toBe(1);
+  });
+
+  it("preserves the latest automatic option while its source is temporarily absent", async () => {
+    const theme = ref<Theme>("dark");
+    const option = ref<Option | undefined>({
+      series: [
+        { id: "keep", type: "graph", data: [{ id: "initial" }] },
+        { id: "remove", type: "graph", data: [] },
+      ],
+    });
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(ECharts, {
+            option: option.value,
+            theme: theme.value,
+            style: "width: 640px; height: 420px;",
+            ref: createExposeSetter(exposed),
+          });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    option.value = {
+      series: [{ id: "keep", type: "graph", data: buildGraphData() }],
+    };
+    await nextTick();
+
+    const chart = getChart(exposed.value);
+    expect(getSeriesDataLength(chart)).toBe(3);
+    expect(getSeriesCount(chart)).toBe(1);
+
+    option.value = undefined;
+    await nextTick();
+    theme.value = "";
+    await nextTick();
+
+    expect(getSeriesDataLength(chart)).toBe(3);
+    expect(getSeriesCount(chart)).toBe(1);
   });
 
   it("resets an empty theme without losing existing graph data", async () => {

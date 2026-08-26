@@ -485,6 +485,7 @@ describe("ECharts component", () => {
     option.value = {
       title: { text: "second" },
       series: [{ type: "bar", data: [2, 4] }],
+      graphic: [{ elements: [{ id: "cursor", type: "group", $action: "merge" }] }],
     };
     theme.value = { palette: ["#22d3ee"] };
     await nextTick();
@@ -499,6 +500,7 @@ describe("ECharts component", () => {
       title: { text: "second" },
       series: [{ data: [2, 4] }],
     });
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
   });
 
   it("does not drop option changes derived from theme changes", async () => {

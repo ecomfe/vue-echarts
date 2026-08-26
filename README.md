@@ -157,6 +157,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 - `option: object`
 
   ECharts' universal interface. Modifying this prop triggers Vue ECharts to compute an update plan and call `setOption`. Read more [here →](https://echarts.apache.org/en/option.html)
+  Temporarily removing the prop pauses automatic updates without letting a later theme change roll the chart back to its initial option.
 
   #### Smart update
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner. After you remove it, the first smart update rebuilds once to establish a safe structural baseline.

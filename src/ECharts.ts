@@ -51,7 +51,7 @@ import type { EChartsElement } from "./wc";
 import { ensureStyles } from "./style";
 
 const SKIP_AUTO_UPDATE = Symbol();
-type ApplyMode = "manual" | "graphic";
+type ApplyMode = "manual" | "graphic" | "theme";
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -118,6 +118,7 @@ export default /* @__PURE__ */ defineComponent({
 
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
     let lastSignature: Signature | null | undefined;
+    let lastAutoOption: Option | undefined;
     let themedChart: EChartsType | undefined;
     let initOptionsInvalidated = false;
     let themeUpdatePending = false;
@@ -149,8 +150,8 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     function patchUpdateOptions(
-      updateOptions?: UpdateOptions,
-      forceGraphic = false,
+      updateOptions: UpdateOptions | undefined,
+      forceGraphic: boolean,
     ): UpdateOptions | undefined {
       updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
@@ -167,27 +168,32 @@ export default /* @__PURE__ */ defineComponent({
       deferredCharts?.delete(instance);
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
+      const forceGraphic = mode === "graphic";
+      const skipPlanning = mode === "manual" || forceGraphic;
+      let updateOptions: UpdateOptions | undefined;
+      let nextSignature: Signature | null | undefined;
 
-      if (mode) {
-        const replaceGraphic = mode === "graphic";
-        const updateOptions = replaceGraphic
-          ? (realUpdateOptions.value ?? undefined)
-          : manualOptions;
-        commitOption(instance, patched, patchUpdateOptions(updateOptions, replaceGraphic));
-        return;
+      if (skipPlanning) {
+        updateOptions = forceGraphic ? (realUpdateOptions.value ?? undefined) : manualOptions;
+      } else if (realUpdateOptions.value) {
+        updateOptions = realUpdateOptions.value;
+        nextSignature = null;
+      } else {
+        const planned = planUpdate(lastSignature ?? undefined, slotted);
+        // Theme changes restore the first option; actions still need that existing element tree.
+        const rebuild =
+          !planned.signature.hasAction && (lastSignature === null || mode === "theme");
+        updateOptions = rebuild ? { ...planned.plan, notMerge: true } : planned.plan;
+        nextSignature = planned.signature;
       }
 
-      if (realUpdateOptions.value) {
-        commitOption(instance, patched, patchUpdateOptions(realUpdateOptions.value));
-        lastSignature = null;
-        return;
+      commitOption(instance, patched, patchUpdateOptions(updateOptions, forceGraphic));
+      if (!skipPlanning) {
+        lastSignature = nextSignature;
       }
-
-      const planned = planUpdate(lastSignature ?? undefined, slotted);
-      const updateOptions =
-        lastSignature === null ? { ...planned.plan, notMerge: true } : planned.plan;
-      commitOption(instance, patched, patchUpdateOptions(updateOptions));
-      lastSignature = planned.signature;
+      if (mode !== "manual") {
+        lastAutoOption = option;
+      }
     }
 
     function commitOption(
@@ -247,6 +253,7 @@ export default /* @__PURE__ */ defineComponent({
       }
       isReady.value = false;
       lastSignature = undefined;
+      lastAutoOption = undefined;
       themedChart = undefined;
       graphicSlotApplied = false;
     }
@@ -418,7 +425,7 @@ export default /* @__PURE__ */ defineComponent({
             instance.setTheme(theme || {});
           }
 
-          const option = getAutoOption();
+          const option = getAutoOption() ?? lastAutoOption;
           if (
             replayOption &&
             isActive(instance) &&
@@ -426,7 +433,7 @@ export default /* @__PURE__ */ defineComponent({
             !manualUpdate.value &&
             !deferredCharts?.has(instance)
           ) {
-            applyOption(instance, option);
+            applyOption(instance, option, "theme");
             optionReplayRequired = true;
           }
         }
@@ -464,6 +471,7 @@ export default /* @__PURE__ */ defineComponent({
       clear();
       deferredCharts?.delete(instance);
       lastSignature = undefined;
+      lastAutoOption = undefined;
       optionReplayRequired = false;
     };
 
