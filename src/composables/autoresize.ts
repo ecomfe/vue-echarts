@@ -38,6 +38,7 @@ export function useAutoresize(
       const { offsetWidth, offsetHeight } = container;
       let observedWidth = offsetWidth;
       let observedHeight = offsetHeight;
+      let active = true;
       if (chart !== sizedChart) {
         sizedChart = chart;
         sizedWidth = offsetWidth;
@@ -77,7 +78,7 @@ export function useAutoresize(
           return;
         }
         chart.resize();
-        if (chart.isDisposed()) {
+        if (!active || chart.isDisposed()) {
           stop();
           return;
         }
@@ -89,6 +90,7 @@ export function useAutoresize(
       const throttledResize = wait ? throttle(resize, wait) : undefined;
       const runResize = throttledResize ?? resize;
       function stop(): void {
+        active = false;
         observer.disconnect();
         throttledResize?.clear();
       }

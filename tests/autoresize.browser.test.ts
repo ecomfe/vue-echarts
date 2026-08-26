@@ -390,7 +390,8 @@ describe("useAutoresize", () => {
       useAutoresize(chart, autoresize, root);
     });
 
-    chart.value = createChart(resize, () => root.value, container);
+    const instance = createChart(resize, () => root.value, container);
+    chart.value = instance;
     root.value = container;
     await nextTick();
 
@@ -414,16 +415,21 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledTimes(1);
 
-    autoresize.value = false;
-    await nextTick();
-    chart.value.resize({ width: 70, height: 45 });
+    const syncResize = resize.getMockImplementation()!;
+    resize.mockImplementationOnce((options) => {
+      syncResize(options);
+      autoresize.value = false;
+    });
+    container.style.width = "180px";
+    await flushAnimationFrame();
+    instance.resize({ width: 70, height: 45 });
 
     autoresize.value = true;
     await nextTick();
 
-    expect(resize).toHaveBeenCalledTimes(3);
-    expect(chart.value.getWidth()).toBe(140);
-    expect(chart.value.getHeight()).toBe(120);
+    expect(resize).toHaveBeenCalledTimes(4);
+    expect(instance.getWidth()).toBe(180);
+    expect(instance.getHeight()).toBe(120);
 
     scope.stop();
     expect(throttledResize.clear).toHaveBeenCalledTimes(1);
