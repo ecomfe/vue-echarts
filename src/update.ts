@@ -416,6 +416,22 @@ function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape |
 function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
   let replaceMerge: string[] | undefined;
 
+  // Global arrays may already contain theme/default entries, while aria is only
+  // auto-enabled when it is present during initial model creation.
+  if (next.objectShapes.aria && !prev.objectShapes.aria) {
+    return null;
+  }
+  for (const key in next.collections) {
+    if (
+      !prev.collections[key] &&
+      !prev.objectShapes[key] &&
+      !prev.leaves.includes(key) &&
+      !ComponentModel.hasClass(key)
+    ) {
+      return null;
+    }
+  }
+
   for (const key in prev.objectShapes) {
     const prevShape = prev.objectShapes[key];
     const nextShape = next.objectShapes[key];
@@ -492,7 +508,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
 }
 
 /**
- * Produce an update plan that preserves option deletions.
+ * Produce an update plan that preserves option structure and initialization semantics.
  * Falls back to `notMerge: true` when the change looks complex.
  */
 export function planUpdate(prev: Signature | undefined, option: Option): PlannedUpdate {

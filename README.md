@@ -162,7 +162,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
   - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner. After you remove it, the first smart update rebuilds once to establish a safe structural baseline.
   - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in and are not carried across re-initializations.
   - Updates containing a graphic element `$action` keep normal merge for `graphic` so the command can target the existing element tree; safe removals of unrelated components still use `replaceMerge`.
-  - Otherwise, Vue ECharts analyses the change: component removals, reordering, and deletions inside anonymous components use `replaceMerge` when it can reproduce the requested order; deletions inside ID-matched components, identity ordering that `replaceMerge` cannot reproduce, non-component array shrinkage, and other risky changes fall back to `notMerge: true`.
+  - Otherwise, Vue ECharts analyses the change: component removals, reordering, and deletions inside anonymous components use `replaceMerge` when it can reproduce the requested order; deletions inside ID-matched components, identity ordering that `replaceMerge` cannot reproduce, newly introduced or shrinking non-component arrays, first-time ARIA configuration, and other risky changes fall back to `notMerge: true`.
 
 - `update-options: object`
 

@@ -303,6 +303,14 @@ describe("smart-update", () => {
         expect(result.plan.replaceMerge).toBeUndefined();
       });
 
+      it("keeps merge when the first component collection is added", () => {
+        const result = planUpdate(buildSignature({}), {
+          series: [{ id: "latte", type: "bar", data: [10, 20] }],
+        });
+
+        expect(result.plan).toEqual({ notMerge: false });
+      });
+
       it("keeps merge when anonymous series are appended", () => {
         const prev = buildSignature({ series: [{ type: "bar" }] });
         const result = planUpdate(prev, {
@@ -773,6 +781,29 @@ describe("smart-update", () => {
         });
 
         expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["dataset", "series"] });
+      });
+
+      it.each(["color", "gradientColor"] as const)(
+        "rebuilds when adding %s so default entries do not survive",
+        (key) => {
+          const update = { [key]: ["red", "blue"] } as EChartsOption;
+          const { applied, plan } = applyPlannedUpdate({}, update);
+
+          expect(plan).toEqual({ notMerge: true });
+          expect((applied as Record<string, unknown>)[key]).toEqual(["red", "blue"]);
+        },
+      );
+
+      it("rebuilds when aria is first added so ECharts enables it", () => {
+        const update: EChartsOption = { aria: { decal: { show: true } } };
+        const { applied, plan } = applyPlannedUpdate({}, update);
+
+        expect(plan).toEqual({ notMerge: true });
+        expect((applied as { aria?: unknown }).aria).toMatchObject({
+          enabled: true,
+          decal: { show: true },
+          label: { enabled: true },
+        });
       });
 
       it("rebuilds for destructive global array changes", () => {
