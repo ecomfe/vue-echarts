@@ -5,7 +5,6 @@ import type {
   CustomSeriesRenderItemReturn,
   GraphicComponentOption,
   PatternObject,
-  TooltipComponentOption,
 } from "echarts";
 
 import {
@@ -110,10 +109,11 @@ type _extraType = Assert<
 type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
 type _boundingType = Assert<IsEqual<RectProps["bounding"], "raw" | "all" | undefined>>;
 type _tooltipAcceptsEChartsOption = Assert<
-  IsAssignable<TooltipComponentOption, RectProps["tooltip"]>
+  IsAssignable<GraphicOptionProp<"tooltip">, RectProps["tooltip"]>
 >;
-type _clipPathAcceptsObject = Assert<IsAssignable<object, RectProps["clipPath"]>>;
-type _clipPathAcceptsFalse = Assert<IsAssignable<false, RectProps["clipPath"]>>;
+type _clipPathAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"clipPath">, RectProps["clipPath"]>
+>;
 type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
 type NumericDimensionProps = GroupProps | ImageProps | RectProps;
 type _numericWidthType = Assert<IsEqual<NumericDimensionProps["width"], number | undefined>>;
@@ -134,8 +134,9 @@ type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
 type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
 type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined>>;
 type _anchorYType = Assert<IsAssignable<RectProps["anchorY"], number | undefined>>;
-type _textContentType = Assert<IsAssignable<RectProps["textContent"], object | undefined>>;
-type _textConfigType = Assert<IsAssignable<RectProps["textConfig"], object | undefined>>;
+type _textContentAcceptsEChartsOption = Assert<
+  IsAssignable<GraphicOptionProp<"textContent">, RectProps["textContent"]>
+>;
 type _styleAcceptsEChartsOption = Assert<
   IsAssignable<GraphicOptionProp<"style">, RectProps["style"]>
 >;
