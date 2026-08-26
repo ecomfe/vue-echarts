@@ -177,6 +177,35 @@ describe("core events", () => {
     scope.stop();
   });
 
+  it("attempts every listener cleanup when one emitter rejects unbinding", async () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const attrs = reactive<Record<string, unknown>>({
+      onClick: vi.fn(),
+      "onZr:mousemove": vi.fn(),
+    });
+    const first = createChartStub();
+    const second = createChartStub();
+    const error = new Error("off failed");
+    (first.chart as unknown as EmitterStub).off.mockImplementationOnce(() => {
+      throw error;
+    });
+    first.zr.off.mockImplementationOnce(() => {
+      throw new Error("another off failed");
+    });
+    const scope = effectScope();
+
+    scope.run(() => useReactiveChartListeners(chartRef, attrs));
+    chartRef.value = first.chart;
+    await nextTick();
+
+    expect(() => {
+      chartRef.value = second.chart;
+    }).toThrow(error);
+    expect(first.zr.off).toHaveBeenCalledWith("mousemove", expect.any(Function));
+
+    scope.stop();
+  });
+
   it.each(["onClick", "onClickOnce"])(
     "unbinds and rebinds %s when its array is emptied in place",
     async (key) => {

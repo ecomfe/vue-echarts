@@ -38,8 +38,16 @@ export function useReactiveChartListeners(
     if (!current || activeInstance?.isDisposed()) {
       return;
     }
+    let errors: unknown[] | undefined;
     for (const binding of current.values()) {
-      binding.emitter.off(binding.event, binding.handler);
+      try {
+        binding.emitter.off(binding.event, binding.handler);
+      } catch (error) {
+        (errors ??= []).push(error);
+      }
+    }
+    if (errors) {
+      throw errors[0];
     }
   }
 
