@@ -1,4 +1,4 @@
-import { inject, watchSyncEffect, toValue } from "vue";
+import { computed, inject, toValue, watch, watchSyncEffect } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
@@ -13,41 +13,59 @@ export function useLoading(
   loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
+  const options = computed<LoadingOptions>(() => ({
+    ...toValue(defaultLoadingOptions),
+    ...loadingOptions.value,
+  }));
   let shown:
     | WeakMap<EChartsType, { type: string | undefined; options: LoadingOptions }>
     | undefined;
+  let applying = false;
 
-  watchSyncEffect(() => {
+  function sync(force = false): void {
     const instance = chart.value;
-    if (!instance || instance.isDisposed()) {
+    if (!instance || instance.isDisposed() || applying) {
       return;
     }
 
     if (loading.value) {
       const type = loadingType.value || undefined;
-      const options: LoadingOptions = {
-        ...toValue(defaultLoadingOptions),
-        ...loadingOptions.value,
-      };
+      const nextOptions = options.value;
       const previous = shown?.get(instance);
 
-      if (previous && previous.type === type && shallowEqual(options, previous.options)) {
+      if (
+        !force &&
+        previous &&
+        previous.type === type &&
+        shallowEqual(nextOptions, previous.options)
+      ) {
         return;
       }
 
-      // Loading renderers may fill defaults in place; keep the dedupe snapshot unchanged.
-      if (type) {
-        instance.showLoading(type, { ...options });
-      } else {
-        instance.showLoading({ ...options });
+      // Custom renderers may mutate nested config; ignore that synchronous feedback.
+      applying = true;
+      try {
+        if (type) {
+          instance.showLoading(type, { ...nextOptions });
+        } else {
+          instance.showLoading({ ...nextOptions });
+        }
+      } finally {
+        applying = false;
       }
-      (shown ??= new WeakMap()).set(instance, { type, options });
+      (shown ??= new WeakMap()).set(instance, { type, options: nextOptions });
       return;
     }
 
     if (shown?.delete(instance)) {
       instance.hideLoading();
     }
+  }
+
+  watchSyncEffect(() => sync());
+  watch(options, (value, previous) => value === previous && sync(true), {
+    deep: true,
+    flush: "sync",
   });
 }
 
