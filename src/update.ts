@@ -213,7 +213,7 @@ export function buildSignature(option: Option): Signature {
       const mode = key === "baseOption" ? "option" : undefined;
       const shape = buildShape(value, (stack ??= new WeakSet()), mode);
       objectShapes[key] = shape;
-      hasAction ||= hasExplicitAction(shape);
+      hasAction ||= mode !== undefined && hasExplicitAction(shape);
       continue;
     }
 
