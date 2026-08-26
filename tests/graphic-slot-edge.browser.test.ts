@@ -174,7 +174,11 @@ describe("graphic slot edge and integration behavior", () => {
         return () =>
           h(
             ECharts,
-            { option, autoresize: true },
+            {
+              option,
+              autoresize: true,
+              style: { width: "120px", height: "80px" },
+            },
             {
               graphic: () => h(GRect, { id: "slot-rect", x: 10, y: 10, width: 20, height: 12 }),
             },

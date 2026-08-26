@@ -74,6 +74,10 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
   );
 }
 
+export function hasZeroDimension(width: number, height: number): boolean {
+  return width === 0 || height === 0;
+}
+
 export function shallowEqual<T extends object>(left: T, right: T): boolean {
   const keys = Object.keys(left) as (keyof T)[];
   return (

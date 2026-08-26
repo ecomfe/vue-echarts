@@ -26,7 +26,7 @@ import {
   useSlotOption,
 } from "./composables";
 import type { PublicMethods, SlotsTypes } from "./composables";
-import { appendReplaceMerge, isIgnorableWatchChange, warn } from "./utils";
+import { appendReplaceMerge, hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -288,7 +288,7 @@ export default /* @__PURE__ */ defineComponent({
           if (instance.isDisposed()) {
             return;
           }
-          if (autoresize.value) {
+          if (autoresize.value && !hasZeroDimension(host.offsetWidth, host.offsetHeight)) {
             instance.resize();
             if (instance.isDisposed()) {
               return;

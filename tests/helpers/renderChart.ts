@@ -19,6 +19,7 @@ export function renderChart<T extends ComponentExposed<typeof ECharts>>(
     setup() {
       return () =>
         h(ECharts, {
+          style: { width: "120px", height: "80px" },
           ...propsFactory(),
           ref: setExposed,
         });

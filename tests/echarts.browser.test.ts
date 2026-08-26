@@ -1227,6 +1227,23 @@ describe("ECharts component", () => {
     observeSpy.mockRestore();
   });
 
+  it("skips the initial resize while the chart host has a zero dimension", async () => {
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(
+      () => ({
+        option: { title: { text: "hidden" } },
+        autoresize: true,
+        style: { width: "0", height: "80px" },
+      }),
+      exposed,
+    );
+    await nextTick();
+
+    expect(chartStub.resize).not.toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
+  });
+
   it("skips deferred resize when autoresize is disabled before initialization", async () => {
     const option = { title: { text: "disabled" } };
     const autoresize = ref(true);

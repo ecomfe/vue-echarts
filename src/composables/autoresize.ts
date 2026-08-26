@@ -3,8 +3,7 @@ import { throttle } from "echarts/core";
 
 import type { Ref, PropType } from "vue";
 import type { EChartsType, AutoResize } from "../types";
-
-const isZeroSize = (width: number, height: number) => width === 0 || height === 0;
+import { hasZeroDimension } from "../utils";
 
 export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
@@ -43,7 +42,7 @@ export function useAutoresize(
         sizedChart = chart;
         sizedWidth = offsetWidth;
         sizedHeight = offsetHeight;
-        wasZeroSized = isZeroSize(offsetWidth, offsetHeight);
+        wasZeroSized = hasZeroDimension(offsetWidth, offsetHeight);
       }
       if (!enabled) {
         sizedWidth = sizedHeight = undefined;
@@ -70,7 +69,7 @@ export function useAutoresize(
           stop();
           return;
         }
-        if (isZeroSize(observedWidth, observedHeight)) {
+        if (hasZeroDimension(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
         }
@@ -102,7 +101,7 @@ export function useAutoresize(
         const rect = entries?.find(({ target }) => target === container)?.contentRect;
         observedWidth = rect?.width ?? container.offsetWidth;
         observedHeight = rect?.height ?? container.offsetHeight;
-        if (isZeroSize(observedWidth, observedHeight)) {
+        if (hasZeroDimension(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
         }
