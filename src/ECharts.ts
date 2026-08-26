@@ -90,6 +90,7 @@ export default /* @__PURE__ */ defineComponent({
     const autoresize = toRef(props, "autoresize");
     const manualUpdate = toRef(props, "manualUpdate");
     const loading = toRef(props, "loading");
+    const loadingType = toRef(props, "loadingType");
     const loadingOptions = toRef(props, "loadingOptions");
 
     const realTheme = computed(() => props.theme ?? toValue(defaultTheme) ?? undefined);
@@ -462,7 +463,7 @@ export default /* @__PURE__ */ defineComponent({
       optionReplayRequired = false;
     };
 
-    useLoading(chart, loading, loadingOptions);
+    useLoading(chart, loading, loadingType, loadingOptions);
 
     useAutoresize(chart, autoresize, chartHost);
 

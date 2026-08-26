@@ -9,10 +9,13 @@ export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
   loading: Ref<boolean | undefined>,
+  loadingType: Ref<string | undefined>,
   loadingOptions: Ref<LoadingOptions | undefined>,
 ): void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
-  let shownOptions: WeakMap<EChartsType, LoadingOptions> | undefined;
+  let shown:
+    | WeakMap<EChartsType, { type: string | undefined; options: LoadingOptions }>
+    | undefined;
 
   watchSyncEffect(() => {
     const instance = chart.value;
@@ -21,23 +24,28 @@ export function useLoading(
     }
 
     if (loading.value) {
+      const type = loadingType.value || undefined;
       const options: LoadingOptions = {
         ...toValue(defaultLoadingOptions),
         ...loadingOptions.value,
       };
-      const previous = shownOptions?.get(instance);
+      const previous = shown?.get(instance);
 
-      if (previous && shallowEqual(options, previous)) {
+      if (previous && previous.type === type && shallowEqual(options, previous.options)) {
         return;
       }
 
       // Loading renderers may fill defaults in place; keep the dedupe snapshot unchanged.
-      instance.showLoading({ ...options });
-      (shownOptions ??= new WeakMap()).set(instance, options);
+      if (type) {
+        instance.showLoading(type, { ...options });
+      } else {
+        instance.showLoading({ ...options });
+      }
+      (shown ??= new WeakMap()).set(instance, { type, options });
       return;
     }
 
-    if (shownOptions?.delete(instance)) {
+    if (shown?.delete(instance)) {
       instance.hideLoading();
     }
   });
@@ -45,5 +53,6 @@ export function useLoading(
 
 export const loadingProps = {
   loading: Boolean,
+  loadingType: String,
   loadingOptions: Object as PropType<LoadingOptions>,
 };

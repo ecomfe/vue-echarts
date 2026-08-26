@@ -875,6 +875,7 @@ describe("ECharts component", () => {
   it("shows and hides loading based on props", async () => {
     const option = ref({});
     const loading = ref(true);
+    const loadingType = ref("custom");
     const loadingOptions = ref({ text: "Loading" });
     const exposed = shallowRef<Exposed>();
 
@@ -882,6 +883,7 @@ describe("ECharts component", () => {
       () => ({
         option: option.value,
         loading: loading.value,
+        loadingType: loadingType.value,
         loadingOptions: loadingOptions.value,
       }),
       exposed,
@@ -889,6 +891,14 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.showLoading).toHaveBeenCalledWith(
+      "custom",
+      expect.objectContaining({ text: "Loading" }),
+    );
+
+    loadingType.value = "alternate";
+    await nextTick();
+    expect(chartStub.showLoading).toHaveBeenLastCalledWith(
+      "alternate",
       expect.objectContaining({ text: "Loading" }),
     );
 

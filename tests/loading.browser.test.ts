@@ -16,9 +16,10 @@ function renderUseLoading(
   loadingOptions: Ref<LoadingOptions | undefined>,
   defaults?: LoadingOptionsInjection,
 ) {
+  const loadingType = ref<string>();
   const Host = defineComponent({
     setup() {
-      useLoading(chart, loading, loadingOptions);
+      useLoading(chart, loading, loadingType, loadingOptions);
       return () => null;
     },
   });

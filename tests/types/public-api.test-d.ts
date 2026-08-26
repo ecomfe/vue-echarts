@@ -16,6 +16,7 @@ type _chartType = Assert<IsEqual<Exposed["chart"], EChartsType | undefined>>;
 type _rootType = Assert<IsEqual<Exposed["root"], HTMLElement | undefined>>;
 type _stateIsReadonly = Assert<IsReadonly<Exposed, "chart" | "root">>;
 type _autoresizeType = Assert<IsEqual<Props["autoresize"], AutoResize | undefined>>;
+type _loadingType = Assert<IsEqual<Props["loadingType"], string | undefined>>;
 type CurrentEChartsMethod =
   | "getId"
   | "isSSR"

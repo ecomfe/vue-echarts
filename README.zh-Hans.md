@@ -182,6 +182,10 @@ app.component('VChart', VueECharts)
 
   图表是否处于加载状态。
 
+- `loading-type: string`
+
+  已注册的加载动画名称。该值会作为 `echartsInstance.showLoading` 的第一个参数；省略时使用默认加载动画。
+
 - `loading-options: object`
 
   加载动画配置项。请参考 `echartsInstance.showLoading` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
@@ -402,7 +406,7 @@ export default {
 > [!NOTE]
 > 如下 ECharts 实例方法没有被暴露，因为它们的功能已经通过组件 [prop](#props) 提供了：
 >
-> - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading` 和 `loading-options` prop。
+> - [`showLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/zh/api.html#echartsInstance.hideLoading)：请使用 `loading`、`loading-type` 和 `loading-options` prop。
 > - [`setTheme`](https://echarts.apache.org/zh/api.html#echartsInstance.setTheme)：请使用 `theme` prop。
 
 ### 插槽

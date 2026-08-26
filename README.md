@@ -182,6 +182,10 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   Whether the chart is in loading state.
 
+- `loading-type: string`
+
+  Name of the registered loading effect. It is passed as the first argument to `echartsInstance.showLoading`; omit it to use the default effect.
+
 - `loading-options: object`
 
   Configuration item of loading animation. See `echartsInstance.showLoading`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
@@ -402,7 +406,7 @@ export default {
 > [!NOTE]
 > The following ECharts instance methods aren't exposed because their functionality is already provided by component [props](#props):
 >
-> - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading` and `loading-options` props instead.
+> - [`showLoading`](https://echarts.apache.org/en/api.html#echartsInstance.showLoading) / [`hideLoading`](https://echarts.apache.org/en/api.html#echartsInstance.hideLoading): use the `loading`, `loading-type` and `loading-options` props instead.
 > - [`setTheme`](https://echarts.apache.org/en/api.html#echartsInstance.setTheme): use the `theme` prop instead.
 
 ### Slots
