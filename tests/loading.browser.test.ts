@@ -5,6 +5,7 @@ import { cleanup, render } from "vitest-browser-vue/pure";
 
 import { useLoading, LOADING_OPTIONS_KEY } from "../src/composables/loading";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../src/types";
+import { withConsoleWarn } from "./helpers/dom";
 
 afterEach(() => {
   cleanup();
@@ -198,6 +199,34 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenNthCalledWith(1, { text: "Initial" });
     expect(showLoading).toHaveBeenNthCalledWith(2, { text: "Latest" });
     expect(hideLoading).toHaveBeenCalledOnce();
+  });
+
+  it("retains shown state when hideLoading fails", async () => {
+    const error = new Error("hideLoading failed");
+    const showLoading = vi.fn();
+    const hideLoading = vi.fn();
+    hideLoading.mockImplementationOnce(() => {
+      throw error;
+    });
+    const chart = ref<EChartsType | undefined>();
+    const loading = ref<boolean | undefined>(true);
+    const loadingOptions = ref<LoadingOptions | undefined>();
+
+    renderUseLoading(chart, loading, loadingOptions);
+    chart.value = createChart(showLoading, hideLoading);
+    await nextTick();
+
+    withConsoleWarn(() => {
+      expect(() => {
+        loading.value = false;
+      }).toThrow(error);
+    });
+
+    loading.value = true;
+    loading.value = false;
+
+    expect(showLoading).toHaveBeenCalledOnce();
+    expect(hideLoading).toHaveBeenCalledTimes(2);
   });
 
   it("tracks loading state across chart instance switches", async () => {

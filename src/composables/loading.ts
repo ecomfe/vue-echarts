@@ -58,8 +58,9 @@ export function useLoading(
       return;
     }
 
-    if (shown?.delete(instance)) {
+    if (shown?.has(instance)) {
       instance.hideLoading();
+      shown.delete(instance);
     }
   }
 
