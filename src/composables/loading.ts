@@ -42,7 +42,7 @@ export function useLoading(
         return;
       }
 
-      // Custom renderers may mutate nested config; ignore that synchronous feedback.
+      // Custom renderers may mutate reactive config; block reentry and converge afterwards.
       applying = true;
       try {
         if (type) {
@@ -54,6 +54,7 @@ export function useLoading(
         applying = false;
       }
       (shown ??= new WeakMap()).set(instance, { type, options: nextOptions });
+      sync();
       return;
     }
 

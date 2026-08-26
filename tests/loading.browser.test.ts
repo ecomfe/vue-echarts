@@ -177,6 +177,29 @@ describe("useLoading", () => {
     expect(showLoading).not.toHaveBeenCalledTimes(2);
   });
 
+  it("converges loading state changed while the effect is being shown", async () => {
+    const chart = ref<EChartsType | undefined>();
+    const loading = ref<boolean | undefined>(true);
+    const loadingOptions = ref<LoadingOptions | undefined>({ text: "Initial" });
+    const showLoading = vi.fn((options: LoadingOptions) => {
+      if (options.text === "Initial") {
+        loadingOptions.value = { text: "Latest" };
+      } else {
+        loading.value = false;
+      }
+    });
+    const hideLoading = vi.fn();
+
+    renderUseLoading(chart, loading, loadingOptions);
+    chart.value = createChart(showLoading, hideLoading);
+    await nextTick();
+
+    expect(showLoading).toHaveBeenCalledTimes(2);
+    expect(showLoading).toHaveBeenNthCalledWith(1, { text: "Initial" });
+    expect(showLoading).toHaveBeenNthCalledWith(2, { text: "Latest" });
+    expect(hideLoading).toHaveBeenCalledOnce();
+  });
+
   it("tracks loading state across chart instance switches", async () => {
     const firstShow = vi.fn();
     const firstHide = vi.fn();
