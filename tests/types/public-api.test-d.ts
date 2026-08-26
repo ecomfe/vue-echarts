@@ -18,9 +18,11 @@ type _stateIsReadonly = Assert<IsReadonly<Exposed, "chart" | "root">>;
 type _autoresizeType = Assert<IsEqual<Props["autoresize"], AutoResize | undefined>>;
 type _loadingType = Assert<IsEqual<Props["loadingType"], string | undefined>>;
 type CurrentEChartsMethod =
+  | "getZr"
   | "getId"
   | "isSSR"
   | "getDevicePixelRatio"
+  | "updateLabelLayout"
   | "convertToLayout"
   | "getVisual"
   | "renderToCanvas"
