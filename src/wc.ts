@@ -49,8 +49,9 @@ export function register(root?: Element): boolean {
           }
           queueMicrotask(() => {
             if (!this.isConnected && this.__dispose) {
-              this.__dispose();
+              const dispose = this.__dispose;
               this.__dispose = null;
+              dispose();
             }
           });
         }

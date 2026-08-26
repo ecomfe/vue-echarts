@@ -1612,6 +1612,41 @@ describe("ECharts component", () => {
     expect(element.__dispose).toBeNull();
   });
 
+  it("deactivates callback slots when chart disposal fails", async () => {
+    const error = new Error("dispose failed");
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup: () => () =>
+        h(
+          ECharts,
+          {
+            option: { tooltip: {} },
+            ref: createExposedRef(exposed),
+          },
+          { tooltip: () => h("span", "tooltip") },
+        ),
+    });
+
+    const screen = render(Root);
+    await nextTick();
+    await nextTick();
+
+    const [patched] = getLastSetOptionCall(chartStub);
+    const formatter = (patched.tooltip as { formatter?: (params: unknown) => unknown }).formatter;
+    expect(formatter?.({})).toBeInstanceOf(HTMLElement);
+
+    chartStub.dispose.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    const instance = getExposed(exposed);
+    expect(() => instance.dispose()).toThrow(error);
+    expect(instance.isDisposed()).toBe(true);
+    expect(formatter?.({})).toBeUndefined();
+
+    screen.unmount();
+  });
+
   it("stops reactive work after the underlying chart is externally disposed", async () => {
     const option = ref<Option>({ title: { text: "before" } });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });

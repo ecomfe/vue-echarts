@@ -39,6 +39,15 @@ describe("register", () => {
       });
     }
 
+    function getDisconnectedCallback(tagName: string): (this: HTMLElement) => void {
+      const ctor = registry.get(tagName);
+      if (!ctor) {
+        throw new Error("Expected custom element constructor to be registered.");
+      }
+      return (ctor.prototype as { disconnectedCallback: (this: HTMLElement) => void })
+        .disconnectedCallback;
+    }
+
     beforeEach(() => {
       vi.resetModules();
       vi.unstubAllGlobals();
@@ -168,20 +177,37 @@ describe("register", () => {
 
       expect(register()).toBe(true);
 
-      const ctor = registry.get(TAG_NAME);
-      if (!ctor) {
-        throw new Error("Expected custom element constructor to be registered.");
-      }
-      expect(typeof ctor).toBe("function");
-      const disconnectedCallback = (
-        ctor.prototype as { disconnectedCallback: (this: HTMLElement) => void }
-      ).disconnectedCallback;
+      const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
       expect(disconnectedCallback).toBeTypeOf("function");
       const queueSpy = vi.spyOn(globalThis, "queueMicrotask");
 
       disconnectedCallback.call({ __dispose: null } as unknown as HTMLElement);
 
       expect(queueSpy).not.toHaveBeenCalled();
+    });
+
+    it("releases the disposal hook when cleanup fails", async () => {
+      const { register, TAG_NAME } = await loadModule();
+
+      expect(register()).toBe(true);
+
+      const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
+      let task: VoidFunction | undefined;
+      vi.spyOn(globalThis, "queueMicrotask").mockImplementation((callback) => {
+        task = callback;
+      });
+      const error = new Error("cleanup failed");
+      const element = {
+        isConnected: false,
+        __dispose: () => {
+          throw error;
+        },
+      } as unknown as HTMLElement;
+
+      disconnectedCallback.call(element);
+
+      expect(() => task?.()).toThrow(error);
+      expect(element.__dispose).toBeNull();
     });
   });
 
