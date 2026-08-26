@@ -391,7 +391,7 @@ export default /* @__PURE__ */ defineComponent({
     );
 
     const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
-      if (!mounted || terminallyDisposed.value) {
+      if (!mounted || terminallyDisposed.value || chart.value?.isDisposed()) {
         return;
       }
       cleanup();

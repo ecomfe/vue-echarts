@@ -1591,6 +1591,8 @@ describe("ECharts component", () => {
 
   it("stops reactive work after the underlying chart is externally disposed", async () => {
     const option = ref<Option>({ title: { text: "before" } });
+    const initOptions = ref<InitOptions>({ renderer: "canvas" });
+    const manualUpdate = ref(false);
     const loading = ref(true);
     const loadingOptions = ref({ text: "before" });
     const group = ref("before");
@@ -1599,6 +1601,8 @@ describe("ECharts component", () => {
     const screen = renderChart(
       () => ({
         option: option.value,
+        initOptions: initOptions.value,
+        manualUpdate: manualUpdate.value,
         loading: loading.value,
         loadingOptions: loadingOptions.value,
         group: group.value,
@@ -1612,8 +1616,11 @@ describe("ECharts component", () => {
     chartStub.setOption.mockClear();
     chartStub.showLoading.mockClear();
     chartStub.hideLoading.mockClear();
+    init.mockClear();
 
     option.value = { title: { text: "after" } };
+    initOptions.value = { renderer: "svg" };
+    manualUpdate.value = true;
     loadingOptions.value = { text: "after" };
     loading.value = false;
     group.value = "after";
@@ -1623,6 +1630,7 @@ describe("ECharts component", () => {
     expect(chartStub.showLoading).not.toHaveBeenCalled();
     expect(chartStub.hideLoading).not.toHaveBeenCalled();
     expect(chartStub.group).toBe("before");
+    expect(init).not.toHaveBeenCalled();
     expect(instance.chart).toBeUndefined();
     expect(instance.isDisposed()).toBe(true);
 
