@@ -113,7 +113,7 @@ export default /* @__PURE__ */ defineComponent({
         slots,
         manualUpdate,
         // Graphic is always replaced, so slot-only changes do not alter the source signature.
-        requestUpdate: () => requestUpdate(undefined, "graphic"),
+        requestUpdate: () => requestUpdate("graphic"),
       }) ?? {};
 
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
@@ -161,8 +161,8 @@ export default /* @__PURE__ */ defineComponent({
     function applyOption(
       instance: EChartsType,
       option: Option,
-      override?: UpdateOptions,
       mode?: ApplyMode,
+      manualOptions?: UpdateOptions,
     ): void {
       deferredCharts?.delete(instance);
       const slotted = patchOption(option);
@@ -170,22 +170,22 @@ export default /* @__PURE__ */ defineComponent({
 
       if (mode) {
         const replaceGraphic = mode === "graphic";
-        const updateOptions = replaceGraphic ? (realUpdateOptions.value ?? undefined) : override;
+        const updateOptions = replaceGraphic
+          ? (realUpdateOptions.value ?? undefined)
+          : manualOptions;
         commitOption(instance, patched, patchUpdateOptions(updateOptions, replaceGraphic));
         return;
       }
 
-      if (!override && realUpdateOptions.value) {
+      if (realUpdateOptions.value) {
         commitOption(instance, patched, patchUpdateOptions(realUpdateOptions.value));
         lastSignature = null;
         return;
       }
 
       const planned = planUpdate(lastSignature ?? undefined, slotted);
-      let updateOptions = override ?? planned.plan;
-      if (lastSignature === null) {
-        updateOptions = { ...updateOptions, notMerge: true };
-      }
+      const updateOptions =
+        lastSignature === null ? { ...planned.plan, notMerge: true } : planned.plan;
       commitOption(instance, patched, patchUpdateOptions(updateOptions));
       lastSignature = planned.signature;
     }
@@ -210,14 +210,14 @@ export default /* @__PURE__ */ defineComponent({
       }
     }
 
-    function requestUpdate(updateOptions?: UpdateOptions, mode?: ApplyMode): boolean {
+    function requestUpdate(mode?: "graphic"): boolean {
       const instance = chart.value;
       const option = getAutoOption();
       if (!isActive(instance) || !option || manualUpdate.value || deferredCharts?.has(instance)) {
         return false;
       }
 
-      applyOption(instance, option, updateOptions, mode);
+      applyOption(instance, option, mode);
       optionReplayRequired = true;
       return true;
     }
@@ -274,7 +274,7 @@ export default /* @__PURE__ */ defineComponent({
         }
 
         if (manualUpdate.value) {
-          applyOption(instance, option, realUpdateOptions.value ?? undefined, "manual");
+          applyOption(instance, option, "manual", realUpdateOptions.value ?? undefined);
           return;
         }
 
@@ -327,7 +327,7 @@ export default /* @__PURE__ */ defineComponent({
           ? { notMerge, lazyUpdate }
           : (notMerge ?? (lazyUpdate === undefined ? undefined : { lazyUpdate }));
 
-      applyOption(instance, option, updateOptions, "manual");
+      applyOption(instance, option, "manual", updateOptions);
     };
 
     // Mark synchronously so later batched replacements cannot mask nested changes.
