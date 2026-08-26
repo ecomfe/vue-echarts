@@ -11,6 +11,7 @@ const METHOD_NAMES = [
   "isSSR",
   "getDevicePixelRatio",
   "resize",
+  "makeActionFromEvent",
   "dispatchAction",
   "updateLabelLayout",
   "convertToPixel",

@@ -22,6 +22,7 @@ type CurrentEChartsMethod =
   | "getId"
   | "isSSR"
   | "getDevicePixelRatio"
+  | "makeActionFromEvent"
   | "updateLabelLayout"
   | "convertToLayout"
   | "getVisual"

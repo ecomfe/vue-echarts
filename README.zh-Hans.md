@@ -386,6 +386,7 @@ export default {
 - `isSSR` [→](https://echarts.apache.org/zh/api.html#echartsInstance.isSSR)
 - `getDevicePixelRatio` [→](https://echarts.apache.org/zh/api.html#echartsInstance.getDevicePixelRatio)
 - `resize` [→](https://echarts.apache.org/zh/api.html#echartsInstance.resize)
+- `makeActionFromEvent` [→](https://echarts.apache.org/zh/api.html#echartsInstance.makeActionFromEvent)
 - `dispatchAction` [→](https://echarts.apache.org/zh/api.html#echartsInstance.dispatchAction)
 - `updateLabelLayout` [→](https://echarts.apache.org/zh/api.html#echartsInstance.updateLabelLayout)
 - `convertToPixel` [→](https://echarts.apache.org/zh/api.html#echartsInstance.convertToPixel)
