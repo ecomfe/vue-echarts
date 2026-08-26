@@ -1450,22 +1450,34 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
-  it("starts the next smart update from an empty baseline after clear", async () => {
+  it.each([
+    ["successful", undefined, { notMerge: false }],
+    ["failed", new Error("clear failed"), { notMerge: true }],
+  ] as const)("uses a safe update baseline after a %s clear", async (_, error, expected) => {
     const option = ref<Option>({
-      color: ["red", "blue"],
-      title: { text: "Initial" },
+      series: [
+        { id: "a", type: "bar" },
+        { id: "b", type: "bar" },
+      ],
     });
     const exposed = shallowRef<Exposed>();
 
     renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
-    getExposed(exposed).clear();
+    if (error) {
+      chartStub.clear.mockImplementationOnce(() => {
+        throw error;
+      });
+      expect(() => getExposed(exposed).clear()).toThrow(error);
+    } else {
+      getExposed(exposed).clear();
+    }
     chartStub.setOption.mockClear();
-    option.value = { title: { text: "Updated" } };
+    option.value = { series: [{ id: "a", type: "bar" }] };
     await nextTick();
 
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual(expected);
   });
 
   it.each([false, true])(

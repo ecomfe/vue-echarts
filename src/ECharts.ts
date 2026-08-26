@@ -477,11 +477,13 @@ export default /* @__PURE__ */ defineComponent({
     const clear = publicApi.clear;
     publicApi.clear = () => {
       const instance = chart.value!;
-      clear();
+      // Native clear may replace the model before failing, so invalidate replay state first.
       deferredCharts?.delete(instance);
-      lastSignature = undefined;
+      lastSignature = null;
       lastAutoOption = undefined;
       optionReplayRequired = false;
+      clear();
+      lastSignature = undefined;
     };
 
     useLoading(chart, loading, loadingType, loadingOptions);

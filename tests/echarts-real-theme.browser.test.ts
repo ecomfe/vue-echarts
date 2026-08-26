@@ -103,7 +103,7 @@ describe("ECharts theme behavior (real echarts)", () => {
     expect(chart.getOption().backgroundColor).not.toBe("#111827");
   });
 
-  it("replays reactive data but preserves a later public clear across theme changes", async () => {
+  it("preserves a completed public clear across theme changes after an error", async () => {
     const isDark = ref(true);
     const theme = computed(() => (isDark.value ? "dark" : undefined));
     const option = ref<Option>({
@@ -151,7 +151,13 @@ describe("ECharts theme behavior (real echarts)", () => {
     await flushFrames();
 
     expect(getSeriesDataLength(chart)).toBe(3);
-    instance.clear();
+    const error = new Error("clear failed");
+    const clear = chart.clear.bind(chart);
+    chart.clear = () => {
+      clear();
+      throw error;
+    };
+    expect(() => instance.clear()).toThrow(error);
     expect(getSeriesDataLength(chart)).toBe(0);
 
     isDark.value = true;
