@@ -53,16 +53,16 @@ describe("graphic order helpers", () => {
     expect(orderMap.get("id:second")).toBe(1);
   });
 
-  it("keeps symbol vnode keys distinct and ordered", () => {
-    const keys = [Symbol("rect"), Symbol("rect")];
+  it("keeps vnode key types distinct and ordered", () => {
+    const keys: PropertyKey[] = [Symbol("rect"), Symbol("rect"), "1", 1];
     const identities = keys.map((key, uid) => resolveIdentity(undefined, key, uid));
     const order = createOrderTracker();
 
     order.update(keys.map((key) => h(RectGraphic, { key })));
 
-    expect(new Set(identities.map(({ id }) => id)).size).toBe(2);
+    expect(new Set(identities.map(({ id }) => id)).size).toBe(4);
     expect(identities.every(({ missingIdentity }) => !missingIdentity)).toBe(true);
-    expect(keys.map((key) => order.ref.value.get(key))).toEqual([0, 1]);
+    expect([...order.ref.value.values()]).toEqual([0, 1, 2, 3]);
   });
 
   it("leaves group slot collection to the group render", () => {
