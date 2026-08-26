@@ -307,6 +307,7 @@ describe("graphic components", () => {
       borderDash: false as const,
       borderDashOffset: 2,
       rich: { accent: { fill: "#0ea5e9" } },
+      tag: "label",
       placeholder: "…",
       truncateMinChar: 2,
     };

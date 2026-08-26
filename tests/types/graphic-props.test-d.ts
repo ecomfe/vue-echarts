@@ -196,6 +196,7 @@ type _fontWeightType = Assert<
   IsEqual<TextProps["fontWeight"], "normal" | "bold" | "bolder" | "lighter" | number | undefined>
 >;
 type _fontSizeAcceptsString = Assert<IsAssignable<string, TextProps["fontSize"]>>;
+type _tagType = Assert<IsEqual<TextProps["tag"], string | undefined>>;
 type _alignType = Assert<IsEqual<TextProps["align"], "left" | "center" | "right" | undefined>>;
 type _verticalAlignType = Assert<
   IsEqual<TextProps["verticalAlign"], "top" | "middle" | "bottom" | undefined>

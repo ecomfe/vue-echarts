@@ -57,6 +57,7 @@ describe("graphic", () => {
       align: "center",
       verticalAlign: "middle",
       lineHeight: 20,
+      tag: "label",
       backgroundColor: "#fff",
       padding: [2, 4],
       margin: 3,
