@@ -382,6 +382,25 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
+  it("applies a theme changed synchronously during setTheme", async () => {
+    const theme = reactive({ color: ["dark"] });
+    const applied: string[] = [];
+    chartStub.setTheme.mockImplementation(() => {
+      applied.push(theme.color[0]);
+      if (theme.color[0] === "light") {
+        theme.color[0] = "contrast";
+      }
+    });
+
+    renderChart(() => ({ option: {}, theme }), shallowRef<Exposed>());
+    await nextTick();
+
+    theme.color[0] = "light";
+    await nextTick();
+
+    expect(applied).toEqual(["light", "contrast"]);
+  });
+
   it("lets an empty theme prop override an injected theme", async () => {
     const option: Option = {};
     const theme = ref<Theme | undefined>("");

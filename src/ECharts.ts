@@ -164,8 +164,9 @@ export default /* @__PURE__ */ defineComponent({
       if (!optionApplied || !isActive(instance) || instance === themedChart) {
         return false;
       }
+      const revision = themeRevision.value;
       instance.setTheme(realTheme.value || {});
-      if (!isActive(instance)) {
+      if (!isActive(instance) || themeRevision.value !== revision) {
         return false;
       }
       themedChart = instance;
