@@ -211,9 +211,16 @@ describe("graphic slot manual-update behavior", () => {
       await flushAnimationFrame();
       chartStub.setOption.mockClear();
 
-      exposed.value?.setOption({ series: [] });
+      const error = new Error("setOption failed");
+      chartStub.setOption.mockImplementationOnce(() => {
+        throw error;
+      });
+      expect(() => exposed.value?.setOption({ series: [] })).toThrow(error);
       expect(chartStub.setOption.mock.calls[0][0].graphic).toBeUndefined();
       expect(chartStub.setOption.mock.calls[0][1]).toEqual({ replaceMerge: ["graphic"] });
+
+      exposed.value?.setOption({ series: [] });
+      expect(chartStub.setOption.mock.calls[1][1]).toEqual({ replaceMerge: ["graphic"] });
 
       chartStub.setOption.mockClear();
       exposed.value?.setOption({ series: [] });

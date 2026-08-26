@@ -1852,6 +1852,13 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
 
+    const error = new Error("setOption failed");
+    chartStub.setOption.mockImplementationOnce(() => {
+      throw error;
+    });
+    expect(() => getExposed(exposed).setOption(option.value)).toThrow(error);
+    expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
+
     getExposed(exposed).setOption(option.value);
     expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
 

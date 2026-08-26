@@ -27,7 +27,7 @@ const SlotTestComponent = defineComponent({
   },
   setup(props, ctx) {
     const ready = shallowRef(true);
-    const { render, patchOption, patchUpdateOptions } = useSlotOption(
+    const { render, patchOption, patchUpdateOptions, commitOption } = useSlotOption(
       ctx.slots,
       props.onChange ?? (() => {}),
       ready,
@@ -36,6 +36,7 @@ const SlotTestComponent = defineComponent({
     ctx.expose({
       patchOption,
       patchUpdateOptions,
+      commitOption,
       render,
       setReady: (value: boolean) => {
         ready.value = value;
@@ -111,6 +112,7 @@ async function removeSlot(slotName: string, option: Option): Promise<SlotTestHan
   const handle = getExposed(exposed);
   handle.patchOption(option);
   handle.patchUpdateOptions();
+  handle.commitOption();
 
   visible.value = false;
   await nextTick();
@@ -526,6 +528,7 @@ describe("useSlotOption", () => {
     const handle = getExposed(exposed);
     handle.patchOption({});
     expect(handle.patchUpdateOptions()).toBeUndefined();
+    handle.commitOption();
 
     visible.value = false;
     await nextTick();
@@ -551,6 +554,7 @@ describe("useSlotOption", () => {
     const handle = getExposed(exposed);
     handle.patchOption({});
     handle.patchUpdateOptions();
+    handle.commitOption();
 
     visible.value = false;
     await nextTick();
@@ -605,6 +609,7 @@ describe("useSlotOption", () => {
     const handle = getExposed(exposed);
     handle.patchOption({});
     handle.patchUpdateOptions();
+    handle.commitOption();
 
     visible.value = false;
     await nextTick();

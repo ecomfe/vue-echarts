@@ -105,6 +105,7 @@ export default /* @__PURE__ */ defineComponent({
       render: renderSlot,
       patchOption,
       patchUpdateOptions: patchSlotUpdateOptions,
+      commitOption: commitSlotOption,
     } = useSlotOption(slots, requestUpdate, isReady);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
@@ -154,7 +155,6 @@ export default /* @__PURE__ */ defineComponent({
       updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
       const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
-      graphicSlotApplied = hasGraphicSlot;
       return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;
     }
 
@@ -197,6 +197,10 @@ export default /* @__PURE__ */ defineComponent({
     ): void {
       const firstOption = !optionApplied;
       instance.setOption(option, updateOptions);
+      if (isActive(instance)) {
+        commitSlotOption();
+        graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
+      }
       optionApplied = true;
 
       // ECharts ignores setTheme until its first option creates the chart model.
