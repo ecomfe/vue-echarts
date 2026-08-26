@@ -31,6 +31,7 @@ type _assertOnceHandlers = Assert<OnceHandlerName extends keyof RectProps ? true
 type _assertVueEventPayload = Assert<IsEqual<VueEventPayload, ElementEvent>>;
 type _assertExportedPayload = Assert<IsEqual<Parameters<GraphicEmits["click"]>[0], ElementEvent>>;
 type _assertOncePayload = Assert<IsEqual<Parameters<GraphicEmits["clickOnce"]>[0], ElementEvent>>;
+type _assertCancellationResult = Assert<IsEqual<ReturnType<GraphicEmits["click"]>, boolean | void>>;
 type _assertEventNameExport = Assert<
   IsEqual<GraphicEventName, Exclude<ElementEvent["type"], "globalout">>
 >;

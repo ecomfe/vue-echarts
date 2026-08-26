@@ -7,5 +7,5 @@ export type GraphicOnEventName = `on${GraphicEventName}`;
 type GraphicEventAlias = Exclude<ElementEventAlias, "globalOut">;
 
 export type GraphicEmits = WithOnce<{
-  [key in GraphicEventName | GraphicEventAlias]: (params: ElementEvent) => void;
+  [key in GraphicEventName | GraphicEventAlias]: (params: ElementEvent) => boolean | void;
 }>;

@@ -332,6 +332,38 @@ describe("graphic", () => {
     expect(nodes[0].handlerCache).toBeUndefined();
   });
 
+  it("preserves event cancellation through wrapped handlers", () => {
+    const regularA = vi.fn(() => true);
+    const regularB = vi.fn();
+    const once = vi.fn(() => true);
+    const getClick = (handlers: Record<string, unknown>) =>
+      getRootGraphicElement(
+        buildOption(
+          [
+            {
+              id: "hit",
+              type: "circle",
+              parentId: null,
+              props: {},
+              handlers,
+              order: 0,
+              sourceId: 1,
+            },
+          ],
+          "root",
+        ),
+      ).children[0].onclick;
+    const onceHandler = getClick({ onClickOnce: once });
+
+    expect(getClick({ onClick: [regularA, regularB] })()).toBe(true);
+    expect(getClick({ onClick: regularA, onCLICK: regularB })()).toBe(true);
+    expect(onceHandler()).toBe(true);
+    expect(onceHandler()).toBeUndefined();
+    expect(regularA).toHaveBeenCalledTimes(2);
+    expect(regularB).toHaveBeenCalledTimes(2);
+    expect(once).toHaveBeenCalledOnce();
+  });
+
   it.each(["onClick", "onClickOnce"])(
     "drops and recreates %s when its array is emptied in place",
     (key) => {

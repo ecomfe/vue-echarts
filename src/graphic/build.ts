@@ -60,12 +60,12 @@ function toEventHandler(value: unknown, once: boolean): EventHandler | undefined
   }
 
   let called = false;
-  return (...args: unknown[]): void => {
+  return (...args: unknown[]): unknown => {
     if (called) {
       return;
     }
     called = true;
-    invoke(...args);
+    return invoke(...args);
   };
 }
 
@@ -110,9 +110,9 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
       continue;
     }
 
-    target[eventKey] = (...args: unknown[]): void => {
-      existing(...args);
-      handler(...args);
+    target[eventKey] = (...args: unknown[]): unknown => {
+      const result = existing(...args);
+      return handler(...args) || result;
     };
   }
 

@@ -2,7 +2,7 @@ import { warn as vueWarn } from "vue";
 import type { UpdateOptions } from "./types";
 
 export type AttrMap = Record<string, unknown>;
-export type EventHandler = (...args: unknown[]) => void;
+export type EventHandler = (...args: unknown[]) => unknown;
 
 export function hasEventHandler(value: unknown): boolean {
   return (
@@ -20,12 +20,14 @@ export function createEventInvoker(value: unknown): EventHandler | undefined {
     return undefined;
   }
 
-  return (...args: unknown[]): void => {
+  return (...args: unknown[]): unknown => {
+    let result: unknown;
     for (const handler of value.slice()) {
       if (typeof handler === "function") {
-        handler(...args);
+        result = handler(...args) || result;
       }
     }
+    return result;
   };
 }
 
