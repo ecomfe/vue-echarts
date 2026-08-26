@@ -489,6 +489,51 @@ describe("ECharts component", () => {
     expect(chartStub.setTheme).toHaveBeenLastCalledWith("light");
   });
 
+  it("preserves the smart-update baseline when a deferred theme fails", async () => {
+    const error = new Error("setTheme failed");
+    const errors: unknown[] = [];
+    const option = ref<Option>();
+    const theme = ref<Theme>("dark");
+    const Root = defineComponent({
+      setup() {
+        onErrorCaptured((caught) => {
+          errors.push(caught);
+          return false;
+        });
+        return () => h(ECharts, { option: option.value, theme: theme.value });
+      },
+    });
+
+    const screen = render(Root);
+    await nextTick();
+
+    theme.value = "light";
+    await nextTick();
+    await nextTick();
+    chartStub.setTheme.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    option.value = {
+      series: [
+        { id: "a", type: "bar" },
+        { id: "b", type: "bar" },
+      ],
+    };
+    await nextTick();
+
+    option.value = { series: [{ id: "a", type: "bar" }] };
+    await nextTick();
+
+    expect(errors).toEqual([error]);
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
+      notMerge: false,
+      replaceMerge: ["series"],
+    });
+
+    screen.unmount();
+  });
+
   it("applies the latest option when theme and option change in the same tick", async () => {
     const option = ref<Option>({ title: { text: "first" } });
     const theme = ref<Theme | undefined>("dark");

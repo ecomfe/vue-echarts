@@ -205,6 +205,7 @@ export default /* @__PURE__ */ defineComponent({
       if (mode !== "manual") {
         lastAutoOption = option;
       }
+      applyTheme(instance);
     }
 
     function commitOption(
@@ -218,7 +219,6 @@ export default /* @__PURE__ */ defineComponent({
         graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
       }
       optionApplied = true;
-      applyTheme(instance);
     }
 
     function requestUpdate(mode?: "graphic"): boolean {
