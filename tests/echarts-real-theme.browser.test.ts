@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, nextTick, ref, shallowRef } from "vue";
+import { computed, defineComponent, h, nextTick, onErrorCaptured, ref, shallowRef } from "vue";
 import type { VNodeRef } from "vue";
 import { describe, expect, it } from "vitest";
 import { use, registerTheme } from "echarts/core";
@@ -202,6 +202,60 @@ describe("ECharts theme behavior (real echarts)", () => {
     await nextTick();
 
     expect(getSeriesDataLength(chart)).toBe(3);
+    expect(getSeriesCount(chart)).toBe(1);
+  });
+
+  it("preserves the latest option after a deferred theme retry", async () => {
+    const error = new Error("setTheme failed");
+    const errors: unknown[] = [];
+    const option = ref<Option>();
+    const theme = ref<Theme>("dark");
+    const exposed = shallowRef<Exposed>();
+    const Root = defineComponent({
+      setup() {
+        onErrorCaptured((caught) => {
+          errors.push(caught);
+          return false;
+        });
+        return () =>
+          h(ECharts, {
+            option: option.value,
+            theme: theme.value,
+            style: "width: 640px; height: 420px;",
+            ref: createExposeSetter(exposed),
+          });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    const chart = getChart(exposed.value);
+    const setTheme = chart.setTheme.bind(chart);
+    let failTheme = true;
+    chart.setTheme = ((...args: Parameters<EChartsType["setTheme"]>) => {
+      if (failTheme) {
+        failTheme = false;
+        throw error;
+      }
+      return setTheme(...args);
+    }) as EChartsType["setTheme"];
+
+    theme.value = "";
+    await nextTick();
+    await nextTick();
+    option.value = {
+      series: [
+        { id: "keep", type: "graph", data: [] },
+        { id: "remove", type: "graph", data: [] },
+      ],
+    };
+    await nextTick();
+
+    option.value = { series: [{ id: "keep", type: "graph", data: [] }] };
+    await nextTick();
+
+    expect(errors).toEqual([error]);
     expect(getSeriesCount(chart)).toBe(1);
   });
 

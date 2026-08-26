@@ -526,10 +526,10 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(errors).toEqual([error]);
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
-      notMerge: false,
-      replaceMerge: ["series"],
-    });
+    expect(chartStub.setOption.mock.calls.slice(-2).map((call) => call[1])).toEqual([
+      { notMerge: false, replaceMerge: ["series"] },
+      { notMerge: true },
+    ]);
 
     screen.unmount();
   });

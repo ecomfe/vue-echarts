@@ -159,15 +159,17 @@ export default /* @__PURE__ */ defineComponent({
       return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;
     }
 
-    function applyTheme(instance: EChartsType): void {
+    function applyTheme(instance: EChartsType): boolean {
       // ECharts ignores setTheme until its first option creates the chart model.
       if (!optionApplied || !isActive(instance) || instance === themedChart) {
-        return;
+        return false;
       }
       instance.setTheme(realTheme.value || {});
-      if (isActive(instance)) {
-        themedChart = instance;
+      if (!isActive(instance)) {
+        return false;
       }
+      themedChart = instance;
+      return true;
     }
 
     function applyOption(
@@ -198,6 +200,7 @@ export default /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
+      const replayAfterTheme = optionApplied && mode !== "manual";
       commitOption(instance, patched, patchUpdateOptions(updateOptions, forceGraphic));
       if (!skipPlanning) {
         lastSignature = nextSignature;
@@ -205,7 +208,9 @@ export default /* @__PURE__ */ defineComponent({
       if (mode !== "manual") {
         lastAutoOption = option;
       }
-      applyTheme(instance);
+      if (applyTheme(instance) && replayAfterTheme) {
+        applyOption(instance, option, "theme");
+      }
     }
 
     function commitOption(
