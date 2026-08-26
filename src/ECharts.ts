@@ -310,7 +310,11 @@ export default /* @__PURE__ */ defineComponent({
             return;
           }
           if (autoresize.value && !hasZeroDimension(host.offsetWidth, host.offsetHeight)) {
-            instance.resize();
+            try {
+              instance.resize();
+            } catch {
+              warn("Initial chart resize failed; continuing initialization.");
+            }
             if (instance.isDisposed()) {
               return;
             }

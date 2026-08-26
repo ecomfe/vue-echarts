@@ -23,7 +23,7 @@ import type {
   Theme,
   UpdateOptions,
 } from "../src/types";
-import { withConsoleWarn } from "./helpers/dom";
+import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 import { __resetRegisterState, register as registerWc } from "../src/wc";
@@ -1377,6 +1377,28 @@ describe("ECharts component", () => {
     expect(chartStub.resize).toHaveBeenCalledOnce();
     expect(chartStub.dispose).toHaveBeenCalledOnce();
     expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
+  it("continues initialization after the first autoresize fails", async () => {
+    const option = ref<Option>({ title: { text: "initial" } });
+    chartStub.resize.mockImplementationOnce(() => {
+      throw new Error("resize failed");
+    });
+
+    await withConsoleWarnAsync(async (warnSpy) => {
+      renderChart(() => ({ option: option.value, autoresize: true }), shallowRef<Exposed>());
+      await nextTick();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Initial chart resize failed; continuing initialization"),
+      );
+      expect(chartStub.setOption).toHaveBeenCalledOnce();
+
+      option.value = { title: { text: "updated" } };
+      await nextTick();
+      expect(chartStub.setOption).toHaveBeenCalledTimes(2);
+      expect(getLastSetOptionCall(chartStub)[0]).toMatchObject(option.value);
+    });
   });
 
   it("coalesces option changes before autoresize initialization", async () => {
