@@ -465,6 +465,29 @@ describe("ECharts component", () => {
     });
   });
 
+  it("retries a deferred theme after setTheme fails", async () => {
+    const theme = ref<Theme>("dark");
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ theme: theme.value, manualUpdate: true }), exposed);
+    await nextTick();
+
+    theme.value = "light";
+    await nextTick();
+    expect(chartStub.setTheme).not.toHaveBeenCalled();
+
+    const error = new Error("setTheme failed");
+    chartStub.setTheme.mockImplementationOnce(() => {
+      throw error;
+    });
+    const setOption = () => getExposed(exposed).setOption({ title: {} });
+
+    expect(setOption).toThrow(error);
+    expect(setOption).not.toThrow();
+    expect(chartStub.setTheme).toHaveBeenCalledTimes(2);
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith("light");
+  });
+
   it("applies the latest option when theme and option change in the same tick", async () => {
     const option = ref<Option>({ title: { text: "first" } });
     const theme = ref<Theme | undefined>("dark");

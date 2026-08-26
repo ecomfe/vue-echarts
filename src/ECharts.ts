@@ -159,6 +159,17 @@ export default /* @__PURE__ */ defineComponent({
       return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;
     }
 
+    function applyTheme(instance: EChartsType): void {
+      // ECharts ignores setTheme until its first option creates the chart model.
+      if (!optionApplied || !isActive(instance) || instance === themedChart) {
+        return;
+      }
+      instance.setTheme(realTheme.value || {});
+      if (isActive(instance)) {
+        themedChart = instance;
+      }
+    }
+
     function applyOption(
       instance: EChartsType,
       option: Option,
@@ -201,19 +212,13 @@ export default /* @__PURE__ */ defineComponent({
       option: Option,
       updateOptions?: UpdateOptions,
     ): void {
-      const firstOption = !optionApplied;
       instance.setOption(option, updateOptions);
       if (isActive(instance)) {
         commitSlotOption();
         graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
       }
       optionApplied = true;
-
-      // ECharts ignores setTheme until its first option creates the chart model.
-      if (firstOption && isActive(instance) && instance !== themedChart) {
-        themedChart = instance;
-        instance.setTheme(realTheme.value || {});
-      }
+      applyTheme(instance);
     }
 
     function requestUpdate(mode?: "graphic"): boolean {
@@ -401,7 +406,6 @@ export default /* @__PURE__ */ defineComponent({
     const stopThemeApplyWatch = watch(
       themeRevision,
       () => {
-        const theme = realTheme.value;
         // ECharts rebuilds from its initial option snapshot when applying a theme.
         const replayOption = optionReplayRequired || optionUpdatePending;
         optionUpdatePending = false;
@@ -419,11 +423,7 @@ export default /* @__PURE__ */ defineComponent({
           isActive(instance) &&
           instance !== themedChart
         ) {
-          if (optionApplied) {
-            themedChart = instance;
-            // ECharts ignores empty theme names instead of resetting to its default theme.
-            instance.setTheme(theme || {});
-          }
+          applyTheme(instance);
 
           const option = getAutoOption() ?? lastAutoOption;
           if (
