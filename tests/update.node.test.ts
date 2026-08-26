@@ -15,6 +15,7 @@ type AppliedOption = {
   backgroundColor?: unknown;
   color?: unknown;
   dataset?: unknown;
+  graphic?: Array<{ elements?: Array<{ id?: string }> }>;
   legend?: Array<{ selected?: Record<string, boolean> }>;
   title?: Array<{ subtext?: string }>;
   series?: Array<{
@@ -510,6 +511,26 @@ describe("smart-update", () => {
           expect(planUpdate(buildSignature(base), update).plan).toEqual({ notMerge: false });
         },
       );
+
+      it("removes unrelated components while preserving graphic actions", () => {
+        const base = {
+          title: { text: "stale" },
+          graphic: {
+            elements: [
+              { type: "rect", id: "a", shape: { x: 0, y: 0, width: 10, height: 10 } },
+              { type: "rect", id: "b", shape: { x: 20, y: 0, width: 10, height: 10 } },
+            ],
+          },
+        } as EChartsOption;
+        const update = {
+          graphic: { elements: [{ id: "a", $action: "remove" }] },
+        } as unknown as EChartsOption;
+        const { applied, plan } = applyPlannedUpdate(base, update);
+
+        expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
+        expect(applied.title).toEqual([]);
+        expect(applied.graphic?.[0]?.elements?.map(({ id }) => id)).toEqual(["b"]);
+      });
 
       it.each(optionContainers)("rebuilds reordered components in %s", (container) => {
         const series = [

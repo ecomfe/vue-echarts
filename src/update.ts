@@ -450,6 +450,10 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     if (!prevCollection) {
       continue;
     }
+    // Replacing graphic would discard the existing elements targeted by `$action`.
+    if (key === "graphic" && next.hasAction) {
+      continue;
+    }
 
     const nextCollection = next.collections[key];
     // Empty setting arrays can override defaults, so removing them is still meaningful.
@@ -494,7 +498,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
 export function planUpdate(prev: Signature | undefined, option: Option): PlannedUpdate {
   const next = buildSignature(option);
 
-  if (!prev || next.hasAction) {
+  if (!prev) {
     return {
       signature: next,
       plan: { notMerge: false },
@@ -505,7 +509,8 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
   if (replaceMerge === null) {
     return {
       signature: next,
-      plan: { notMerge: true },
+      // Rebuilding would remove the existing graphic elements targeted by `$action`.
+      plan: { notMerge: !next.hasAction },
     };
   }
   if (replaceMerge && replaceMerge.length > 1) {

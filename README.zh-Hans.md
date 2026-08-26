@@ -161,7 +161,7 @@ app.component('VChart', VueECharts)
   #### 智能更新
   - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。移除它之后，首次智能更新会重建一次，以建立可靠的结构基线。
   - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数，重新初始化后不会保留这些调用的效果。
-  - 如果更新中有 graphic 元素使用 `$action`，该次更新会保留 ECharts 的普通合并，让命令能够作用于现有元素树。
+  - 如果更新中有 graphic 元素使用 `$action`，`graphic` 会保留普通合并，让命令能够作用于现有元素树；无关组件的安全删除仍会使用 `replaceMerge`。
   - 其他情况下，Vue ECharts 会分析差异：组件删除、重排及匿名组件内部的属性删除会在 `replaceMerge` 能还原目标顺序时使用它；已按 ID 匹配的组件内部属性删除、`replaceMerge` 无法还原的身份顺序变化、非组件数组缩短及其他高风险变更会退回 `notMerge: true`。
 
 - `update-options: object`
