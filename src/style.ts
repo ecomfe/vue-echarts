@@ -40,14 +40,19 @@ export function ensureStyles(root?: Node): void {
     Array.isArray(target.adoptedStyleSheets) &&
     "replaceSync" in StyleSheet.prototype
   ) {
-    const sheet = new StyleSheet();
-    sheet.replaceSync(cssRules);
-    target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
-    styles.set(cssRules, { sheet });
-  } else {
-    const styleEl = ownerDocument.createElement("style");
-    styleEl.textContent = cssRules;
-    container.appendChild(styleEl);
-    styles.set(cssRules, { element: styleEl });
+    try {
+      const sheet = new StyleSheet();
+      sheet.replaceSync(cssRules);
+      target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+      styles.set(cssRules, { sheet });
+      return;
+    } catch {
+      // Some browsers expose the API but reject construction or adoption at runtime.
+    }
   }
+
+  const styleEl = ownerDocument.createElement("style");
+  styleEl.textContent = cssRules;
+  container.appendChild(styleEl);
+  styles.set(cssRules, { element: styleEl });
 }

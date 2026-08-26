@@ -85,6 +85,22 @@ describe("style entry", () => {
     expect(document.head.querySelector("style")).toBe(styleEl);
   });
 
+  it("falls back when constructed stylesheet initialization fails", async () => {
+    document.adoptedStyleSheets = [];
+    const replaceSpy = vi.spyOn(CSSStyleSheet.prototype, "replaceSync").mockImplementation(() => {
+      throw new Error("replaceSync failed");
+    });
+    const { ensureStyles } = await import("../src/style");
+
+    try {
+      expect(() => ensureStyles()).not.toThrow();
+      expect(document.adoptedStyleSheets).toEqual([]);
+      expect(document.head.querySelector("style")).not.toBeNull();
+    } finally {
+      replaceSpy.mockRestore();
+    }
+  });
+
   it("injects styles when the component is first rendered", async () => {
     useFallbackStyles();
 
