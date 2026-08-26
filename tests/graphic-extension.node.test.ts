@@ -135,6 +135,7 @@ describe("graphic runtime", () => {
     const onClickOnce = vi.fn();
     const onMouseover = vi.fn();
     const onMouseenter = vi.fn();
+    const onGlobalout = vi.fn();
 
     collector.register({
       id: "n1",
@@ -146,6 +147,7 @@ describe("graphic runtime", () => {
         onClickOnce,
         onMouseover,
         onMouseenter,
+        onGlobalout,
         onDblclick: 123,
         on: () => void 0,
         foo: () => void 0,
@@ -162,16 +164,17 @@ describe("graphic runtime", () => {
 
     expect(typeof childA.onclick).toBe("function");
     expect(typeof childA.onmouseover).toBe("function");
-    expect(typeof childA.onmouseenter).toBe("function");
+    expect(childA.onmouseenter).toBeUndefined();
+    expect(childA.onglobalout).toBeUndefined();
     expect(childA.ondblclick).toBeUndefined();
 
     childA.onclick({});
     childA.onclick({ foo: 1 });
-    childA.onmouseenter({});
     expect(onClickA).toHaveBeenCalledTimes(2);
     expect(onClickB).toHaveBeenCalledTimes(2);
     expect(onClickOnce).toHaveBeenCalledTimes(1);
-    expect(onMouseenter).toHaveBeenCalledTimes(1);
+    expect(onMouseenter).not.toHaveBeenCalled();
+    expect(onGlobalout).not.toHaveBeenCalled();
 
     collector.register({
       id: "n1",

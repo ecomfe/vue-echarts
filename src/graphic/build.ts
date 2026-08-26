@@ -15,6 +15,7 @@ import {
 import type { GraphicTextAttachmentPropKey } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
+import { GRAPHIC_EVENTS } from "./types";
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -90,6 +91,10 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
     if (!descriptor) {
       continue;
     }
+    const event = descriptor.event.toLowerCase();
+    if (!hasOwnProperty.call(GRAPHIC_EVENTS, event)) {
+      continue;
+    }
 
     const cached = node.handlerCache?.get(key);
     const reused = cached !== undefined && cached.source === value && hasEventHandler(value);
@@ -102,7 +107,7 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
       (node.handlerCache ??= new Map()).set(key, { source: value, handler });
     }
 
-    const eventKey = `on${descriptor.event.toLowerCase()}`;
+    const eventKey = `on${event}`;
     const existing = target[eventKey] as EventHandler | undefined;
     merged = true;
     if (!existing) {
