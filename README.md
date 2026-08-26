@@ -188,7 +188,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `loading-options: object`
 
-  Configuration item of loading animation. See `echartsInstance.showLoading`'s `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
+  Configuration item of loading animation. Default-effect fields are typed explicitly, and additional fields for custom effects are forwarded to `echartsInstance.showLoading`. See its `opts` parameter [here →](https://echarts.apache.org/en/api.html#echartsInstance.showLoading)
 
   Injection key: `LOADING_OPTIONS_KEY`.
 

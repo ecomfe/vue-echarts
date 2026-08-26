@@ -16,3 +16,6 @@ type _fontWeight = Assert<
 type _fontStyle = Assert<
   IsEqual<LoadingOptions["fontStyle"], "normal" | "italic" | "oblique" | undefined>
 >;
+type _customEffectOptions = Assert<
+  { progress: number; frames: string[] } extends LoadingOptions ? true : false
+>;

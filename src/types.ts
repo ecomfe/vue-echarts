@@ -39,6 +39,7 @@ export type FontStyle = "normal" | "italic" | "oblique";
 export type FontWeight = "normal" | "bold" | "bolder" | "lighter" | number;
 
 export type LoadingOptions = {
+  [key: string]: unknown;
   text?: string;
   textColor?: string;
   fontSize?: number;

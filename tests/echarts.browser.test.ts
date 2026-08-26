@@ -876,7 +876,7 @@ describe("ECharts component", () => {
     const option = ref({});
     const loading = ref(true);
     const loadingType = ref("custom");
-    const loadingOptions = ref({ text: "Loading" });
+    const loadingOptions = ref({ text: "Loading", progress: 0.5 });
     const exposed = shallowRef<Exposed>();
 
     renderChart(
@@ -892,14 +892,14 @@ describe("ECharts component", () => {
 
     expect(chartStub.showLoading).toHaveBeenCalledWith(
       "custom",
-      expect.objectContaining({ text: "Loading" }),
+      expect.objectContaining({ text: "Loading", progress: 0.5 }),
     );
 
     loadingType.value = "alternate";
     await nextTick();
     expect(chartStub.showLoading).toHaveBeenLastCalledWith(
       "alternate",
-      expect.objectContaining({ text: "Loading" }),
+      expect.objectContaining({ text: "Loading", progress: 0.5 }),
     );
 
     loading.value = false;

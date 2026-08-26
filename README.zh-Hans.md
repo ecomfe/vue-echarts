@@ -188,7 +188,7 @@ app.component('VChart', VueECharts)
 
 - `loading-options: object`
 
-  加载动画配置项。请参考 `echartsInstance.showLoading` 的 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
+  加载动画配置项。默认动画的字段具有明确类型，自定义动画所需的其它字段也会转发给 `echartsInstance.showLoading`。请参考其 `opts` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echartsInstance.showLoading)
 
   Inject 键名：`LOADING_OPTIONS_KEY`。
 
