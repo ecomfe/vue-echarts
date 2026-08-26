@@ -29,7 +29,6 @@ type SlotBinding = {
 };
 type SlotState = {
   containers: SlotMap<HTMLElement>;
-  initialized: SlotMap<boolean>;
   params: SlotMap<unknown>;
   bindings: Map<SlotName, SlotBinding>;
 };
@@ -131,7 +130,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   const getState = (): SlotState =>
     (state ??= {
       containers: shallowReactive<SlotMap<HTMLElement>>({}),
-      initialized: shallowReactive<SlotMap<boolean>>({}),
       params: shallowReactive<SlotMap<unknown>>({}),
       bindings: new Map<SlotName, SlotBinding>(),
     });
@@ -165,7 +163,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       if (state) {
         for (const key of Object.keys(state.params) as SlotName[]) {
           delete state.params[key];
-          delete state.initialized[key];
         }
       }
     }
@@ -189,7 +186,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       if (!nextSlotNameSet.has(key)) {
         if (state) {
           delete state.params[key];
-          delete state.initialized[key];
           delete state.containers[key];
           state.bindings.delete(key);
         }
@@ -206,14 +202,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
     detachedRoot ??= ownerDocument.createElement("div");
-    const { containers, initialized, params } = getState();
+    const { containers, params } = getState();
 
     return h(
       Teleport,
       { to: detachedRoot },
       nextSlotNames.map((slotName) => {
         const slot = slots[slotName];
-        const slotContent = initialized[slotName] ? slot?.(params[slotName]) : undefined;
+        const slotContent = slotName in params ? slot?.(params[slotName]) : undefined;
         return h(
           "div",
           {
@@ -266,7 +262,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       patchedSlotNames = EMPTY_SLOT_NAMES;
       return root ?? src;
     }
-    const { bindings, initialized, params, containers } = getState();
+    const { bindings, params, containers } = getState();
     root ??= { ...src };
     let patchedNames: SlotName[] | undefined;
 
@@ -289,7 +285,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
             if (!ready.value || !slots[key]) {
               return undefined;
             }
-            initialized[key] = true;
             params[key] = payload;
             return containers[key];
           },
