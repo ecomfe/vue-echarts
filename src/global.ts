@@ -1,7 +1,4 @@
 import "echarts";
 import ECharts, * as exported from "./index";
 
-export default {
-  ...ECharts,
-  ...exported,
-};
+export default Object.assign(ECharts, exported);

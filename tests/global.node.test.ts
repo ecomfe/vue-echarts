@@ -12,6 +12,7 @@ describe("entry points", () => {
   });
 
   it("global entry merges default and named exports", () => {
+    expect(globalEntry).toBe(ECharts);
     expect(globalEntry.default).toBe(ECharts);
     expect(Object.keys(globalEntry)).toEqual(expect.arrayContaining(Object.keys(moduleExports)));
   });
