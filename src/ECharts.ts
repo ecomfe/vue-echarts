@@ -280,17 +280,21 @@ export default /* @__PURE__ */ defineComponent({
       themedChart = instance;
 
       function commit(): void {
-        const option = manualUpdate.value ? props.option : getAutoOption();
-        if (!option) {
-          return;
-        }
+        try {
+          const option = manualUpdate.value ? props.option : getAutoOption();
+          if (!option) {
+            return;
+          }
 
-        if (manualUpdate.value) {
-          applyOption(instance, option, "manual", realUpdateOptions.value ?? undefined);
-          return;
-        }
+          if (manualUpdate.value) {
+            applyOption(instance, option, "manual", realUpdateOptions.value ?? undefined);
+            return;
+          }
 
-        applyOption(instance, option);
+          applyOption(instance, option);
+        } finally {
+          isReady.value = isActive(instance);
+        }
       }
 
       if (autoresize.value) {
@@ -308,8 +312,9 @@ export default /* @__PURE__ */ defineComponent({
           }
           if (deferred.has(instance)) {
             commit();
+          } else {
+            isReady.value = isActive(instance);
           }
-          isReady.value = isActive(instance);
           queueMicrotask(() => {
             if (deferred.delete(instance) && isActive(instance)) {
               requestUpdate();
@@ -320,7 +325,6 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       commit();
-      isReady.value = isActive(instance);
     }
 
     const setOption: SetOptionType = (option, notMerge, lazyUpdate?: boolean) => {

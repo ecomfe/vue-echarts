@@ -4,6 +4,7 @@ import {
   defineComponent,
   h,
   nextTick,
+  onErrorCaptured,
   provide,
   reactive,
   ref,
@@ -945,6 +946,45 @@ describe("ECharts component", () => {
 
     expect(onRendered).toHaveBeenCalledOnce();
     expect(onRendered).toHaveBeenCalledWith({ elapsedTime: 1 });
+  });
+
+  it("keeps callback slots ready when the initial option commit fails", async () => {
+    const error = new Error("setOption failed");
+    const errors: unknown[] = [];
+    const exposed = shallowRef<Exposed>();
+    chartStub.setOption.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    const Root = defineComponent({
+      setup() {
+        onErrorCaptured((caught) => {
+          errors.push(caught);
+          return false;
+        });
+        return () =>
+          h(
+            ECharts,
+            {
+              option: { tooltip: {} },
+              ref: createExposedRef(exposed),
+            },
+            { tooltip: () => h("span", "tooltip") },
+          );
+      },
+    });
+
+    const screen = render(Root);
+    await nextTick();
+    await nextTick();
+
+    const [patched] = getLastSetOptionCall(chartStub);
+    const formatter = (patched.tooltip as { formatter?: (params: unknown) => unknown }).formatter;
+    expect(errors).toEqual([error]);
+    expect(getExposed(exposed).chart).toBe(chartStub);
+    expect(formatter?.({})).toBeInstanceOf(HTMLElement);
+
+    screen.unmount();
   });
 
   it.each([false, true])(
