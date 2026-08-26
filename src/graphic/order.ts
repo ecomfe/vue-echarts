@@ -24,13 +24,19 @@ function collect(value: unknown, orderMap: Map<PropertyKey, number>, order: numb
     return order;
   }
   const vnode = value as VNode;
+  const props = vnode.props as Record<string, unknown> | null;
+  const identity = typeof vnode.type === "string" ? null : resolveOrderKey(props?.id, vnode.key);
+  if (identity) {
+    orderMap.set(identity, order);
+  }
   if (isGraphic(vnode)) {
-    const props = vnode.props as Record<string, unknown> | null;
-    const identity = resolveOrderKey(props?.id, vnode.key);
-    if (identity) {
-      orderMap.set(identity, order);
-    }
     return order + 1;
+  }
+
+  // A keyed wrapper's slot output is not available here, but it can still anchor a
+  // graphic child that forwards the same id or key.
+  if (identity) {
+    order++;
   }
 
   const children = vnode.children;

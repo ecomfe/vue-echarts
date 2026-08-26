@@ -104,6 +104,38 @@ describe("graphic slot order and tree behavior", () => {
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["c", "b"]);
   });
 
+  it("tracks keyed wrapper component reordering", async () => {
+    registerExtension();
+
+    const items = ref(["a", "b", "c"]);
+    const Item = defineComponent({
+      props: { nodeKey: { type: String, required: true } },
+      setup(props) {
+        return () => h(GRect, { key: props.nodeKey, x: 0, y: 0, width: 8, height: 8 });
+      },
+    });
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            { option: {} },
+            { graphic: () => items.value.map((id) => h(Item, { nodeKey: id, key: id })) },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+    expect(getLastGraphicIds(suite.getChartStub())).toEqual(["a", "b", "c"]);
+
+    items.value = ["c", "a", "b"];
+    await nextTick();
+    await flushAnimationFrame();
+    expect(getLastGraphicIds(suite.getChartStub())).toEqual(["c", "a", "b"]);
+  });
+
   it("moves nodes across groups when conditional parent changes", async () => {
     registerExtension();
 
