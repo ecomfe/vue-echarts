@@ -275,7 +275,8 @@ describe("useSlotOption", () => {
   });
 
   it("releases callback containers while the chart is not ready", async () => {
-    const { exposed } = renderSlotComponent(() => ({ tooltip: () => h("span", "tooltip") }));
+    const tooltip = vi.fn(() => h("span", "tooltip"));
+    const { exposed } = renderSlotComponent(() => ({ tooltip }));
 
     await nextTick();
 
@@ -283,6 +284,8 @@ describe("useSlotOption", () => {
     const formatter = getTooltipFormatter(handle.patchOption({}), "tooltip");
     const container = formatter(makeTooltipParams(0), "");
     expect(container).toBeInstanceOf(HTMLElement);
+    await nextTick();
+    tooltip.mockClear();
 
     handle.setReady(false);
     await nextTick();
@@ -291,10 +294,13 @@ describe("useSlotOption", () => {
 
     handle.setReady(true);
     await nextTick();
+    expect(tooltip).not.toHaveBeenCalled();
 
     const nextContainer = formatter(makeTooltipParams(2), "");
     expect(nextContainer).toBeInstanceOf(HTMLElement);
     expect(nextContainer).not.toBe(container);
+    await nextTick();
+    expect(tooltip).toHaveBeenCalledOnce();
   });
 
   it("patches dataView slots and renders teleported content", async () => {

@@ -162,6 +162,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     if (!ready.value) {
       appliedSlotNames = patchedSlotNames = EMPTY_SLOT_NAMES;
       rebuildOnRemoval = false;
+      if (state) {
+        for (const key of Object.keys(state.params) as SlotName[]) {
+          delete state.params[key];
+          delete state.initialized[key];
+        }
+      }
     }
   });
 
@@ -280,7 +286,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
         binding = {
           path: parts,
           formatter: (payload: unknown): HTMLElement | undefined => {
-            if (!slots[key]) {
+            if (!ready.value || !slots[key]) {
               return undefined;
             }
             initialized[key] = true;
