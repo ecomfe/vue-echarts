@@ -201,6 +201,38 @@ describe("useLoading", () => {
     expect(hideLoading).toHaveBeenCalledOnce();
   });
 
+  it("retries the previous loading effect after a replacement fails", async () => {
+    const error = new Error("showLoading failed");
+    let visibleText: string | undefined;
+    const showLoading = vi.fn((options: LoadingOptions) => {
+      visibleText = undefined;
+      if (options.text === "Broken") {
+        throw error;
+      }
+      visibleText = options.text;
+    });
+    const chart = ref<EChartsType | undefined>();
+    const loading = ref<boolean | undefined>(true);
+    const loadingOptions = ref<LoadingOptions | undefined>({ text: "Initial" });
+
+    renderUseLoading(chart, loading, loadingOptions);
+    chart.value = createChart(showLoading, vi.fn());
+    await nextTick();
+
+    expect(visibleText).toBe("Initial");
+    withConsoleWarn(() => {
+      expect(() => {
+        loadingOptions.value = { text: "Broken" };
+      }).toThrow(error);
+    });
+    expect(visibleText).toBeUndefined();
+
+    loadingOptions.value = { text: "Initial" };
+
+    expect(showLoading).toHaveBeenCalledTimes(3);
+    expect(visibleText).toBe("Initial");
+  });
+
   it("retains shown state when hideLoading fails", async () => {
     const error = new Error("hideLoading failed");
     const showLoading = vi.fn();

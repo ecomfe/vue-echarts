@@ -42,7 +42,9 @@ export function useLoading(
         return;
       }
 
-      // Custom renderers may mutate reactive config; block reentry and converge afterwards.
+      // ECharts hides the old effect before custom renderers run; discard its cache and
+      // block reactive feedback until the replacement settles.
+      shown?.delete(instance);
       applying = true;
       try {
         if (type) {
