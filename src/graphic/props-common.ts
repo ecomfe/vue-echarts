@@ -2,6 +2,7 @@ import type { ExtractPublicPropTypes, PropType } from "vue";
 import type {
   Color,
   CustomSeriesRenderItemReturn,
+  GraphicComponentOption,
   PatternObject,
   TooltipComponentOption,
 } from "echarts";
@@ -169,6 +170,13 @@ type GraphicImageSource = string | HTMLImageElement | HTMLCanvasElement | HTMLVi
 type GraphicTextAlign = "left" | "center" | "right";
 type GraphicTextVerticalAlign = "top" | "middle" | "bottom";
 type GraphicTextOverflow = "break" | "breakAll" | "truncate" | "none";
+type GraphicOptionProp<K extends PropertyKey, T = GraphicComponentOption> = T extends {
+  [P in K]?: infer V;
+}
+  ? NonNullable<V>
+  : never;
+export type GraphicAnimationOption = GraphicOptionProp<"enterAnimation">;
+export type GraphicKeyframeAnimationOption = GraphicOptionProp<"keyframeAnimation">;
 
 const elementProps = {
   id: [String, Number] as PropType<string | number>,
@@ -209,10 +217,10 @@ const elementProps = {
   enterFrom: Object as PropType<object>,
   leaveTo: Object as PropType<object>,
   during: Function as PropType<GraphicDuring>,
-  enterAnimation: Object as PropType<object>,
-  updateAnimation: Object as PropType<object>,
-  leaveAnimation: Object as PropType<object>,
-  keyframeAnimation: [Object, Array] as PropType<object>,
+  enterAnimation: Object as PropType<GraphicAnimationOption>,
+  updateAnimation: Object as PropType<GraphicAnimationOption>,
+  leaveAnimation: Object as PropType<GraphicAnimationOption>,
+  keyframeAnimation: [Object, Array] as PropType<GraphicKeyframeAnimationOption>,
 } as const satisfies Record<GraphicCommonPropKey | GraphicDisplayablePropKey, unknown>;
 
 const groupProps = {

@@ -149,14 +149,17 @@ type _enterFromAcceptsEChartsOption = Assert<
 type _leaveToAcceptsEChartsOption = Assert<
   IsAssignable<GraphicOptionProp<"leaveTo">, RectProps["leaveTo"]>
 >;
-type _enterAnimationAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"enterAnimation">, RectProps["enterAnimation"]>
+type _enterAnimationType = Assert<
+  IsEqual<RectProps["enterAnimation"], GraphicOptionProp<"enterAnimation"> | undefined>
 >;
-type _updateAnimationAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"updateAnimation">, RectProps["updateAnimation"]>
+type _updateAnimationType = Assert<
+  IsEqual<RectProps["updateAnimation"], GraphicOptionProp<"updateAnimation"> | undefined>
 >;
-type _leaveAnimationAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"leaveAnimation">, RectProps["leaveAnimation"]>
+type _leaveAnimationType = Assert<
+  IsEqual<RectProps["leaveAnimation"], GraphicOptionProp<"leaveAnimation"> | undefined>
+>;
+type _keyframeAnimationType = Assert<
+  IsEqual<RectProps["keyframeAnimation"], GraphicOptionProp<"keyframeAnimation"> | undefined>
 >;
 type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
 type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
