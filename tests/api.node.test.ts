@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { shallowRef } from "vue";
+import type { Ref } from "vue";
 
 import { usePublicAPI } from "../src/composables/api";
 import type { PublicMethods } from "../src/composables/api";
@@ -29,6 +30,23 @@ describe("usePublicAPI", () => {
     expect(chartImpl.getHeight).not.toHaveBeenCalled();
     expect(api.getHeight()).toBe(180);
     expect(chartImpl.getHeight).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads the current chart once per forwarded call", () => {
+    const instance = {
+      getWidth: vi.fn(() => 320),
+      isDisposed: vi.fn(() => false),
+    } as unknown as EChartsType;
+    const readChart = vi.fn(() => instance);
+    const chart = {
+      get value() {
+        return readChart();
+      },
+    } as Ref<EChartsType | undefined>;
+    const api = usePublicAPI(chart, vi.fn(), () => false);
+
+    expect(api.getWidth()).toBe(320);
+    expect(readChart).toHaveBeenCalledOnce();
   });
 
   it("forwards public calls to the ECharts instance", () => {

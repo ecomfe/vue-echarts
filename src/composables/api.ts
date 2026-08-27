@@ -40,10 +40,10 @@ export function usePublicAPI(
   const isDisposed = () => isPubliclyDisposed() || (chart.value?.isDisposed() ?? false);
 
   const getInstance = (): EChartsType => {
-    if (isDisposed()) {
+    const instance = chart.value;
+    if (isPubliclyDisposed() || instance?.isDisposed()) {
       throw new Error("ECharts has been disposed.");
     }
-    const instance = chart.value;
     if (!instance) {
       throw new Error("ECharts is not initialized yet.");
     }
