@@ -254,6 +254,7 @@ Vue ECharts supports the following events:
 - `hidetip` [→](https://echarts.apache.org/en/api.html#action.tooltip.hideTip)
 - `updateaxispointer` [→](https://echarts.apache.org/en/api.html#action.axisPointer.updateAxisPointer)
 - `globalcursortaken` [→](https://echarts.apache.org/en/api.html#events.globalcursortaken)
+- `updated` (after an ECharts update completes)
 - `rendered` [→](https://echarts.apache.org/en/api.html#events.rendered)
 - `finished` [→](https://echarts.apache.org/en/api.html#events.finished)
 - Mouse events

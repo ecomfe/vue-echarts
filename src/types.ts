@@ -153,6 +153,7 @@ type ChartEmits = MouseEmits &
     selectChanged: (params: SelectChangedEvent) => void;
     axisbreakchanged: (params: AxisBreakChangedEvent) => void;
     axisBreakChanged: (params: AxisBreakChangedEvent) => void;
+    updated: () => void;
     rendered: (params: { elapsedTime: number }) => void;
     finished: () => void;
   } & ZRenderEmits;

@@ -52,6 +52,7 @@ type OnceHandlerName =
   | "onClickOnce"
   | "onDataZoomOnce"
   | "onShowTipOnce"
+  | "onUpdatedOnce"
   | "onAxisBreakChangedOnce"
   | "onZr:mouseMoveOnce";
 type NativeHandler = NonNullable<
@@ -68,6 +69,7 @@ type _unsupportedChartElementEvents = Assert<
   >
 >;
 type _onceEvents = Assert<OnceHandlerName extends keyof Props ? true : false>;
+type _updatedArgs = Assert<IsEqual<Parameters<NonNullable<Props["onUpdated"]>>, []>>;
 type _highlightPayload = Assert<IsEqual<HandlerPayload<"onHighlight">, HighlightPayload>>;
 type _downplayOncePayload = Assert<IsEqual<HandlerPayload<"onDownplayOnce">, DownplayPayload>>;
 type _actionPayload = Assert<IsEqual<HandlerPayload<"onDataZoom">, Payload>>;

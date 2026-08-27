@@ -253,6 +253,7 @@ Vue ECharts 支持如下事件：
 - `hidetip` [→](https://echarts.apache.org/zh/api.html#action.tooltip.hideTip)
 - `updateaxispointer` [→](https://echarts.apache.org/zh/api.html#action.axisPointer.updateAxisPointer)
 - `globalcursortaken` [→](https://echarts.apache.org/zh/api.html#events.globalcursortaken)
+- `updated`（ECharts 更新完成后触发）
 - `rendered` [→](https://echarts.apache.org/zh/api.html#events.rendered)
 - `finished` [→](https://echarts.apache.org/zh/api.html#events.finished)
 - 鼠标事件
