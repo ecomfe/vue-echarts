@@ -27,14 +27,14 @@ export function registerExtension(): void {
     }
 
     function handleFlush(): void {
-      const updated = requestUpdate();
-
-      if (!updated && manualUpdate.value) {
+      if (manualUpdate.value) {
         collector!.warn(
           "`#graphic` slot updates are ignored when `manual-update` is `true`.",
           "manual-update-graphic",
         );
+        return;
       }
+      requestUpdate();
     }
 
     onScopeDispose(() => collector?.dispose());

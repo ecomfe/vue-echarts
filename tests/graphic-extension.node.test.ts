@@ -310,12 +310,13 @@ describe("graphic runtime", () => {
 
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const scope = effectScope();
+    const requestUpdate = vi.fn(() => false);
 
     try {
       const context = createContext({
         slots: { graphic: () => null } as any,
         manualUpdate: ref(true) as any,
-        requestUpdate: () => false,
+        requestUpdate,
       });
 
       const runtime = scope.run(() => runtimeModule.useRuntime(context));
@@ -338,6 +339,7 @@ describe("graphic runtime", () => {
       });
 
       await flushMicrotasks();
+      expect(requestUpdate).not.toHaveBeenCalled();
 
       const patchedA = runtime.patchOption({ graphic: { elements: [{ id: "a" }] } } as any);
       const patchedB = runtime.patchOption({ graphic: { elements: [{ id: "b" }] } } as any);
