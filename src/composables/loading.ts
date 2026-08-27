@@ -63,6 +63,7 @@ export function useLoading(
     if (shown?.has(instance)) {
       instance.hideLoading();
       shown.delete(instance);
+      sync();
     }
   }
 

@@ -178,7 +178,7 @@ describe("useLoading", () => {
     expect(showLoading).not.toHaveBeenCalledTimes(2);
   });
 
-  it("converges loading state changed while the effect is being shown", async () => {
+  it("converges state changes made while toggling the loading effect", async () => {
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
     const loadingOptions = ref<LoadingOptions | undefined>({ text: "Initial" });
@@ -189,16 +189,21 @@ describe("useLoading", () => {
         loading.value = false;
       }
     });
-    const hideLoading = vi.fn();
+    const hideLoading = vi.fn(() => {
+      if (hideLoading.mock.calls.length === 1) {
+        loading.value = true;
+      }
+    });
 
     renderUseLoading(chart, loading, loadingOptions);
     chart.value = createChart(showLoading, hideLoading);
     await nextTick();
 
-    expect(showLoading).toHaveBeenCalledTimes(2);
+    expect(showLoading).toHaveBeenCalledTimes(3);
     expect(showLoading).toHaveBeenNthCalledWith(1, { text: "Initial" });
     expect(showLoading).toHaveBeenNthCalledWith(2, { text: "Latest" });
-    expect(hideLoading).toHaveBeenCalledOnce();
+    expect(showLoading).toHaveBeenNthCalledWith(3, { text: "Latest" });
+    expect(hideLoading).toHaveBeenCalledTimes(2);
   });
 
   it("retries the previous loading effect after a replacement fails", async () => {
