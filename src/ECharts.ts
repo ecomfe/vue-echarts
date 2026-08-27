@@ -260,7 +260,7 @@ export default /* @__PURE__ */ defineComponent({
       onUpdated(warnMissingGraphic);
     }
 
-    useReactiveChartListeners(chart, attrsMap);
+    const stopListeners = useReactiveChartListeners(chart, attrsMap);
 
     function cleanup(): void {
       const instance = chart.value;
@@ -486,7 +486,11 @@ export default /* @__PURE__ */ defineComponent({
       stopGroupWatch();
       stopLoading();
       stopAutoresize();
-      cleanup();
+      try {
+        cleanup();
+      } finally {
+        stopListeners();
+      }
     }
 
     const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed.value);

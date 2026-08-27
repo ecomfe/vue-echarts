@@ -25,7 +25,7 @@ const NATIVE_EVENT_PREFIX = "onNative:";
 export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
   attrs: AttrMap,
-): void {
+): () => void {
   let bindings: Map<string, ListenerBinding> | undefined;
   let consumedSources: Map<string, unknown> | undefined;
   let activeInstance: EChartsType | undefined;
@@ -51,7 +51,7 @@ export function useReactiveChartListeners(
     }
   }
 
-  watchSyncEffect(() => {
+  const stopWatch = watchSyncEffect(() => {
     const instance = chart.value;
     if (consumedSources) {
       for (const [key, source] of consumedSources) {
@@ -160,7 +160,12 @@ export function useReactiveChartListeners(
     }
   });
 
-  onScopeDispose(clearBindings);
+  const stop = () => {
+    stopWatch();
+    clearBindings();
+  };
+  onScopeDispose(stop);
+  return stop;
 }
 
 export function useRootAttrs(attrs: AttrMap): ComputedRef<AttrMap> {

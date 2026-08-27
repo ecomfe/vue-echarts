@@ -177,6 +177,25 @@ describe("core events", () => {
     scope.stop();
   });
 
+  it("supports terminal listener cleanup before scope disposal", () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const attrs = reactive<Record<string, unknown>>({ onClick: vi.fn() });
+    const first = createChartStub();
+    const second = createChartStub();
+    const firstEmitter = first.chart as unknown as EmitterStub;
+    const scope = effectScope();
+
+    const stop = scope.run(() => useReactiveChartListeners(chartRef, attrs))!;
+    chartRef.value = first.chart;
+
+    stop();
+    expect(firstEmitter.off).toHaveBeenCalledWith("click", expect.any(Function));
+
+    chartRef.value = second.chart;
+    expect((second.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+    scope.stop();
+  });
+
   it("attempts every listener cleanup when one emitter rejects unbinding", async () => {
     const chartRef = ref<EChartsType | undefined>();
     const attrs = reactive<Record<string, unknown>>({
