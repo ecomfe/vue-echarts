@@ -30,7 +30,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsdown && tsc -p tsconfig.package.json",
+    "build": "tsdown && tsc -p tsconfig.package.json && tsc -p tsconfig.package-echarts.json",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.vitest.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -64,6 +64,7 @@
     "bumpp": "^12.2.0",
     "comment-mark": "^2.0.1",
     "echarts": "^6.1.0",
+    "echarts-6.0": "npm:echarts@6.0.0",
     "echarts-gl": "^2.1.0",
     "eslint": "^10.8.1",
     "eslint-plugin-vue": "^10.10.0",

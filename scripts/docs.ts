@@ -2,14 +2,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { commentMark } from "comment-mark";
 import { getPackageVersions, resolvePath } from "./utils";
 
-const { name, version, devDependencies } = getPackageVersions(["echarts", "vue"]);
+const DOC_DEPENDENCIES = ["echarts", "vue"];
+const { name, version, devDependencies } = getPackageVersions(DOC_DEPENDENCIES);
 
 const CDN_PREFIX = "https://cdn.jsdelivr.net/npm/";
 
 const DEP_VERSIONS = {
-  ...Object.fromEntries(
-    Object.entries(devDependencies).map(([name, { version }]) => [name, version]),
-  ),
+  ...Object.fromEntries(DOC_DEPENDENCIES.map((name) => [name, devDependencies[name].version])),
   [name]: version,
 };
 

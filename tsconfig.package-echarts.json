@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.package.json",
+  "compilerOptions": {
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "echarts": ["./node_modules/echarts-6.0/index.d.ts"],
+      "echarts/core": ["./node_modules/echarts-6.0/core.d.ts"],
+      "vue": ["./node_modules/@vue/runtime-core-3.3/dist/runtime-core.d.ts"]
+    }
+  }
+}

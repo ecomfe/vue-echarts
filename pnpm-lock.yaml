@@ -57,6 +57,9 @@ importers:
       echarts:
         specifier: ^6.1.0
         version: 6.1.0
+      echarts-6.0:
+        specifier: npm:echarts@6.0.0
+        version: echarts@6.0.0
       echarts-gl:
         specifier: ^2.1.0
         version: 2.1.0(echarts@6.1.0)
@@ -1282,6 +1285,9 @@ packages:
     peerDependencies:
       echarts: ^5.1.2 || ^6.0.0
 
+  echarts@6.0.0:
+    resolution: {integrity: sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==}
+
   echarts@6.1.0:
     resolution: {integrity: sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA==}
 
@@ -2396,6 +2402,9 @@ packages:
   yuku-parser@0.8.3:
     resolution: {integrity: sha512-KPQcpF9aj77ywlJBIkQWCQ9DObdxnCA8AJdUOmA5CZZx042Xt4+dvbQmPJfWxF3E+KG5dVAZ2fBKuDJ8VsKWgA==}
 
+  zrender@6.0.0:
+    resolution: {integrity: sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==}
+
   zrender@6.1.0:
     resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
 
@@ -3438,6 +3447,11 @@ snapshots:
       echarts: 6.1.0
       zrender: 6.1.0
 
+  echarts@6.0.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.0.0
+
   echarts@6.1.0:
     dependencies:
       tslib: 2.3.0
@@ -4435,6 +4449,10 @@ snapshots:
       '@yuku-parser/binding-linux-x64-musl': 0.8.3
       '@yuku-parser/binding-win32-arm64': 0.8.3
       '@yuku-parser/binding-win32-x64': 0.8.3
+
+  zrender@6.0.0:
+    dependencies:
+      tslib: 2.3.0
 
   zrender@6.1.0:
     dependencies:
