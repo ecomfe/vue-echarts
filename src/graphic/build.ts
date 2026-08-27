@@ -180,11 +180,11 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
 export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
   const byParent = new Map<string | null, GraphicNode[]>();
-  let occupiedRootIds: Set<string> | undefined;
+  const occupiedRootIds = new Set<string>();
 
   for (const node of nodes) {
     if (node.id.startsWith(rootId)) {
-      (occupiedRootIds ??= new Set()).add(node.id);
+      occupiedRootIds.add(node.id);
     }
     const list = byParent.get(node.parentId);
     if (list) {
@@ -194,7 +194,7 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
     byParent.set(node.parentId, [node]);
   }
 
-  while (occupiedRootIds?.has(rootId)) {
+  while (occupiedRootIds.has(rootId)) {
     rootId += "_";
   }
 
