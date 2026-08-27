@@ -131,8 +131,11 @@ export function useReactiveChartListeners(
             bindings = undefined;
           }
           (consumedSources ??= new Map()).set(key, source);
-          emitter.off(event, handler);
-          invokeCurrent(...args);
+          try {
+            emitter.off(event, handler);
+          } finally {
+            invokeCurrent(...args);
+          }
         };
       }
 

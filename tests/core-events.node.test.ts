@@ -425,9 +425,10 @@ describe("core events", () => {
     expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps once listeners consumed when unbinding fails", () => {
+  it("invokes once listeners and keeps them consumed when unbinding fails", () => {
     const chartRef = ref<EChartsType | undefined>();
-    const attrs = reactive<Record<string, unknown>>({ onClickOnce: vi.fn() });
+    const onClick = vi.fn();
+    const attrs = reactive<Record<string, unknown>>({ onClickOnce: onClick });
     const first = createChartStub();
     const second = createChartStub();
     const firstEmitter = first.chart as unknown as EmitterStub;
@@ -442,6 +443,7 @@ describe("core events", () => {
 
     const binding = findBoundHandler(firstEmitter.on, "click");
     expect(() => binding()).toThrow(error);
+    expect(onClick).toHaveBeenCalledOnce();
 
     chartRef.value = second.chart;
 
