@@ -248,7 +248,7 @@ export default /* @__PURE__ */ defineComponent({
     if (!patchGraphicOption) {
       let warned = false;
       const warnMissingGraphic = () => {
-        if (warned || !slots.graphic) {
+        if (terminallyDisposed.value || warned || !slots.graphic) {
           return;
         }
         warned = true;

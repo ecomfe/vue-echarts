@@ -79,6 +79,30 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
+  it("does not warn when a graphic slot is added after disposal", async () => {
+    const showGraphic = ref(false);
+    let dispose: (() => void) | undefined;
+    const Root = defineComponent(
+      () => () =>
+        h(
+          ECharts,
+          { ref: (value) => (dispose = (value as { dispose: () => void } | null)?.dispose) },
+          showGraphic.value ? { graphic: () => h("div") } : {},
+        ),
+    );
+
+    await withConsoleWarnAsync(async (warnSpy) => {
+      render(Root);
+      await nextTick();
+      dispose?.();
+
+      showGraphic.value = true;
+      await nextTick();
+
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+  });
+
   it("hydrates a server-rendered graphic slot without mismatch warnings", async () => {
     registerExtension();
 
