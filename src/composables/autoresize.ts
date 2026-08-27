@@ -9,7 +9,7 @@ export function useAutoresize(
   chart: Ref<EChartsType | undefined>,
   autoresize: Ref<AutoResize | undefined>,
   container: Ref<HTMLElement | undefined>,
-): void {
+): () => void {
   // Cache observer work, but invalidate it while disabled so autoresize can retake control.
   let sizedChart: EChartsType | undefined;
   let sizedWidth: number | undefined;
@@ -24,7 +24,7 @@ export function useAutoresize(
     () => getOptions()?.throttle ?? 100,
   ] as const;
 
-  watch(
+  return watch(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
       if (!chart || chart.isDisposed()) {

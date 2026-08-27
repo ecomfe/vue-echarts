@@ -11,7 +11,7 @@ export function useLoading(
   loading: Ref<boolean | undefined>,
   loadingType: Ref<string | undefined>,
   loadingOptions: Ref<LoadingOptions | undefined>,
-): void {
+): () => void {
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
   const options = computed<LoadingOptions>(() => ({
     ...toValue(defaultLoadingOptions),
@@ -67,11 +67,16 @@ export function useLoading(
     }
   }
 
-  watchSyncEffect(() => sync());
-  watch(options, (value, previous) => value === previous && sync(true), {
+  const stopSync = watchSyncEffect(() => sync());
+  const stopOptions = watch(options, (value, previous) => value === previous && sync(true), {
     deep: true,
     flush: "sync",
   });
+
+  return () => {
+    stopSync();
+    stopOptions();
+  };
 }
 
 export const loadingProps = {

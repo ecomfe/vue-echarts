@@ -466,6 +466,8 @@ export default /* @__PURE__ */ defineComponent({
         instance.group = props.group ?? "";
       }
     });
+    const stopLoading = useLoading(chart, loading, loadingType, loadingOptions);
+    const stopAutoresize = useAutoresize(chart, autoresize, chartHost);
 
     function dispose(): void {
       if (terminallyDisposed.value) {
@@ -478,6 +480,8 @@ export default /* @__PURE__ */ defineComponent({
       stopReinitWatch();
       stopThemeApplyWatch();
       stopGroupWatch();
+      stopLoading();
+      stopAutoresize();
       cleanup();
     }
 
@@ -497,10 +501,6 @@ export default /* @__PURE__ */ defineComponent({
       instance.clear();
       lastSignature = undefined;
     };
-
-    useLoading(chart, loading, loadingType, loadingOptions);
-
-    useAutoresize(chart, autoresize, chartHost);
 
     onMounted(() => {
       register(root.value);

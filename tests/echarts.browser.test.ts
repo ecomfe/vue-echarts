@@ -1764,12 +1764,26 @@ describe("ECharts component", () => {
 
   it("detaches listeners and stops reactive work after public disposal", async () => {
     const readTitle = vi.fn(() => "before");
+    const readLoadingText = vi.fn((revision: number) => `Loading ${revision}`);
+    const readResizeThrottle = vi.fn((revision: number) => 100 + revision);
+    const loadingState = reactive({ revision: 0 });
+    const resizeState = reactive({ revision: 0 });
     const title = reactive({
       get text() {
         return readTitle();
       },
       revision: 0,
     });
+    const loadingOptions = {
+      get text() {
+        return readLoadingText(loadingState.revision);
+      },
+    };
+    const autoresize = {
+      get throttle() {
+        return readResizeThrottle(resizeState.revision);
+      },
+    };
     const option = ref<Option>({ title });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const manualUpdate = ref(false);
@@ -1781,12 +1795,16 @@ describe("ECharts component", () => {
         option: option.value,
         initOptions: initOptions.value,
         manualUpdate: manualUpdate.value,
+        loadingOptions,
+        autoresize,
         onClick,
       }),
       exposed,
     );
     await nextTick();
     readTitle.mockClear();
+    readLoadingText.mockClear();
+    readResizeThrottle.mockClear();
 
     const instance = getExposed(exposed);
     const element = instance.root;
@@ -1810,8 +1828,12 @@ describe("ECharts component", () => {
     expect(() => instance.getWidth()).toThrowError("ECharts has been disposed.");
 
     title.revision++;
+    loadingState.revision++;
+    resizeState.revision++;
     await nextTick();
     expect(readTitle).not.toHaveBeenCalled();
+    expect(readLoadingText).not.toHaveBeenCalled();
+    expect(readResizeThrottle).not.toHaveBeenCalled();
 
     init.mockClear();
     option.value = { title: { text: "after" } };
