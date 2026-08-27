@@ -21,7 +21,6 @@ const SLOT_OPTION_PATHS = {
 const PROTOTYPE_SEGMENT_RE = /-__proto__(?:-|$)/;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
-const EMPTY_SLOT_NAMES: readonly SlotName[] = [];
 type SlotMap<T> = Partial<Record<SlotName, T>>;
 type SlotBinding = {
   path: string[];
@@ -125,7 +124,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   let detachedRoot: HTMLDivElement | undefined;
   let state: SlotState | undefined;
   const isMounted = shallowRef(false);
-  let warnedInvalidSlots: Set<string> | undefined;
+  const warnedInvalidSlots = new Set<string>();
 
   const getState = (): SlotState =>
     (state ??= {
@@ -134,23 +133,23 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       bindings: new Map<SlotName, SlotBinding>(),
     });
 
-  const collectSlotNames = (): readonly SlotName[] => {
-    let result: SlotName[] | undefined;
+  const collectSlotNames = (): SlotName[] => {
+    const names: SlotName[] = [];
     for (const key in slots) {
       if (key === "graphic") {
         continue;
       }
       if (isValidSlotName(key)) {
-        (result ??= []).push(key);
-      } else if (!warnedInvalidSlots?.has(key)) {
+        names.push(key);
+      } else if (!warnedInvalidSlots.has(key)) {
         warn(`Invalid slot name: ${key}`);
-        (warnedInvalidSlots ??= new Set()).add(key);
+        warnedInvalidSlots.add(key);
       }
     }
-    return result ?? EMPTY_SLOT_NAMES;
+    return names;
   };
 
-  let slotNames = EMPTY_SLOT_NAMES;
+  let slotNames: readonly SlotName[] = [];
   let nextSlotNames = slotNames;
   let appliedSlotNames = slotNames;
   let patchedSlotNames = slotNames;
@@ -160,7 +159,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   watchSyncEffect(() => {
     if (!ready.value) {
-      appliedSlotNames = patchedSlotNames = EMPTY_SLOT_NAMES;
+      appliedSlotNames = patchedSlotNames = [];
       rebuildOnRemoval = false;
       if (state) {
         for (const key of Object.keys(state.params) as SlotName[]) {
@@ -178,14 +177,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     if (!changed) {
       return false;
     }
-    if (slotNames.length === 0) {
-      slotNames = names;
-      return true;
-    }
 
-    const nextSlotNameSet = new Set(names);
     for (const key of slotNames) {
-      if (!nextSlotNameSet.has(key)) {
+      if (!names.includes(key)) {
         if (state) {
           delete state.params[key];
           delete state.containers[key];
@@ -261,12 +255,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     }
 
     if (names.length === 0) {
-      patchedSlotNames = EMPTY_SLOT_NAMES;
+      patchedSlotNames = [];
       return root ?? src;
     }
     const { bindings, params, containers } = getState();
     root ??= { ...src };
-    let patchedNames: SlotName[] | undefined;
+    const patchedNames: SlotName[] = [];
 
     for (const key of names) {
       let binding = bindings.get(key);
@@ -303,16 +297,16 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       if (!writePath(root, path, formatter)) {
         continue;
       }
-      (patchedNames ??= []).push(key);
+      patchedNames.push(key);
     }
 
-    patchedSlotNames = patchedNames ?? EMPTY_SLOT_NAMES;
+    patchedSlotNames = patchedNames;
     return root;
   }
 
   function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
     // ECharts merge retains formatter fields omitted after a slot is removed.
-    let replacements: Set<string> | undefined;
+    const replacements = new Set<string>();
     for (const key of appliedSlotNames) {
       if (patchedSlotNames.includes(key)) {
         continue;
@@ -321,9 +315,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       if (!replacement || rebuildOnRemoval) {
         return { ...updateOptions, notMerge: true };
       }
-      (replacements ??= new Set()).add(replacement);
+      replacements.add(replacement);
     }
-    for (const replacement of replacements ?? []) {
+    for (const replacement of replacements) {
       updateOptions = appendReplaceMerge(updateOptions, replacement);
     }
     return updateOptions;
