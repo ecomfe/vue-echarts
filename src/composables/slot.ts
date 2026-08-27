@@ -22,14 +22,11 @@ const PROTOTYPE_SEGMENT_RE = /-__proto__(?:-|$)/;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
 type SlotMap<T> = Partial<Record<SlotName, T>>;
-type SlotBinding = {
-  path: string[];
-  formatter: (payload: unknown) => HTMLElement | undefined;
-};
+type SlotFormatter = (payload: unknown) => HTMLElement | undefined;
 type SlotState = {
   containers: SlotMap<HTMLElement>;
   params: SlotMap<unknown>;
-  bindings: Map<SlotName, SlotBinding>;
+  formatters: Map<SlotName, SlotFormatter>;
 };
 
 function isValidSlotName(key: string): key is SlotName {
@@ -130,7 +127,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     (state ??= {
       containers: shallowReactive<SlotMap<HTMLElement>>({}),
       params: shallowReactive<SlotMap<unknown>>({}),
-      bindings: new Map<SlotName, SlotBinding>(),
+      formatters: new Map<SlotName, SlotFormatter>(),
     });
 
   const collectSlotNames = (): SlotName[] => {
@@ -183,7 +180,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
         if (state) {
           delete state.params[key];
           delete state.containers[key];
-          state.bindings.delete(key);
+          state.formatters.delete(key);
         }
       }
     }
@@ -258,41 +255,37 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       patchedSlotNames = [];
       return root ?? src;
     }
-    const { bindings, params, containers } = getState();
+    const { formatters, params, containers } = getState();
     root ??= { ...src };
     const patchedNames: SlotName[] = [];
 
     for (const key of names) {
-      let binding = bindings.get(key);
-      if (!binding) {
-        const prefix = getSlotPrefix(key);
-        const rest = key.slice(prefix.length);
-        const parts = rest ? rest.slice(1).split("-") : [];
-        const target = SLOT_OPTION_PATHS[prefix];
-        if (isValidArrayIndex(parts[0] ?? "")) {
-          const index = parts.shift()!;
-          parts.push(target[0], index, ...target.slice(1));
-        } else {
-          parts.push(...target);
-        }
-        binding = {
-          path: parts,
-          formatter: (payload: unknown): HTMLElement | undefined => {
-            if (!ready.value || !slots[key]) {
-              return undefined;
-            }
-            // ECharts may update and reuse the same formatter payload object.
-            if (key in params && Object.is(params[key], payload)) {
-              delete params[key];
-            }
-            params[key] = payload;
-            return containers[key];
-          },
+      let formatter = formatters.get(key);
+      if (!formatter) {
+        formatter = (payload: unknown): HTMLElement | undefined => {
+          if (!ready.value || !slots[key]) {
+            return undefined;
+          }
+          // ECharts may update and reuse the same formatter payload object.
+          if (key in params && Object.is(params[key], payload)) {
+            delete params[key];
+          }
+          params[key] = payload;
+          return containers[key];
         };
-        bindings.set(key, binding);
+        formatters.set(key, formatter);
       }
 
-      const { path, formatter } = binding;
+      const prefix = getSlotPrefix(key);
+      const rest = key.slice(prefix.length);
+      const path = rest ? rest.slice(1).split("-") : [];
+      const target = SLOT_OPTION_PATHS[prefix];
+      if (isValidArrayIndex(path[0] ?? "")) {
+        const index = path.shift()!;
+        path.push(target[0], index, ...target.slice(1));
+      } else {
+        path.push(...target);
+      }
 
       if (!writePath(root, path, formatter)) {
         continue;
