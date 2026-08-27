@@ -484,6 +484,13 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
       title: { text: "late-option" },
     });
+
+    chartStub.setOption.mockClear();
+    theme.value = "dark";
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenLastCalledWith("dark");
+    expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
   it("retries a deferred theme after setTheme fails", async () => {
@@ -785,17 +792,21 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][1]).toBe(updateOptions.value);
   });
 
-  it("rebuilds once when returning to smart updates", async () => {
+  it("rebuilds once and refreshes the theme snapshot when returning to smart updates", async () => {
     const option = ref<Option>({
       series: [
         { id: "a", type: "line", data: [1] },
         { id: "b", type: "line", data: [2] },
       ],
     });
+    const theme = ref<Theme | undefined>("dark");
     const updateOptions = ref<UpdateOptions | undefined>({ notMerge: false });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, updateOptions: updateOptions.value }), exposed);
+    renderChart(
+      () => ({ option: option.value, theme: theme.value, updateOptions: updateOptions.value }),
+      exposed,
+    );
     await nextTick();
     chartStub.setOption.mockClear();
 
@@ -806,6 +817,12 @@ describe("ECharts component", () => {
     expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: true });
 
     chartStub.setOption.mockClear();
+    theme.value = undefined;
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenCalledWith({});
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+
     option.value = { series: [{ id: "b", type: "line", data: [4] }] };
     await nextTick();
 

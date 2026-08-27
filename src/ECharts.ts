@@ -225,8 +225,10 @@ const ECharts = /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
-      const replayAfterTheme = optionApplied && !manual;
-      instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
+      updateOptions = patchUpdateOptions(updateOptions, forceGraphic);
+      // First and rebuilding updates become the snapshot that ECharts restores on theme changes.
+      const replayRequired = optionApplied && !manual && !updateOptions?.notMerge;
+      instance.setOption(patched, updateOptions);
       if (manual) {
         deferredCharts?.delete(instance);
       }
@@ -246,7 +248,9 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isActive(instance) || clearRevision !== revision) {
         return false;
       }
-      return themeApplied && replayAfterTheme ? applyOption(instance, option, "theme") : true;
+      return themeApplied && replayRequired
+        ? applyOption(instance, option, "theme")
+        : replayRequired;
     }
 
     function requestUpdate(mode?: "graphic"): void {
