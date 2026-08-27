@@ -34,6 +34,12 @@ export function useAutoresize(
       if (!container) {
         return;
       }
+      if (!enabled) {
+        sizedChart = chart;
+        sizedWidth = sizedHeight = undefined;
+        wasZeroSized = false;
+        return;
+      }
 
       const { offsetWidth, offsetHeight } = container;
       let observedWidth = offsetWidth;
@@ -44,10 +50,6 @@ export function useAutoresize(
         sizedWidth = offsetWidth;
         sizedHeight = offsetHeight;
         wasZeroSized = hasZeroDimension(offsetWidth, offsetHeight);
-      }
-      if (!enabled) {
-        sizedWidth = sizedHeight = undefined;
-        return;
       }
       const isSynchronized = (width: number, height: number): boolean => {
         if (wasZeroSized) {

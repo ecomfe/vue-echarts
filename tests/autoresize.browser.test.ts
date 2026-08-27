@@ -246,6 +246,37 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
+  it("does not read container layout while autoresize is disabled", async () => {
+    const container = createSizedContainer(120, 80);
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(false);
+    const root = ref<HTMLElement | undefined>(container);
+    const instance = createChart(resize, () => root.value, container);
+    const readWidth = vi.fn(() => 120);
+    const readHeight = vi.fn(() => 80);
+    Object.defineProperties(container, {
+      offsetWidth: { configurable: true, get: readWidth },
+      offsetHeight: { configurable: true, get: readHeight },
+    });
+
+    const scope = effectScope();
+    scope.run(() => useAutoresize(chart, autoresize, root));
+    chart.value = instance;
+    await nextTick();
+
+    expect(readWidth).not.toHaveBeenCalled();
+    expect(readHeight).not.toHaveBeenCalled();
+
+    autoresize.value = true;
+    await nextTick();
+    expect(readWidth).toHaveBeenCalled();
+    expect(readHeight).toHaveBeenCalled();
+    expect(resize).not.toHaveBeenCalled();
+
+    scope.stop();
+  });
+
   it("cancels obsolete throttled work and resizes immediately after zero-sized recovery", async () => {
     let pendingResize: (() => void) | undefined;
     const runPendingResize = () => {
