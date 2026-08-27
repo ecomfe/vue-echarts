@@ -344,25 +344,14 @@ describe("useSlotOption", () => {
     expect(dataView?.optionToContent).toBeTypeOf("function");
   });
 
-  it("reuses callback formatters across slot updates", async () => {
+  it("uses the latest slot when an existing formatter runs", async () => {
     const changeSpy = vi.fn();
     const tooltipSlot = shallowRef(() => [h("span", "first")]);
-    const { exposed } = renderSlotComponent(
-      () => ({
-        tooltip: tooltipSlot.value,
-        dataView: () => [h("span", "data-view")],
-      }),
-      changeSpy,
-    );
+    const { exposed } = renderSlotComponent(() => ({ tooltip: tooltipSlot.value }), changeSpy);
 
     await nextTick();
 
-    const first = getExposed(exposed).patchOption({});
-    const second = getExposed(exposed).patchOption({});
-    const formatter = getTooltipFormatter(first, "tooltip");
-
-    expect(getTooltipFormatter(second, "tooltip")).toBe(formatter);
-    expect(getDataViewFormatter(second)).toBe(getDataViewFormatter(first));
+    const formatter = getTooltipFormatter(getExposed(exposed).patchOption({}), "tooltip");
 
     const container = formatter(makeTooltipParams(0), "");
     if (!(container instanceof HTMLElement)) {

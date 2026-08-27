@@ -22,7 +22,6 @@ const PROTOTYPE_SEGMENT_RE = /-__proto__(?:-|$)/;
 type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
 type SlotMap<T> = Partial<Record<SlotName, T>>;
-type SlotFormatter = (payload: unknown) => HTMLElement | undefined;
 
 function isValidSlotName(key: string): key is SlotName {
   return (
@@ -116,7 +115,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   let detachedRoot: HTMLDivElement | undefined;
   const containers = shallowReactive<SlotMap<HTMLElement>>({});
   const params = shallowReactive<SlotMap<unknown>>({});
-  const formatters = new Map<SlotName, SlotFormatter>();
   const isMounted = shallowRef(false);
   const warnedInvalidSlots = new Set<string>();
 
@@ -167,7 +165,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       if (!names.includes(key)) {
         delete params[key];
         delete containers[key];
-        formatters.delete(key);
       }
     }
     slotNames = names;
@@ -244,21 +241,17 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     const patchedNames: SlotName[] = [];
 
     for (const key of names) {
-      let formatter = formatters.get(key);
-      if (!formatter) {
-        formatter = (payload: unknown): HTMLElement | undefined => {
-          if (!ready.value || !slots[key]) {
-            return undefined;
-          }
-          // ECharts may update and reuse the same formatter payload object.
-          if (key in params && Object.is(params[key], payload)) {
-            delete params[key];
-          }
-          params[key] = payload;
-          return containers[key];
-        };
-        formatters.set(key, formatter);
-      }
+      const formatter = (payload: unknown): HTMLElement | undefined => {
+        if (!ready.value || !slots[key]) {
+          return undefined;
+        }
+        // ECharts may update and reuse the same formatter payload object.
+        if (key in params && Object.is(params[key], payload)) {
+          delete params[key];
+        }
+        params[key] = payload;
+        return containers[key];
+      };
 
       const prefix = getSlotPrefix(key);
       const rest = key.slice(prefix.length);
