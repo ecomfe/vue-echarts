@@ -275,5 +275,15 @@ describe("register", () => {
         iframe.remove();
       }
     });
+
+    it("does not borrow the global registry for a document without a window", async () => {
+      const { register } = await loadModule();
+      const ownerDocument = document.implementation.createHTMLDocument();
+      const getSpy = vi.spyOn(customElements, "get");
+
+      expect(ownerDocument.defaultView).toBeNull();
+      expect(register(ownerDocument.body)).toBe(false);
+      expect(getSpy).not.toHaveBeenCalled();
+    });
   });
 });

@@ -19,10 +19,10 @@ function supportsLifecycle(ctor: CustomElementConstructor | undefined): boolean 
 }
 
 export function register(root?: Element): boolean {
-  const realm = root?.ownerDocument.defaultView ?? globalThis;
-  const registry = realm.customElements;
+  const realm = root ? root.ownerDocument.defaultView : globalThis;
+  const registry = realm?.customElements;
 
-  if (!registry?.get) {
+  if (!realm || !registry?.get) {
     return false;
   }
 
