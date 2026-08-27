@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildSignature, planUpdate } from "../src/update";
+import { planUpdate } from "../src/update";
 import { init, type EChartsOption } from "echarts";
 
 const linearGradient = {
@@ -25,6 +25,8 @@ type AppliedOption = {
     label?: { color?: string };
   }>;
 };
+
+const buildSignature = (option: EChartsOption) => planUpdate(undefined, option).signature;
 
 function createChart() {
   return init(null, undefined, {

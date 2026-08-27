@@ -3,11 +3,6 @@ import { ComponentModel } from "echarts/core";
 import type { Option } from "./types";
 import { isPlainObject } from "./utils";
 
-export interface UpdatePlan {
-  notMerge: boolean;
-  replaceMerge?: string[];
-}
-
 interface ObjectShape {
   [key: string]: Shape | undefined;
 }
@@ -33,7 +28,7 @@ function isComponentOption(value: unknown): boolean {
 }
 
 /** Structural summary of an option collection for deletion detection. */
-export interface CollectionSummary {
+interface CollectionSummary {
   /** Unique ids used to match component items; empty for positional arrays. */
   ids: ReadonlySet<string>;
   /** Anonymous component items, or all items in a positional array. */
@@ -54,9 +49,12 @@ export interface Signature {
   hasAction: boolean;
 }
 
-export interface PlannedUpdate {
+interface PlannedUpdate {
   signature: Signature;
-  plan: UpdatePlan;
+  plan: {
+    notMerge: boolean;
+    replaceMerge?: string[];
+  };
 }
 
 function buildShape(
@@ -156,7 +154,7 @@ function analyzeItems(
  * Data arrays inside component items remain leaves. Graphic element trees and nested option units
  * (`baseOption`, timeline options, and media options) reuse collection summaries.
  */
-export function buildSignature(option: Option): Signature {
+function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
   const context: AnalysisContext = { stack: new WeakSet(), hasAction: false };

@@ -40,7 +40,7 @@ export function isBrowser(): boolean {
 const onRE = /^on[^a-z]/;
 export const isOn = (key: string): boolean => onRE.test(key);
 
-export type ParsedOnEvent = {
+type ParsedOnEvent = {
   event: string;
   once: boolean;
 };
