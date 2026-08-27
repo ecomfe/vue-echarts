@@ -265,13 +265,19 @@ describe("useSlotOption", () => {
     expect(changeSpy).not.toHaveBeenCalled();
 
     const formatter = getTooltipFormatter(patched, "tooltip");
-    const container = formatter(makeTooltipParams(42), "");
+    const params = makeTooltipParams(42);
+    const container = formatter(params, "");
     if (!(container instanceof HTMLElement)) {
       throw new Error("Expected tooltip formatter to return an HTMLElement.");
     }
 
     await nextTick();
     expect(container.textContent).toBe("tooltip-42");
+
+    params.dataIndex = 43;
+    expect(formatter(params, "")).toBe(container);
+    await nextTick();
+    expect(container.textContent).toBe("tooltip-43");
   });
 
   it("releases callback containers while the chart is not ready", async () => {

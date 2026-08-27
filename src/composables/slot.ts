@@ -287,6 +287,10 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
             if (!ready.value || !slots[key]) {
               return undefined;
             }
+            // ECharts may update and reuse the same formatter payload object.
+            if (key in params && Object.is(params[key], payload)) {
+              delete params[key];
+            }
             params[key] = payload;
             return containers[key];
           },
