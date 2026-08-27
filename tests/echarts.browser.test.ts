@@ -2193,12 +2193,14 @@ describe("ECharts component", () => {
   });
 
   it.each([
-    ["added", false, true, false],
-    ["removed", true, false, true],
+    ["added with an option change", false, true, "second", false],
+    ["removed with an option change", true, false, "second", true],
+    ["added after option becomes absent", false, true, undefined, false],
+    ["removed after option becomes absent", true, false, undefined, true],
   ] as const)(
-    "coalesces option and callback slot changes when a slot is %s in the same tick",
-    async (_, initiallyVisible, nextVisible, expectedNotMerge) => {
-      const option = ref({ title: { text: "first" } });
+    "updates callback slots when a slot is %s",
+    async (_, initiallyVisible, nextVisible, nextText, expectedNotMerge) => {
+      const option = ref<Option | undefined>({ title: { text: "first" } });
       const showExtra = ref(initiallyVisible);
 
       const Root = defineComponent({
@@ -2221,14 +2223,14 @@ describe("ECharts component", () => {
       await nextTick();
       chartStub.setOption.mockClear();
 
-      option.value = { title: { text: "second" } };
+      option.value = nextText ? { title: { text: nextText } } : undefined;
       showExtra.value = nextVisible;
       await nextTick();
       await nextTick();
 
       expect(chartStub.setOption).toHaveBeenCalledOnce();
       const [patched, updateOptions] = getLastSetOptionCall(chartStub);
-      expect(patched).toMatchObject({ title: { text: "second" } });
+      expect(patched).toMatchObject({ title: { text: nextText ?? "first" } });
       expect(updateOptions?.notMerge).toBe(expectedNotMerge);
     },
   );

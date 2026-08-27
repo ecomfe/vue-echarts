@@ -255,7 +255,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         return;
       }
 
-      const option = getAutoOption();
+      const option = getAutoOption() ?? lastAutoOption;
       if (!option) {
         return;
       }
