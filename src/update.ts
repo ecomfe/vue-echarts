@@ -17,7 +17,6 @@ type AnalysisContext = {
   stack: WeakSet<object>;
   hasAction: boolean;
 };
-const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 function toIdentity(value: unknown): string | undefined {
   return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
@@ -123,7 +122,7 @@ function analyzeItems(
   mode: ShapeMode | undefined,
   componentItems: boolean,
 ): CollectionSummary {
-  let ids: Set<string> | undefined;
+  const ids = new Set<string>();
   let noIdCount = 0;
   const shapes: ItemShape[] = [];
 
@@ -139,11 +138,11 @@ function analyzeItems(
       noIdCount++;
       continue;
     }
-    (ids ??= new Set()).add(itemShape.id);
+    ids.add(itemShape.id);
   }
 
   return {
-    ids: ids ?? EMPTY_IDS,
+    ids,
     noIdCount,
     shapes,
   };
