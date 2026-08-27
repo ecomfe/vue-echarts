@@ -150,6 +150,16 @@ describe("smart-update", () => {
       expect(signature.collections.media?.noIdCount).toBe(2);
     });
 
+    it("only recognizes actions inside graphic element trees", () => {
+      const ordinary = buildSignature({
+        series: [{ type: "pie", $action: "remove" }],
+      } as unknown as EChartsOption);
+      const graphic = buildSignature(graphicOption([{ id: "item", $action: "remove" }]));
+
+      expect(ordinary.hasAction).toBe(false);
+      expect(graphic.hasAction).toBe(true);
+    });
+
     it("ignores explicit undefined values in leaves", () => {
       const option: EChartsOption = {
         backgroundColor: undefined,

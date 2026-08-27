@@ -18,6 +18,10 @@ type ItemShape = {
   shape: Shape;
 };
 type ShapeMode = "option" | "media" | "graphic";
+type AnalysisContext = {
+  stack: WeakSet<object>;
+  hasAction: boolean;
+};
 const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 function toIdentity(value: unknown): string | undefined {
@@ -36,8 +40,6 @@ export interface CollectionSummary {
   noIdCount: number;
   /** Structural snapshots in merge order; invalid component entries are omitted. */
   shapes: ItemShape[];
-  /** Whether a graphic element explicitly controls its native merge action. */
-  hasAction?: true;
 }
 
 /** Minimal signature of an option used to decide setOption behavior. */
@@ -59,7 +61,7 @@ export interface PlannedUpdate {
 
 function buildShape(
   value: unknown,
-  stack: WeakSet<object>,
+  context: AnalysisContext,
   mode?: ShapeMode,
   itemShape?: ItemShape,
 ): true | ObjectShape {
@@ -73,11 +75,11 @@ function buildShape(
     itemShape.id = toIdentity(rawId);
     itemShape.name = toIdentity(rawName);
   }
-  if (stack.has(value)) {
+  if (context.stack.has(value)) {
     return true;
   }
 
-  stack.add(value);
+  context.stack.add(value);
   const shape: ObjectShape = Object.create(null);
   for (const key of Object.keys(value)) {
     const child =
@@ -85,8 +87,11 @@ function buildShape(
     if (child === undefined) {
       continue;
     }
+    if (mode === "graphic" && key === "$action") {
+      context.hasAction = true;
+    }
     if (mode === "graphic" && (key === "elements" || key === "children") && Array.isArray(child)) {
-      shape[key] = analyzeItems(child, stack, "graphic", true);
+      shape[key] = analyzeItems(child, context, "graphic", true);
       continue;
     }
     if (mode === "option") {
@@ -94,7 +99,7 @@ function buildShape(
       if (Array.isArray(child) || (componentItems && isPlainObject(child))) {
         shape[key] = analyzeItems(
           Array.isArray(child) ? child : [child],
-          stack,
+          context,
           key === "graphic" ? "graphic" : undefined,
           componentItems,
         );
@@ -103,10 +108,10 @@ function buildShape(
     }
     shape[key] =
       mode === "media" && key === "option"
-        ? buildShape(child, stack, "option")
-        : buildShape(child, stack);
+        ? buildShape(child, context, "option")
+        : buildShape(child, context);
   }
-  stack.delete(value);
+  context.stack.delete(value);
   return shape;
 }
 
@@ -114,31 +119,14 @@ function isCollectionShape(shape: Shape): shape is CollectionSummary {
   return shape !== true && Array.isArray(shape.shapes);
 }
 
-function hasExplicitAction(shape: Shape): boolean {
-  if (shape === true) {
-    return false;
-  }
-  if (isCollectionShape(shape)) {
-    return shape.hasAction === true;
-  }
-  for (const key in shape) {
-    const child = shape[key];
-    if (child !== undefined && hasExplicitAction(child)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function analyzeItems(
   items: unknown[],
-  stack: WeakSet<object>,
+  context: AnalysisContext,
   mode: ShapeMode | undefined,
   componentItems: boolean,
 ): CollectionSummary {
   let ids: Set<string> | undefined;
   let noIdCount = 0;
-  let hasAction = false;
   const shapes: ItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
@@ -147,13 +135,8 @@ function analyzeItems(
       continue;
     }
     const itemShape: ItemShape = { id: undefined, name: undefined, shape: true };
-    itemShape.shape = buildShape(item, stack, mode, componentItems ? itemShape : undefined);
+    itemShape.shape = buildShape(item, context, mode, componentItems ? itemShape : undefined);
     shapes.push(itemShape);
-    if (mode !== undefined && !hasAction && itemShape.shape !== true) {
-      hasAction =
-        (mode === "graphic" && itemShape.shape.$action !== undefined) ||
-        hasExplicitAction(itemShape.shape);
-    }
     if (itemShape.id === undefined) {
       noIdCount++;
       continue;
@@ -161,15 +144,11 @@ function analyzeItems(
     (ids ??= new Set()).add(itemShape.id);
   }
 
-  const summary: CollectionSummary = {
+  return {
     ids: ids ?? EMPTY_IDS,
     noIdCount,
     shapes,
   };
-  if (hasAction) {
-    summary.hasAction = true;
-  }
-  return summary;
 }
 
 /**
@@ -180,11 +159,10 @@ function analyzeItems(
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
-  let stack: WeakSet<object> | undefined;
+  let context: AnalysisContext | undefined;
   const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
-  let hasAction = false;
 
   for (const key of Object.keys(opt)) {
     const value = opt[key];
@@ -200,20 +178,22 @@ export function buildSignature(option: Option): Signature {
               : undefined;
       const summary = analyzeItems(
         Array.isArray(value) ? value : [value],
-        (stack ??= new WeakSet()),
+        (context ??= { stack: new WeakSet(), hasAction: false }),
         mode,
         componentItems,
       );
       collections[key] = summary;
-      hasAction ||= summary.hasAction === true;
       continue;
     }
 
     if (isPlainObject(value)) {
       const mode = key === "baseOption" ? "option" : undefined;
-      const shape = buildShape(value, (stack ??= new WeakSet()), mode);
+      const shape = buildShape(
+        value,
+        (context ??= { stack: new WeakSet(), hasAction: false }),
+        mode,
+      );
       objectShapes[key] = shape;
-      hasAction ||= mode !== undefined && hasExplicitAction(shape);
       continue;
     }
 
@@ -231,7 +211,7 @@ export function buildSignature(option: Option): Signature {
     collections,
     objectShapes,
     leaves,
-    hasAction,
+    hasAction: context?.hasAction ?? false,
   };
 }
 
