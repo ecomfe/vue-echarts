@@ -36,6 +36,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Publint
+        run: pnpm run publint
+
       - name: Install Playwright
         run: pnpm run test:setup
 
