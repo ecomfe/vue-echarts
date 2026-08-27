@@ -65,17 +65,15 @@ function isSameOrder(current: Map<PropertyKey, number>, next: Map<PropertyKey, n
 
 export function createOrderTracker() {
   let current = new Map<PropertyKey, number>();
-  let next = new Map<PropertyKey, number>();
   const ref = shallowRef(current);
 
   return {
     ref,
     update(value: unknown): void {
-      next.clear();
+      const next = new Map<PropertyKey, number>();
       collect(value, next, 0);
       if (!isSameOrder(current, next)) {
         current = next;
-        next = new Map();
         ref.value = current;
       }
     },
