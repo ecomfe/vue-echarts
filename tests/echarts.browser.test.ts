@@ -353,35 +353,38 @@ describe("ECharts component", () => {
     expect(readLocale).toHaveBeenCalledOnce();
   });
 
-  it("stops option replay when a theme event disposes the component", async () => {
-    const option = ref<Option>({ title: { text: "theme-dispose" } });
-    const theme = ref<Theme | undefined>("dark");
-    const exposed = shallowRef<Exposed>();
+  it.each(["clear", "dispose"] as const)(
+    "stops option replay when a theme event calls %s",
+    async (method) => {
+      const option = ref<Option>({ title: { text: "theme-event" } });
+      const theme = ref<Theme | undefined>("dark");
+      const exposed = shallowRef<Exposed>();
 
-    renderChart(
-      () => ({
-        option: option.value,
-        theme: theme.value,
-        onRendered: () => getExposed(exposed).dispose(),
-      }),
-      exposed,
-    );
-    await nextTick();
+      renderChart(
+        () => ({
+          option: option.value,
+          theme: theme.value,
+          onRendered: () => getExposed(exposed)[method](),
+        }),
+        exposed,
+      );
+      await nextTick();
 
-    chartStub.setOption.mockClear();
-    chartStub.setTheme.mockImplementation(() => {
-      const binding = chartStub.on.mock.calls.find(([event]) => event === "rendered");
-      binding?.[1]({ elapsedTime: 1 });
-    });
+      chartStub.setOption.mockClear();
+      chartStub.setTheme.mockImplementation(() => {
+        const binding = chartStub.on.mock.calls.find(([event]) => event === "rendered");
+        binding?.[1]({ elapsedTime: 1 });
+      });
 
-    option.value = { title: { text: "discarded" } };
-    theme.value = undefined;
-    await nextTick();
+      option.value = { title: { text: "discarded" } };
+      theme.value = undefined;
+      await nextTick();
 
-    expect(chartStub.setTheme).toHaveBeenCalledWith({});
-    expect(chartStub.dispose).toHaveBeenCalledOnce();
-    expect(chartStub.setOption).not.toHaveBeenCalled();
-  });
+      expect(chartStub.setTheme).toHaveBeenCalledWith({});
+      expect(chartStub[method]).toHaveBeenCalledOnce();
+      expect(chartStub.setOption).not.toHaveBeenCalled();
+    },
+  );
 
   it("applies a theme changed synchronously during setTheme", async () => {
     const theme = reactive({ color: ["dark"] });

@@ -470,11 +470,13 @@ const ECharts = /* @__PURE__ */ defineComponent({
           isActive(instance) &&
           instance !== themedChart
         ) {
+          const revision = clearRevision;
           applyTheme(instance);
 
           const option = getAutoOption() ?? lastAutoOption;
           if (
             replayOption &&
+            clearRevision === revision &&
             isActive(instance) &&
             option &&
             !manualUpdate.value &&
