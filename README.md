@@ -195,7 +195,7 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
 - `manual-update: boolean` (default: `false`)
 
-  Handy for performance-sensitive charts (large or high-frequency updates). When set to `true`, Vue uses the `option` prop for the initial render but does not deeply observe it afterwards; later prop changes do nothing and you must drive updates via `setOption` on a template ref. The component-managed initial render still honors `update-options`, while later manual calls use only their per-call arguments. If `autoresize` defers that first render and you call `setOption` first, the manual call takes precedence. If the chart re-initializes (for example due to `init-options` changes, flipping `manual-update`, or a remount), the manual state is discarded and the chart is rendered again from the current `option` value.
+  Handy for performance-sensitive charts (large or high-frequency updates). When set to `true`, Vue uses the `option` prop for the initial render but does not deeply observe it afterwards; later prop changes do nothing and you must drive updates via `setOption` on a template ref. The component-managed initial render still honors `update-options`, while later manual calls use only their per-call arguments. If `autoresize` defers that first render and you successfully call `setOption` first, the manual call takes precedence. If the chart re-initializes (for example due to `init-options` changes, flipping `manual-update`, or a remount), the manual state is discarded and the chart is rendered again from the current `option` value.
 
 #### TypeScript
 

@@ -1472,6 +1472,26 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
   });
 
+  it("falls back to the initial option when an early manual update fails", async () => {
+    const error = new Error("setOption failed");
+    const initialOption = { title: { text: "initial" } };
+    const manualOption = { title: { text: "manual" } };
+    const exposed = shallowRef<Exposed>();
+    chartStub.setOption.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    renderChart(() => ({ option: initialOption, manualUpdate: true, autoresize: true }), exposed);
+
+    expect(() => getExposed(exposed).setOption(manualOption)).toThrow(error);
+    await nextTick();
+
+    expect(chartStub.setOption.mock.calls.map(([option]) => option)).toEqual([
+      manualOption,
+      initialOption,
+    ]);
+  });
+
   it("keeps a public clear during autoresize mount without disabling updates", async () => {
     const option = ref<Option>({ series: [] });
     const exposed = shallowRef<Exposed>();

@@ -182,11 +182,15 @@ export default /* @__PURE__ */ defineComponent({
     ): boolean {
       // `updated` listeners run synchronously and may clear during this attempt.
       const revision = clearRevision;
-      deferredCharts?.delete(instance);
+      const manual = mode === "manual";
+      // A failed early manual call must not take precedence over deferred initialization.
+      if (!manual) {
+        deferredCharts?.delete(instance);
+      }
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
       const forceGraphic = mode === "graphic";
-      const skipPlanning = mode === "manual" || forceGraphic;
+      const skipPlanning = manual || forceGraphic;
       let updateOptions: UpdateOptions | undefined;
       let nextSignature: Signature | null | undefined;
 
@@ -204,8 +208,11 @@ export default /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
-      const replayAfterTheme = optionApplied && mode !== "manual";
+      const replayAfterTheme = optionApplied && !manual;
       instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
+      if (manual) {
+        deferredCharts?.delete(instance);
+      }
       if (!isActive(instance) || clearRevision !== revision) {
         return false;
       }
@@ -215,7 +222,7 @@ export default /* @__PURE__ */ defineComponent({
       if (!skipPlanning) {
         lastSignature = nextSignature;
       }
-      if (mode !== "manual") {
+      if (!manual) {
         lastAutoOption = option;
       }
       const themeApplied = applyTheme(instance);
