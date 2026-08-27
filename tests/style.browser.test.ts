@@ -207,7 +207,7 @@ describe("style entry", () => {
     }
   });
 
-  it("constructs and restores adopted stylesheets in the target document's realm", async () => {
+  it("constructs, restores, and falls back from adopted stylesheets in the target document's realm", async () => {
     const { iframe, ownerDocument } = createFrame();
     const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
     if (!StyleSheet) {
@@ -227,6 +227,18 @@ describe("style entry", () => {
       ownerDocument.adoptedStyleSheets = [];
       ensureStyles(ownerDocument);
       expect(ownerDocument.adoptedStyleSheets).toEqual([sheet]);
+
+      Object.defineProperty(ownerDocument, "adoptedStyleSheets", {
+        configurable: true,
+        get: () => [],
+        set: () => {
+          throw new Error("adoption failed");
+        },
+      });
+
+      ensureStyles(ownerDocument);
+      ensureStyles(ownerDocument);
+      expect(ownerDocument.head.querySelectorAll("style")).toHaveLength(1);
     } finally {
       iframe.remove();
     }

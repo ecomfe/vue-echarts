@@ -22,29 +22,28 @@ export function ensureStyles(root?: Node): void {
   const ownerDocument = isDocument ? (target as Document) : target.ownerDocument!;
   const container = isDocument ? ownerDocument.head : target;
   const existing = styles.get(cssRules);
-  if (existing) {
-    if ("sheet" in existing) {
-      if (!target.adoptedStyleSheets.includes(existing.sheet)) {
-        target.adoptedStyleSheets = [...target.adoptedStyleSheets, existing.sheet];
-      }
-    } else if (existing.element.parentNode !== container) {
+  if (existing && "element" in existing) {
+    if (existing.element.parentNode !== container) {
       container.appendChild(existing.element);
     }
     return;
   }
 
+  const sheet = existing?.sheet;
+  const adoptedStyleSheets = target.adoptedStyleSheets;
+  if (sheet && Array.isArray(adoptedStyleSheets) && adoptedStyleSheets.includes(sheet)) {
+    return;
+  }
   const StyleSheet = ownerDocument.defaultView?.CSSStyleSheet;
 
-  if (
-    StyleSheet &&
-    Array.isArray(target.adoptedStyleSheets) &&
-    "replaceSync" in StyleSheet.prototype
-  ) {
+  if (Array.isArray(adoptedStyleSheets)) {
     try {
-      const sheet = new StyleSheet();
-      sheet.replaceSync(cssRules);
-      target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
-      styles.set(cssRules, { sheet });
+      const adoptedSheet = sheet ?? new StyleSheet!();
+      if (!sheet) {
+        adoptedSheet.replaceSync(cssRules);
+      }
+      target.adoptedStyleSheets = [...adoptedStyleSheets, adoptedSheet];
+      styles.set(cssRules, { sheet: adoptedSheet });
       return;
     } catch {
       // Some browsers expose the API but reject construction or adoption at runtime.
