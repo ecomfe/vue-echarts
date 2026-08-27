@@ -124,6 +124,7 @@ export default /* @__PURE__ */ defineComponent({
     let themeUpdatePending = false;
     let optionUpdatePending = false;
     let optionReplayRequired = false;
+    let clearRevision = 0;
     let optionApplied = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
@@ -178,7 +179,9 @@ export default /* @__PURE__ */ defineComponent({
       option: Option,
       mode?: ApplyMode,
       manualOptions?: UpdateOptions,
-    ): void {
+    ): boolean {
+      // `updated` listeners run synchronously and may clear during this attempt.
+      const revision = clearRevision;
       deferredCharts?.delete(instance);
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
@@ -202,29 +205,24 @@ export default /* @__PURE__ */ defineComponent({
       }
 
       const replayAfterTheme = optionApplied && mode !== "manual";
-      commitOption(instance, patched, patchUpdateOptions(updateOptions, forceGraphic));
+      instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
+      if (!isActive(instance) || clearRevision !== revision) {
+        return false;
+      }
+      commitSlotOption();
+      graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
+      optionApplied = true;
       if (!skipPlanning) {
         lastSignature = nextSignature;
       }
       if (mode !== "manual") {
         lastAutoOption = option;
       }
-      if (applyTheme(instance) && replayAfterTheme) {
-        applyOption(instance, option, "theme");
+      const themeApplied = applyTheme(instance);
+      if (!isActive(instance) || clearRevision !== revision) {
+        return false;
       }
-    }
-
-    function commitOption(
-      instance: EChartsType,
-      option: Option,
-      updateOptions?: UpdateOptions,
-    ): void {
-      instance.setOption(option, updateOptions);
-      if (isActive(instance)) {
-        commitSlotOption();
-        graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
-      }
-      optionApplied = true;
+      return themeApplied && replayAfterTheme ? applyOption(instance, option, "theme") : true;
     }
 
     function requestUpdate(mode?: "graphic"): boolean {
@@ -234,9 +232,9 @@ export default /* @__PURE__ */ defineComponent({
         return false;
       }
 
-      applyOption(instance, option, mode);
-      optionReplayRequired = true;
-      return true;
+      const applied = applyOption(instance, option, mode);
+      optionReplayRequired = applied;
+      return applied;
     }
 
     if (!patchGraphicOption) {
@@ -402,8 +400,7 @@ export default /* @__PURE__ */ defineComponent({
           optionUpdatePending = true;
           return;
         }
-        applyOption(instance, nextOption);
-        optionReplayRequired = true;
+        optionReplayRequired = applyOption(instance, nextOption);
       },
       // Graphic nodes register during render, so update after the collected tree is current.
       { deep: true, flush: updateFlush },
@@ -447,8 +444,7 @@ export default /* @__PURE__ */ defineComponent({
             !manualUpdate.value &&
             !deferredCharts?.has(instance)
           ) {
-            applyOption(instance, option, "theme");
-            optionReplayRequired = true;
+            optionReplayRequired = applyOption(instance, option, "theme");
           }
         }
       },
@@ -483,6 +479,7 @@ export default /* @__PURE__ */ defineComponent({
     publicApi.clear = () => {
       const instance = chart.value!;
       // Native clear may replace the model before failing, so invalidate replay state first.
+      clearRevision++;
       deferredCharts?.delete(instance);
       lastSignature = null;
       lastAutoOption = undefined;
