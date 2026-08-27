@@ -65,9 +65,6 @@ export function useAutoresize(
       const throttledResize = wait ? throttle(resize, wait) : undefined;
       const runResize = throttledResize ?? resize;
       function stop(): void {
-        if (!active) {
-          return;
-        }
         active = false;
         observer.disconnect();
         throttledResize?.clear();
