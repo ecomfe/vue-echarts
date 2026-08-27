@@ -154,7 +154,6 @@ describe("core events", () => {
       "dragstart",
       "drop",
     ]);
-    expect(target.getZr).toHaveBeenCalledOnce();
 
     scope.stop();
   });

@@ -26,16 +26,19 @@ export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
   attrs: AttrMap,
 ): () => void {
-  let bindings: Map<string, ListenerBinding> | undefined;
-  let consumedSources: Map<string, unknown> | undefined;
+  let bindings = new Map<string, ListenerBinding>();
+  const consumedSources = new Map<string, unknown>();
   let activeInstance: EChartsType | undefined;
   let scan = 0;
 
   function clearBindings(): void {
+    if (bindings.size === 0) {
+      return;
+    }
     const current = bindings;
-    bindings = undefined;
+    bindings = new Map();
     // ECharts disposal already releases both emitters and rejects later off calls.
-    if (!current || activeInstance?.isDisposed()) {
+    if (activeInstance?.isDisposed()) {
       return;
     }
     let errors: unknown[] | undefined;
@@ -53,14 +56,9 @@ export function useReactiveChartListeners(
 
   const stopWatch = watchSyncEffect(() => {
     const instance = chart.value;
-    if (consumedSources) {
-      for (const [key, source] of consumedSources) {
-        if (attrs[key] !== source) {
-          consumedSources.delete(key);
-        }
-      }
-      if (consumedSources.size === 0) {
-        consumedSources = undefined;
+    for (const [key, source] of consumedSources) {
+      if (attrs[key] !== source) {
+        consumedSources.delete(key);
       }
     }
     if (!instance || instance.isDisposed()) {
@@ -74,7 +72,6 @@ export function useReactiveChartListeners(
     }
     activeInstance = instance;
     scan++;
-    let zrEmitter: EventEmitter | undefined;
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
@@ -85,9 +82,9 @@ export function useReactiveChartListeners(
       const zr = parsed.event.startsWith("zr:");
       const event = (zr ? parsed.event.slice(3) : parsed.event).toLowerCase();
       const source = attrs[key];
-      const existing = bindings?.get(key);
+      const existing = bindings.get(key);
 
-      if (parsed.once && consumedSources?.get(key) === source) {
+      if (parsed.once && consumedSources.get(key) === source) {
         continue;
       }
 
@@ -106,16 +103,14 @@ export function useReactiveChartListeners(
 
       if (existing) {
         existing.emitter.off(existing.event, existing.handler);
-        bindings?.delete(key);
+        bindings.delete(key);
       }
 
       if (!invoke) {
         continue;
       }
 
-      const emitter = zr
-        ? (zrEmitter ??= instance.getZr() as EventEmitter)
-        : (instance as EventEmitter);
+      const emitter = zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
       const current = { value: invoke };
       const invokeCurrent: EventHandler = (...args) => current.value(...args);
       let handler = invokeCurrent;
@@ -126,11 +121,8 @@ export function useReactiveChartListeners(
             return;
           }
           called = true;
-          bindings?.delete(key);
-          if (bindings?.size === 0) {
-            bindings = undefined;
-          }
-          (consumedSources ??= new Map()).set(key, source);
+          bindings.delete(key);
+          consumedSources.set(key, source);
           try {
             emitter.off(event, handler);
           } finally {
@@ -140,7 +132,7 @@ export function useReactiveChartListeners(
       }
 
       emitter.on(event, handler);
-      (bindings ??= new Map()).set(key, {
+      bindings.set(key, {
         emitter,
         event,
         source,
@@ -151,18 +143,12 @@ export function useReactiveChartListeners(
       });
     }
 
-    if (!bindings) {
-      return;
-    }
     for (const [key, binding] of bindings) {
       if (binding.seenAt === scan) {
         continue;
       }
       binding.emitter.off(binding.event, binding.handler);
       bindings.delete(key);
-    }
-    if (bindings.size === 0) {
-      bindings = undefined;
     }
   });
 
