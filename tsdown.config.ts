@@ -22,13 +22,25 @@ export default defineConfig([
       globals: {
         vue: "Vue",
         echarts: "echarts",
-        "echarts/core": "echarts",
       },
     },
     platform: "browser",
     sourcemap: true,
     minify: true,
     dts: false,
-    plugins: [raw()],
+    plugins: [
+      {
+        name: "use-full-echarts",
+        resolveId: {
+          order: "pre",
+          handler(source) {
+            if (source === "echarts/core") {
+              return { id: "echarts", external: true };
+            }
+          },
+        },
+      },
+      raw(),
+    ],
   },
 ]);
