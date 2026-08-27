@@ -156,6 +156,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   let patchedSlotNames = slotNames;
   let rebuildOnRemoval = false;
 
+  const hasNewSlots = () => collectSlotNames().some((name) => !slotNames.includes(name));
+
   watchSyncEffect(() => {
     if (!ready.value) {
       appliedSlotNames = patchedSlotNames = EMPTY_SLOT_NAMES;
@@ -340,6 +342,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   return {
     render,
+    hasNewSlots,
     patchOption,
     patchUpdateOptions,
     commitOption,

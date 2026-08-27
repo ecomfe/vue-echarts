@@ -117,6 +117,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     const {
       render: renderSlot,
+      hasNewSlots,
       patchOption,
       patchUpdateOptions: patchSlotUpdateOptions,
       commitOption: commitSlotOption,
@@ -423,6 +424,10 @@ const ECharts = /* @__PURE__ */ defineComponent({
         if (initOptionsInvalidated || !isActive(instance) || deferredCharts?.has(instance)) {
           return;
         }
+        // Let the updated hook apply once the new callback containers exist.
+        if (hasNewSlots()) {
+          return;
+        }
         if (themeUpdatePending) {
           optionUpdatePending = true;
           return;
@@ -469,7 +474,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
             isActive(instance) &&
             option &&
             !manualUpdate.value &&
-            !deferredCharts?.has(instance)
+            !deferredCharts?.has(instance) &&
+            !hasNewSlots()
           ) {
             optionReplayRequired = applyOption(instance, option, "theme");
           }

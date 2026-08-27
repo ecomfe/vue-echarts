@@ -24,6 +24,7 @@ import type {
   UpdateOptions,
 } from "../src/types";
 import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
+import { makeTooltipParams } from "./helpers/tooltip";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 import { __resetRegisterState, register as registerWc } from "../src/wc";
@@ -2212,6 +2213,52 @@ describe("ECharts component", () => {
       const [patched, updateOptions] = getLastSetOptionCall(chartStub);
       expect(patched).toMatchObject({ title: { text: "second" } });
       expect(updateOptions?.notMerge).toBe(expectedNotMerge);
+    },
+  );
+
+  it.each([
+    ["option", false],
+    ["option and theme", true],
+  ] as const)(
+    "makes a newly added callback slot available during the same %s update",
+    async (_, changeTheme) => {
+      const option = ref<Option>({ title: { text: "first" } });
+      const theme = ref<Theme | undefined>("dark");
+      const showTooltip = ref(false);
+      let formatterResult: unknown;
+
+      chartStub.setOption.mockImplementation((patched) => {
+        const tooltip = (patched as { tooltip?: { formatter?: unknown } }).tooltip;
+        const formatter = tooltip?.formatter;
+        if (typeof formatter === "function") {
+          formatterResult = formatter(makeTooltipParams(0), "");
+        }
+      });
+
+      const Root = defineComponent({
+        setup() {
+          return () =>
+            h(
+              ECharts,
+              { option: option.value, theme: theme.value },
+              showTooltip.value ? { tooltip: () => h("span", "tooltip") } : {},
+            );
+        },
+      });
+
+      render(Root);
+      await nextTick();
+      chartStub.setOption.mockClear();
+
+      option.value = { title: { text: "second" } };
+      showTooltip.value = true;
+      if (changeTheme) {
+        theme.value = undefined;
+      }
+      await nextTick();
+
+      expect(chartStub.setOption).toHaveBeenCalledOnce();
+      expect(formatterResult).toBeInstanceOf(HTMLElement);
     },
   );
 
