@@ -10,10 +10,6 @@ export function useAutoresize(
   autoresize: Ref<AutoResize | undefined>,
   container: Ref<HTMLElement | undefined>,
 ): () => void {
-  // Cache observer work, but invalidate it while disabled so autoresize can retake control.
-  let sizedChart: EChartsType | undefined;
-  let sizedWidth: number | undefined;
-  let sizedHeight: number | undefined;
   let wasZeroSized = false;
 
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
@@ -28,15 +24,12 @@ export function useAutoresize(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
       if (!chart || chart.isDisposed()) {
-        sizedChart = undefined;
         return;
       }
       if (!container) {
         return;
       }
       if (!enabled) {
-        sizedChart = chart;
-        sizedWidth = sizedHeight = undefined;
         wasZeroSized = false;
         return;
       }
@@ -45,26 +38,8 @@ export function useAutoresize(
       let observedWidth = offsetWidth;
       let observedHeight = offsetHeight;
       let active = true;
-      if (chart !== sizedChart) {
-        sizedChart = chart;
-        sizedWidth = offsetWidth;
-        sizedHeight = offsetHeight;
-        wasZeroSized = hasZeroDimension(offsetWidth, offsetHeight);
-      }
-      const isSynchronized = (width: number, height: number): boolean => {
-        if (wasZeroSized) {
-          return false;
-        }
-        if (width === sizedWidth && height === sizedHeight) {
-          return true;
-        }
-        if (width !== chart.getWidth() || height !== chart.getHeight()) {
-          return false;
-        }
-        sizedWidth = width;
-        sizedHeight = height;
-        return true;
-      };
+      const isSynchronized = (width: number, height: number) =>
+        !wasZeroSized && width === chart.getWidth() && height === chart.getHeight();
 
       const resize = () => {
         // Observer notifications can repeat, and throttled work can outlive its triggering size.
@@ -84,8 +59,6 @@ export function useAutoresize(
           stop();
           return;
         }
-        sizedWidth = observedWidth;
-        sizedHeight = observedHeight;
         wasZeroSized = false;
         getOptions()?.onResize?.();
       };

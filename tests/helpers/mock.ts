@@ -42,6 +42,8 @@ type MockedMethod<T> = T extends (...args: infer Args) => infer R
 
 type ChartMethodKeys =
   | "setOption"
+  | "getWidth"
+  | "getHeight"
   | "clear"
   | "resize"
   | "dispose"
@@ -78,6 +80,8 @@ export function createChartStub(): ChartStub {
       lastOption = option;
     }),
     getOption: vi.fn(() => lastOption),
+    getWidth: vi.fn(() => 0),
+    getHeight: vi.fn(() => 0),
     clear: vi.fn(() => {
       lastOption = undefined;
     }),
@@ -122,8 +126,11 @@ export function resetECharts(): void {
   use.mockReset();
 
   init.mockImplementation((...args: Parameters<InitFn>) => {
-    void args;
-    return ensureStub() as unknown as ReturnType<InitFn>;
+    const [root] = args;
+    const stub = ensureStub();
+    stub.getWidth.mockImplementation(() => root?.offsetWidth ?? 0);
+    stub.getHeight.mockImplementation(() => root?.offsetHeight ?? 0);
+    return stub as unknown as ReturnType<InitFn>;
   });
   throttle.mockImplementation(defaultThrottleImplementation);
   use.mockImplementation((modules?: unknown[]) => {

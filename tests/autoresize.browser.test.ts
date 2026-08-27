@@ -540,7 +540,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("resets sizing when the chart is removed and targets replacement instances", async () => {
+  it("resynchronizes restored and replacement chart instances", async () => {
     const firstResize = vi.fn();
     const secondResize = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -571,15 +571,18 @@ describe("useAutoresize", () => {
     chart.value = firstChart;
     await nextTick();
 
-    expect(firstResize).toHaveBeenCalledTimes(1);
+    expect(firstResize).toHaveBeenCalledTimes(2);
+    expect(firstChart.getWidth()).toBe(200);
 
     chart.value = secondChart;
     await nextTick();
 
+    expect(secondResize).toHaveBeenCalledOnce();
+
     container.style.width = "220px";
     await flushAnimationFrame();
-    expect(firstResize).toHaveBeenCalledTimes(1);
-    expect(secondResize).toHaveBeenCalledTimes(1);
+    expect(firstResize).toHaveBeenCalledTimes(2);
+    expect(secondResize).toHaveBeenCalledTimes(2);
 
     scope.stop();
   });
