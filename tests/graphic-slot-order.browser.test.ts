@@ -219,7 +219,7 @@ describe("graphic slot order and tree behavior", () => {
     registerExtension();
 
     const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
-    const items = ref<Array<string | number>>(["1", 1, "x"]);
+    const items = ref<Array<string | number>>(["1", 1, 0, "x"]);
 
     const Root = defineComponent({
       setup() {
@@ -247,13 +247,13 @@ describe("graphic slot order and tree behavior", () => {
     await nextTick();
     await flushAnimationFrame();
     const ids = getLastGraphicIds(suite.getChartStub());
-    expect(ids).toHaveLength(3);
-    expect(new Set(ids).size).toBe(3);
+    expect(ids).toHaveLength(4);
+    expect(new Set(ids).size).toBe(4);
 
-    items.value = [1, "x", "1"];
+    items.value = [0, 1, "x", "1"];
     await nextTick();
     await flushAnimationFrame();
-    expect(getLastGraphicIds(suite.getChartStub())).toEqual([ids[1], ids[2], ids[0]]);
+    expect(getLastGraphicIds(suite.getChartStub())).toEqual([ids[2], ids[1], ids[3], ids[0]]);
   });
 
   it("supports reorder with id-only nodes (without :key)", async () => {

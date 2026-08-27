@@ -30,7 +30,7 @@ function collect(value: unknown, orderMap: Map<PropertyKey, number>, order: numb
   const opaqueComponent = !Array.isArray(children) && (type === "object" || type === "function");
   const props = vnode.props as Record<string, unknown> | null;
   const identity = graphic || opaqueComponent ? resolveOrderKey(props?.id, vnode.key) : null;
-  if (identity) {
+  if (identity !== null) {
     orderMap.set(identity, order);
   }
   if (graphic) {

@@ -71,15 +71,15 @@ describe("graphic order helpers", () => {
   });
 
   it("keeps vnode key types distinct and ordered", () => {
-    const keys: PropertyKey[] = [Symbol("rect"), Symbol("rect"), "1", 1];
+    const keys: PropertyKey[] = [Symbol("rect"), Symbol("rect"), "1", 1, 0];
     const identities = keys.map((key, uid) => resolveIdentity(undefined, key, uid));
     const order = createOrderTracker();
 
     order.update(keys.map((key) => h(RectGraphic, { key })));
 
-    expect(new Set(identities.map(({ id }) => id)).size).toBe(4);
+    expect(new Set(identities.map(({ id }) => id)).size).toBe(5);
     expect(identities.every(({ missingIdentity }) => !missingIdentity)).toBe(true);
-    expect([...order.ref.value.values()]).toEqual([0, 1, 2, 3]);
+    expect([...order.ref.value.values()]).toEqual([0, 1, 2, 3, 4]);
   });
 
   it("leaves group slot collection to the group render", () => {
