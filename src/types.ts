@@ -90,6 +90,7 @@ type OtherEventName =
   | "datazoom"
   | "datarangeselected"
   | `${"graph" | "geo" | "tree" | "sankey"}roam`
+  | `${"focus" | "unfocus"}nodeadjacency`
   | "dragnode"
   | "treeexpandandcollapse"
   | "timelinechanged"
@@ -114,6 +115,7 @@ type OtherEventAlias =
     >}`
   | `data${Capitalize<"zoom" | "rangeSelected" | "viewChanged">}`
   | `${"graph" | "geo" | "tree" | "sankey"}Roam`
+  | `${"focus" | "unfocus"}NodeAdjacency`
   | "dragNode"
   | "treeExpandAndCollapse"
   | `timeline${Capitalize<"changed" | "playChanged">}`

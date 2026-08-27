@@ -32,6 +32,7 @@ type CamelCaseHandlerName =
     >}`
   | `onData${Capitalize<"zoom" | "rangeSelected" | "viewChanged">}`
   | `on${Capitalize<"graph" | "geo" | "tree" | "sankey">}Roam`
+  | `on${Capitalize<"focus" | "unfocus">}NodeAdjacency`
   | "onDragNode"
   | "onTreeExpandAndCollapse"
   | `onTimeline${Capitalize<"changed" | "playChanged">}`
@@ -54,6 +55,7 @@ type OnceHandlerName =
   | "onShowTipOnce"
   | "onUpdatedOnce"
   | "onAxisBreakChangedOnce"
+  | "onFocusNodeAdjacencyOnce"
   | "onZr:mouseMoveOnce";
 type NativeHandler = NonNullable<
   Props["onNative:click" | "onNative:clickOnce" | "onNative:chart-ready"]
@@ -96,6 +98,8 @@ type _lowercaseEventsRemain = Assert<
     | "onAxisbreakchanged"
     | "onBrushend"
     | "onSankeyroam"
+    | "onFocusnodeadjacency"
+    | "onUnfocusnodeadjacency"
     | "onDragnode"
     | "onTreeexpandandcollapse"
     | "onShowtip"

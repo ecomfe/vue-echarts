@@ -234,6 +234,7 @@ Vue ECharts 支持如下事件：
 - `georoam` [→](https://echarts.apache.org/zh/api.html#events.georoam)
 - `treeroam` [→](https://echarts.apache.org/zh/api.html#events.treeroam)
 - `sankeyroam` [→](https://echarts.apache.org/zh/api.html#events.sankeyroam)
+- `focusnodeadjacency`、`unfocusnodeadjacency`（旧版图邻接关系聚焦操作事件）
 - `dragnode` [→](https://echarts.apache.org/zh/api.html#events.dragnode)
 - `treeexpandandcollapse` [→](https://echarts.apache.org/zh/api.html#events.treeexpandandcollapse)
 - `timelinechanged` [→](https://echarts.apache.org/zh/api.html#events.timelinechanged)
