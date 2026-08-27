@@ -1408,6 +1408,23 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
+  it("stops deferred initialization when chart disposal fails", async () => {
+    const error = new Error("dispose failed");
+    const exposed = shallowRef<Exposed>();
+    chartStub.dispose.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    renderChart(() => ({ option: {}, autoresize: true }), exposed);
+    const instance = getExposed(exposed);
+    expect(() => instance.dispose()).toThrow(error);
+    await nextTick();
+
+    expect(instance.isDisposed()).toBe(true);
+    expect(chartStub.resize).not.toHaveBeenCalled();
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
   it("continues initialization after the first autoresize fails", async () => {
     const option = ref<Option>({ title: { text: "initial" } });
     chartStub.resize.mockImplementationOnce(() => {

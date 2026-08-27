@@ -319,7 +319,7 @@ export default /* @__PURE__ */ defineComponent({
         const deferred = (deferredCharts ??= new WeakSet());
         deferred.add(instance);
         nextTick(() => {
-          if (instance.isDisposed()) {
+          if (!isActive(instance)) {
             return;
           }
           if (autoresize.value && !hasZeroDimension(host.offsetWidth, host.offsetHeight)) {
@@ -328,7 +328,7 @@ export default /* @__PURE__ */ defineComponent({
             } catch {
               warn("Initial chart resize failed; continuing initialization.");
             }
-            if (instance.isDisposed()) {
+            if (!isActive(instance)) {
               return;
             }
           }
