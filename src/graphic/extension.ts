@@ -20,7 +20,6 @@ export function registerExtension(): void {
     const { slots, manualUpdate, requestUpdate } = ctx;
     let collector: GraphicCollector | undefined;
     let hasGraphicSlot = Boolean(slots.graphic);
-    let warnedOverride = false;
 
     function getCollector(): GraphicCollector {
       return (collector ??= createCollector(handleFlush));
@@ -57,11 +56,11 @@ export function registerExtension(): void {
           return option;
         }
         const collector = getCollector();
-        if (option.graphic && !warnedOverride) {
+        if (option.graphic) {
           collector.warn(
             "`#graphic` slot is provided, so `option.graphic` is ignored. Remove one of them to avoid ambiguity.",
+            "option-graphic-override",
           );
-          warnedOverride = true;
         }
         const nextOption = buildOption(collector.getNodes(), ROOT_ID);
         collector.cancelPendingFlush();
