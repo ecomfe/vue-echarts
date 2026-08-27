@@ -17,8 +17,6 @@ import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 import { GRAPHIC_EVENTS } from "./types";
 
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
 function mergeProps(
   target: Record<string, unknown> | undefined,
   keys: readonly string[],
@@ -75,23 +73,20 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
 
   if (node.handlerCache) {
     for (const key of node.handlerCache.keys()) {
-      if (!hasOwnProperty.call(handlers, key)) {
+      if (!Object.hasOwn(handlers, key)) {
         node.handlerCache.delete(key);
       }
     }
   }
 
-  for (const key in handlers) {
-    if (!hasOwnProperty.call(handlers, key)) {
-      continue;
-    }
+  for (const key of Object.keys(handlers)) {
     const value = handlers[key];
     const descriptor = parseOnEvent(key);
     if (!descriptor) {
       continue;
     }
     const event = descriptor.event.toLowerCase();
-    if (!hasOwnProperty.call(GRAPHIC_EVENTS, event)) {
+    if (!Object.hasOwn(GRAPHIC_EVENTS, event)) {
       continue;
     }
 
