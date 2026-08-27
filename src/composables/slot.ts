@@ -66,7 +66,7 @@ type Container = Record<string, unknown> | unknown[];
 
 function ensureChild(parent: Container, seg: string, nextSeg?: string): Container | undefined {
   const parentIsArray = Array.isArray(parent);
-  if (parentIsArray && !isValidArrayIndex(seg)) {
+  if (parentIsArray !== isValidArrayIndex(seg)) {
     return undefined;
   }
   const next = parentIsArray ? parent[Number(seg)] : parent[seg];

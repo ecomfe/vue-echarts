@@ -739,10 +739,11 @@ describe("useSlotOption", () => {
     expect(handle.patchUpdateOptions()).toBeUndefined();
   });
 
-  it("does not create properties for non-index array segments", async () => {
+  it("does not cross object and array path segments", async () => {
     const { exposed } = renderSlotComponent(() => ({
       tooltip: () => [h("span", "invalid")],
       "tooltip-series-name": () => [h("span", "invalid")],
+      "dataView-0": () => [h("span", "invalid")],
     }));
 
     await nextTick();
@@ -750,10 +751,12 @@ describe("useSlotOption", () => {
     const patched = getExposed(exposed).patchOption({
       tooltip: [],
       series: [],
+      toolbox: { id: "main" },
     } as unknown as Option);
 
     expect(Object.keys(patched.tooltip as unknown[])).toEqual([]);
     expect(Object.keys(patched.series as unknown[])).toEqual([]);
+    expect(patched.toolbox).toEqual({ id: "main" });
   });
 
   it("creates array shells when target slot path is missing", async () => {
