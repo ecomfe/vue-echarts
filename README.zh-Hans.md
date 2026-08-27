@@ -205,6 +205,17 @@ app.component('VChart', VueECharts)
 import type { AutoResize, LoadingOptions } from "vue-echarts";
 ```
 
+模板 ref 可直接使用组件类型：
+
+```ts
+import VChart from "vue-echarts";
+import { ref } from "vue";
+
+const chart = ref<InstanceType<typeof VChart> | null>(null);
+```
+
+Vue 3.5 的 `useTemplateRef` 可以自动推导此类型。
+
 ### 事件
 
 可以使用 Vue 的 `v-on` 指令绑定事件。

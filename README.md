@@ -205,6 +205,17 @@ Component-specific prop types are available from the package root:
 import type { AutoResize, LoadingOptions } from "vue-echarts";
 ```
 
+For a typed template ref:
+
+```ts
+import VChart from "vue-echarts";
+import { ref } from "vue";
+
+const chart = ref<InstanceType<typeof VChart> | null>(null);
+```
+
+Vue 3.5's `useTemplateRef` can infer this type automatically.
+
 ### Events
 
 You can bind events with Vue's `v-on` directive.
