@@ -243,24 +243,6 @@ function getItemIdentity(item: ItemShape): string | undefined {
 }
 
 function hasMergeOrderChange(prev: ItemShape[], next: ItemShape[]): boolean {
-  if (prev.length === next.length) {
-    let unchanged = true;
-    for (let i = 0; i < prev.length; i++) {
-      const previous = prev[i];
-      const current = next[i];
-      if (
-        previous.id !== current.id ||
-        (previous.id === undefined && previous.name !== current.name)
-      ) {
-        unchanged = false;
-        break;
-      }
-    }
-    if (unchanged) {
-      return false;
-    }
-  }
-
   const positions = new Map<string, number[]>();
   for (let i = prev.length - 1; i >= 0; i--) {
     const identity = getItemIdentity(prev[i]);
