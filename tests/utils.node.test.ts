@@ -103,6 +103,9 @@ describe("utils", () => {
       expect(shallowEqual({ value: NaN, nested }, { value: NaN, nested })).toBe(true);
       expect(shallowEqual({ value: 1 }, { value: 2 })).toBe(false);
       expect(shallowEqual({ value: 1 }, { value: 1, extra: undefined })).toBe(false);
+      expect(shallowEqual<Record<string, unknown>>({ width: undefined }, { renderer: "svg" })).toBe(
+        false,
+      );
       expect(shallowEqual({ nested: {} }, { nested: {} })).toBe(false);
     });
   });

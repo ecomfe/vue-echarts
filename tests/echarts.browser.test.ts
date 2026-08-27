@@ -673,7 +673,7 @@ describe("ECharts component", () => {
 
   it("re-initializes only when initOptions change", async () => {
     const option = ref({ title: { text: "coffee" } });
-    const initOptions = ref({ useDirtyRect: true });
+    const initOptions = ref<InitOptions>({ useDirtyRect: true });
     const exposed = shallowRef<Exposed>();
 
     renderChart(() => ({ option: option.value, initOptions: initOptions.value }), exposed);
@@ -689,7 +689,7 @@ describe("ECharts component", () => {
     const secondStub = enqueueChart();
     chartStub = secondStub;
 
-    initOptions.value.useDirtyRect = false;
+    initOptions.value = { width: undefined };
     await nextTick();
 
     expect(firstStub.dispose).toHaveBeenCalledTimes(1);

@@ -162,6 +162,16 @@ describe("useLoading", () => {
 
     expect(showLoading).not.toHaveBeenCalled();
 
+    loadingOptions.value = { maskColor: undefined };
+    await nextTick();
+
+    expect(showLoading).toHaveBeenCalledOnce();
+    expect(showLoading).toHaveBeenLastCalledWith({
+      color: "#fff",
+      maskColor: "rgba(255,255,255,0.8)",
+    });
+
+    showLoading.mockClear();
     defaults.value = { color: "#000" };
     await nextTick();
 
@@ -169,7 +179,6 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#000",
       maskColor: "rgba(255,255,255,0.8)",
-      text: "Loading",
     });
     expect(hideLoading).not.toHaveBeenCalled();
 
