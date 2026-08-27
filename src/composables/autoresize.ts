@@ -115,10 +115,11 @@ export function useAutoresize(
       };
 
       const observer = new ResizeObserver(observeResize);
-      observeResize();
-      observer.observe(container);
-
       onCleanup(stop);
+      observeResize();
+      if (active) {
+        observer.observe(container);
+      }
     },
     // Stop observer work before the outgoing chart can be disposed.
     { flush: "sync" },

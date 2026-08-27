@@ -435,6 +435,37 @@ describe("useAutoresize", () => {
     expect(throttledResize.clear).toHaveBeenCalledTimes(1);
   });
 
+  it("abandons observer setup when the initial resize disables autoresize", async () => {
+    const resize = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const autoresize = ref<AutoResize | undefined>(false);
+    const root = ref<HTMLElement | undefined>();
+    const container = createSizedContainer(120, 80);
+    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
+
+    const scope = effectScope();
+    scope.run(() => useAutoresize(chart, autoresize, root));
+
+    chart.value = createChart(resize, () => root.value, container);
+    root.value = container;
+    await nextTick();
+
+    const syncResize = resize.getMockImplementation()!;
+    resize.mockImplementationOnce((options) => {
+      syncResize(options);
+      autoresize.value = false;
+    });
+    container.style.width = "200px";
+    autoresize.value = true;
+    await nextTick();
+
+    expect(resize).toHaveBeenCalledOnce();
+    expect(autoresize.value).toBe(false);
+    expect(observeSpy).not.toHaveBeenCalled();
+
+    scope.stop();
+  });
+
   it("rebinds observer when root element changes", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
