@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { __resetRegisterState, register, TAG_NAME } from "../src/wc";
+import { register, TAG_NAME } from "../src/wc";
 
 describe("register (node)", () => {
   it("uses an explicit element realm without browser globals", () => {
@@ -15,8 +15,6 @@ describe("register (node)", () => {
     const root = {
       ownerDocument: { defaultView: realm },
     } as unknown as Element;
-
-    __resetRegisterState();
 
     expect(register(root)).toBe(true);
     expect(registry.get(TAG_NAME)).toBeTypeOf("function");

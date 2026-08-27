@@ -1,16 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { register, TAG_NAME } from "../src/wc";
 
 declare global {
   interface HTMLElement {
     __dispose?: (() => void) | null;
   }
 }
-
-const loadModule = async () => {
-  const mod = await import("../src/wc");
-  mod.__resetRegisterState();
-  return mod;
-};
 
 describe("register", () => {
   describe("with stubbed customElements", () => {
@@ -49,7 +44,6 @@ describe("register", () => {
     }
 
     beforeEach(() => {
-      vi.resetModules();
       vi.unstubAllGlobals();
 
       registry = new CustomElementRegistryStub();
@@ -61,11 +55,9 @@ describe("register", () => {
       vi.restoreAllMocks();
     });
 
-    it("retries when custom elements become available", async () => {
+    it("retries when custom elements become available", () => {
       vi.unstubAllGlobals();
       vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
-
-      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
 
@@ -75,22 +67,18 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
-    it("returns false when browser APIs are disabled", async () => {
-      vi.resetModules();
+    it("returns false when browser APIs are disabled", () => {
       // Simulate missing browser API by providing a registry without `get`
       vi.stubGlobal("customElements", {
         define() {},
       } as unknown as CustomElementRegistry);
 
-      const { register } = await loadModule();
       expect(register()).toBe(false);
       expect(register()).toBe(false);
     });
 
-    it("registers the custom element once", async () => {
+    it("registers the custom element once", () => {
       const defineSpy = vi.spyOn(registry, "define");
-
-      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
       expect(defineSpy).toHaveBeenCalledTimes(1);
@@ -101,25 +89,10 @@ describe("register", () => {
       expect(defineSpy).not.toHaveBeenCalled();
     });
 
-    it("returns cached result without touching the registry", async () => {
-      const { register } = await loadModule();
-
-      expect(register()).toBe(true);
-
-      const getSpy = vi.spyOn(registry, "get").mockImplementation(() => {
-        throw new Error("registry.get should not be called");
-      });
-
-      expect(register()).toBe(true);
-      expect(getSpy).not.toHaveBeenCalled();
-    });
-
-    it("retries after a definition failure", async () => {
+    it("retries after a definition failure", () => {
       const defineSpy = vi.spyOn(registry, "define").mockImplementationOnce(() => {
         throw new Error("boom");
       });
-
-      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
       expect(register()).toBe(true);
@@ -127,30 +100,25 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
-    it("rejects an incompatible element registered during definition", async () => {
+    it("rejects an incompatible element registered during definition", () => {
       const competing = class extends HTMLElement {};
       installDuringDefinition(competing);
-
-      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(false);
       expect(registry.get(TAG_NAME)).toBe(competing);
     });
 
-    it("accepts a compatible element registered during definition", async () => {
+    it("accepts a compatible element registered during definition", () => {
       const competing = class extends HTMLElement {};
       Object.defineProperty(competing, Symbol.for("vue-echarts.lifecycle"), { value: true });
       installDuringDefinition(competing);
-
-      const { register, TAG_NAME } = await loadModule();
 
       expect(register()).toBe(true);
       expect(registry.get(TAG_NAME)).toBe(competing);
     });
 
-    it("rejects an incompatible element already registered", async () => {
+    it("rejects an incompatible element already registered", () => {
       const existing = class extends HTMLElement {};
-      const { register, TAG_NAME } = await loadModule();
       registry.define(TAG_NAME, existing);
 
       const defineSpy = vi.spyOn(registry, "define");
@@ -161,20 +129,16 @@ describe("register", () => {
     });
 
     it("recognizes its lifecycle implementation from another module instance", async () => {
-      const { register } = await loadModule();
-
       expect(register()).toBe(true);
       vi.resetModules();
 
       const defineSpy = vi.spyOn(registry, "define");
-      const reloaded = await loadModule();
+      const reloaded = await import("../src/wc");
       expect(reloaded.register()).toBe(true);
       expect(defineSpy).not.toHaveBeenCalled();
     });
 
-    it("exposes a constructor that skips disconnect work without a disposal hook", async () => {
-      const { register, TAG_NAME } = await loadModule();
-
+    it("exposes a constructor that skips disconnect work without a disposal hook", () => {
       expect(register()).toBe(true);
 
       const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
@@ -186,9 +150,7 @@ describe("register", () => {
       expect(queueSpy).not.toHaveBeenCalled();
     });
 
-    it("releases the disposal hook when cleanup fails", async () => {
-      const { register, TAG_NAME } = await loadModule();
-
+    it("releases the disposal hook when cleanup fails", () => {
       expect(register()).toBe(true);
 
       const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
@@ -213,7 +175,6 @@ describe("register", () => {
 
   describe("with native customElements", () => {
     beforeEach(() => {
-      vi.resetModules();
       vi.restoreAllMocks();
       vi.unstubAllGlobals();
       document.body.innerHTML = "";
@@ -224,8 +185,6 @@ describe("register", () => {
     });
 
     it("keeps chart alive across DOM moves and disposes after removal", async () => {
-      const { register, TAG_NAME } = await loadModule();
-
       expect(register()).toBe(true);
 
       const element = document.createElement(TAG_NAME) as HTMLElement & {
@@ -252,8 +211,6 @@ describe("register", () => {
     });
 
     it("registers the disposal hook in each document", async () => {
-      const { register, TAG_NAME } = await loadModule();
-
       expect(register()).toBe(true);
 
       const iframe = document.body.appendChild(document.createElement("iframe"));
@@ -276,8 +233,7 @@ describe("register", () => {
       }
     });
 
-    it("does not borrow the global registry for a document without a window", async () => {
-      const { register } = await loadModule();
+    it("does not borrow the global registry for a document without a window", () => {
       const ownerDocument = document.implementation.createHTMLDocument();
       const getSpy = vi.spyOn(customElements, "get");
 

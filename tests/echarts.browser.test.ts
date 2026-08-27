@@ -27,7 +27,7 @@ import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { makeTooltipParams } from "./helpers/tooltip";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
-import { __resetRegisterState, register as registerWc } from "../src/wc";
+import { register as registerWc } from "../src/wc";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
 
@@ -2427,9 +2427,7 @@ describe("ECharts component", () => {
 
   it("retries web component registration before cleanup", async () => {
     vi.unstubAllGlobals();
-    __resetRegisterState();
     expect(registerWc()).toBe(true);
-    __resetRegisterState();
     vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
     const screen = renderChart(
       () => ({ option: { title: { text: "late-wc" } } }),
@@ -2448,7 +2446,6 @@ describe("ECharts component", () => {
       expect(chartStub.dispose).toHaveBeenCalledTimes(1);
     } finally {
       vi.unstubAllGlobals();
-      __resetRegisterState();
     }
   });
 
