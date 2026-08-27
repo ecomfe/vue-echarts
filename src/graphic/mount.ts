@@ -3,6 +3,7 @@ import {
   defineComponent,
   getCurrentInstance,
   h,
+  onBeforeMount,
   onMounted,
   provide,
   shallowRef,
@@ -25,16 +26,27 @@ export const GraphicMount = defineComponent({
     const instance = getCurrentInstance()!;
     const { collector } = props;
     const { beginPass } = collector;
-    const detachedRoot = shallowRef(isBrowser() ? document.createElement("div") : undefined);
+    const detachedRoot = shallowRef<HTMLDivElement>();
     // A pre-existing vnode element means Vue is hydrating the empty SSR Teleport.
-    const contentReady = shallowRef(!instance.vnode.el);
+    const contentReady = shallowRef(isBrowser() && !instance.vnode.el);
     const parentId = shallowRef<string | null>(null);
     const order = createOrderTracker();
 
+    onBeforeMount(() => {
+      // Keeping the target inside the host lets iframe adoption finish before child mounted hooks.
+      const host = instance.parent?.subTree.el as HTMLElement | undefined;
+      if (host) {
+        const target = host.ownerDocument.createElement("div");
+        host.appendChild(target);
+        detachedRoot.value = target;
+      }
+    });
+
     onMounted(() => {
-      // Only the inserted Teleport anchor reveals the component's actual document realm.
       const ownerDocument = (instance.vnode.el as Node).ownerDocument!;
-      if (detachedRoot.value?.ownerDocument !== ownerDocument) {
+      const target = detachedRoot.value;
+      target?.remove();
+      if (target?.ownerDocument !== ownerDocument) {
         detachedRoot.value = ownerDocument.createElement("div");
       }
       contentReady.value = true;

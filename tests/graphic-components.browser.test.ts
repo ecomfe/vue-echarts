@@ -203,11 +203,12 @@ describe("graphic components", () => {
     }
   });
 
-  it("moves hidden graphic content to the component owner document", async () => {
+  it("mounts hidden graphic content in the component owner document", async () => {
     const collector = createCollectorMock();
     const { iframe, ownerDocument } = createFrame();
     const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
     const teleported = shallowRef<HTMLElement>();
+    let mountedDocument: Document | undefined;
     const Root = defineComponent({
       setup() {
         return () =>
@@ -216,7 +217,13 @@ describe("graphic components", () => {
               GraphicMount,
               { collector: collector as any },
               {
-                default: () => h("span", { ref: teleported }),
+                default: () =>
+                  h("span", {
+                    ref: teleported,
+                    onVnodeMounted: ({ el }) => {
+                      mountedDocument = (el as HTMLElement).ownerDocument;
+                    },
+                  }),
               },
             ),
           ]);
@@ -229,6 +236,7 @@ describe("graphic components", () => {
       await nextTick();
 
       expect(teleported.value?.ownerDocument).toBe(ownerDocument);
+      expect(mountedDocument).toBe(ownerDocument);
     } finally {
       app.unmount();
       iframe.remove();
