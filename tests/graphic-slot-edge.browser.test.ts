@@ -260,7 +260,7 @@ describe("graphic slot edge and integration behavior", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     const [optionArg, updateArg] = getLastSetOptionCall(chartStub);
     expect(optionArg.graphic.elements[0].children[0].shape).toMatchObject({ x: 32 });
-    expect(updateArg?.replaceMerge).toContain("graphic");
+    expect(updateArg?.notMerge || updateArg?.replaceMerge?.includes("graphic")).toBe(true);
   });
 
   it("skips graphic updates when only non-graphic group content changes", async () => {

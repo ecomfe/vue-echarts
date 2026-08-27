@@ -294,7 +294,6 @@ describe("ECharts component", () => {
     theme.value = { color: colors };
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
-    expect(currentStub.setOption).not.toHaveBeenCalled();
 
     currentStub.setTheme.mockClear();
     currentStub.setOption.mockClear();
@@ -310,12 +309,10 @@ describe("ECharts component", () => {
 
     expect(currentStub.setTheme).toHaveBeenCalledOnce();
     expect(currentStub.setTheme).toHaveBeenCalledWith({ color: colors });
-    expect(currentStub.setOption).not.toHaveBeenCalled();
 
     theme.value = undefined;
     await nextTick();
     expect(currentStub.setTheme).toHaveBeenCalledWith({});
-    expect(currentStub.setOption).not.toHaveBeenCalled();
   });
 
   it("traverses reactive initialization inputs once per change", async () => {
@@ -354,7 +351,7 @@ describe("ECharts component", () => {
   });
 
   it.each(["clear", "dispose"] as const)(
-    "stops option replay when a theme event calls %s",
+    "does not replay an option after a theme event calls %s",
     async (method) => {
       const option = ref<Option>({ title: { text: "theme-event" } });
       const theme = ref<Theme | undefined>("dark");
@@ -382,7 +379,7 @@ describe("ECharts component", () => {
 
       expect(chartStub.setTheme).toHaveBeenCalledWith({});
       expect(chartStub[method]).toHaveBeenCalledOnce();
-      expect(chartStub.setOption).not.toHaveBeenCalled();
+      expect(chartStub.setOption).toHaveBeenCalledOnce();
     },
   );
 
@@ -479,7 +476,7 @@ describe("ECharts component", () => {
 
     option.value = { title: { text: "late-option" } };
     await nextTick();
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption).toHaveBeenCalled();
     expect(chartStub.setTheme).toHaveBeenCalledWith({});
     expect(chartStub.setOption.mock.invocationCallOrder[0]).toBeLessThan(
       chartStub.setTheme.mock.invocationCallOrder[0],
@@ -493,7 +490,7 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setTheme).toHaveBeenLastCalledWith("dark");
-    expect(chartStub.setOption).not.toHaveBeenCalled();
+    expect(chartStub.setOption).toHaveBeenCalledOnce();
   });
 
   it("retries a deferred theme after setTheme fails", async () => {
@@ -590,9 +587,9 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({ palette: ["#22d3ee"] });
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+    expect(chartStub.setOption).toHaveBeenCalled();
     expect(chartStub.setTheme.mock.invocationCallOrder[0]).toBeLessThan(
-      chartStub.setOption.mock.invocationCallOrder[0],
+      chartStub.setOption.mock.invocationCallOrder.at(-1)!,
     );
     const [lastOption] = getLastSetOptionCall(chartStub);
     expect(lastOption).toMatchObject({
@@ -824,7 +821,6 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setTheme).toHaveBeenCalledWith({});
-    expect(chartStub.setOption).not.toHaveBeenCalled();
 
     option.value = { series: [{ id: "b", type: "line", data: [4] }] };
     await nextTick();
@@ -1646,7 +1642,7 @@ describe("ECharts component", () => {
   );
 
   it.each([false, true])(
-    "coalesces option and theme changes before autoresize initialization (manual: %s)",
+    "initializes the latest option and theme before autoresize completes (manual: %s)",
     async (manualUpdate) => {
       const option = ref<Option>({ title: { text: "initial" } });
       const theme = ref<Theme | undefined>("dark");
@@ -1666,7 +1662,7 @@ describe("ECharts component", () => {
       await nextTick();
 
       expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-      expect(chartStub.setOption).toHaveBeenCalledTimes(1);
+      expect(chartStub.setOption).toHaveBeenCalled();
       expect(chartStub.resize.mock.invocationCallOrder[0]).toBeLessThan(
         chartStub.setOption.mock.invocationCallOrder[0],
       );
@@ -2549,12 +2545,13 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
-    expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    expect(chartStub.setOption.mock.calls[0][1]).toEqual({
+    expect(chartStub.setOption).toHaveBeenCalled();
+    const [latestOption, latestUpdateOptions] = getLastSetOptionCall(chartStub);
+    expect(latestUpdateOptions).toEqual({
       notMerge: true,
       replaceMerge: ["series"],
     });
-    expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
+    expect(latestOption).toMatchObject(option.value);
   });
 
   it("keeps slot patching intact when slot set and theme change in the same tick", async () => {

@@ -137,9 +137,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     let lastAutoOption: Option | undefined;
     let themedChart: EChartsType | undefined;
     let initOptionsInvalidated = false;
-    let themeUpdatePending = false;
-    let optionUpdatePending = false;
-    let optionReplayRequired = false;
     let clearRevision = 0;
     let optionApplied = false;
     let mounted = false;
@@ -196,7 +193,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       option: Option,
       mode?: ApplyMode,
       manualOptions?: UpdateOptions,
-    ): boolean {
+    ): void {
       // `updated` listeners run synchronously and may clear during this attempt.
       const revision = clearRevision;
       const manual = mode === "manual";
@@ -225,15 +222,12 @@ const ECharts = /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
-      updateOptions = patchUpdateOptions(updateOptions, forceGraphic);
-      // First and rebuilding updates become the snapshot that ECharts restores on theme changes.
-      const replayRequired = optionApplied && !manual && !updateOptions?.notMerge;
-      instance.setOption(patched, updateOptions);
+      instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
       if (manual) {
         deferredCharts?.delete(instance);
       }
       if (!isActive(instance) || clearRevision !== revision) {
-        return false;
+        return;
       }
       commitSlotOption();
       graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
@@ -246,11 +240,11 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
       const themeApplied = applyTheme(instance);
       if (!isActive(instance) || clearRevision !== revision) {
-        return false;
+        return;
       }
-      return themeApplied && replayRequired
-        ? applyOption(instance, option, "theme")
-        : replayRequired;
+      if (themeApplied && !manual) {
+        applyOption(instance, option, "theme");
+      }
     }
 
     function requestUpdate(mode?: "graphic"): void {
@@ -263,7 +257,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!option) {
         return;
       }
-      optionReplayRequired = applyOption(instance, option, mode);
+      applyOption(instance, option, mode);
     }
 
     if (!patchGraphicOption) {
@@ -302,7 +296,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     function init(): void {
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
-      optionReplayRequired = false;
       optionApplied = false;
 
       ensureStyles(root.value?.getRootNode());
@@ -395,7 +388,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
         }
         themeRevision.value++;
         themedChart = undefined;
-        themeUpdatePending = true;
       },
       { deep: true, flush: "sync" },
     );
@@ -432,11 +424,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         if (hasNewSlots()) {
           return;
         }
-        if (themeUpdatePending) {
-          optionUpdatePending = true;
-          return;
-        }
-        optionReplayRequired = applyOption(instance, nextOption);
+        applyOption(instance, nextOption);
       },
       // Graphic nodes register during render, so update after the collected tree is current.
       { deep: true, flush: updateFlush },
@@ -453,16 +441,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     const stopThemeApplyWatch = watch(
       themeRevision,
       () => {
-        // ECharts rebuilds from its initial option snapshot when applying a theme.
-        const replayOption = optionReplayRequired || optionUpdatePending;
-        optionUpdatePending = false;
-        nextTick(() => {
-          themeUpdatePending = false;
-          if (optionUpdatePending) {
-            optionUpdatePending = false;
-            requestUpdate();
-          }
-        });
         const instance = chart.value;
         if (
           !initOptionsInvalidated &&
@@ -471,11 +449,13 @@ const ECharts = /* @__PURE__ */ defineComponent({
           instance !== themedChart
         ) {
           const revision = clearRevision;
-          applyTheme(instance);
+          if (!applyTheme(instance)) {
+            return;
+          }
 
-          const option = getAutoOption() ?? lastAutoOption;
+          // `clear()` deliberately drops the applied option until its source changes again.
+          const option = lastAutoOption;
           if (
-            replayOption &&
             clearRevision === revision &&
             isActive(instance) &&
             option &&
@@ -483,7 +463,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             !deferredCharts?.has(instance) &&
             !hasNewSlots()
           ) {
-            optionReplayRequired = applyOption(instance, option, "theme");
+            applyOption(instance, option, "theme");
           }
         }
       },
@@ -533,7 +513,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       deferredCharts?.delete(instance);
       lastSignature = null;
       lastAutoOption = undefined;
-      optionReplayRequired = false;
       instance.clear();
       lastSignature = undefined;
     };
