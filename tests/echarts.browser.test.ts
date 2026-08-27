@@ -1894,8 +1894,9 @@ describe("ECharts component", () => {
     screen.unmount();
   });
 
-  it("deactivates callback slots when chart disposal fails", async () => {
+  it("stops callback slot work when chart disposal fails", async () => {
     const error = new Error("dispose failed");
+    const showInvalid = ref(false);
     const exposed = shallowRef<Exposed>();
     const Root = defineComponent({
       setup: () => () =>
@@ -1905,7 +1906,9 @@ describe("ECharts component", () => {
             option: { tooltip: {} },
             ref: createExposedRef(exposed),
           },
-          { tooltip: () => h("span", "tooltip") },
+          showInvalid.value
+            ? { legend: () => h("span", "legend") }
+            : { tooltip: () => h("span", "tooltip") },
         ),
     });
 
@@ -1925,6 +1928,13 @@ describe("ECharts component", () => {
     expect(() => instance.dispose()).toThrow(error);
     expect(instance.isDisposed()).toBe(true);
     expect(formatter?.({})).toBeUndefined();
+
+    await withConsoleWarnAsync(async (warnSpy) => {
+      showInvalid.value = true;
+      await nextTick();
+
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
 
     screen.unmount();
   });

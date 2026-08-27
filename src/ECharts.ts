@@ -574,15 +574,17 @@ const ECharts = /* @__PURE__ */ defineComponent({
         }),
       ];
 
-      const teleported = renderSlot();
-      if (teleported) {
-        children.push(teleported);
-      }
+      if (!terminallyDisposed.value) {
+        const teleported = renderSlot();
+        if (teleported) {
+          children.push(teleported);
+        }
 
-      if (renderGraphic && !terminallyDisposed.value) {
-        const graphic = renderGraphic();
-        if (graphic) {
-          children.push(graphic);
+        if (renderGraphic) {
+          const graphic = renderGraphic();
+          if (graphic) {
+            children.push(graphic);
+          }
         }
       }
 
