@@ -10,7 +10,47 @@ import type {
   DownplayPayload,
   Payload,
 } from "echarts/core";
-import type { MaybeRefOrGetter } from "vue";
+import type {
+  AllowedComponentProps,
+  ComponentCustomProps,
+  ComponentOptionsMixin,
+  ComponentPropsOptions,
+  DefineComponent,
+  EmitsOptions,
+  ExtractDefaultPropTypes,
+  ExtractPropTypes,
+  MaybeRefOrGetter,
+  SlotsType,
+  VNodeProps,
+} from "vue";
+
+type EventProps<T> = {
+  [K in string & keyof T as `on${Capitalize<K>}`]?: T[K] extends (...args: infer P) => unknown
+    ? (...args: P) => any
+    : never;
+};
+
+// The first 13 DefineComponent parameters are stable across the supported Vue versions.
+export type PublicComponent<
+  Props extends ComponentPropsOptions,
+  Bindings,
+  Events extends EmitsOptions,
+  Slots extends SlotsType = Record<never, never>,
+> = DefineComponent<
+  Props,
+  Bindings,
+  Record<never, never>,
+  Record<never, never>,
+  Record<never, never>,
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  Events,
+  string,
+  VNodeProps & AllowedComponentProps & ComponentCustomProps,
+  Readonly<ExtractPropTypes<Props>> & Readonly<EventProps<Events>>,
+  ExtractDefaultPropTypes<Props>,
+  Slots
+>;
 
 export type Injection<T> = MaybeRefOrGetter<T | null | undefined>;
 

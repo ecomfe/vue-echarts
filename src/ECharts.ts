@@ -45,6 +45,7 @@ import type {
   UpdateOptions,
   UpdateOptionsInjection,
   Emits,
+  PublicComponent,
 } from "./types";
 import type { EChartsElement } from "./wc";
 
@@ -58,21 +59,29 @@ export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
 export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables";
 
-export default /* @__PURE__ */ defineComponent({
+const chartProps = {
+  option: Object as PropType<Option>,
+  theme: {
+    type: [Object, String] as PropType<Theme>,
+  },
+  initOptions: Object as PropType<InitOptions>,
+  updateOptions: Object as PropType<UpdateOptions>,
+  group: String,
+  manualUpdate: Boolean,
+  ...autoresizeProps,
+  ...loadingProps,
+};
+
+type Bindings = {
+  setOption: SetOptionType;
+  readonly root: HTMLElement | undefined;
+  readonly chart: EChartsType | undefined;
+} & PublicMethods;
+
+const ECharts = /* @__PURE__ */ defineComponent({
   name: "Echarts",
   inheritAttrs: false,
-  props: {
-    option: Object as PropType<Option>,
-    theme: {
-      type: [Object, String] as PropType<Theme>,
-    },
-    initOptions: Object as PropType<InitOptions>,
-    updateOptions: Object as PropType<UpdateOptions>,
-    group: String,
-    manualUpdate: Boolean,
-    ...autoresizeProps,
-    ...loadingProps,
-  },
+  props: chartProps,
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
@@ -580,4 +589,6 @@ export default /* @__PURE__ */ defineComponent({
       );
     }) as unknown as typeof exposed & PublicMethods;
   },
-});
+}) as PublicComponent<typeof chartProps, Bindings, Emits, SlotsTypes>;
+
+export default ECharts;

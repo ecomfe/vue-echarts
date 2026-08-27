@@ -9,6 +9,7 @@ import {
   watch,
 } from "vue";
 
+import type { PublicComponent } from "../types";
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 import { resolveIdentity } from "./identity";
@@ -146,7 +147,10 @@ function getComponentProps(type: GraphicComponentType): Record<string, unknown> 
 }
 
 /* @__NO_SIDE_EFFECTS__ */
-export function createComponent<T extends GraphicComponentType>(name: string, type: T) {
+export function createComponent<T extends GraphicComponentType>(
+  name: string,
+  type: T,
+): GraphicComponent<T> {
   const component = defineComponent({
     name,
     inheritAttrs: false,
@@ -221,13 +225,15 @@ export function createComponent<T extends GraphicComponentType>(name: string, ty
         return null;
       };
     },
-  });
+  }) as GraphicComponent<T>;
 
   (component as unknown as Record<symbol, unknown>)[GRAPHIC_COMPONENT_MARKER] = type;
 
   return component;
 }
 
-export type GraphicComponent<T extends GraphicComponentType> = ReturnType<
-  typeof createComponent<T>
+export type GraphicComponent<T extends GraphicComponentType> = PublicComponent<
+  ComponentProps<T>,
+  Record<never, never>,
+  GraphicEmits
 >;

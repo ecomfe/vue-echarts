@@ -24,6 +24,7 @@ We run Vitest in two projects:
 - Coverage (Istanbul): `pnpm test:coverage`
   - HTML report: `coverage/index.html`
   - LCOV: `coverage/lcov.info`
+- Build and validate emitted declarations against the minimum supported Vue 3.3 types: `pnpm build`
 - Run a single project:
   - Browser only: `pnpm test:browser`
   - Node only: `pnpm test:node`

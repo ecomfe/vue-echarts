@@ -3,6 +3,10 @@
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "paths": {
+      "vue": ["./node_modules/@vue/runtime-core-3.3/dist/runtime-core.d.ts"]
+    },
+    "skipLibCheck": false,
     "types": []
   },
   "include": ["package-tests/**/*.ts"],

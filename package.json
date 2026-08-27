@@ -57,6 +57,7 @@
     "@vitest/coverage-istanbul": "^4.1.10",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/runtime-core-3.3": "npm:@vue/runtime-core@3.3.0",
     "@vue/server-renderer": "^3.5.41",
     "@vue/tsconfig": "^0.9.1",
     "@vueuse/core": "^14.4.0",
