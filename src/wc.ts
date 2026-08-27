@@ -54,9 +54,7 @@ export function register(root?: Element): boolean {
     Object.defineProperty(ECElement, LIFECYCLE_MARKER, { value: true });
     registry.define(TAG_NAME, ECElement);
   } catch {
-    if (!supportsLifecycle(registry.get(TAG_NAME))) {
-      return false;
-    }
+    return supportsLifecycle(registry.get(TAG_NAME));
   }
   return true;
 }
