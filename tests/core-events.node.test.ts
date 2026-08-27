@@ -423,4 +423,28 @@ describe("core events", () => {
     scope.stop();
     expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledTimes(1);
   });
+
+  it("keeps once listeners consumed when unbinding fails", () => {
+    const chartRef = ref<EChartsType | undefined>();
+    const attrs = reactive<Record<string, unknown>>({ onClickOnce: vi.fn() });
+    const first = createChartStub();
+    const second = createChartStub();
+    const firstEmitter = first.chart as unknown as EmitterStub;
+    const error = new Error("off failed");
+    firstEmitter.off.mockImplementationOnce(() => {
+      throw error;
+    });
+    const scope = effectScope();
+
+    scope.run(() => useReactiveChartListeners(chartRef, attrs));
+    chartRef.value = first.chart;
+
+    const binding = findBoundHandler(firstEmitter.on, "click");
+    expect(() => binding()).toThrow(error);
+
+    chartRef.value = second.chart;
+
+    expect((second.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+    scope.stop();
+  });
 });

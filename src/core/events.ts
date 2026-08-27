@@ -123,12 +123,12 @@ export function useReactiveChartListeners(
             return;
           }
           called = true;
-          emitter.off(event, handler);
           bindings?.delete(key);
           if (bindings?.size === 0) {
             bindings = undefined;
           }
           (consumedSources ??= new Map()).set(key, source);
+          emitter.off(event, handler);
           invokeCurrent(...args);
         };
       }
