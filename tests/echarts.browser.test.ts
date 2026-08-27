@@ -1912,7 +1912,14 @@ describe("ECharts component", () => {
   });
 
   it("stops reactive work after the underlying chart is externally disposed", async () => {
-    const option = ref<Option>({ title: { text: "before" } });
+    const readTitle = vi.fn(() => "before");
+    const title = reactive({
+      get text() {
+        return readTitle();
+      },
+      revision: 0,
+    });
+    const option = ref<Option>({ title });
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const manualUpdate = ref(false);
     const loading = ref(true);
@@ -1939,6 +1946,14 @@ describe("ECharts component", () => {
     chartStub.showLoading.mockClear();
     chartStub.hideLoading.mockClear();
     init.mockClear();
+
+    title.revision++;
+    await nextTick();
+    readTitle.mockClear();
+    title.revision++;
+    await nextTick();
+
+    expect(readTitle).not.toHaveBeenCalled();
 
     option.value = { title: { text: "after" } };
     initOptions.value = { renderer: "svg" };

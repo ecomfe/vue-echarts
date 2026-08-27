@@ -142,12 +142,14 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     function isActive(instance: EChartsType | undefined): instance is EChartsType {
-      return (
-        instance !== undefined &&
-        chart.value === instance &&
-        !terminallyDisposed.value &&
-        !instance.isDisposed()
-      );
+      if (instance === undefined || chart.value !== instance || terminallyDisposed.value) {
+        return false;
+      }
+      if (instance.isDisposed()) {
+        dispose();
+        return false;
+      }
+      return true;
     }
 
     function patchUpdateOptions(
