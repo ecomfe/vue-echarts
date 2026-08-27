@@ -141,7 +141,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     let optionApplied = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
-    let deferredCharts: WeakSet<EChartsType> | undefined;
+    const deferredCharts = new WeakSet<EChartsType>();
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
@@ -199,7 +199,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       const manual = mode === "manual";
       // A failed early manual call must not take precedence over deferred initialization.
       if (!manual) {
-        deferredCharts?.delete(instance);
+        deferredCharts.delete(instance);
       }
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
@@ -224,7 +224,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
       instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
       if (manual) {
-        deferredCharts?.delete(instance);
+        deferredCharts.delete(instance);
       }
       if (!isActive(instance) || clearRevision !== revision) {
         return;
@@ -249,7 +249,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function requestUpdate(mode?: "graphic"): void {
       const instance = chart.value;
-      if (!isActive(instance) || manualUpdate.value || deferredCharts?.has(instance)) {
+      if (!isActive(instance) || manualUpdate.value || deferredCharts.has(instance)) {
         return;
       }
 
@@ -327,8 +327,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
 
       if (autoresize.value) {
-        const deferred = (deferredCharts ??= new WeakSet());
-        deferred.add(instance);
+        deferredCharts.add(instance);
         nextTick(() => {
           if (!isActive(instance)) {
             return;
@@ -343,13 +342,13 @@ const ECharts = /* @__PURE__ */ defineComponent({
               return;
             }
           }
-          if (deferred.has(instance)) {
+          if (deferredCharts.has(instance)) {
             commit();
           } else {
             isReady.value = isActive(instance);
           }
           queueMicrotask(() => {
-            if (deferred.delete(instance) && isActive(instance)) {
+            if (deferredCharts.delete(instance) && isActive(instance)) {
               requestUpdate();
             }
           });
@@ -417,7 +416,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (initOptionsInvalidated || !isActive(instance) || deferredCharts?.has(instance)) {
+        if (initOptionsInvalidated || !isActive(instance) || deferredCharts.has(instance)) {
           return;
         }
         // Let the updated hook apply once the new callback containers exist.
@@ -460,7 +459,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             isActive(instance) &&
             option &&
             !manualUpdate.value &&
-            !deferredCharts?.has(instance) &&
+            !deferredCharts.has(instance) &&
             !hasNewSlots()
           ) {
             applyOption(instance, option, "theme");
@@ -510,7 +509,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
       // Native clear may replace the model before failing, so invalidate replay state first.
       clearRevision++;
-      deferredCharts?.delete(instance);
+      deferredCharts.delete(instance);
       lastSignature = null;
       lastAutoOption = undefined;
       instance.clear();
