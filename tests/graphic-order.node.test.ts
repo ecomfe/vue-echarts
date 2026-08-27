@@ -82,6 +82,14 @@ describe("graphic order helpers", () => {
     expect([...order.ref.value.values()]).toEqual([0, 1, 2, 3, 4]);
   });
 
+  it("uses a zero-keyed component as an order anchor", () => {
+    const order = createOrderTracker();
+
+    order.update([h({ render: () => null }, { key: 0 }), h(RectGraphic, { id: "after" })]);
+
+    expect(order.ref.value.get("id:after")).toBe(1);
+  });
+
   it("leaves group slot collection to the group render", () => {
     const order = createOrderTracker();
     const slot = vi.fn(() => h(RectGraphic, { id: "child-1" }));

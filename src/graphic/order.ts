@@ -39,7 +39,7 @@ function collect(value: unknown, orderMap: Map<PropertyKey, number>, order: numb
 
   // An opaque component's slot output is unavailable here, but its identity can
   // still anchor a graphic child that forwards the same id or key.
-  if (identity) {
+  if (identity !== null) {
     order++;
   }
 
