@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { commentMark } from "comment-mark";
-import { getPackageVersions, resolvePath } from "./utils";
+import { getPackageVersions } from "./utils";
 
 const DOC_DEPENDENCIES = ["echarts", "vue"];
 const { name, version, devDependencies } = getPackageVersions(DOC_DEPENDENCIES);
@@ -25,8 +26,8 @@ function getCodeBlock(code: string) {
   return "\n```html\n" + code + "\n```\n";
 }
 
-const README_FILES = ["README.md", "README.zh-Hans.md"].map((name) =>
-  resolvePath(import.meta.url, "..", name),
+const README_FILES = ["../README.md", "../README.zh-Hans.md"].map((name) =>
+  fileURLToPath(new URL(name, import.meta.url)),
 );
 const scripts = getCodeBlock(getScripts());
 
