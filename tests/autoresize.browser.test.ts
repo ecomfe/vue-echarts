@@ -473,6 +473,7 @@ describe("useAutoresize", () => {
     const root = ref<HTMLElement | undefined>();
     const container = createSizedContainer(120, 80);
     const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
+    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
 
     const scope = effectScope();
     scope.run(() => useAutoresize(chart, autoresize, root));
@@ -493,6 +494,7 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledOnce();
     expect(autoresize.value).toBe(false);
     expect(observeSpy).not.toHaveBeenCalled();
+    expect(disconnectSpy).toHaveBeenCalledOnce();
 
     scope.stop();
   });
