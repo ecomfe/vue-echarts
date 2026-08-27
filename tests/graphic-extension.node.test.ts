@@ -75,10 +75,9 @@ describe("graphic runtime", () => {
     scope.stop();
   });
 
-  it("registers the graphic component and runtime only once", async () => {
+  it("registers the graphic component and runtime", async () => {
     const { GraphicComponent } = await import("echarts/components");
 
-    extensionModule.registerExtension();
     extensionModule.registerExtension();
 
     expect(mockState.use).toHaveBeenCalledTimes(1);

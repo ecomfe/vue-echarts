@@ -7,14 +7,9 @@ import { GraphicMount } from "./mount";
 import { registerRuntime } from "./runtime";
 
 const ROOT_ID = "__ve_graphic_root__";
-let registered = false;
 
 export function registerExtension(): void {
-  if (registered) {
-    return;
-  }
   use([GraphicComponent]);
-  registered = true;
 
   registerRuntime((ctx) => {
     const { slots, manualUpdate, disposed, requestUpdate } = ctx;
