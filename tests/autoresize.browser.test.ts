@@ -619,7 +619,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("deduplicates unchanged dimensions except after zero-sized recovery", async () => {
+  it("deduplicates dimensions and ignores inactive observer callbacks", async () => {
     const resize = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const autoresize = ref<AutoResize | undefined>(true);
@@ -672,6 +672,12 @@ describe("useAutoresize", () => {
 
     container.style.width = "200px";
     callbacks[0]();
+    callbacks[0]();
+    expect(resize).toHaveBeenCalledTimes(2);
+
+    autoresize.value = false;
+    await nextTick();
+    container.style.width = "240px";
     callbacks[0]();
     expect(resize).toHaveBeenCalledTimes(2);
 

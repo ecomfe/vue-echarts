@@ -98,6 +98,9 @@ export function useAutoresize(
       }
 
       const observeResize = (entries?: ResizeObserverEntry[]) => {
+        if (!active) {
+          return;
+        }
         if (chart.isDisposed()) {
           stop();
           return;
