@@ -30,7 +30,7 @@ export type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & 
 export function createCollector(onFlush: () => void): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const seenInPass = new Map<string, number>();
-  let warnedKeys: Set<string> | undefined;
+  const warnedKeys = new Set<string>();
 
   let order = 0;
   let pending = false;
@@ -43,10 +43,10 @@ export function createCollector(onFlush: () => void): GraphicCollector {
 
   function warn(message: string, onceKey?: string): void {
     if (onceKey !== undefined) {
-      if (warnedKeys?.has(onceKey)) {
+      if (warnedKeys.has(onceKey)) {
         return;
       }
-      (warnedKeys ??= new Set()).add(onceKey);
+      warnedKeys.add(onceKey);
     }
     coreWarn(message);
   }
@@ -144,7 +144,7 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     pending = false;
     nodes.clear();
     seenInPass.clear();
-    warnedKeys = undefined;
+    warnedKeys.clear();
   }
 
   return {

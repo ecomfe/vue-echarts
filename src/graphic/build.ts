@@ -204,9 +204,7 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
   }
 
   for (const list of byParent.values()) {
-    if (list.length > 1) {
-      list.sort((a, b) => a.order - b.order);
-    }
+    list.sort((a, b) => a.order - b.order);
   }
 
   const childrenOf = (parentId: string | null): Option[] | undefined =>
