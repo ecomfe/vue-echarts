@@ -157,12 +157,13 @@ app.component('VChart', VueECharts)
 - `option: object`
 
   ECharts 的万能接口。修改这个 prop 会触发 ECharts 实例的 `setOption` 方法。查看[详情 →](https://echarts.apache.org/zh/option.html)
+  暂时移除该 prop 会暂停自动更新，之后的主题变更也不会让图表回退到初始 option。
 
   #### 智能更新
   - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。移除它之后，首次智能更新会重建一次，以建立可靠的结构基线。
   - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数，重新初始化后不会保留这些调用的效果。
   - 如果更新中有 graphic 元素使用 `$action`，`graphic` 会保留普通合并，让命令能够作用于现有元素树；无关组件的安全删除仍会使用 `replaceMerge`。
-  - 其他情况下，Vue ECharts 会分析差异：组件删除、重排及匿名组件内部的属性删除会在 `replaceMerge` 能还原目标顺序时使用它；已按 ID 匹配的组件内部属性删除、`replaceMerge` 无法还原的身份顺序变化、非组件数组缩短及其他高风险变更会退回 `notMerge: true`。
+  - 其他情况下，Vue ECharts 会分析差异：组件删除、重排及匿名组件内部的属性删除会在 `replaceMerge` 能还原目标顺序时使用它；已按 ID 匹配的组件内部属性删除、`replaceMerge` 无法还原的身份顺序变化、新增或缩短的非组件数组、首次 ARIA 配置及其他高风险变更会退回 `notMerge: true`。
 
 - `update-options: object`
 
@@ -524,6 +525,7 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 >
 > - graphic 元素事件额外支持 `dblclick`、`contextmenu`。
 > - 事件支持 `.once` 修饰符。
+> - graphic 元素事件监听器返回 `true` 时会停止冒泡。
 > - 路径组件支持通过 `auto-batch` 启用 ZRender 的 Canvas 路径批处理。
 > - 仅使用 graphic 插槽时可以省略 `option` prop。
 > - `#graphic` 会覆盖 `option.graphic`。`manual-update` 模式下需调用 `chartRef.setOption(...)` 提交变更。
