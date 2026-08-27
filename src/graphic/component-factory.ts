@@ -5,7 +5,6 @@ import {
   onBeforeUnmount,
   provide,
   shallowRef,
-  type PropType,
   type Slot,
   type SlotsType,
   watch,
@@ -29,7 +28,7 @@ import {
   TEXT_COMMON_STYLE_KEYS,
   TEXT_STYLE_KEYS,
   commonProps,
-  withUndefinedDefault,
+  textPropOverrides,
 } from "./props-common";
 import type {
   GraphicCommonPropKey,
@@ -49,12 +48,6 @@ import type { GraphicEmits } from "./types";
 const componentProps = {
   ...commonProps,
   ...shapeProps,
-} as const;
-const textPropOverrides = {
-  width: [String, Number] as PropType<string | number>,
-  fill: String,
-  stroke: String,
-  lineDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
 } as const;
 
 const NESTED_SHAPE_PROP_KEYS = ["shape", "shapeTransition"] as const;

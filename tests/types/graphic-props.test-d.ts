@@ -19,6 +19,7 @@ import {
   GSector,
   GText,
 } from "../../src/graphic/components";
+import type { GraphicCommonProps } from "../../src/graphic";
 
 type GroupProps = InstanceType<typeof GGroup>["$props"];
 type ImageProps = InstanceType<typeof GImage>["$props"];
@@ -118,6 +119,7 @@ type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
 type NumericDimensionProps = GroupProps | ImageProps | RectProps;
 type _numericWidthType = Assert<IsEqual<NumericDimensionProps["width"], number | undefined>>;
 type _textWidthType = Assert<IsEqual<TextProps["width"], string | number | undefined>>;
+type _commonWidthType = Assert<IsEqual<GraphicCommonProps["width"], string | number | undefined>>;
 type _heightType = Assert<
   IsEqual<(NumericDimensionProps | TextProps)["height"], number | undefined>
 >;

@@ -318,4 +318,12 @@ export const commonProps = {
   ...imageStyleProps,
 } as const;
 
-export type GraphicCommonProps = ExtractPublicPropTypes<typeof commonProps>;
+export const textPropOverrides = {
+  width: [String, Number] as PropType<string | number>,
+  fill: String,
+  stroke: String,
+  lineDash: withUndefinedDefault([Array, Boolean] as PropType<number[] | false>),
+} as const;
+
+export type GraphicCommonProps = Omit<ExtractPublicPropTypes<typeof commonProps>, "width"> &
+  Pick<ExtractPublicPropTypes<typeof textPropOverrides>, "width">;
