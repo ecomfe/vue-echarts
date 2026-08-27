@@ -1356,6 +1356,16 @@ describe("ECharts component", () => {
     observeSpy.mockRestore();
   });
 
+  it("finishes deferred initialization without an option", async () => {
+    const exposed = shallowRef<Exposed>();
+
+    renderChart(() => ({ autoresize: true }), exposed);
+    await nextTick();
+
+    expect(getExposed(exposed).chart).toBe(chartStub);
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+  });
+
   it("skips the initial resize while the chart host has a zero dimension", async () => {
     const exposed = shallowRef<Exposed>();
 

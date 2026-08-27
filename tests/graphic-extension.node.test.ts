@@ -37,7 +37,7 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
   return {
     slots: {},
     manualUpdate: ref(false),
-    requestUpdate: () => true,
+    requestUpdate: () => undefined,
     ...overrides,
   } as GraphicContext;
 }
@@ -111,7 +111,7 @@ describe("graphic runtime", () => {
   it("normalizes handlers into graphic onxxx fields", async () => {
     extensionModule.registerExtension();
 
-    const requestUpdate = vi.fn(() => true);
+    const requestUpdate = vi.fn();
     const scope = effectScope();
 
     const context = createContext({
@@ -256,7 +256,7 @@ describe("graphic runtime", () => {
   it("keeps update scheduling stable when handlers are unchanged", async () => {
     extensionModule.registerExtension();
 
-    const requestUpdate = vi.fn(() => true);
+    const requestUpdate = vi.fn();
     const scope = effectScope();
 
     const context = createContext({
@@ -310,7 +310,7 @@ describe("graphic runtime", () => {
 
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const scope = effectScope();
-    const requestUpdate = vi.fn(() => false);
+    const requestUpdate = vi.fn();
 
     try {
       const context = createContext({

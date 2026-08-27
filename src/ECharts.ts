@@ -232,16 +232,17 @@ export default /* @__PURE__ */ defineComponent({
       return themeApplied && replayAfterTheme ? applyOption(instance, option, "theme") : true;
     }
 
-    function requestUpdate(mode?: "graphic"): boolean {
+    function requestUpdate(mode?: "graphic"): void {
       const instance = chart.value;
-      const option = getAutoOption();
-      if (!isActive(instance) || !option || manualUpdate.value || deferredCharts?.has(instance)) {
-        return false;
+      if (!isActive(instance) || manualUpdate.value || deferredCharts?.has(instance)) {
+        return;
       }
 
-      const applied = applyOption(instance, option, mode);
-      optionReplayRequired = applied;
-      return applied;
+      const option = getAutoOption();
+      if (!option) {
+        return;
+      }
+      optionReplayRequired = applyOption(instance, option, mode);
     }
 
     if (!patchGraphicOption) {
