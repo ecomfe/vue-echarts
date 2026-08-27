@@ -68,10 +68,14 @@ export function useLoading(
   }
 
   const stopSync = watchSyncEffect(() => sync());
-  const stopOptions = watch(options, (value, previous) => value === previous && sync(true), {
-    deep: true,
-    flush: "sync",
-  });
+  const stopOptions = watch(
+    () => (loading.value ? options.value : undefined),
+    (value, previous) => value !== undefined && value === previous && sync(true),
+    {
+      deep: true,
+      flush: "sync",
+    },
+  );
 
   return () => {
     stopSync();

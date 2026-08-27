@@ -102,6 +102,33 @@ describe("useLoading", () => {
     expect(hideLoading).not.toHaveBeenCalled();
   });
 
+  it("defers reading loading options while the effect is hidden", async () => {
+    const revision = ref(0);
+    const readText = vi.fn((value: number) => `Loading ${value}`);
+    const showLoading = vi.fn();
+    const chart = ref<EChartsType | undefined>();
+    const loading = ref<boolean | undefined>(false);
+    const loadingOptions = ref<LoadingOptions | undefined>({
+      get text() {
+        return readText(revision.value);
+      },
+    });
+
+    renderUseLoading(chart, loading, loadingOptions);
+    chart.value = createChart(showLoading, vi.fn());
+    await nextTick();
+    readText.mockClear();
+
+    revision.value++;
+    await nextTick();
+    expect(readText).not.toHaveBeenCalled();
+
+    loading.value = true;
+    await nextTick();
+    expect(showLoading).toHaveBeenCalledOnce();
+    expect(showLoading).toHaveBeenCalledWith({ text: "Loading 1" });
+  });
+
   it("replays showLoading only for effective changes despite renderer mutations", async () => {
     const showLoading = vi.fn((options: LoadingOptions) => {
       options.maskColor ??= "rgba(255,255,255,0.8)";
