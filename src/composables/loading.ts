@@ -4,7 +4,9 @@ import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
 import { shallowEqual } from "../utils";
 
-export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol();
+export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol.for(
+  "vue-echarts.loading-options",
+);
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
