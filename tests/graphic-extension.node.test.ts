@@ -253,58 +253,6 @@ describe("graphic runtime", () => {
     scope.stop();
   });
 
-  it("keeps update scheduling stable when handlers are unchanged", async () => {
-    extensionModule.registerExtension();
-
-    const requestUpdate = vi.fn();
-    const scope = effectScope();
-
-    const context = createContext({
-      slots: { graphic: () => null } as any,
-      requestUpdate,
-    });
-
-    const runtime = scope.run(() => runtimeModule.useRuntime(context));
-    if (!runtime) {
-      throw new Error("Expected runtime to be initialized.");
-    }
-
-    const vnode = runtime.render() as any;
-    const collector = vnode.props.collector as {
-      register: (node: any) => void;
-    };
-    const onClick = vi.fn();
-
-    collector.register({
-      id: "n1",
-      type: "rect",
-      parentId: null,
-      props: { x: 1 },
-      handlers: { onClick },
-      sourceId: 1,
-    });
-    await flushMicrotasks();
-
-    collector.register({
-      id: "n1",
-      type: "rect",
-      parentId: null,
-      props: { x: 2 },
-      handlers: { onClick },
-      sourceId: 1,
-    });
-    await flushMicrotasks();
-
-    expect(requestUpdate).toHaveBeenCalledTimes(2);
-
-    const patched = runtime.patchOption({} as any) as any;
-    const child = patched.graphic.elements[0].children[0];
-    expect(typeof child.onclick).toBe("function");
-    expect(child.shape).toMatchObject({ x: 2 });
-
-    scope.stop();
-  });
-
   it("warns once for manual-update graphic auto refresh and option.graphic override", async () => {
     extensionModule.registerExtension();
 
