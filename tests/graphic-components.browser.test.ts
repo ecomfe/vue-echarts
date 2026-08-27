@@ -412,18 +412,19 @@ describe("graphic components", () => {
 
   it("generates fallback id and warns when both id and key are missing", async () => {
     const collector = createCollectorMock();
+    const x = ref(0);
 
-    const Root = withGraphicProvider(collector, () => h(GRect));
+    const Root = withGraphicProvider(collector, () => h(GRect, { x: x.value }));
 
     render(Root);
+    await nextTick();
+    x.value++;
     await nextTick();
 
     const payload = getLastRegisterPayload(collector);
     expect(payload.id).toMatch(/^__ve_graphic_/);
-    expect(collector.warn).toHaveBeenCalledWith(
-      expect.stringContaining("missing `id` and `key`"),
-      expect.stringMatching(/^missing-id:/),
-    );
+    expect(collector.warn).toHaveBeenCalledOnce();
+    expect(collector.warn).toHaveBeenCalledWith(expect.stringContaining("missing `id` and `key`"));
   });
 
   it("unregisters an empty-string id when it changes", async () => {

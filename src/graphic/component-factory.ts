@@ -168,6 +168,7 @@ export function createComponent<T extends GraphicComponentType>(
       }
       const { register: registerNode, unregister, requestFlush, warn: warnScoped } = collector;
       let currentId: string | null = null;
+      let warnedMissingIdentity = false;
 
       watch([props, () => attrs], requestFlush, { deep: true });
 
@@ -177,10 +178,10 @@ export function createComponent<T extends GraphicComponentType>(
           instance.vnode.key,
           instance.uid,
         );
-        if (identity.missingIdentity) {
+        if (identity.missingIdentity && !warnedMissingIdentity) {
+          warnedMissingIdentity = true;
           warnScoped(
             `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
-            `missing-id:${instance.uid}`,
           );
         }
         if (currentId !== null && currentId !== identity.id) {
