@@ -1848,6 +1848,24 @@ describe("ECharts component", () => {
     expect(element.__dispose).toBeNull();
   });
 
+  it("disposes the chart when listener detachment fails", async () => {
+    const error = new Error("off failed");
+    const exposed = shallowRef<Exposed>();
+    const screen = renderChart(() => ({ option: {}, onClick: vi.fn() }), exposed);
+    await nextTick();
+
+    chartStub.off.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    const instance = getExposed(exposed);
+    withConsoleWarn(() => expect(() => instance.dispose()).toThrow(error));
+    expect(chartStub.dispose).toHaveBeenCalledOnce();
+    expect(instance.isDisposed()).toBe(true);
+
+    screen.unmount();
+  });
+
   it("deactivates callback slots when chart disposal fails", async () => {
     const error = new Error("dispose failed");
     const exposed = shallowRef<Exposed>();

@@ -263,14 +263,17 @@ export default /* @__PURE__ */ defineComponent({
 
     function cleanup(): void {
       const instance = chart.value;
-      chart.value = undefined;
-      isReady.value = false;
-      lastSignature = undefined;
-      lastAutoOption = undefined;
-      themedChart = undefined;
-      graphicSlotApplied = false;
-      if (instance && !instance.isDisposed()) {
-        instance.dispose();
+      try {
+        chart.value = undefined;
+      } finally {
+        isReady.value = false;
+        lastSignature = undefined;
+        lastAutoOption = undefined;
+        themedChart = undefined;
+        graphicSlotApplied = false;
+        if (instance && !instance.isDisposed()) {
+          instance.dispose();
+        }
       }
     }
 
