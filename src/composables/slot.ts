@@ -23,11 +23,6 @@ type SlotPrefix = keyof typeof SLOT_OPTION_PATHS;
 type SlotName = SlotPrefix | `${SlotPrefix}-${string}`;
 type SlotMap<T> = Partial<Record<SlotName, T>>;
 type SlotFormatter = (payload: unknown) => HTMLElement | undefined;
-type SlotState = {
-  containers: SlotMap<HTMLElement>;
-  params: SlotMap<unknown>;
-  formatters: Map<SlotName, SlotFormatter>;
-};
 
 function isValidSlotName(key: string): key is SlotName {
   return (
@@ -119,16 +114,11 @@ function writePath(
 export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Ref<boolean>) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
-  let state: SlotState | undefined;
+  const containers = shallowReactive<SlotMap<HTMLElement>>({});
+  const params = shallowReactive<SlotMap<unknown>>({});
+  const formatters = new Map<SlotName, SlotFormatter>();
   const isMounted = shallowRef(false);
   const warnedInvalidSlots = new Set<string>();
-
-  const getState = (): SlotState =>
-    (state ??= {
-      containers: shallowReactive<SlotMap<HTMLElement>>({}),
-      params: shallowReactive<SlotMap<unknown>>({}),
-      formatters: new Map<SlotName, SlotFormatter>(),
-    });
 
   const collectSlotNames = (): SlotName[] => {
     const names: SlotName[] = [];
@@ -158,10 +148,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     if (!ready.value) {
       appliedSlotNames = patchedSlotNames = [];
       rebuildOnRemoval = false;
-      if (state) {
-        for (const key of Object.keys(state.params) as SlotName[]) {
-          delete state.params[key];
-        }
+      for (const key of Object.keys(params) as SlotName[]) {
+        delete params[key];
       }
     }
   });
@@ -177,11 +165,9 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
     for (const key of slotNames) {
       if (!names.includes(key)) {
-        if (state) {
-          delete state.params[key];
-          delete state.containers[key];
-          state.formatters.delete(key);
-        }
+        delete params[key];
+        delete containers[key];
+        formatters.delete(key);
       }
     }
     slotNames = names;
@@ -195,7 +181,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
     detachedRoot ??= ownerDocument.createElement("div");
-    const { containers, params } = getState();
 
     return h(
       Teleport,
@@ -255,7 +240,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       patchedSlotNames = [];
       return root ?? src;
     }
-    const { formatters, params, containers } = getState();
     root ??= { ...src };
     const patchedNames: SlotName[] = [];
 
