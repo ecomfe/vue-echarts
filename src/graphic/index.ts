@@ -1,5 +1,4 @@
 import { registerExtension } from "./extension";
-import "./slots";
 
 registerExtension();
 

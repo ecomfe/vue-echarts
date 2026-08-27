@@ -30,7 +30,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsdown",
+    "build": "tsdown && tsc -p tsconfig.package.json",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.vitest.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
