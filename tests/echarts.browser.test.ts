@@ -1939,7 +1939,10 @@ describe("ECharts component", () => {
     screen.unmount();
   });
 
-  it("stops reactive work after the underlying chart is externally disposed", async () => {
+  it.each([
+    ["a reactive update", false],
+    ["isDisposed", true],
+  ])("stops reactive work when %s detects external disposal", async (_, checkDisposed) => {
     const readTitle = vi.fn(() => "before");
     const title = reactive({
       get text() {
@@ -1970,14 +1973,18 @@ describe("ECharts component", () => {
 
     const instance = getExposed(exposed);
     instance.chart?.dispose();
+    if (checkDisposed) {
+      expect(instance.isDisposed()).toBe(true);
+    } else {
+      title.revision++;
+      await nextTick();
+    }
     chartStub.setOption.mockClear();
     chartStub.showLoading.mockClear();
     chartStub.hideLoading.mockClear();
     init.mockClear();
-
-    title.revision++;
-    await nextTick();
     readTitle.mockClear();
+
     title.revision++;
     await nextTick();
 

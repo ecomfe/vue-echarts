@@ -174,10 +174,15 @@ describe("usePublicAPI", () => {
       getWidth,
       isDisposed: vi.fn(() => true),
     } as unknown as EChartsType;
-    const api = usePublicAPI(chart, vi.fn(), () => false);
+    let disposed = false;
+    const dispose = vi.fn(() => {
+      disposed = true;
+    });
+    const api = usePublicAPI(chart, dispose, () => disposed);
 
     expect(api.isDisposed()).toBe(true);
     expect(() => api.getWidth()).toThrowError("ECharts has been disposed.");
+    expect(dispose).toHaveBeenCalledOnce();
     expect(getWidth).not.toHaveBeenCalled();
   });
 
