@@ -5,6 +5,7 @@ import type { Option } from "../types";
 export type GraphicContext = {
   slots: Slots;
   manualUpdate: Ref<boolean>;
+  disposed: Ref<boolean>;
   requestUpdate: () => void;
 };
 

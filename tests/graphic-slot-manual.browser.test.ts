@@ -111,6 +111,32 @@ describe("graphic slot manual-update behavior", () => {
     });
   });
 
+  it("ignores a graphic slot added after disposal", async () => {
+    registerExtension();
+
+    const exposed = shallowRef<Exposed>();
+    const showGraphic = ref(false);
+    const Root = defineComponent(
+      () => () =>
+        h(
+          ECharts,
+          { manualUpdate: true, ref: (value) => (exposed.value = value as Exposed) },
+          showGraphic.value
+            ? { graphic: () => h(GRect, { id: "late-graphic", width: 10, height: 10 }) }
+            : {},
+        ),
+    );
+
+    render(Root);
+    await nextTick();
+    exposed.value?.dispose();
+
+    showGraphic.value = true;
+    await nextTick();
+
+    expect(exposed.value?.isDisposed()).toBe(true);
+  });
+
   it("applies latest graphic state on explicit setOption in manual-update mode", async () => {
     registerExtension();
 

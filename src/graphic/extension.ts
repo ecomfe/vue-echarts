@@ -17,7 +17,7 @@ export function registerExtension(): void {
   registered = true;
 
   registerRuntime((ctx) => {
-    const { slots, manualUpdate, requestUpdate } = ctx;
+    const { slots, manualUpdate, disposed, requestUpdate } = ctx;
     let collector: GraphicCollector | undefined;
     let hasGraphicSlot = Boolean(slots.graphic);
 
@@ -26,6 +26,9 @@ export function registerExtension(): void {
     }
 
     function handleFlush(): void {
+      if (disposed.value) {
+        return;
+      }
       if (manualUpdate.value) {
         collector!.warn(
           "`#graphic` slot updates are ignored when `manual-update` is `true`.",

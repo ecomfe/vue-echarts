@@ -100,6 +100,7 @@ export default /* @__PURE__ */ defineComponent({
     const realUpdateOptions = computed(() => props.updateOptions ?? toValue(defaultUpdateOptions));
 
     const rootAttrs = useRootAttrs(attrsMap);
+    const terminallyDisposed = shallowRef(false);
 
     const {
       render: renderSlot,
@@ -112,6 +113,7 @@ export default /* @__PURE__ */ defineComponent({
       useGraphic({
         slots,
         manualUpdate,
+        disposed: terminallyDisposed,
         // Graphic is always replaced, so slot-only changes do not alter the source signature.
         requestUpdate: () => requestUpdate("graphic"),
       }) ?? {};
@@ -128,7 +130,6 @@ export default /* @__PURE__ */ defineComponent({
     let optionApplied = false;
     let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
-    const terminallyDisposed = shallowRef(false);
     let deferredCharts: WeakSet<EChartsType> | undefined;
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
