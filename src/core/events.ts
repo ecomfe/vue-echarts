@@ -74,6 +74,7 @@ export function useReactiveChartListeners(
     }
     activeInstance = instance;
     scan++;
+    let zrEmitter: EventEmitter | undefined;
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);
@@ -112,7 +113,9 @@ export function useReactiveChartListeners(
         continue;
       }
 
-      const emitter = zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
+      const emitter = zr
+        ? (zrEmitter ??= instance.getZr() as EventEmitter)
+        : (instance as EventEmitter);
       const current = { value: invoke };
       const invokeCurrent: EventHandler = (...args) => current.value(...args);
       let handler = invokeCurrent;
