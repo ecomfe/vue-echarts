@@ -482,16 +482,19 @@ export default /* @__PURE__ */ defineComponent({
     }
 
     const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed.value);
-    const clear = publicApi.clear;
+    const guardedClear = publicApi.clear;
     publicApi.clear = () => {
-      const instance = chart.value!;
+      const instance = chart.value;
+      if (!isActive(instance)) {
+        return guardedClear();
+      }
       // Native clear may replace the model before failing, so invalidate replay state first.
       clearRevision++;
       deferredCharts?.delete(instance);
       lastSignature = null;
       lastAutoOption = undefined;
       optionReplayRequired = false;
-      clear();
+      instance.clear();
       lastSignature = undefined;
     };
 

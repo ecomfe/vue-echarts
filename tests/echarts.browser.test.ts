@@ -1951,6 +1951,27 @@ describe("ECharts component", () => {
     expect(instance?.isDisposed()).toBe(true);
   });
 
+  it("keeps initialization unchanged when clear is called before mount", async () => {
+    let instance: Exposed | undefined;
+    const option = {};
+    const clearOnRef: VNodeRef = (value) => {
+      if (value && !instance) {
+        const current = (instance = value as Exposed);
+        expect(() => current.clear()).toThrowError("ECharts is not initialized yet.");
+      }
+    };
+
+    render(
+      defineComponent({
+        setup: () => () => h(ECharts, { ref: clearOnRef, option }),
+      }),
+    );
+    await nextTick();
+
+    expect(instance).toBeDefined();
+    expect(chartStub.setOption.mock.calls).toEqual([[option, { notMerge: false }]]);
+  });
+
   it("clears public state after the component unmounts", async () => {
     const exposed = shallowRef<Exposed>();
     const screen = renderChart(() => ({ option: { series: [] } }), exposed);
