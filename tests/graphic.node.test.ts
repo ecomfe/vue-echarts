@@ -326,10 +326,6 @@ describe("graphic", () => {
 
     const rebuilt = getRootGraphicElement(buildOption(nodes, "root")).children?.[0];
     expect(rebuilt?.onclick).toBe(click);
-
-    nodes[0].handlers = {};
-    buildOption(nodes, "root");
-    expect(nodes[0].handlerCache).toBeUndefined();
   });
 
   it("preserves event cancellation through wrapped handlers", () => {

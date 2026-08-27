@@ -72,7 +72,6 @@ function toEventHandler(value: unknown, once: boolean): EventHandler | undefined
 
 function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void {
   const { handlers } = node;
-  let merged = false;
 
   if (node.handlerCache) {
     for (const key of node.handlerCache.keys()) {
@@ -109,7 +108,6 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
 
     const eventKey = `on${event}`;
     const existing = target[eventKey] as EventHandler | undefined;
-    merged = true;
     if (!existing) {
       target[eventKey] = handler;
       continue;
@@ -119,10 +117,6 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
       const result = existing(...args);
       return handler(...args) || result;
     };
-  }
-
-  if (!merged) {
-    node.handlerCache = undefined;
   }
 }
 
