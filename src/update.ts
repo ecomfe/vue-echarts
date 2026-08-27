@@ -159,7 +159,7 @@ function analyzeItems(
 export function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
-  let context: AnalysisContext | undefined;
+  const context: AnalysisContext = { stack: new WeakSet(), hasAction: false };
   const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
@@ -178,7 +178,7 @@ export function buildSignature(option: Option): Signature {
               : undefined;
       const summary = analyzeItems(
         Array.isArray(value) ? value : [value],
-        (context ??= { stack: new WeakSet(), hasAction: false }),
+        context,
         mode,
         componentItems,
       );
@@ -188,11 +188,7 @@ export function buildSignature(option: Option): Signature {
 
     if (isPlainObject(value)) {
       const mode = key === "baseOption" ? "option" : undefined;
-      const shape = buildShape(
-        value,
-        (context ??= { stack: new WeakSet(), hasAction: false }),
-        mode,
-      );
+      const shape = buildShape(value, context, mode);
       objectShapes[key] = shape;
       continue;
     }
@@ -203,15 +199,13 @@ export function buildSignature(option: Option): Signature {
     }
   }
 
-  if (leaves.length > 1) {
-    leaves.sort();
-  }
+  leaves.sort();
 
   return {
     collections,
     objectShapes,
     leaves,
-    hasAction: context?.hasAction ?? false,
+    hasAction: context.hasAction,
   };
 }
 
@@ -491,9 +485,7 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
       plan: { notMerge: !next.hasAction },
     };
   }
-  if (replaceMerge && replaceMerge.length > 1) {
-    replaceMerge.sort();
-  }
+  replaceMerge?.sort();
 
   return {
     signature: next,
