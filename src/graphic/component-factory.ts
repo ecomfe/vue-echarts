@@ -6,6 +6,8 @@ import {
   provide,
   shallowRef,
   type PropType,
+  type Slot,
+  type SlotsType,
   watch,
 } from "vue";
 
@@ -103,6 +105,9 @@ type ComponentProps<T extends GraphicComponentType> = Pick<
     SharedPropKey<T> | GroupPropKey<T> | DisplayablePropKey<T> | PathPropKey<T> | StylePropKey<T>,
     keyof typeof componentProps
   >
+>;
+type ComponentSlots<T extends GraphicComponentType> = SlotsType<
+  T extends "group" ? { default?: Slot } : Record<never, never>
 >;
 
 function getComponentProps(type: GraphicComponentType): Record<string, unknown> {
@@ -215,7 +220,7 @@ export function createComponent<T extends GraphicComponentType>(
 
         return () => {
           providedParent.value = register();
-          const content = slots.default?.() ?? null;
+          const content = (slots as { default?: Slot }).default?.() ?? null;
           childOrder.update(content);
           return content;
         };
@@ -236,5 +241,6 @@ export function createComponent<T extends GraphicComponentType>(
 export type GraphicComponent<T extends GraphicComponentType> = PublicComponent<
   ComponentProps<T>,
   Record<never, never>,
-  GraphicEmits
+  GraphicEmits,
+  ComponentSlots<T>
 >;
