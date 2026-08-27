@@ -24,22 +24,25 @@ function collect(value: unknown, orderMap: Map<PropertyKey, number>, order: numb
     return order;
   }
   const vnode = value as VNode;
+  const children = vnode.children;
+  const graphic = isGraphic(vnode);
+  const type = typeof vnode.type;
+  const opaqueComponent = !Array.isArray(children) && (type === "object" || type === "function");
   const props = vnode.props as Record<string, unknown> | null;
-  const identity = typeof vnode.type === "string" ? null : resolveOrderKey(props?.id, vnode.key);
+  const identity = graphic || opaqueComponent ? resolveOrderKey(props?.id, vnode.key) : null;
   if (identity) {
     orderMap.set(identity, order);
   }
-  if (isGraphic(vnode)) {
+  if (graphic) {
     return order + 1;
   }
 
-  // A keyed wrapper's slot output is not available here, but it can still anchor a
-  // graphic child that forwards the same id or key.
+  // An opaque component's slot output is unavailable here, but its identity can
+  // still anchor a graphic child that forwards the same id or key.
   if (identity) {
     order++;
   }
 
-  const children = vnode.children;
   if (Array.isArray(children)) {
     for (const child of children) {
       order = collect(child, orderMap, order);

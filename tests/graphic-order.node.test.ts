@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { h } from "vue";
+import { Fragment, h } from "vue";
 
 import { resolveIdentity } from "../src/graphic/identity";
 import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
@@ -51,6 +51,23 @@ describe("graphic order helpers", () => {
     order.update(h(RectGraphic, { id: "third" }));
     expect(orderMap.get("id:first")).toBe(0);
     expect(orderMap.get("id:second")).toBe(1);
+  });
+
+  it("ignores the identity of transparent wrappers", () => {
+    const order = createOrderTracker();
+    const createTree = (key: string) =>
+      h(Fragment, { key }, [h(RectGraphic, { id: "first" }), h(RectGraphic, { id: "second" })]);
+
+    order.update(createTree("before"));
+    const orderMap = order.ref.value;
+
+    expect([...orderMap]).toEqual([
+      ["id:first", 0],
+      ["id:second", 1],
+    ]);
+
+    order.update(createTree("after"));
+    expect(order.ref.value).toBe(orderMap);
   });
 
   it("keeps vnode key types distinct and ordered", () => {
