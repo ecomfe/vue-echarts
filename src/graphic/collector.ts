@@ -20,7 +20,6 @@ export type GraphicCollector = {
   getNodes: () => Iterable<GraphicNode>;
   requestFlush: () => void;
   cancelPendingFlush: () => void;
-  dispose: () => void;
 };
 
 type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & {
@@ -34,7 +33,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
 
   let order = 0;
   let pending = false;
-  let disposed = false;
 
   function beginPass(): void {
     order = 0;
@@ -52,10 +50,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function register(node: GraphicRegisterNode): void {
-    if (disposed) {
-      return;
-    }
-
     const seenSource = seenInPass.get(node.id);
     if (seenSource != null && seenSource !== node.sourceId) {
       warn(
@@ -98,10 +92,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function unregister(id: string, sourceId?: number): void {
-    if (disposed) {
-      return;
-    }
-
     const existing = nodes.get(id);
     if (!existing || (sourceId != null && existing.sourceId !== sourceId)) {
       return;
@@ -111,12 +101,12 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function requestFlush(): void {
-    if (disposed || pending) {
+    if (pending) {
       return;
     }
     pending = true;
     queueMicrotask(() => {
-      if (disposed || !pending) {
+      if (!pending) {
         return;
       }
       pending = false;
@@ -136,14 +126,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     }
   }
 
-  function dispose(): void {
-    disposed = true;
-    pending = false;
-    nodes.clear();
-    seenInPass.clear();
-    warnedKeys.clear();
-  }
-
   return {
     beginPass,
     register,
@@ -152,6 +134,5 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     getNodes,
     requestFlush,
     cancelPendingFlush,
-    dispose,
   };
 }

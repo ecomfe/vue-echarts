@@ -31,7 +31,7 @@ export function registerExtension(): void {
       requestUpdate();
     }
 
-    onScopeDispose(() => collector?.dispose());
+    onScopeDispose(() => collector?.cancelPendingFlush());
     onUpdated(() => {
       const nextHasGraphicSlot = Boolean(slots.graphic);
       if (nextHasGraphicSlot === hasGraphicSlot) {

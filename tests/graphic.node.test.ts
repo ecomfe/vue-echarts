@@ -642,7 +642,7 @@ describe("graphic", () => {
     }
   });
 
-  it("skips pending flush callback and ignores operations after dispose", async () => {
+  it("cancels a pending flush callback", async () => {
     const onFlush = vi.fn();
     const collector = createCollector(onFlush);
 
@@ -655,22 +655,9 @@ describe("graphic", () => {
       sourceId: 1,
     });
 
-    collector.dispose();
+    collector.cancelPendingFlush();
     await flushMicrotasks();
 
     expect(onFlush).toHaveBeenCalledTimes(0);
-
-    collector.register({
-      id: "after-dispose",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 2,
-    });
-    collector.unregister("node");
-    await flushMicrotasks();
-
-    expect(Array.from(collector.getNodes())).toEqual([]);
   });
 });

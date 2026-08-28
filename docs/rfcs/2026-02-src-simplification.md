@@ -50,7 +50,7 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - rebind changed event sources directly instead of routing listeners through mutable invoker boxes;
 - keep ordered component shapes as direct arrays and compare their identities without parallel indexes;
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
-- model lifecycle around the single current chart; let terminal `dispose` and update requests own liveness instead of subordinate runtimes or instance collections;
+- model lifecycle around the component scope and single current chart; cancel owned queued work on scope disposal instead of giving subordinate runtimes or collectors their own disposed modes;
 - drive loading visibility and options through one watcher instead of parallel force-update paths.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
