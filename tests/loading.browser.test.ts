@@ -5,7 +5,6 @@ import { cleanup, render } from "vitest-browser-vue/pure";
 
 import { useLoading, LOADING_OPTIONS_KEY } from "../src/composables/loading";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../src/types";
-import { withConsoleWarn } from "./helpers/dom";
 
 afterEach(() => {
   cleanup();
@@ -214,103 +213,14 @@ describe("useLoading", () => {
     expect(showLoading).not.toHaveBeenCalledTimes(2);
   });
 
-  it("converges state changes made while toggling the loading effect", async () => {
-    const chart = ref<EChartsType | undefined>();
-    const loading = ref<boolean | undefined>(true);
-    const loadingOptions = ref<LoadingOptions | undefined>({ text: "Initial" });
-    const showLoading = vi.fn((options: LoadingOptions) => {
-      if (options.text === "Initial") {
-        loadingOptions.value = { text: "Latest" };
-      } else {
-        loading.value = false;
-      }
-    });
-    const hideLoading = vi.fn(() => {
-      if (hideLoading.mock.calls.length === 1) {
-        loading.value = true;
-      }
-    });
-
-    renderUseLoading(chart, loading, loadingOptions);
-    chart.value = createChart(showLoading, hideLoading);
-    await nextTick();
-
-    expect(showLoading).toHaveBeenCalledTimes(3);
-    expect(showLoading).toHaveBeenNthCalledWith(1, { text: "Initial" });
-    expect(showLoading).toHaveBeenNthCalledWith(2, { text: "Latest" });
-    expect(showLoading).toHaveBeenNthCalledWith(3, { text: "Latest" });
-    expect(hideLoading).toHaveBeenCalledTimes(2);
-  });
-
-  it("retries the previous loading effect after a replacement fails", async () => {
-    const error = new Error("showLoading failed");
-    let visibleText: string | undefined;
-    const showLoading = vi.fn((options: LoadingOptions) => {
-      visibleText = undefined;
-      if (options.text === "Broken") {
-        throw error;
-      }
-      visibleText = options.text;
-    });
-    const chart = ref<EChartsType | undefined>();
-    const loading = ref<boolean | undefined>(true);
-    const loadingOptions = ref<LoadingOptions | undefined>({ text: "Initial" });
-
-    renderUseLoading(chart, loading, loadingOptions);
-    chart.value = createChart(showLoading, vi.fn());
-    await nextTick();
-
-    expect(visibleText).toBe("Initial");
-    withConsoleWarn(() => {
-      expect(() => {
-        loadingOptions.value = { text: "Broken" };
-      }).toThrow(error);
-    });
-    expect(visibleText).toBeUndefined();
-
-    loadingOptions.value = { text: "Initial" };
-
-    expect(showLoading).toHaveBeenCalledTimes(3);
-    expect(visibleText).toBe("Initial");
-  });
-
-  it("retains shown state when hideLoading fails", async () => {
-    const error = new Error("hideLoading failed");
-    const showLoading = vi.fn();
-    const hideLoading = vi.fn();
-    hideLoading.mockImplementationOnce(() => {
-      throw error;
-    });
-    const chart = ref<EChartsType | undefined>();
-    const loading = ref<boolean | undefined>(true);
-    const loadingOptions = ref<LoadingOptions | undefined>();
-
-    renderUseLoading(chart, loading, loadingOptions);
-    chart.value = createChart(showLoading, hideLoading);
-    await nextTick();
-
-    withConsoleWarn(() => {
-      expect(() => {
-        loading.value = false;
-      }).toThrow(error);
-    });
-
-    loading.value = true;
-    loading.value = false;
-
-    expect(showLoading).toHaveBeenCalledOnce();
-    expect(hideLoading).toHaveBeenCalledTimes(2);
-  });
-
-  it("tracks loading state across chart instance switches", async () => {
+  it("applies loading to a replacement chart", async () => {
     const firstShow = vi.fn();
-    const firstHide = vi.fn();
     const secondShow = vi.fn();
     const secondHide = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
     const loadingOptions = ref<LoadingOptions | undefined>({ text: "Switching" });
-    const first = createChart(firstShow, firstHide);
+    const first = createChart(firstShow, vi.fn());
     const second = createChart(secondShow, secondHide);
 
     renderUseLoading(chart, loading, loadingOptions);
@@ -320,8 +230,6 @@ describe("useLoading", () => {
 
     expect(firstShow).toHaveBeenCalledTimes(1);
     expect(firstShow).toHaveBeenLastCalledWith({ text: "Switching" });
-    expect(firstHide).not.toHaveBeenCalled();
-
     chart.value = second;
     await nextTick();
 
@@ -332,9 +240,5 @@ describe("useLoading", () => {
     loading.value = false;
     await nextTick();
     expect(secondHide).toHaveBeenCalledTimes(1);
-
-    chart.value = first;
-    await nextTick();
-    expect(firstHide).toHaveBeenCalledTimes(1);
   });
 });

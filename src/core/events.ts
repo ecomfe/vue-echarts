@@ -40,16 +40,8 @@ export function useReactiveChartListeners(
     if (activeInstance?.isDisposed()) {
       return;
     }
-    let errors: unknown[] | undefined;
     for (const binding of current.values()) {
-      try {
-        binding.emitter.off(binding.event, binding.handler);
-      } catch (error) {
-        (errors ??= []).push(error);
-      }
-    }
-    if (errors) {
-      throw errors[0];
+      binding.emitter.off(binding.event, binding.handler);
     }
   }
 
@@ -122,11 +114,8 @@ export function useReactiveChartListeners(
           called = true;
           bindings.delete(key);
           consumedSources.set(key, source);
-          try {
-            emitter.off(event, handler);
-          } finally {
-            invokeCurrent(...args);
-          }
+          emitter.off(event, handler);
+          invokeCurrent(...args);
         };
       }
 

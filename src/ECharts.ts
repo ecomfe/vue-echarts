@@ -43,8 +43,9 @@ import type {
 } from "./types";
 import type { EChartsElement } from "./wc";
 
-import { ensureStyles } from "./style";
+import "./style";
 
+const wcRegistered = register();
 const SKIP_AUTO_UPDATE = Symbol();
 type ApplyMode = "manual" | "graphic" | "theme";
 
@@ -189,10 +190,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       // `updated` listeners run synchronously and may clear during this attempt.
       const revision = clearRevision;
       const manual = mode === "manual";
-      // A failed early manual call must not take precedence over deferred initialization.
-      if (!manual) {
-        deferredCharts.delete(instance);
-      }
+      deferredCharts.delete(instance);
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
       const forceGraphic = mode === "graphic";
@@ -215,9 +213,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
 
       instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
-      if (manual) {
-        deferredCharts.delete(instance);
-      }
       if (!isActive(instance) || clearRevision !== revision) {
         return;
       }
@@ -271,17 +266,14 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function cleanup(): void {
       const instance = chart.value;
-      try {
-        chart.value = undefined;
-      } finally {
-        isReady.value = false;
-        lastSignature = undefined;
-        lastAutoOption = undefined;
-        themedChart = undefined;
-        graphicSlotApplied = false;
-        if (instance && !instance.isDisposed()) {
-          instance.dispose();
-        }
+      chart.value = undefined;
+      isReady.value = false;
+      lastSignature = undefined;
+      lastAutoOption = undefined;
+      themedChart = undefined;
+      graphicSlotApplied = false;
+      if (instance && !instance.isDisposed()) {
+        instance.dispose();
       }
     }
 
@@ -289,8 +281,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       initOptionsInvalidated = false;
       manualUpdateAtInit = manualUpdate.value;
       optionApplied = false;
-
-      ensureStyles(root.value?.getRootNode());
 
       const host = chartHost.value as HTMLDivElement;
       const instance = initChart(host, realTheme.value, realInitOptions.value);
@@ -301,21 +291,15 @@ const ECharts = /* @__PURE__ */ defineComponent({
       themedChart = instance;
 
       function commit(): void {
-        try {
-          const option = manualUpdate.value ? props.option : getAutoOption();
-          if (!option) {
-            return;
-          }
-
+        const option = manualUpdate.value ? props.option : getAutoOption();
+        if (option) {
           if (manualUpdate.value) {
             applyOption(instance, option, "manual", realUpdateOptions.value ?? undefined);
-            return;
+          } else {
+            applyOption(instance, option);
           }
-
-          applyOption(instance, option);
-        } finally {
-          isReady.value = isActive(instance);
         }
+        isReady.value = isActive(instance);
       }
 
       if (autoresize.value) {
@@ -325,11 +309,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             return;
           }
           if (autoresize.value && !hasZeroDimension(host.offsetWidth, host.offsetHeight)) {
-            try {
-              instance.resize();
-            } catch {
-              warn("Initial chart resize failed; continuing initialization.");
-            }
+            instance.resize();
             if (!isActive(instance)) {
               return;
             }
@@ -485,11 +465,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
       stopGroupWatch();
       stopLoading();
       stopAutoresize();
-      try {
-        cleanup();
-      } finally {
-        stopListeners();
-      }
+      stopListeners();
+      cleanup();
     }
 
     const publicApi = usePublicAPI(chart, dispose, () => terminallyDisposed.value);
@@ -499,17 +476,15 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isActive(instance)) {
         return guardedClear();
       }
-      // Native clear may replace the model before failing, so invalidate replay state first.
+      // `updated` listeners run synchronously during clear, so invalidate replay state first.
       clearRevision++;
       deferredCharts.delete(instance);
-      lastSignature = null;
+      lastSignature = undefined;
       lastAutoOption = undefined;
       instance.clear();
-      lastSignature = undefined;
     };
 
     onMounted(() => {
-      register(root.value);
       if (!terminallyDisposed.value) {
         init();
       }
@@ -521,7 +496,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
       terminallyDisposed.value = true;
       const element = root.value;
-      if (register(element) && element?.isConnected && element.__dispose === null) {
+      if (wcRegistered && element?.isConnected && element.__dispose === null) {
         element.__dispose = cleanup;
         return;
       }

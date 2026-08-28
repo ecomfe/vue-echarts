@@ -111,41 +111,15 @@ describe("smart-update", () => {
           { id: 1, type: "line" },
           { id: { nested: true } as unknown, type: "pie" },
           { id: true as unknown as string, type: "scatter" },
-          { id: Infinity, type: "bar" },
-          { id: -Infinity, type: "line" },
-          { id: NaN, type: "pie" },
           { type: "area" },
         ] as unknown as EChartsOption["series"],
       };
 
       const signature = buildSignature(option);
       expect(signature.collections.series).toMatchObject({
-        ids: new Set(["2", "1", "Infinity", "-Infinity", "NaN"]),
+        ids: new Set(["2", "1"]),
         noIdCount: 3,
       });
-    });
-
-    it("filters primitive component items", () => {
-      const option: EChartsOption = {
-        dataset: ["raw", { id: "has-id" }],
-      } as unknown as EChartsOption;
-
-      const signature = buildSignature(option);
-
-      expect(signature.collections.dataset).toMatchObject({
-        ids: new Set(["has-id"]),
-        noIdCount: 0,
-      });
-    });
-
-    it("handles malformed option container entries", () => {
-      const signature = buildSignature({
-        options: [null],
-        media: [null, { query: {} }],
-      } as unknown as EChartsOption);
-
-      expect(signature.collections.options?.noIdCount).toBe(1);
-      expect(signature.collections.media?.noIdCount).toBe(2);
     });
 
     it("only recognizes actions inside graphic element trees", () => {
@@ -167,50 +141,6 @@ describe("smart-update", () => {
       const signature = buildSignature(option);
 
       expect(signature.leaves).toEqual(["color"]);
-    });
-
-    it("handles cyclic option objects", () => {
-      const title: Record<string, unknown> = { text: "cycle", unused: undefined };
-      title.self = title;
-
-      const signature = buildSignature({ title } as EChartsOption);
-      const serialized = JSON.stringify(signature);
-
-      expect(serialized).not.toContain("cycle");
-      expect(serialized).not.toContain("unused");
-    });
-
-    it("reads each structural value once", () => {
-      const reads: Record<string, number> = {};
-      const tracked = (key: string, value: unknown): PropertyDescriptor => ({
-        enumerable: true,
-        get: () => {
-          reads[key] = (reads[key] ?? 0) + 1;
-          return value;
-        },
-      });
-      const baseOption = Object.defineProperty({}, "title", tracked("baseTitle", {}));
-      const mediaOption = Object.defineProperty({}, "title", tracked("mediaTitle", {}));
-      const media = Object.defineProperty({}, "option", tracked("mediaOption", mediaOption));
-      const seriesOption = Object.defineProperties(
-        {},
-        {
-          id: tracked("seriesId", "series"),
-          name: tracked("seriesName", "Sales"),
-        },
-      );
-      const series = Object.defineProperty(new Array(1), 0, tracked("seriesItem", seriesOption));
-
-      buildSignature({ baseOption, media: [media], series } as EChartsOption);
-
-      expect(reads).toEqual({
-        baseTitle: 1,
-        mediaOption: 1,
-        mediaTitle: 1,
-        seriesItem: 1,
-        seriesId: 1,
-        seriesName: 1,
-      });
     });
 
     it("does not traverse data arrays inside option containers", () => {
@@ -945,27 +875,6 @@ describe("smart-update", () => {
         expect(seriesByName.mocha.label?.color).toBe("brown");
       });
 
-      it("preserves removals when infinite numeric IDs reorder", () => {
-        const base: EChartsOption = {
-          series: [
-            { id: Infinity, type: "pie", label: { color: "red" } },
-            { id: -Infinity, type: "pie" },
-          ],
-        };
-        const update: EChartsOption = {
-          series: [
-            { id: -Infinity, type: "pie", label: { color: "blue" } },
-            { id: Infinity, type: "pie" },
-          ],
-        };
-
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.series?.[0]?.label?.color).toBe("blue");
-        expect(applied.series?.[1]?.label?.color).toBeUndefined();
-      });
-
       it("rebuilds when an ID moves across duplicate and renamed components", () => {
         const base: EChartsOption = {
           series: [
@@ -1147,23 +1056,6 @@ describe("smart-update", () => {
         const result = planUpdate(buildSignature(base), update);
 
         expect(result.plan.replaceMerge).toEqual(["series"]);
-      });
-
-      it("ignores undefined array summaries carried over in previous signatures", () => {
-        const base: EChartsOption = {
-          series: [{ id: "flat-white", type: "bar" }],
-        };
-
-        const prev = buildSignature(base);
-        const signatureWithPhantom = {
-          ...prev,
-          collections: { ...prev.collections, phantom: undefined },
-        };
-
-        const result = planUpdate(signatureWithPhantom, base);
-
-        expect(result.plan.notMerge).toBe(false);
-        expect(result.plan.replaceMerge).toBeUndefined();
       });
 
       it("handles single-object series shape without array replacement planning", () => {

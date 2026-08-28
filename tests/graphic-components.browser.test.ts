@@ -41,15 +41,6 @@ function withGraphicProvider(collector: CollectorMock, renderChild: () => any) {
   });
 }
 
-function withCollectorOnly(collector: CollectorMock, renderChild: () => any) {
-  return defineComponent({
-    setup() {
-      provide(GRAPHIC_COLLECTOR_KEY, collector as any);
-      return () => h("div", renderChild());
-    },
-  });
-}
-
 function getLastRegisterPayload(collector: CollectorMock): any {
   const lastCall = collector.register.mock.calls.at(-1);
   if (!lastCall) {
@@ -464,18 +455,6 @@ describe("graphic components", () => {
     expect(calls.some((entry) => entry.id === "group-empty")).toBe(true);
   });
 
-  it("falls back to null parent id when parent context is not provided", async () => {
-    const collector = createCollectorMock();
-
-    const Root = withCollectorOnly(collector, () => h(GRect, { id: "solo" }));
-
-    render(Root);
-    await nextTick();
-
-    const payload = getLastRegisterPayload(collector);
-    expect(payload.parentId).toBeNull();
-  });
-
   it("unregisters node when component is unmounted by v-if", async () => {
     const collector = createCollectorMock();
     const visible = ref(true);
@@ -491,22 +470,5 @@ describe("graphic components", () => {
     await nextTick();
 
     expect(collector.unregister).toHaveBeenCalledWith("toggle-node", expect.any(Number));
-  });
-
-  it("unregisters an empty-string id during unmount", async () => {
-    const collector = createCollectorMock();
-    const visible = ref(true);
-
-    const Root = withGraphicProvider(collector, () =>
-      visible.value ? h(GRect, { id: "" }) : null,
-    );
-
-    render(Root);
-    await nextTick();
-
-    visible.value = false;
-    await nextTick();
-
-    expect(collector.unregister).toHaveBeenCalledWith("", expect.any(Number));
   });
 });

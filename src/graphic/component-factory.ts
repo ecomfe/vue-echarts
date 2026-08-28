@@ -190,7 +190,7 @@ export function createComponent<T extends GraphicComponentType>(
         registerNode({
           id,
           type,
-          parentId: parentIdRef?.value ?? null,
+          parentId: parentIdRef!.value,
           order: orderKey !== undefined ? parentOrderRef?.value.get(orderKey) : undefined,
           props: props as Record<string, unknown>,
           handlers: attrs as Record<string, unknown>,

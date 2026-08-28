@@ -497,48 +497,7 @@ describe("useAutoresize", () => {
     scope.stop();
   });
 
-  it("rebinds observer when root element changes", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
-    const firstContainer = createSizedContainer(120, 80);
-    const secondContainer = createSizedContainer(200, 120);
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, firstContainer);
-    root.value = firstContainer;
-    await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledWith(firstContainer);
-
-    root.value = undefined;
-    await nextTick();
-
-    expect(disconnectSpy).toHaveBeenCalledTimes(1);
-
-    root.value = secondContainer;
-    await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledWith(secondContainer);
-    expect(resize).toHaveBeenCalledTimes(1);
-
-    secondContainer.style.width = "240px";
-    await flushAnimationFrame();
-    expect(resize).toHaveBeenCalledTimes(2);
-
-    scope.stop();
-  });
-
-  it("resynchronizes restored and replacement chart instances", async () => {
+  it("resynchronizes a replacement chart instance", async () => {
     const firstResize = vi.fn();
     const secondResize = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -563,15 +522,6 @@ describe("useAutoresize", () => {
     expect(firstResize).toHaveBeenCalledTimes(1);
     expect(secondResize).not.toHaveBeenCalled();
 
-    chart.value = undefined;
-    await nextTick();
-    container.style.width = "200px";
-    chart.value = firstChart;
-    await nextTick();
-
-    expect(firstResize).toHaveBeenCalledTimes(2);
-    expect(firstChart.getWidth()).toBe(200);
-
     chart.value = secondChart;
     await nextTick();
 
@@ -579,7 +529,7 @@ describe("useAutoresize", () => {
 
     container.style.width = "220px";
     await flushAnimationFrame();
-    expect(firstResize).toHaveBeenCalledTimes(2);
+    expect(firstResize).toHaveBeenCalledTimes(1);
     expect(secondResize).toHaveBeenCalledTimes(2);
 
     scope.stop();

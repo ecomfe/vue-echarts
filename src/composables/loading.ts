@@ -19,7 +19,9 @@ export function useLoading(
     ...toValue(defaultLoadingOptions),
     ...loadingOptions.value,
   }));
-  const shown = new WeakMap<EChartsType, { type: string | undefined; options: LoadingOptions }>();
+  let shown:
+    | { instance: EChartsType; type: string | undefined; options: LoadingOptions }
+    | undefined;
   let applying = false;
 
   function sync(force = false): void {
@@ -31,7 +33,7 @@ export function useLoading(
     if (loading.value) {
       const type = loadingType.value || undefined;
       const nextOptions = options.value;
-      const previous = shown.get(instance);
+      const previous = shown?.instance === instance ? shown : undefined;
 
       if (
         !force &&
@@ -42,9 +44,6 @@ export function useLoading(
         return;
       }
 
-      // ECharts hides the old effect before custom renderers run; discard its cache and
-      // block reactive feedback until the replacement settles.
-      shown.delete(instance);
       applying = true;
       try {
         if (type) {
@@ -55,15 +54,13 @@ export function useLoading(
       } finally {
         applying = false;
       }
-      shown.set(instance, { type, options: nextOptions });
-      sync();
+      shown = { instance, type, options: nextOptions };
       return;
     }
 
-    if (shown.has(instance)) {
+    if (shown?.instance === instance) {
       instance.hideLoading();
-      shown.delete(instance);
-      sync();
+      shown = undefined;
     }
   }
 

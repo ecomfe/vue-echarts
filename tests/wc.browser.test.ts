@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { register, TAG_NAME } from "../src/wc";
-import { createFrame } from "./helpers/dom";
 
 declare global {
   interface HTMLElement {
@@ -56,25 +55,9 @@ describe("register", () => {
       vi.restoreAllMocks();
     });
 
-    it("retries when custom elements become available", () => {
-      vi.unstubAllGlobals();
+    it("returns false when browser APIs are disabled", () => {
       vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
 
-      expect(register()).toBe(false);
-
-      vi.stubGlobal("customElements", registry as unknown as CustomElementRegistry);
-
-      expect(register()).toBe(true);
-      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
-    });
-
-    it("returns false when browser APIs are disabled", () => {
-      // Simulate missing browser API by providing a registry without `get`
-      vi.stubGlobal("customElements", {
-        define() {},
-      } as unknown as CustomElementRegistry);
-
-      expect(register()).toBe(false);
       expect(register()).toBe(false);
     });
 
@@ -88,17 +71,6 @@ describe("register", () => {
       defineSpy.mockClear();
       expect(register()).toBe(true);
       expect(defineSpy).not.toHaveBeenCalled();
-    });
-
-    it("retries after a definition failure", () => {
-      const defineSpy = vi.spyOn(registry, "define").mockImplementationOnce(() => {
-        throw new Error("boom");
-      });
-
-      expect(register()).toBe(false);
-      expect(register()).toBe(true);
-      expect(defineSpy).toHaveBeenCalledTimes(2);
-      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
     });
 
     it("rejects an incompatible element registered during definition", () => {
@@ -150,28 +122,6 @@ describe("register", () => {
 
       expect(queueSpy).not.toHaveBeenCalled();
     });
-
-    it("releases the disposal hook when cleanup fails", () => {
-      expect(register()).toBe(true);
-
-      const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
-      let task: VoidFunction | undefined;
-      vi.spyOn(globalThis, "queueMicrotask").mockImplementation((callback) => {
-        task = callback;
-      });
-      const error = new Error("cleanup failed");
-      const element = {
-        isConnected: false,
-        __dispose: () => {
-          throw error;
-        },
-      } as unknown as HTMLElement;
-
-      disconnectedCallback.call(element);
-
-      expect(() => task?.()).toThrow(error);
-      expect(element.__dispose).toBeNull();
-    });
   });
 
   describe("with native customElements", () => {
@@ -209,37 +159,6 @@ describe("register", () => {
 
       expect(dispose).toHaveBeenCalledTimes(1);
       expect(element.__dispose).toBeNull();
-    });
-
-    it("registers the disposal hook in each document", async () => {
-      expect(register()).toBe(true);
-
-      const { iframe, ownerDocument: frameDocument } = createFrame();
-      const element = frameDocument.body.appendChild(frameDocument.createElement(TAG_NAME));
-
-      try {
-        expect(register(element)).toBe(true);
-        expect(element.__dispose).toBeNull();
-
-        const dispose = vi.fn();
-        element.__dispose = dispose;
-        element.remove();
-        await Promise.resolve();
-
-        expect(dispose).toHaveBeenCalledTimes(1);
-        expect(element.__dispose).toBeNull();
-      } finally {
-        iframe.remove();
-      }
-    });
-
-    it("does not borrow the global registry for a document without a window", () => {
-      const ownerDocument = document.implementation.createHTMLDocument();
-      const getSpy = vi.spyOn(customElements, "get");
-
-      expect(ownerDocument.defaultView).toBeNull();
-      expect(register(ownerDocument.body)).toBe(false);
-      expect(getSpy).not.toHaveBeenCalled();
     });
   });
 });

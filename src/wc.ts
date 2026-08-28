@@ -1,5 +1,3 @@
-import { ensureStyles } from "./style";
-
 export const TAG_NAME = "x-vue-echarts";
 // Shared across bundles so one copy can trust another copy's disconnect hook.
 const LIFECYCLE_MARKER = Symbol.for("vue-echarts.lifecycle");
@@ -16,11 +14,10 @@ function supportsLifecycle(ctor: CustomElementConstructor | undefined): boolean 
   return Boolean((ctor as LifecycleConstructor | undefined)?.[LIFECYCLE_MARKER]);
 }
 
-export function register(root?: Element): boolean {
-  const realm = root ? root.ownerDocument.defaultView : globalThis;
-  const registry = realm?.customElements;
+export function register(): boolean {
+  const registry = globalThis.customElements;
 
-  if (!realm || !registry?.get) {
+  if (!registry?.get) {
     return false;
   }
 
@@ -30,12 +27,8 @@ export function register(root?: Element): boolean {
   }
 
   try {
-    class ECElement extends realm.HTMLElement implements EChartsElement {
+    class ECElement extends HTMLElement implements EChartsElement {
       __dispose: (() => void) | null = null;
-
-      connectedCallback(): void {
-        ensureStyles(this.getRootNode());
-      }
 
       disconnectedCallback(): void {
         if (!this.__dispose) {

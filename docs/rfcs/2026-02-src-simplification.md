@@ -25,6 +25,8 @@
 4. Do not add a `VChartExposed` export.
 5. Prefer straightforward implementation over speculative abstraction.
 6. Internal module APIs are not compatibility-bound and can be refactored with callsites together.
+7. Own Vue-side cleanup and scheduling, but do not retry or roll back failed ECharts operations.
+8. Plan updates for supported ECharts options, not cyclic, malformed, or fabricated internal state.
 
 ## Runtime Structure
 
@@ -43,6 +45,9 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - avoid descriptor/compiler-style layers unless they reduce concrete complexity;
 - keep parsing and application logic close to where it is used;
 - use named shared helpers only when they remove repetition without adding indirection.
+
+Styles retain the original import-time document injection. Runtime code does not maintain a
+second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
 
 ## Behavior
 

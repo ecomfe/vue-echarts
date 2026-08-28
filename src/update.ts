@@ -14,7 +14,6 @@ type ItemShape = {
 };
 type ShapeMode = "option" | "media" | "graphic";
 type AnalysisContext = {
-  stack: WeakSet<object>;
   hasAction: boolean;
 };
 
@@ -32,7 +31,7 @@ interface CollectionSummary {
   ids: ReadonlySet<string>;
   /** Anonymous component items, or all items in a positional array. */
   noIdCount: number;
-  /** Structural snapshots in merge order; invalid component entries are omitted. */
+  /** Structural snapshots in merge order. */
   shapes: ItemShape[];
 }
 
@@ -66,21 +65,14 @@ function buildShape(
     return true;
   }
 
-  const rawId = itemShape ? value.id : undefined;
-  const rawName = itemShape ? value.name : undefined;
   if (itemShape) {
-    itemShape.id = toIdentity(rawId);
-    itemShape.name = toIdentity(rawName);
-  }
-  if (context.stack.has(value)) {
-    return true;
+    itemShape.id = toIdentity(value.id);
+    itemShape.name = toIdentity(value.name);
   }
 
-  context.stack.add(value);
   const shape: ObjectShape = Object.create(null);
   for (const key of Object.keys(value)) {
-    const child =
-      itemShape && key === "id" ? rawId : itemShape && key === "name" ? rawName : value[key];
+    const child = value[key];
     if (child === undefined) {
       continue;
     }
@@ -108,7 +100,6 @@ function buildShape(
         ? buildShape(child, context, "option")
         : buildShape(child, context);
   }
-  context.stack.delete(value);
   return shape;
 }
 
@@ -156,7 +147,7 @@ function analyzeItems(
 function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
-  const context: AnalysisContext = { stack: new WeakSet(), hasAction: false };
+  const context: AnalysisContext = { hasAction: false };
   const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
@@ -190,7 +181,6 @@ function buildSignature(option: Option): Signature {
       continue;
     }
 
-    // ECharts ignores nullish values and non-object component options during top-level merge.
     if (value != null && (!componentItems || isComponentOption(value))) {
       leaves.push(key);
     }
@@ -409,10 +399,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
   }
 
   for (const key in prev.collections) {
-    const prevCollection = prev.collections[key];
-    if (!prevCollection) {
-      continue;
-    }
+    const prevCollection = prev.collections[key]!;
     // Replacing graphic would discard the existing elements targeted by `$action`.
     if (key === "graphic" && next.hasAction) {
       continue;

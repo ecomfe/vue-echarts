@@ -4,7 +4,6 @@ import {
   defineComponent,
   h,
   nextTick,
-  onErrorCaptured,
   provide,
   reactive,
   ref,
@@ -15,19 +14,11 @@ import type { Ref, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { init, enqueueChart, resetECharts, createEChartsModule } from "./helpers/mock";
 import type { ChartStub } from "./helpers/mock";
-import type {
-  EChartsType,
-  InitOptions,
-  Option,
-  SetOptionType,
-  Theme,
-  UpdateOptions,
-} from "../src/types";
-import { createFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
+import type { InitOptions, Option, SetOptionType, Theme, UpdateOptions } from "../src/types";
+import { createFrame, withConsoleWarn } from "./helpers/dom";
 import { makeTooltipParams } from "./helpers/tooltip";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
-import { register as registerWc } from "../src/wc";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
 
@@ -383,17 +374,27 @@ describe("ECharts component", () => {
     },
   );
 
-  it("applies a theme changed synchronously during setTheme", async () => {
+  it("applies a theme changed by a synchronous ECharts event", async () => {
     const theme = reactive({ color: ["dark"] });
     const applied: string[] = [];
     chartStub.setTheme.mockImplementation(() => {
       applied.push(theme.color[0]);
-      if (theme.color[0] === "light") {
-        theme.color[0] = "contrast";
-      }
+      const binding = chartStub.on.mock.calls.find(([event]) => event === "updated");
+      binding?.[1]({});
     });
 
-    renderChart(() => ({ option: {}, theme }), shallowRef<Exposed>());
+    renderChart(
+      () => ({
+        option: {},
+        theme,
+        onUpdated: () => {
+          if (theme.color[0] === "light") {
+            theme.color[0] = "contrast";
+          }
+        },
+      }),
+      shallowRef<Exposed>(),
+    );
     await nextTick();
 
     theme.color[0] = "light";
@@ -491,74 +492,6 @@ describe("ECharts component", () => {
 
     expect(chartStub.setTheme).toHaveBeenLastCalledWith("dark");
     expect(chartStub.setOption).toHaveBeenCalledOnce();
-  });
-
-  it("retries a deferred theme after setTheme fails", async () => {
-    const theme = ref<Theme>("dark");
-    const exposed = shallowRef<Exposed>();
-
-    renderChart(() => ({ theme: theme.value, manualUpdate: true }), exposed);
-    await nextTick();
-
-    theme.value = "light";
-    await nextTick();
-    expect(chartStub.setTheme).not.toHaveBeenCalled();
-
-    const error = new Error("setTheme failed");
-    chartStub.setTheme.mockImplementationOnce(() => {
-      throw error;
-    });
-    const setOption = () => getExposed(exposed).setOption({ title: {} });
-
-    expect(setOption).toThrow(error);
-    expect(setOption).not.toThrow();
-    expect(chartStub.setTheme).toHaveBeenCalledTimes(2);
-    expect(chartStub.setTheme).toHaveBeenLastCalledWith("light");
-  });
-
-  it("preserves the smart-update baseline when a deferred theme fails", async () => {
-    const error = new Error("setTheme failed");
-    const errors: unknown[] = [];
-    const option = ref<Option>();
-    const theme = ref<Theme>("dark");
-    const Root = defineComponent({
-      setup() {
-        onErrorCaptured((caught) => {
-          errors.push(caught);
-          return false;
-        });
-        return () => h(ECharts, { option: option.value, theme: theme.value });
-      },
-    });
-
-    const screen = render(Root);
-    await nextTick();
-
-    theme.value = "light";
-    await nextTick();
-    await nextTick();
-    chartStub.setTheme.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    option.value = {
-      series: [
-        { id: "a", type: "bar" },
-        { id: "b", type: "bar" },
-      ],
-    };
-    await nextTick();
-
-    option.value = { series: [{ id: "a", type: "bar" }] };
-    await nextTick();
-
-    expect(errors).toEqual([error]);
-    expect(chartStub.setOption.mock.calls.slice(-2).map((call) => call[1])).toEqual([
-      { notMerge: false, replaceMerge: ["series"] },
-      { notMerge: true },
-    ]);
-
-    screen.unmount();
   });
 
   it("applies the latest option when theme and option change in the same tick", async () => {
@@ -1029,45 +962,6 @@ describe("ECharts component", () => {
     expect(onRendered).toHaveBeenCalledWith({ elapsedTime: 1 });
   });
 
-  it("keeps callback slots ready when the initial option commit fails", async () => {
-    const error = new Error("setOption failed");
-    const errors: unknown[] = [];
-    const exposed = shallowRef<Exposed>();
-    chartStub.setOption.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    const Root = defineComponent({
-      setup() {
-        onErrorCaptured((caught) => {
-          errors.push(caught);
-          return false;
-        });
-        return () =>
-          h(
-            ECharts,
-            {
-              option: { tooltip: {} },
-              ref: createExposedRef(exposed),
-            },
-            { tooltip: () => h("span", "tooltip") },
-          );
-      },
-    });
-
-    const screen = render(Root);
-    await nextTick();
-    await nextTick();
-
-    const [patched] = getLastSetOptionCall(chartStub);
-    const formatter = (patched.tooltip as { formatter?: (params: unknown) => unknown }).formatter;
-    expect(errors).toEqual([error]);
-    expect(getExposed(exposed).chart).toBe(chartStub);
-    expect(formatter?.({})).toBeInstanceOf(HTMLElement);
-
-    screen.unmount();
-  });
-
   it.each([false, true])(
     "keeps callback slots inactive after disposal during initial commit (autoresize: %s)",
     async (autoresize) => {
@@ -1425,45 +1319,6 @@ describe("ECharts component", () => {
     expect(chartStub.setOption).not.toHaveBeenCalled();
   });
 
-  it("stops deferred initialization when chart disposal fails", async () => {
-    const error = new Error("dispose failed");
-    const exposed = shallowRef<Exposed>();
-    chartStub.dispose.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    renderChart(() => ({ option: {}, autoresize: true }), exposed);
-    const instance = getExposed(exposed);
-    expect(() => instance.dispose()).toThrow(error);
-    await nextTick();
-
-    expect(instance.isDisposed()).toBe(true);
-    expect(chartStub.resize).not.toHaveBeenCalled();
-    expect(chartStub.setOption).not.toHaveBeenCalled();
-  });
-
-  it("continues initialization after the first autoresize fails", async () => {
-    const option = ref<Option>({ title: { text: "initial" } });
-    chartStub.resize.mockImplementationOnce(() => {
-      throw new Error("resize failed");
-    });
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      renderChart(() => ({ option: option.value, autoresize: true }), shallowRef<Exposed>());
-      await nextTick();
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Initial chart resize failed; continuing initialization"),
-      );
-      expect(chartStub.setOption).toHaveBeenCalledOnce();
-
-      option.value = { title: { text: "updated" } };
-      await nextTick();
-      expect(chartStub.setOption).toHaveBeenCalledTimes(2);
-      expect(getLastSetOptionCall(chartStub)[0]).toMatchObject(option.value);
-    });
-  });
-
   it("coalesces option changes before autoresize initialization", async () => {
     const option = ref<Option>({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
@@ -1516,26 +1371,6 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(manualOption);
   });
 
-  it("falls back to the initial option when an early manual update fails", async () => {
-    const error = new Error("setOption failed");
-    const initialOption = { title: { text: "initial" } };
-    const manualOption = { title: { text: "manual" } };
-    const exposed = shallowRef<Exposed>();
-    chartStub.setOption.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    renderChart(() => ({ option: initialOption, manualUpdate: true, autoresize: true }), exposed);
-
-    expect(() => getExposed(exposed).setOption(manualOption)).toThrow(error);
-    await nextTick();
-
-    expect(chartStub.setOption.mock.calls.map(([option]) => option)).toEqual([
-      manualOption,
-      initialOption,
-    ]);
-  });
-
   it("keeps a public clear during autoresize mount without disabling updates", async () => {
     const option = ref<Option>({ series: [] });
     const exposed = shallowRef<Exposed>();
@@ -1555,10 +1390,7 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
-  it.each([
-    ["successful", undefined, { notMerge: false }],
-    ["failed", new Error("clear failed"), { notMerge: true }],
-  ] as const)("uses a safe update baseline after a %s clear", async (_, error, expected) => {
+  it("uses a fresh update baseline after clear", async () => {
     const option = ref<Option>({
       series: [
         { id: "a", type: "bar" },
@@ -1570,19 +1402,12 @@ describe("ECharts component", () => {
     renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
-    if (error) {
-      chartStub.clear.mockImplementationOnce(() => {
-        throw error;
-      });
-      expect(() => getExposed(exposed).clear()).toThrow(error);
-    } else {
-      getExposed(exposed).clear();
-    }
+    getExposed(exposed).clear();
     chartStub.setOption.mockClear();
     option.value = { series: [{ id: "a", type: "bar" }] };
     await nextTick();
 
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual(expected);
+    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
   });
 
   it.each(["option commit", "theme application"])(
@@ -1886,69 +1711,6 @@ describe("ECharts component", () => {
 
     screen.unmount();
     expect(element.__dispose).toBeNull();
-  });
-
-  it("disposes the chart when listener detachment fails", async () => {
-    const error = new Error("off failed");
-    const exposed = shallowRef<Exposed>();
-    const screen = renderChart(() => ({ option: {}, onClick: vi.fn() }), exposed);
-    await nextTick();
-
-    chartStub.off.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    const instance = getExposed(exposed);
-    withConsoleWarn(() => expect(() => instance.dispose()).toThrow(error));
-    expect(chartStub.dispose).toHaveBeenCalledOnce();
-    expect(instance.isDisposed()).toBe(true);
-
-    screen.unmount();
-  });
-
-  it("stops callback slot work when chart disposal fails", async () => {
-    const error = new Error("dispose failed");
-    const showInvalid = ref(false);
-    const exposed = shallowRef<Exposed>();
-    const Root = defineComponent({
-      setup: () => () =>
-        h(
-          ECharts,
-          {
-            option: { tooltip: {} },
-            ref: createExposedRef(exposed),
-          },
-          showInvalid.value
-            ? { legend: () => h("span", "legend") }
-            : { tooltip: () => h("span", "tooltip") },
-        ),
-    });
-
-    const screen = render(Root);
-    await nextTick();
-    await nextTick();
-
-    const [patched] = getLastSetOptionCall(chartStub);
-    const formatter = (patched.tooltip as { formatter?: (params: unknown) => unknown }).formatter;
-    expect(formatter?.({})).toBeInstanceOf(HTMLElement);
-
-    chartStub.dispose.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    const instance = getExposed(exposed);
-    expect(() => instance.dispose()).toThrow(error);
-    expect(instance.isDisposed()).toBe(true);
-    expect(formatter?.({})).toBeUndefined();
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      showInvalid.value = true;
-      await nextTick();
-
-      expect(warnSpy).not.toHaveBeenCalled();
-    });
-
-    screen.unmount();
   });
 
   it.each([
@@ -2332,13 +2094,6 @@ describe("ECharts component", () => {
 
     expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
 
-    const error = new Error("setOption failed");
-    chartStub.setOption.mockImplementationOnce(() => {
-      throw error;
-    });
-    expect(() => getExposed(exposed).setOption(option.value)).toThrow(error);
-    expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
-
     getExposed(exposed).setOption(option.value);
     expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
 
@@ -2398,51 +2153,6 @@ describe("ECharts component", () => {
     await nextTick();
 
     expect(chartStub.on).not.toHaveBeenCalled();
-  });
-
-  it("skips reactive updates when chart instance is missing", async () => {
-    const option = ref<Option | null>(null);
-    const theme = ref<Theme>("dark");
-    const exposed = shallowRef<Exposed>();
-
-    init.mockImplementation(() => undefined as unknown as EChartsType);
-
-    renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
-    await nextTick();
-
-    chartStub.setOption.mockClear();
-    chartStub.setTheme.mockClear();
-
-    option.value = { title: { text: "later" } };
-    theme.value = { color: ["#22d3ee"] };
-    await nextTick();
-
-    expect(chartStub.setOption).not.toHaveBeenCalled();
-    expect(chartStub.setTheme).not.toHaveBeenCalled();
-  });
-
-  it("retries web component registration before cleanup", async () => {
-    vi.unstubAllGlobals();
-    expect(registerWc()).toBe(true);
-    vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
-    const screen = renderChart(
-      () => ({ option: { title: { text: "late-wc" } } }),
-      shallowRef<Exposed>(),
-    );
-
-    try {
-      await nextTick();
-      chartStub.dispose.mockClear();
-      vi.unstubAllGlobals();
-
-      screen.unmount();
-
-      expect(chartStub.dispose).not.toHaveBeenCalled();
-      await Promise.resolve();
-      expect(chartStub.dispose).toHaveBeenCalledTimes(1);
-    } finally {
-      vi.unstubAllGlobals();
-    }
   });
 
   it("skips theme replay when manualUpdate and theme trigger reinit together", async () => {

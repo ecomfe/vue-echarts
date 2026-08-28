@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, nextTick, onErrorCaptured, ref, shallowRef } from "vue";
+import { computed, defineComponent, h, nextTick, ref, shallowRef } from "vue";
 import type { VNodeRef } from "vue";
 import { describe, expect, it } from "vitest";
 import { use, registerTheme } from "echarts/core";
@@ -103,72 +103,6 @@ describe("ECharts theme behavior (real echarts)", () => {
     expect(chart.getOption().backgroundColor).not.toBe("#111827");
   });
 
-  it("preserves a completed public clear across theme changes after an error", async () => {
-    const isDark = ref(true);
-    const theme = computed(() => (isDark.value ? "dark" : undefined));
-    const option = ref<Option>({
-      series: {
-        type: "graph",
-        layout: "none",
-        roam: true,
-        categories: [{ name: Category.ROOT }, { name: Category.LEAF }],
-      } as Option["series"],
-      tooltip: { trigger: "item" },
-    });
-
-    const exposed = shallowRef<Exposed>();
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(ECharts, {
-            option: option.value,
-            theme: theme.value,
-            style: "width: 640px; height: 420px;",
-            ref: createExposeSetter(exposed),
-          });
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    await flushFrames();
-
-    const series = option.value.series as Record<string, unknown>;
-    series.data = buildGraphData();
-    series.links = buildGraphLinks();
-    await nextTick();
-    await flushFrames();
-
-    const instance = exposed.value;
-    if (!instance) {
-      throw new Error("Expected exposed instance to be defined.");
-    }
-    const chart = getChart(instance);
-    expect(getSeriesDataLength(chart)).toBe(3);
-
-    isDark.value = false;
-    await nextTick();
-    await flushFrames();
-
-    expect(getSeriesDataLength(chart)).toBe(3);
-    const error = new Error("clear failed");
-    const clear = chart.clear.bind(chart);
-    chart.clear = () => {
-      clear();
-      throw error;
-    };
-    expect(() => instance.clear()).toThrow(error);
-    expect(getSeriesDataLength(chart)).toBe(0);
-
-    isDark.value = true;
-    await nextTick();
-    expect(getSeriesDataLength(chart)).toBe(0);
-
-    series.data = buildGraphData().slice(0, 1);
-    await nextTick();
-    expect(getSeriesDataLength(chart)).toBe(1);
-  });
-
   it("preserves the latest automatic option while its source is temporarily absent", async () => {
     const theme = ref<Theme>("dark");
     const option = ref<Option | undefined>({
@@ -208,60 +142,6 @@ describe("ECharts theme behavior (real echarts)", () => {
     await nextTick();
 
     expect(getSeriesDataLength(chart)).toBe(3);
-    expect(getSeriesCount(chart)).toBe(1);
-  });
-
-  it("preserves the latest option after a deferred theme retry", async () => {
-    const error = new Error("setTheme failed");
-    const errors: unknown[] = [];
-    const option = ref<Option>();
-    const theme = ref<Theme>("dark");
-    const exposed = shallowRef<Exposed>();
-    const Root = defineComponent({
-      setup() {
-        onErrorCaptured((caught) => {
-          errors.push(caught);
-          return false;
-        });
-        return () =>
-          h(ECharts, {
-            option: option.value,
-            theme: theme.value,
-            style: "width: 640px; height: 420px;",
-            ref: createExposeSetter(exposed),
-          });
-      },
-    });
-
-    render(Root);
-    await nextTick();
-
-    const chart = getChart(exposed.value);
-    const setTheme = chart.setTheme.bind(chart);
-    let failTheme = true;
-    chart.setTheme = ((...args: Parameters<EChartsType["setTheme"]>) => {
-      if (failTheme) {
-        failTheme = false;
-        throw error;
-      }
-      return setTheme(...args);
-    }) as EChartsType["setTheme"];
-
-    theme.value = "";
-    await nextTick();
-    await nextTick();
-    option.value = {
-      series: [
-        { id: "keep", type: "graph", data: [] },
-        { id: "remove", type: "graph", data: [] },
-      ],
-    };
-    await nextTick();
-
-    option.value = { series: [{ id: "keep", type: "graph", data: [] }] };
-    await nextTick();
-
-    expect(errors).toEqual([error]);
     expect(getSeriesCount(chart)).toBe(1);
   });
 

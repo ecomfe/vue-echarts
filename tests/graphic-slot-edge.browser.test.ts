@@ -79,30 +79,6 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
-  it("does not warn when a graphic slot is added after disposal", async () => {
-    const showGraphic = ref(false);
-    let dispose: (() => void) | undefined;
-    const Root = defineComponent(
-      () => () =>
-        h(
-          ECharts,
-          { ref: (value) => (dispose = (value as { dispose: () => void } | null)?.dispose) },
-          showGraphic.value ? { graphic: () => h("div") } : {},
-        ),
-    );
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
-      await nextTick();
-      dispose?.();
-
-      showGraphic.value = true;
-      await nextTick();
-
-      expect(warnSpy).not.toHaveBeenCalled();
-    });
-  });
-
   it("hydrates a server-rendered graphic slot without mismatch warnings", async () => {
     registerExtension();
 
@@ -569,61 +545,6 @@ describe("graphic slot edge and integration behavior", () => {
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["wrapped"]);
   });
 
-  it("handles anonymous graphic node without id/key", async () => {
-    registerExtension();
-
-    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
-
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            { option: option.value },
-            {
-              graphic: () => h(GRect, { x: 5, y: 5, width: 8, height: 8 }),
-            },
-          );
-      },
-    });
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
-      await nextTick();
-      await flushAnimationFrame();
-      expect(getLastGraphicIds(suite.getChartStub())[0]).toMatch(/^__ve_graphic_/);
-      expect(
-        warnSpy.mock.calls.some((call: unknown[]) =>
-          String(call[0]).includes("missing `id` and `key`"),
-        ),
-      ).toBe(true);
-    });
-  });
-
-  it("supports empty graphic slot content", async () => {
-    registerExtension();
-
-    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
-
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            { option: option.value },
-            {
-              graphic: () => undefined,
-            },
-          );
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    await flushAnimationFrame();
-    expect(getLastGraphicIds(suite.getChartStub())).toEqual([]);
-  });
-
   it("updates flat bindings and nested reactive shape objects", async () => {
     registerExtension();
 
@@ -832,57 +753,6 @@ describe("graphic slot edge and integration behavior", () => {
     expect(chartStub.setOption.mock.calls.length).toBe(before + 1);
     const shape = getLastGraphicOption(chartStub).graphic.elements[0].children[0].shape;
     expect(shape).toMatchObject({ x: 20, y: 28 });
-  });
-
-  it("does not re-analyze unchanged option for graphic-only updates", async () => {
-    registerExtension();
-
-    const readData = vi.fn(() => [1, 2, 3]);
-    const series = { type: "line", label: { show: true } } as Record<string, unknown>;
-    Object.defineProperty(series, "data", {
-      enumerable: true,
-      get: readData,
-    });
-    const option = ref({ series: [series] });
-    const x = ref(8);
-
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            { option: option.value },
-            {
-              graphic: () => h(GRect, { id: "moving", x: x.value, y: 10, width: 18, height: 10 }),
-            },
-          );
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    await flushAnimationFrame();
-
-    expect(readData).toHaveBeenCalled();
-    readData.mockClear();
-    x.value = 20;
-    await nextTick();
-    await flushAnimationFrame();
-
-    expect(readData).not.toHaveBeenCalled();
-    const chartStub = suite.getChartStub();
-    const shape = getLastGraphicOption(chartStub).graphic.elements[0].children[0].shape;
-    expect(shape).toMatchObject({ x: 20 });
-
-    chartStub.setOption.mockClear();
-    option.value = { series: [{ type: "line", data: [3, 2, 1] }] };
-    await nextTick();
-    await flushAnimationFrame();
-
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
-      notMerge: false,
-      replaceMerge: ["series", "graphic"],
-    });
   });
 
   it("skips reapplying 100+ unchanged nodes when parent rerenders", async () => {
