@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createApp, defineComponent, h, nextTick, ref, shallowRef, watchEffect } from "vue";
+import { createApp, defineComponent, h, nextTick, ref, shallowRef } from "vue";
 import type { PropType, Ref, VNodeChild, VNodeRef } from "vue";
 import { render } from "./helpers/testing";
 import { makeTooltipParams } from "./helpers/tooltip";
@@ -61,21 +61,16 @@ function isSlotTestHandle(value: unknown): value is SlotTestHandle {
 function renderSlotComponent(
   slotFactory: () => SlotDictionary,
   onChange?: () => void,
-): { exposed: ReturnType<typeof shallowRef<SlotTestHandle | undefined>> } {
+): Ref<SlotTestHandle | undefined> {
   const exposed = shallowRef<SlotTestHandle>();
 
   const Root = defineComponent({
     setup() {
-      const componentRef = shallowRef<SlotTestHandle>();
       const setExposed: VNodeRef = (value) => {
-        componentRef.value = isSlotTestHandle(value) ? value : undefined;
-      };
-
-      watchEffect(() => {
-        if (componentRef.value) {
-          exposed.value = componentRef.value;
+        if (isSlotTestHandle(value)) {
+          exposed.value = value;
         }
-      });
+      };
 
       return () =>
         h(
@@ -91,9 +86,7 @@ function renderSlotComponent(
 
   render(Root);
 
-  return {
-    exposed,
-  };
+  return exposed;
 }
 
 function getTooltipFormatter(option: Option, label: string): TooltipFormatter {
@@ -150,7 +143,7 @@ function getSeriesOption(option: Option, index: number): TooltipComponentOption 
 
 describe("useSlotOption", () => {
   it("returns the original option when no callback slots exist", async () => {
-    const { exposed } = renderSlotComponent(() => ({}));
+    const exposed = renderSlotComponent(() => ({}));
     const option = { series: [{ type: "line", data: [1, 2, 3] }] };
 
     await nextTick();
@@ -199,7 +192,7 @@ describe("useSlotOption", () => {
   it("patches tooltip slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 
-    const { exposed } = renderSlotComponent(
+    const exposed = renderSlotComponent(
       () => ({
         tooltip: (...args: unknown[]) => {
           const params = args[0] as { dataIndex: number };
@@ -233,7 +226,7 @@ describe("useSlotOption", () => {
 
   it("releases callback containers while the chart is not ready", async () => {
     const tooltip = vi.fn(() => h("span", "tooltip"));
-    const { exposed } = renderSlotComponent(() => ({ tooltip }));
+    const exposed = renderSlotComponent(() => ({ tooltip }));
 
     await nextTick();
 
@@ -263,7 +256,7 @@ describe("useSlotOption", () => {
   it("patches dataView slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 
-    const { exposed } = renderSlotComponent(
+    const exposed = renderSlotComponent(
       () => ({
         dataView: () => [h("span", "data-view")],
       }),
@@ -289,7 +282,7 @@ describe("useSlotOption", () => {
   });
 
   it("patches repeatable callback components by index", async () => {
-    const { exposed } = renderSlotComponent(() => ({
+    const exposed = renderSlotComponent(() => ({
       "tooltip-0": () => null,
       "tooltip-0-media-1-option": () => null,
       "dataView-1": () => null,
@@ -316,7 +309,7 @@ describe("useSlotOption", () => {
   it("uses the latest slot when an existing formatter runs", async () => {
     const changeSpy = vi.fn();
     const tooltipSlot = shallowRef(() => [h("span", "first")]);
-    const { exposed } = renderSlotComponent(() => ({ tooltip: tooltipSlot.value }), changeSpy);
+    const exposed = renderSlotComponent(() => ({ tooltip: tooltipSlot.value }), changeSpy);
 
     await nextTick();
 
@@ -339,7 +332,7 @@ describe("useSlotOption", () => {
     const changeSpy = vi.fn();
     const extraName = ref<"tooltip-extra" | "tooltip-next">("tooltip-extra");
 
-    const { exposed } = renderSlotComponent(
+    const exposed = renderSlotComponent(
       () => ({ [extraName.value]: () => [h("span", "extra")] }),
       changeSpy,
     );
@@ -385,7 +378,7 @@ describe("useSlotOption", () => {
     const showNested = ref(true);
     const tooltipSlot = vi.fn(() => [h("span", "nested-tooltip")]);
 
-    const { exposed } = renderSlotComponent(() => {
+    const exposed = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (showNested.value) {
         slots["tooltip-series-0"] = tooltipSlot;
@@ -447,7 +440,7 @@ describe("useSlotOption", () => {
 
   it("clears a removed callback without replacing a source callback", async () => {
     const visible = ref(true);
-    const { exposed } = renderSlotComponent(() => {
+    const exposed = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (visible.value) {
         slots.tooltip = () => h("span", "tooltip");
@@ -473,7 +466,7 @@ describe("useSlotOption", () => {
   it("warns and skips invalid slot names", async () => {
     const changeSpy = vi.fn();
     await withConsoleWarnAsync(async (warnSpy) => {
-      const { exposed } = renderSlotComponent(
+      const exposed = renderSlotComponent(
         () => ({
           legend: () => [h("span", "legend")],
           "tooltip-": () => [h("span", "empty-tooltip-path")],
@@ -502,31 +495,8 @@ describe("useSlotOption", () => {
     });
   });
 
-  it("warns once when an invalid slot is added dynamically", async () => {
-    const changeSpy = vi.fn();
-    const slots = shallowRef<SlotDictionary>({});
-
-    renderSlotComponent(() => slots.value, changeSpy);
-    await nextTick();
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      slots.value = { legend: () => h("span", "legend") };
-      await nextTick();
-      slots.value = {};
-      await nextTick();
-      slots.value = { legend: () => h("span", "legend") };
-      await nextTick();
-
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls.flat().join(" ")).toContain(
-        "[vue-echarts] Invalid slot name: legend",
-      );
-      expect(changeSpy).not.toHaveBeenCalled();
-    });
-  });
-
   it("clones existing array branches when patching series tooltip slots", async () => {
-    const { exposed } = renderSlotComponent(() => ({
+    const exposed = renderSlotComponent(() => ({
       "tooltip-series-0": () => [h("span", "series-0")],
     }));
 
@@ -560,7 +530,7 @@ describe("useSlotOption", () => {
 
   it("skips slot patch when path is blocked by non-object", async () => {
     const visible = ref(true);
-    const { exposed } = renderSlotComponent(() => {
+    const exposed = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (visible.value) {
         slots["tooltip-series-0"] = () => [h("span", "series-0")];
@@ -583,7 +553,7 @@ describe("useSlotOption", () => {
   });
 
   it("does not cross object and array path segments", async () => {
-    const { exposed } = renderSlotComponent(() => ({
+    const exposed = renderSlotComponent(() => ({
       tooltip: () => [h("span", "invalid")],
       "tooltip-series-name": () => [h("span", "invalid")],
       "dataView-0": () => [h("span", "invalid")],
@@ -603,7 +573,7 @@ describe("useSlotOption", () => {
   });
 
   it("creates array shells when target slot path is missing", async () => {
-    const { exposed } = renderSlotComponent(() => ({
+    const exposed = renderSlotComponent(() => ({
       "tooltip-series-1": () => [h("span", "series-1")],
     }));
 

@@ -35,12 +35,8 @@ function isValidSlotName(key: string): key is SlotName {
   );
 }
 
-function getSlotPrefix(key: SlotName): SlotPrefix {
-  return key.startsWith("tooltip") ? "tooltip" : "dataView";
-}
-
 function getSlotPath(key: SlotName): string[] {
-  const prefix = getSlotPrefix(key);
+  const prefix: SlotPrefix = key.startsWith("tooltip") ? "tooltip" : "dataView";
   const rest = key.slice(prefix.length);
   const path = rest ? rest.slice(1).split("-") : [];
   const target = SLOT_OPTION_PATHS[prefix];
@@ -62,22 +58,18 @@ function ensureChild(parent: Container, seg: string, nextSeg?: string): Containe
   }
   const next = parentIsArray ? parent[Number(seg)] : parent[seg];
 
+  let child: Container;
   if (Array.isArray(next)) {
-    const cloned = [...next];
-    writeSegment(parent, seg, cloned);
-    return cloned;
+    child = [...next];
+  } else if (isPlainObject(next)) {
+    child = { ...next };
+  } else if (next === undefined) {
+    child = nextSeg && isValidArrayIndex(nextSeg) ? [] : {};
+  } else {
+    return undefined;
   }
-  if (isPlainObject(next)) {
-    const cloned: Record<string, unknown> = { ...next };
-    writeSegment(parent, seg, cloned);
-    return cloned;
-  }
-  if (next === undefined) {
-    const created = nextSeg && isValidArrayIndex(nextSeg) ? [] : {};
-    writeSegment(parent, seg, created);
-    return created;
-  }
-  return undefined;
+  writeSegment(parent, seg, child);
+  return child;
 }
 
 function writeSegment(parent: Container, seg: string, value: unknown): void {
@@ -94,14 +86,15 @@ function writePath(
   value: unknown,
   preserveDefined = false,
 ): boolean {
-  let current: Container | undefined = root;
+  let current: Container = root;
   for (let i = 0; i < path.length - 1; i++) {
-    current = ensureChild(current, path[i], path[i + 1]);
-    if (!current) {
+    const child = ensureChild(current, path[i], path[i + 1]);
+    if (!child) {
       return false;
     }
+    current = child;
   }
-  if (!current || Array.isArray(current)) {
+  if (Array.isArray(current)) {
     return false;
   }
   const leaf = path[path.length - 1];

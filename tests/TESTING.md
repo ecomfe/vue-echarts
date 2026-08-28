@@ -10,6 +10,7 @@ We run Vitest in two projects:
   - Node: `tests/setup.node.ts`.
 - Prefer shared helpers under `tests/helpers/` to avoid duplicated setup.
 - Test only public behavior; avoid internal implementation details.
+- Use coverage reports to find gaps, not as a percentage target; prioritize supported behavior and regression risk.
 - Keep tests deterministic: silence console noise and flush updates/animation frames with provided helpers.
 
 ## Run locally
