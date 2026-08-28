@@ -49,13 +49,9 @@ const wcRegistered = register();
 const SKIP_AUTO_UPDATE = Symbol();
 type ApplyMode = "manual" | "graphic" | "theme";
 
-export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol.for("vue-echarts.theme");
-export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol.for(
-  "vue-echarts.init-options",
-);
-export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol.for(
-  "vue-echarts.update-options",
-);
+export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
+export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
+export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol();
 export { LOADING_OPTIONS_KEY } from "./composables/loading";
 
 const chartProps = {

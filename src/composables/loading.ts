@@ -3,9 +3,7 @@ import { computed, inject, toValue, watch } from "vue";
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
 
-export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol.for(
-  "vue-echarts.loading-options",
-);
+export const LOADING_OPTIONS_KEY: InjectionKey<LoadingOptionsInjection> = Symbol();
 
 export function useLoading(
   chart: Ref<EChartsType | undefined>,
