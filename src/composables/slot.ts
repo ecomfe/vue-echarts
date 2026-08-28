@@ -153,11 +153,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   });
 
   function syncSlotNames(names: readonly SlotName[]): boolean {
-    let changed = names.length !== slotNames.length;
-    for (let i = 0; !changed && i < slotNames.length; i++) {
-      changed = !names.includes(slotNames[i]);
-    }
-    if (!changed) {
+    if (names.length === slotNames.length && slotNames.every((name) => names.includes(name))) {
       return false;
     }
 
