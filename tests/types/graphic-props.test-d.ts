@@ -38,84 +38,79 @@ type IsEqual<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 type OptionProp<T, K extends PropertyKey> = T extends { [P in K]?: infer V } ? V : never;
 type GraphicOptionProp<K extends PropertyKey> = NonNullable<OptionProp<GraphicComponentOption, K>>;
-
-type _unsupportedProps = Assert<
-  IsAssignable<Extract<"progressive" | "focus" | "blurScope", keyof RectProps>, never>
+type Every<T> = [T] extends [true] ? true : false;
+type PropsMatch<Actual, Expected> = Every<
+  {
+    [K in keyof Expected]: K extends keyof Actual ? IsEqual<Actual[K], Expected[K]> : false;
+  }[keyof Expected]
 >;
+type PropsAccept<Actual, Expected> = Every<
+  {
+    [K in keyof Expected]: K extends keyof Actual ? IsAssignable<Expected[K], Actual[K]> : false;
+  }[keyof Expected]
+>;
+type KeysOf<T> = T extends unknown ? keyof T : never;
+type Rejects<Actual, Keys extends PropertyKey> = IsEqual<Extract<Keys, KeysOf<Actual>>, never>;
+
+type _unsupportedProps = Assert<Rejects<RectProps, "progressive" | "focus" | "blurScope">>;
 type _groupRejectsElementProps = Assert<
-  IsEqual<
-    Extract<
-      "fill" | "text" | "image" | "cx" | "z" | "z2" | "zlevel" | "cursor" | "invisible",
-      keyof GroupProps
-    >,
-    never
+  Rejects<
+    GroupProps,
+    "fill" | "text" | "image" | "cx" | "z" | "z2" | "zlevel" | "cursor" | "invisible"
   >
 >;
-type _rectRejectsForeignProps = Assert<
-  IsEqual<Extract<"cx" | "points" | "text" | "image", keyof RectProps>, never>
->;
-type _circleRejectsForeignProps = Assert<
-  IsEqual<Extract<"x1" | "points" | "text" | "image", keyof CircleProps>, never>
->;
+type _rectRejectsForeignProps = Assert<Rejects<RectProps, "cx" | "points" | "text" | "image">>;
+type _circleRejectsForeignProps = Assert<Rejects<CircleProps, "x1" | "points" | "text" | "image">>;
 type _textRejectsForeignProps = Assert<
-  IsEqual<
-    Extract<
-      | "cx"
-      | "points"
-      | "image"
-      | "sx"
-      | "decal"
-      | "strokePercent"
-      | "lineCap"
-      | "blend"
-      | "textFill"
-      | "textStroke"
-      | "textContent"
-      | "textConfig",
-      keyof TextProps
-    >,
-    never
+  Rejects<
+    TextProps,
+    | "cx"
+    | "points"
+    | "image"
+    | "sx"
+    | "decal"
+    | "strokePercent"
+    | "lineCap"
+    | "blend"
+    | "textFill"
+    | "textStroke"
+    | "textContent"
+    | "textConfig"
   >
 >;
 type _imageRejectsForeignProps = Assert<
-  IsEqual<
-    Extract<
-      "cx" | "points" | "text" | "overflow" | "fill" | "lineWidth" | "lineDash",
-      keyof ImageProps
-    >,
-    never
-  >
+  Rejects<ImageProps, "cx" | "points" | "text" | "overflow" | "fill" | "lineWidth" | "lineDash">
 >;
 type _nonPathRejectsShape = Assert<
-  IsEqual<
-    Extract<"shape" | "shapeTransition", keyof GroupProps | keyof TextProps | keyof ImageProps>,
-    never
+  Rejects<GroupProps | TextProps | ImageProps, "shape" | "shapeTransition">
+>;
+type _groupRejectsStyleTransition = Assert<Rejects<GroupProps, "styleTransition">>;
+type _nonPathRejectsAutoBatch = Assert<Rejects<GroupProps | TextProps | ImageProps, "autoBatch">>;
+
+type _rectExactProps = Assert<
+  PropsMatch<
+    RectProps,
+    {
+      bounding: "raw" | "all" | undefined;
+      enterAnimation: GraphicOptionProp<"enterAnimation"> | undefined;
+      updateAnimation: GraphicOptionProp<"updateAnimation"> | undefined;
+      leaveAnimation: GraphicOptionProp<"leaveAnimation"> | undefined;
+      keyframeAnimation: GraphicOptionProp<"keyframeAnimation"> | undefined;
+    }
   >
 >;
-type _groupRejectsStyleTransition = Assert<
-  IsEqual<Extract<"styleTransition", keyof GroupProps>, never>
->;
-type _nonPathRejectsAutoBatch = Assert<
-  IsEqual<Extract<"autoBatch", keyof GroupProps | keyof TextProps | keyof ImageProps>, never>
->;
-type _duringType = Assert<
-  IsAssignable<
-    NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>,
-    RectProps["during"]
+type _rectAcceptsEChartsProps = Assert<
+  PropsAccept<
+    RectProps,
+    {
+      during: NonNullable<NonNullable<CustomSeriesRenderItemReturn>["during"]>;
+      extra: NonNullable<NonNullable<CustomSeriesRenderItemReturn>["extra"]>;
+      tooltip: GraphicOptionProp<"tooltip">;
+      clipPath: GraphicOptionProp<"clipPath">;
+    }
   >
 >;
-type _extraType = Assert<
-  IsAssignable<NonNullable<NonNullable<CustomSeriesRenderItemReturn>["extra"]>, RectProps["extra"]>
->;
-type _nameType = Assert<IsAssignable<RectProps["name"], string | undefined>>;
-type _boundingType = Assert<IsEqual<RectProps["bounding"], "raw" | "all" | undefined>>;
-type _tooltipAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"tooltip">, RectProps["tooltip"]>
->;
-type _clipPathAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"clipPath">, RectProps["clipPath"]>
->;
-type _z2Type = Assert<IsAssignable<RectProps["z2"], number | undefined>>;
+
 type NumericDimensionProps = GroupProps | ImageProps | RectProps;
 type _numericWidthType = Assert<IsEqual<NumericDimensionProps["width"], number | undefined>>;
 type _textWidthType = Assert<IsEqual<TextProps["width"], string | number | undefined>>;
@@ -132,97 +127,58 @@ type _otherShapesRejectDimensions = Assert<
 type _rectRadiusType = Assert<IsEqual<RectProps["r"], number | number[] | undefined>>;
 type ScalarRadiusProps = CircleProps | SectorProps | RingProps | ArcProps;
 type _scalarRadiusType = Assert<IsEqual<ScalarRadiusProps["r"], number | undefined>>;
-type _skewXType = Assert<IsAssignable<RectProps["skewX"], number | undefined>>;
-type _skewYType = Assert<IsAssignable<RectProps["skewY"], number | undefined>>;
-type _anchorXType = Assert<IsAssignable<RectProps["anchorX"], number | undefined>>;
-type _anchorYType = Assert<IsAssignable<RectProps["anchorY"], number | undefined>>;
-type _textContentAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"textContent">, RectProps["textContent"]>
+
+type _pathExactProps = Assert<
+  PropsMatch<
+    RectProps,
+    {
+      autoBatch: boolean | undefined;
+      strokeFirst: boolean | undefined;
+      strokeNoScale: boolean | undefined;
+      lineDash: false | number[] | "solid" | "dashed" | "dotted" | undefined;
+      lineCap: CanvasLineCap | undefined;
+      lineJoin: CanvasLineJoin | undefined;
+    }
+  >
 >;
-type _styleAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"style">, RectProps["style"]>
+type _pathAcceptsPaint = Assert<
+  PropsAccept<RectProps, { fill: Color; stroke: Color; decal: PatternObject }>
 >;
-type _textConfigAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"textConfig">, RectProps["textConfig"]>
+
+type _smoothType = Assert<PropsMatch<PolylineProps, { smooth: number | undefined }>>;
+type _shapePropsAcceptVectors = Assert<
+  PropsAccept<PolylineProps, { points: number[][]; smoothConstraint: number[][] }>
 >;
-type _enterFromAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"enterFrom">, RectProps["enterFrom"]>
+
+type _textExactProps = Assert<
+  PropsMatch<
+    TextProps,
+    {
+      fill: string | undefined;
+      stroke: string | undefined;
+      lineDash: false | number[] | undefined;
+      fontStyle: "normal" | "italic" | "oblique" | undefined;
+      fontWeight: "normal" | "bold" | "bolder" | "lighter" | number | undefined;
+      align: "left" | "center" | "right" | undefined;
+      verticalAlign: "top" | "middle" | "bottom" | undefined;
+      textAlign: TextProps["align"];
+      textVerticalAlign: TextProps["verticalAlign"];
+      overflow: "break" | "breakAll" | "truncate" | "none" | undefined;
+      lineOverflow: "truncate" | undefined;
+      margin: number | number[] | undefined;
+      borderDash: false | number[] | undefined;
+    }
+  >
 >;
-type _leaveToAcceptsEChartsOption = Assert<
-  IsAssignable<GraphicOptionProp<"leaveTo">, RectProps["leaveTo"]>
+type _textAcceptsRichStyles = Assert<
+  PropsAccept<
+    TextProps,
+    {
+      fontSize: string;
+      backgroundColor: { image: string };
+      padding: number[];
+      borderRadius: number[];
+      rich: Record<string, object>;
+    }
+  >
 >;
-type _enterAnimationType = Assert<
-  IsEqual<RectProps["enterAnimation"], GraphicOptionProp<"enterAnimation"> | undefined>
->;
-type _updateAnimationType = Assert<
-  IsEqual<RectProps["updateAnimation"], GraphicOptionProp<"updateAnimation"> | undefined>
->;
-type _leaveAnimationType = Assert<
-  IsEqual<RectProps["leaveAnimation"], GraphicOptionProp<"leaveAnimation"> | undefined>
->;
-type _keyframeAnimationType = Assert<
-  IsEqual<RectProps["keyframeAnimation"], GraphicOptionProp<"keyframeAnimation"> | undefined>
->;
-type _fillAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["fill"]>>;
-type _strokeAcceptsEChartsColor = Assert<IsAssignable<Color, RectProps["stroke"]>>;
-type _textFillType = Assert<IsEqual<TextProps["fill"], string | undefined>>;
-type _textStrokeType = Assert<IsEqual<TextProps["stroke"], string | undefined>>;
-type _decalAcceptsPattern = Assert<IsAssignable<PatternObject, RectProps["decal"]>>;
-type _strokePercentType = Assert<IsAssignable<RectProps["strokePercent"], number | undefined>>;
-type _autoBatchType = Assert<IsEqual<RectProps["autoBatch"], boolean | undefined>>;
-type _strokeFirstAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeFirst"]>>;
-type _lineDashAcceptsDisabled = Assert<IsAssignable<false, RectProps["lineDash"]>>;
-type _lineDashType = Assert<
-  IsEqual<RectProps["lineDash"], false | number[] | "solid" | "dashed" | "dotted" | undefined>
->;
-type _textLineDashType = Assert<IsEqual<TextProps["lineDash"], false | number[] | undefined>>;
-type _lineCapType = Assert<IsEqual<RectProps["lineCap"], CanvasLineCap | undefined>>;
-type _lineJoinType = Assert<IsEqual<RectProps["lineJoin"], CanvasLineJoin | undefined>>;
-type _strokeNoScaleAcceptsFalse = Assert<IsAssignable<false, RectProps["strokeNoScale"]>>;
-type _fillOpacityType = Assert<IsAssignable<RectProps["fillOpacity"], number | undefined>>;
-type _strokeOpacityType = Assert<IsAssignable<RectProps["strokeOpacity"], number | undefined>>;
-type _blendType = Assert<IsEqual<RectProps["blend"], string | undefined>>;
-type _sxType = Assert<IsAssignable<ImageProps["sx"], number | undefined>>;
-type _syType = Assert<IsAssignable<ImageProps["sy"], number | undefined>>;
-type _sWidthType = Assert<IsAssignable<ImageProps["sWidth"], number | undefined>>;
-type _sHeightType = Assert<IsAssignable<ImageProps["sHeight"], number | undefined>>;
-type _pointsAcceptVectors = Assert<IsAssignable<number[][], PolylineProps["points"]>>;
-type _smoothType = Assert<IsEqual<PolylineProps["smooth"], number | undefined>>;
-type _smoothConstraintAcceptsVectors = Assert<
-  IsAssignable<number[][], PolylineProps["smoothConstraint"]>
->;
-type _rxType = Assert<IsAssignable<EllipseProps["rx"], number | undefined>>;
-type _ryType = Assert<IsAssignable<EllipseProps["ry"], number | undefined>>;
-type _fontWeightAcceptsNumber = Assert<IsAssignable<number, TextProps["fontWeight"]>>;
-type _textFontType = Assert<IsEqual<TextProps["textFont"], string | undefined>>;
-type _fontStyleType = Assert<
-  IsEqual<TextProps["fontStyle"], "normal" | "italic" | "oblique" | undefined>
->;
-type _fontWeightType = Assert<
-  IsEqual<TextProps["fontWeight"], "normal" | "bold" | "bolder" | "lighter" | number | undefined>
->;
-type _fontSizeAcceptsString = Assert<IsAssignable<string, TextProps["fontSize"]>>;
-type _tagType = Assert<IsEqual<TextProps["tag"], string | undefined>>;
-type _alignType = Assert<IsEqual<TextProps["align"], "left" | "center" | "right" | undefined>>;
-type _verticalAlignType = Assert<
-  IsEqual<TextProps["verticalAlign"], "top" | "middle" | "bottom" | undefined>
->;
-type _legacyAlignType = Assert<IsEqual<TextProps["textAlign"], TextProps["align"]>>;
-type _legacyVerticalAlignType = Assert<
-  IsEqual<TextProps["textVerticalAlign"], TextProps["verticalAlign"]>
->;
-type _overflowType = Assert<
-  IsEqual<TextProps["overflow"], "break" | "breakAll" | "truncate" | "none" | undefined>
->;
-type _lineOverflowType = Assert<IsEqual<TextProps["lineOverflow"], "truncate" | undefined>>;
-type _ellipsisType = Assert<IsAssignable<TextProps["ellipsis"], string | undefined>>;
-type _placeholderType = Assert<IsAssignable<TextProps["placeholder"], string | undefined>>;
-type _truncateMinCharType = Assert<IsAssignable<TextProps["truncateMinChar"], number | undefined>>;
-type _backgroundAcceptsImage = Assert<
-  IsAssignable<{ image: string }, TextProps["backgroundColor"]>
->;
-type _paddingAcceptsBox = Assert<IsAssignable<number[], TextProps["padding"]>>;
-type _marginType = Assert<IsAssignable<TextProps["margin"], number | number[] | undefined>>;
-type _borderRadiusAcceptsBox = Assert<IsAssignable<number[], TextProps["borderRadius"]>>;
-type _borderDashAcceptsDisabled = Assert<IsAssignable<false, TextProps["borderDash"]>>;
-type _richAcceptsTextStyles = Assert<IsAssignable<Record<string, object>, TextProps["rich"]>>;
