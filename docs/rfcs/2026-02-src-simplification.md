@@ -98,6 +98,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   process later prop changes, without a second microtask retry path.
 - route every observed size through one resize eligibility check; test enabled behavior and cleanup
   without fixing internal observer rebind counts.
+- replace changed Graphic collector records directly while preserving their handler cache; do not
+  mutate records in place or prefilter occupied IDs merely to save small temporary allocations.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet

@@ -174,9 +174,7 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
   const occupiedRootIds = new Set<string>();
 
   for (const node of nodes) {
-    if (node.id.startsWith(rootId)) {
-      occupiedRootIds.add(node.id);
-    }
+    occupiedRootIds.add(node.id);
     const list = byParent.get(node.parentId);
     if (list) {
       list.push(node);

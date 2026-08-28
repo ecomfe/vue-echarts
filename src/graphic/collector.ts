@@ -74,18 +74,11 @@ export function createCollector(onFlush: () => void): GraphicCollector {
       return;
     }
 
-    if (sameSource) {
-      existing.type = node.type;
-      existing.parentId = node.parentId;
-      existing.props = node.props;
-      existing.handlers = node.handlers;
-      existing.order = nextOrder;
-    } else {
-      nodes.set(node.id, {
-        ...node,
-        order: nextOrder,
-      });
-    }
+    nodes.set(node.id, {
+      ...node,
+      handlerCache: sameSource ? existing?.handlerCache : undefined,
+      order: nextOrder,
+    });
     requestFlush();
   }
 
