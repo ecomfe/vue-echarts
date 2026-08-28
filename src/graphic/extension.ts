@@ -2,7 +2,7 @@ import { h, onScopeDispose, onUpdated } from "vue";
 import { use } from "echarts/core";
 import { GraphicComponent } from "echarts/components";
 import { buildOption } from "./build";
-import { createCollector, type GraphicCollector } from "./collector";
+import { createCollector } from "./collector";
 import { GraphicMount } from "./mount";
 import { registerRuntime } from "./runtime";
 
@@ -13,16 +13,12 @@ export function registerExtension(): void {
 
   registerRuntime((ctx) => {
     const { slots, manualUpdate, requestUpdate } = ctx;
-    let collector: GraphicCollector | undefined;
+    const collector = createCollector(handleFlush);
     let hasGraphicSlot = Boolean(slots.graphic);
-
-    function getCollector(): GraphicCollector {
-      return (collector ??= createCollector(handleFlush));
-    }
 
     function handleFlush(): void {
       if (manualUpdate.value) {
-        collector!.warn(
+        collector.warn(
           "`#graphic` slot updates are ignored when `manual-update` is `true`.",
           "manual-update-graphic",
         );
@@ -31,7 +27,7 @@ export function registerExtension(): void {
       requestUpdate();
     }
 
-    onScopeDispose(() => collector?.cancelPendingFlush());
+    onScopeDispose(collector.cancelPendingFlush);
     onUpdated(() => {
       const nextHasGraphicSlot = Boolean(slots.graphic);
       if (nextHasGraphicSlot === hasGraphicSlot) {
@@ -39,7 +35,7 @@ export function registerExtension(): void {
       }
       hasGraphicSlot = nextHasGraphicSlot;
       if (!hasGraphicSlot) {
-        collector?.cancelPendingFlush();
+        collector.cancelPendingFlush();
       }
       handleFlush();
     });
@@ -50,7 +46,6 @@ export function registerExtension(): void {
         if (!hasGraphicSlot) {
           return option;
         }
-        const collector = getCollector();
         if (option.graphic) {
           collector.warn(
             "`#graphic` slot is provided, so `option.graphic` is ignored. Remove one of them to avoid ambiguity.",
@@ -68,7 +63,7 @@ export function registerExtension(): void {
         if (!slots.graphic) {
           return null;
         }
-        return h(GraphicMount, { collector: getCollector() }, { default: slots.graphic });
+        return h(GraphicMount, { collector }, { default: slots.graphic });
       },
     };
   });

@@ -4,7 +4,6 @@ import type { GraphicContext } from "../src/graphic/runtime";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 const mockState = vi.hoisted(() => ({
-  createCollector: vi.fn(),
   use: vi.fn(),
 }));
 
@@ -13,17 +12,6 @@ vi.mock("echarts/core", async () => {
   return {
     ...actual,
     use: mockState.use,
-  };
-});
-
-vi.mock("../src/graphic/collector", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../src/graphic/collector")>();
-  return {
-    ...actual,
-    createCollector: (...args: Parameters<typeof actual.createCollector>) => {
-      mockState.createCollector();
-      return actual.createCollector(...args);
-    },
   };
 });
 
@@ -43,7 +31,6 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
 }
 
 beforeEach(async () => {
-  mockState.createCollector.mockReset();
   mockState.use.mockReset();
   vi.resetModules();
   runtimeModule = await import("../src/graphic/runtime");
@@ -65,7 +52,7 @@ describe("graphic runtime", () => {
     scope.stop();
   });
 
-  it("keeps option untouched without allocating when graphic slot is absent", () => {
+  it("keeps option untouched when graphic slot is absent", () => {
     extensionModule.registerExtension();
 
     const scope = effectScope();
@@ -79,7 +66,6 @@ describe("graphic runtime", () => {
     const option = { title: { text: "no-graphic" } } as any;
     expect(runtime.patchOption(option)).toBe(option);
     expect(runtime.render()).toBeNull();
-    expect(mockState.createCollector).not.toHaveBeenCalled();
 
     scope.stop();
   });

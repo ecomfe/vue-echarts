@@ -53,6 +53,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
 - give unkeyed Graphic nodes a stable component-local identity without guessing whether they
   came from an unkeyed `v-for`;
+- let each enabled Graphic runtime own one collector directly instead of maintaining an optional
+  mode solely to avoid a few empty collections;
 - require internal helpers to carry context every caller owns—Graphic collector owner/warning
   identity and the next callback-slot path segment—instead of optional internal call modes;
 - trust a present custom-elements registry's standard contract and arbitrate constructor
