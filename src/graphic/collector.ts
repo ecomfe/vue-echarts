@@ -111,10 +111,8 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function cancelPendingFlush(): void {
-    if (pending) {
-      pending = false;
-      beginPass();
-    }
+    pending = false;
+    beginPass();
   }
 
   return {

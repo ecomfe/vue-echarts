@@ -102,6 +102,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   without fixing internal observer rebind counts.
 - replace changed Graphic collector records directly while preserving their handler cache; do not
   mutate records in place or prefilter occupied IDs merely to save small temporary allocations.
+- let collector cancellation reset its render pass directly; do not branch solely to avoid clearing
+  a small pass-local Map when no flush is pending.
 - warn about a missing Graphic extension when the slot is declared at setup; do not maintain an
   updated-hook state machine solely to detect a dynamically added unsupported slot.
 - warn about invalid callback slot names declared at setup; do not retain a `Set` solely to detect
