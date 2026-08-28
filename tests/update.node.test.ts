@@ -91,12 +91,9 @@ describe("smart-update", () => {
 
       expect(Object.keys(signature.objectShapes)).toEqual(["backgroundColor"]);
       expect(signature.leaves).toEqual(["color"]);
-      expect(signature.collections.dataset?.shapes).toMatchObject([
-        { id: "ds1" },
-        { id: undefined },
-      ]);
-      expect(signature.collections.series?.shapes).toMatchObject([{ id: "a" }, { id: undefined }]);
-      expect(signature.collections.tooltip?.shapes).toHaveLength(1);
+      expect(signature.collections.dataset).toMatchObject([{ id: "ds1" }, { id: undefined }]);
+      expect(signature.collections.series).toMatchObject([{ id: "a" }, { id: undefined }]);
+      expect(signature.collections.tooltip).toHaveLength(1);
       expect(signature.objectShapes.color).toBeUndefined();
       expect(signature.leaves).not.toContain("title");
     });

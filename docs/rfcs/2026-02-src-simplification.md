@@ -47,7 +47,7 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - use named shared helpers only when they remove repetition without adding indirection;
 - clear removed callback-slot functions in the option instead of maintaining a separate merge plan;
 - treat each callback-slot patch as current state, with no separate post-update commit phase;
-- compare ordered component identities directly instead of maintaining parallel identity indexes;
+- keep ordered component shapes as direct arrays and compare their identities without parallel indexes;
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
 - let the component's terminal `dispose` path and update request own chart liveness instead of duplicating it in subordinate runtimes;
 - drive loading visibility and options through one watcher instead of parallel force-update paths.

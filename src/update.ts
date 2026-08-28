@@ -6,7 +6,7 @@ import { isPlainObject } from "./utils";
 interface ObjectShape {
   [key: string]: Shape | undefined;
 }
-type Shape = true | ObjectShape | CollectionSummary;
+type Shape = true | ObjectShape | ItemShape[];
 type ItemShape = {
   id: string | undefined;
   name: string | undefined;
@@ -21,16 +21,10 @@ function toIdentity(value: unknown): string | undefined {
   return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 }
 
-/** Structural summary of an option collection for deletion detection. */
-interface CollectionSummary {
-  /** Structural snapshots in merge order. */
-  shapes: ItemShape[];
-}
-
 /** Minimal signature of an option used to decide setOption behavior. */
 export interface Signature {
   /** Map of top-level arrays and singleton components to their summaries. */
-  collections: Record<string, CollectionSummary | undefined>;
+  collections: Record<string, ItemShape[] | undefined>;
   /** Structural snapshots used to detect nested property removal without retaining option values. */
   objectShapes: Record<string, Shape | undefined>;
   /** Top-level keys whose values are not traversed. */
@@ -51,15 +45,9 @@ function buildShape(
   value: unknown,
   context: AnalysisContext,
   mode?: ShapeMode,
-  itemShape?: ItemShape,
 ): true | ObjectShape {
   if (!isPlainObject(value)) {
     return true;
-  }
-
-  if (itemShape) {
-    itemShape.id = toIdentity(value.id);
-    itemShape.name = toIdentity(value.name);
   }
 
   const shape: ObjectShape = Object.create(null);
@@ -95,16 +83,12 @@ function buildShape(
   return shape;
 }
 
-function isCollectionShape(shape: Shape): shape is CollectionSummary {
-  return shape !== true && Array.isArray(shape.shapes);
-}
-
 function analyzeItems(
   items: unknown[],
   context: AnalysisContext,
   mode: ShapeMode | undefined,
   componentItems: boolean,
-): CollectionSummary {
+): ItemShape[] {
   const shapes: ItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
@@ -112,12 +96,15 @@ function analyzeItems(
     if (componentItems && !isPlainObject(item)) {
       continue;
     }
-    const itemShape: ItemShape = { id: undefined, name: undefined, shape: true };
-    itemShape.shape = buildShape(item, context, mode, componentItems ? itemShape : undefined);
-    shapes.push(itemShape);
+    const identity = componentItems ? (item as Record<string, unknown>) : undefined;
+    shapes.push({
+      id: toIdentity(identity?.id),
+      name: toIdentity(identity?.name),
+      shape: buildShape(item, context, mode),
+    });
   }
 
-  return { shapes };
+  return shapes;
 }
 
 /**
@@ -129,7 +116,7 @@ function buildSignature(option: Option): Signature {
   const opt = option as Record<string, unknown>;
 
   const context: AnalysisContext = { hasAction: false };
-  const collections: Record<string, CollectionSummary | undefined> = Object.create(null);
+  const collections: Record<string, ItemShape[] | undefined> = Object.create(null);
   const objectShapes: Record<string, Shape | undefined> = Object.create(null);
   const leaves: string[] = [];
 
@@ -145,13 +132,13 @@ function buildSignature(option: Option): Signature {
             : key === "graphic"
               ? "graphic"
               : undefined;
-      const summary = analyzeItems(
+      const shapes = analyzeItems(
         Array.isArray(value) ? value : [value],
         context,
         mode,
         componentItems,
       );
-      collections[key] = summary;
+      collections[key] = shapes;
       continue;
     }
 
@@ -175,14 +162,11 @@ function buildSignature(option: Option): Signature {
   };
 }
 
-function hasCollectionRemoval(
-  prev: CollectionSummary,
-  next: CollectionSummary | undefined,
-): boolean {
+function hasCollectionRemoval(prev: ItemShape[], next: ItemShape[] | undefined): boolean {
   if (!next) {
-    return prev.shapes.length > 0;
+    return prev.length > 0;
   }
-  return next.shapes.length < prev.shapes.length;
+  return next.length < prev.length;
 }
 
 function getItemIdentity(item: ItemShape): string | undefined {
@@ -225,15 +209,15 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
     return false;
   }
 
-  const prevIsCollection = isCollectionShape(prev);
-  const nextIsCollection = isCollectionShape(next);
+  const prevIsCollection = Array.isArray(prev);
+  const nextIsCollection = Array.isArray(next);
   if (prevIsCollection || nextIsCollection) {
     return (
       !prevIsCollection ||
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
-      hasIdentityChange(prev.shapes, next.shapes) ||
-      findItemShapeRemoval(prev.shapes, next.shapes) !== undefined
+      hasIdentityChange(prev, next) ||
+      findItemShapeRemoval(prev, next) !== undefined
     );
   }
 
@@ -326,11 +310,9 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
     const collectionRemoval = hasCollectionRemoval(prevCollection, nextCollection);
     const identityChange =
-      nextCollection &&
-      !collectionRemoval &&
-      hasIdentityChange(prevCollection.shapes, nextCollection.shapes);
+      nextCollection && !collectionRemoval && hasIdentityChange(prevCollection, nextCollection);
     const shapeRemoval = nextCollection
-      ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
+      ? findItemShapeRemoval(prevCollection, nextCollection)
       : undefined;
     // replaceMerge recreates anonymous items, but explicit ids are merged into existing models.
     if (shapeRemoval?.id !== undefined) {
@@ -343,10 +325,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     if (!ComponentModel.hasClass(key)) {
       return null;
     }
-    if (
-      nextCollection &&
-      !preservesReplacementOrder(prevCollection.shapes, nextCollection.shapes)
-    ) {
+    if (nextCollection && !preservesReplacementOrder(prevCollection, nextCollection)) {
       return null;
     }
     (replaceMerge ??= []).push(key);
