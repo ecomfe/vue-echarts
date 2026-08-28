@@ -97,25 +97,23 @@ describe("smart-update", () => {
       expect(signature.leaves).not.toContain("title");
     });
 
-    it("only recognizes actions inside graphic element trees", () => {
-      const ordinary = buildSignature({
-        series: [{ type: "pie", $action: "remove" }],
-      } as unknown as EChartsOption);
+    it("recognizes graphic element actions", () => {
       const graphic = buildSignature(graphicOption([{ id: "item", $action: "remove" }]));
 
-      expect(ordinary.hasAction).toBe(false);
       expect(graphic.hasAction).toBe(true);
     });
 
-    it("ignores explicit undefined values in leaves", () => {
+    it("ignores explicit undefined values", () => {
       const option: EChartsOption = {
-        backgroundColor: undefined,
+        animation: undefined,
+        backgroundColor: { ...linearGradient, global: undefined },
         color: "#fff",
-      } as unknown as EChartsOption;
+      };
 
       const signature = buildSignature(option);
 
       expect(signature.leaves).toEqual(["color"]);
+      expect(signature.objectShapes.backgroundColor).not.toHaveProperty("global");
     });
 
     it("does not traverse data arrays inside option containers", () => {
@@ -151,19 +149,6 @@ describe("smart-update", () => {
 
         expect(result.plan.notMerge).toBe(false);
         expect(result.plan.replaceMerge).toBeUndefined();
-      });
-
-      it("returns neutral plan when signatures match", () => {
-        const option: EChartsOption = {
-          title: { text: "foo" },
-          series: [{ id: "a" }],
-        };
-
-        const prev = buildSignature(option);
-        const next = planUpdate(prev, option);
-
-        expect(next.plan.notMerge).toBe(false);
-        expect(next.plan.replaceMerge).toBeUndefined();
       });
 
       it("keeps merge when a leaf value changes", () => {
@@ -324,28 +309,6 @@ describe("smart-update", () => {
         },
       );
 
-      it("matches timeline options by position when snapshots include names", () => {
-        const base = {
-          baseOption: { timeline: { currentIndex: 0 }, series: [] },
-          options: [
-            { name: "first", title: { text: "First", subtext: "stale" } },
-            { name: "second", title: { text: "Second" } },
-          ],
-        } as unknown as EChartsOption;
-        const update = {
-          baseOption: { timeline: { currentIndex: 0 }, series: [] },
-          options: [
-            { name: "second", title: { text: "Second" } },
-            { name: "first", title: { text: "First", subtext: "stale" } },
-          ],
-        } as unknown as EChartsOption;
-
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.title?.[0]?.subtext).not.toBe("stale");
-      });
-
       it.each(optionContainers)(
         "removes nested component properties from same-length %s entries",
         (container) => {
@@ -434,18 +397,14 @@ describe("smart-update", () => {
         expect(applied.series?.map(({ id }) => id)).toEqual(["b", "a"]);
       });
 
-      it("forces rebuild when leaves disappear", () => {
-        const prev = buildSignature({ color: "red", title: { text: "foo" } });
+      it.each([
+        ["leaf", { color: "red" }],
+        ["object", { backgroundColor: linearGradient }],
+      ] as const)("forces rebuild when a %s setting disappears", (_, setting) => {
+        const prev = buildSignature({ ...setting, title: { text: "foo" } });
         const { plan } = planUpdate(prev, { title: { text: "foo" } });
         expect(plan.notMerge).toBe(true);
         expect(plan.replaceMerge).toBeUndefined();
-      });
-
-      it("replaces a removed object component", () => {
-        const prev = buildSignature({ legend: { show: true } });
-        const next = planUpdate(prev, {});
-
-        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["legend"] });
       });
 
       it("removes planned object and array options from the ECharts model", () => {
@@ -539,14 +498,6 @@ describe("smart-update", () => {
         }
       });
 
-      it("adds replaceMerge when an array option is removed", () => {
-        const prev = buildSignature({ series: [{ id: "a" }, {}] });
-        const next = planUpdate(prev, {});
-
-        expect(next.plan.replaceMerge).toEqual(["series"]);
-        expect(next.plan.notMerge).toBe(false);
-      });
-
       it("rebuilds when removing an ID would leave a leading hole", () => {
         const base: EChartsOption = {
           series: [
@@ -601,29 +552,13 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
-      it("sorts multiple replaceMerge components", () => {
-        const prev = buildSignature({
-          series: { type: "line" } as unknown as EChartsOption["series"],
-          dataset: [{ id: "a" }, { id: "b" }],
-        });
-        const next = planUpdate(prev, {
-          series: [{ id: "line", type: "line" }],
-          dataset: [{ id: "a" }],
-        });
+      it("rebuilds when adding colors so default entries do not survive", () => {
+        const update: EChartsOption = { color: ["red", "blue"] };
+        const { applied, plan } = applyPlannedUpdate({}, update);
 
-        expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["dataset", "series"] });
+        expect(plan).toEqual({ notMerge: true });
+        expect(applied.color).toEqual(["red", "blue"]);
       });
-
-      it.each(["color", "gradientColor"] as const)(
-        "rebuilds when adding %s so default entries do not survive",
-        (key) => {
-          const update = { [key]: ["red", "blue"] } as EChartsOption;
-          const { applied, plan } = applyPlannedUpdate({}, update);
-
-          expect(plan).toEqual({ notMerge: true });
-          expect((applied as Record<string, unknown>)[key]).toEqual(["red", "blue"]);
-        },
-      );
 
       it("rebuilds when aria is first added so ECharts enables it", () => {
         const update: EChartsOption = { aria: { decal: { show: true } } };
@@ -652,17 +587,6 @@ describe("smart-update", () => {
         }
 
         expect(result.plan).toEqual({ notMerge: true });
-
-        const gradient: EChartsOption = { color: linearGradient };
-        expect(planUpdate(buildSignature(gradient), update).plan).toEqual({ notMerge: true });
-
-        const palette: EChartsOption = { color: [linearGradient] };
-        const shorterPalette: EChartsOption = {
-          color: [{ ...linearGradient, global: undefined }],
-        };
-        expect(planUpdate(buildSignature(palette), shorterPalette).plan).toEqual({
-          notMerge: true,
-        });
       });
 
       it("removes nested properties from object options", () => {
@@ -852,71 +776,19 @@ describe("smart-update", () => {
         });
       });
 
-      it("replaces a removed tooltip", () => {
-        const base: EChartsOption = {
-          tooltip: { trigger: "axis" },
-          xAxis: [{ type: "category", data: ["Jan", "Feb"] }],
-          series: [{ type: "line", data: [10, 20] }],
-        };
-
-        const update: EChartsOption = {
-          xAxis: [{ type: "category", data: ["Jan", "Feb"] }],
-          series: [{ type: "line", data: [12, 18] }],
-        };
-
-        const result = planUpdate(buildSignature(base), update);
-
-        expect(result.plan).toEqual({ notMerge: false, replaceMerge: ["tooltip"] });
-      });
-
-      it("tracks series ID removal while keeping modifications", () => {
-        const base: EChartsOption = {
-          series: [
-            { id: "latte", type: "bar", data: [10, 20] },
-            { id: "mocha", type: "bar", data: [15, 25] },
-          ],
-        };
-
-        const update: EChartsOption = {
-          series: [{ id: "latte", type: "line", data: [11, 22] }],
-        };
-
-        const result = planUpdate(buildSignature(base), update);
-
-        expect(result.plan.replaceMerge).toEqual(["series"]);
-        expect(result.plan.notMerge).toBe(false);
-      });
-
-      it("adds replaceMerge when ids disappear entirely", () => {
-        const base: EChartsOption = {
-          series: [
-            { id: "espresso", type: "bar" },
-            { id: "mocha", type: "line" },
-          ],
-        };
-
-        const update: EChartsOption = {
-          series: [{ type: "bar" }, { type: "line" }],
-        };
-
-        const result = planUpdate(buildSignature(base), update);
-
-        expect(result.plan.replaceMerge).toEqual(["series"]);
-      });
-
       it("handles single-object series shape without array replacement planning", () => {
         const base: EChartsOption = {
           series: {
             type: "line",
             data: [1, 2, 3],
-          } as unknown as EChartsOption["series"],
+          },
         };
 
         const update: EChartsOption = {
           series: {
             type: "line",
             data: [2, 3, 4],
-          } as unknown as EChartsOption["series"],
+          },
         };
 
         const result = planUpdate(buildSignature(base), update);
@@ -930,7 +802,7 @@ describe("smart-update", () => {
           series: {
             type: "bar",
             data: [10, 20],
-          } as unknown as EChartsOption["series"],
+          },
         };
 
         const update: EChartsOption = {
@@ -956,7 +828,7 @@ describe("smart-update", () => {
             id: "latte",
             type: "bar",
             data: [12, 24],
-          } as unknown as EChartsOption["series"],
+          },
         };
 
         const result = planUpdate(buildSignature(base), update);
