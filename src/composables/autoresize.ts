@@ -23,10 +23,7 @@ export function useAutoresize(
   return watch(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
-      if (!chart || chart.isDisposed()) {
-        return;
-      }
-      if (!container) {
+      if (!chart || chart.isDisposed() || !container) {
         return;
       }
       if (!enabled) {
@@ -34,9 +31,8 @@ export function useAutoresize(
         return;
       }
 
-      const { offsetWidth, offsetHeight } = container;
-      let observedWidth = offsetWidth;
-      let observedHeight = offsetHeight;
+      let observedWidth = container.offsetWidth;
+      let observedHeight = container.offsetHeight;
       let active = true;
       const isSynchronized = (width: number, height: number) =>
         !wasZeroSized && width === chart.getWidth() && height === chart.getHeight();
