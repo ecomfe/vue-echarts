@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { createApp } from "vue";
 import { render } from "./helpers/testing";
 import { createEChartsModule, resetECharts } from "./helpers/mock";
+import { createFrame } from "./helpers/dom";
 
 vi.mock("echarts/core", () => createEChartsModule());
 
@@ -17,16 +18,6 @@ function createShadowHost() {
   const root = host.attachShadow({ mode: "open" });
   useFallbackStyles(root);
   return { host, root };
-}
-
-function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
-  const iframe = document.createElement("iframe");
-  document.body.appendChild(iframe);
-  const ownerDocument = iframe.contentDocument;
-  if (!ownerDocument) {
-    throw new Error("Expected iframe document to be available.");
-  }
-  return { iframe, ownerDocument };
 }
 
 describe("style entry", () => {

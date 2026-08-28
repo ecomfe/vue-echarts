@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 import { makeTooltipParams } from "./helpers/tooltip";
 
 import { useSlotOption } from "../src/composables/slot";
-import { withConsoleWarnAsync } from "./helpers/dom";
+import { createFrame, withConsoleWarnAsync } from "./helpers/dom";
 import type { Option } from "../src/types";
 import type {
   ToolboxComponentOption,
@@ -182,15 +182,7 @@ describe("useSlotOption", () => {
   });
 
   it("creates callback containers in the component owner document", async () => {
-    const iframe = document.body.appendChild(document.createElement("iframe"));
-    const ownerDocument = iframe.contentDocument;
-    if (!ownerDocument) {
-      throw new Error("Expected iframe document to be available.");
-    }
-    const ownerWindow = ownerDocument.defaultView;
-    if (!ownerWindow) {
-      throw new Error("Expected iframe window to be available.");
-    }
+    const { iframe, ownerDocument, ownerWindow } = createFrame();
     const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
     const exposed = shallowRef<SlotTestHandle>();
     const Root = defineComponent({

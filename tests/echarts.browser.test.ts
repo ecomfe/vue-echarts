@@ -23,7 +23,7 @@ import type {
   Theme,
   UpdateOptions,
 } from "../src/types";
-import { withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
+import { createFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
 import { makeTooltipParams } from "./helpers/tooltip";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
@@ -1762,11 +1762,7 @@ describe("ECharts component", () => {
   });
 
   it("detects removals in option objects from another realm", async () => {
-    const iframe = document.body.appendChild(document.createElement("iframe"));
-    const ownerWindow = iframe.contentDocument?.defaultView;
-    if (!ownerWindow) {
-      throw new Error("Expected iframe window to be available.");
-    }
+    const { iframe, ownerWindow } = createFrame();
     const option = ref<Option>(
       ownerWindow.JSON.parse('{"title":{"text":"Coffee","subtext":"Daily"}}'),
     );

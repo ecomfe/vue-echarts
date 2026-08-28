@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { register, TAG_NAME } from "../src/wc";
+import { createFrame } from "./helpers/dom";
 
 declare global {
   interface HTMLElement {
@@ -213,8 +214,7 @@ describe("register", () => {
     it("registers the disposal hook in each document", async () => {
       expect(register()).toBe(true);
 
-      const iframe = document.body.appendChild(document.createElement("iframe"));
-      const frameDocument = iframe.contentDocument!;
+      const { iframe, ownerDocument: frameDocument } = createFrame();
       const element = frameDocument.body.appendChild(frameDocument.createElement(TAG_NAME));
 
       try {

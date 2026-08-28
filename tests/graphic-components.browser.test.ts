@@ -3,7 +3,7 @@ import { createApp, defineComponent, h, nextTick, provide, ref, shallowRef } fro
 import type { LinearGradientObject, PatternObject } from "echarts";
 
 import { render } from "./helpers/testing";
-import { withConsoleWarn } from "./helpers/dom";
+import { createFrame, withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
 import { GArc, GCircle, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
@@ -56,15 +56,6 @@ function getLastRegisterPayload(collector: CollectorMock): any {
     throw new Error("Expected collector.register to be called at least once.");
   }
   return lastCall[0];
-}
-
-function createFrame(): { iframe: HTMLIFrameElement; ownerDocument: Document } {
-  const iframe = document.body.appendChild(document.createElement("iframe"));
-  const ownerDocument = iframe.contentDocument;
-  if (!ownerDocument) {
-    throw new Error("Expected iframe document to be available.");
-  }
-  return { iframe, ownerDocument };
 }
 
 describe("graphic components", () => {

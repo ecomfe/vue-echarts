@@ -1,5 +1,15 @@
 import { vi } from "vitest";
 
+export function createFrame() {
+  const iframe = document.body.appendChild(document.createElement("iframe"));
+  const ownerDocument = iframe.contentDocument;
+  const ownerWindow = ownerDocument?.defaultView;
+  if (!ownerDocument || !ownerWindow) {
+    throw new Error("Expected iframe realm to be available.");
+  }
+  return { iframe, ownerDocument, ownerWindow };
+}
+
 export function createSizedContainer(width = 100, height = 100): HTMLDivElement {
   const element = document.createElement("div");
   element.style.width = `${width}px`;
