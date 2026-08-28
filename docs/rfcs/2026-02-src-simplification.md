@@ -74,6 +74,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   traversal suite that fixes internal map and scan details.
 - test Graphic batching and duplicate-id warnings at the public slot boundary; keep collector units
   for ownership, render-pass, and pending-work contracts unique to the collector.
+- test the Graphic entry's automatic registration directly, while exercising extension rendering,
+  warnings, and inactive paths through the public component.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
