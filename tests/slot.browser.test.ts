@@ -27,15 +27,10 @@ const SlotTestComponent = defineComponent({
   },
   setup(props, ctx) {
     const ready = shallowRef(true);
-    const { render, patchOption, commitOption } = useSlotOption(
-      ctx.slots,
-      props.onChange ?? (() => {}),
-      ready,
-    );
+    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}), ready);
 
     ctx.expose({
       patchOption,
-      commitOption,
       render,
       setReady: (value: boolean) => {
         ready.value = value;
@@ -439,8 +434,11 @@ describe("useSlotOption", () => {
     expect(tooltip.formatter(makeTooltipParams(10), "")).toBeUndefined();
     expect(optionToContent({})).toBeUndefined();
     const patchedAfterRemoval = getExposed(exposed).patchOption({});
-    expect(patchedAfterRemoval.series).toBeUndefined();
-    expect((patchedAfterRemoval as Record<string, unknown>).panel).toBeUndefined();
+    expect(patchedAfterRemoval).toHaveProperty("series.0.tooltip.formatter", null);
+    expect(patchedAfterRemoval).toHaveProperty(
+      "panel.toolbox.feature.dataView.optionToContent",
+      null,
+    );
 
     showNested.value = true;
     await nextTick();
@@ -460,7 +458,6 @@ describe("useSlotOption", () => {
     await nextTick();
     const handle = getExposed(exposed);
     handle.patchOption({});
-    handle.commitOption();
 
     visible.value = false;
     await nextTick();

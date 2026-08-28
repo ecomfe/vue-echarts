@@ -137,14 +137,13 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   let slotNames: readonly SlotName[] = [];
   let nextSlotNames = slotNames;
-  let appliedSlotNames = slotNames;
   let patchedSlotNames = slotNames;
 
   const hasNewSlots = () => collectSlotNames().some((name) => !slotNames.includes(name));
 
   watchSyncEffect(() => {
     if (!ready.value) {
-      appliedSlotNames = patchedSlotNames = [];
+      patchedSlotNames = [];
       for (const key of Object.keys(params) as SlotName[]) {
         delete params[key];
       }
@@ -204,7 +203,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     syncSlotNames(names);
     let root: Option | undefined;
 
-    for (const key of appliedSlotNames) {
+    for (const key of patchedSlotNames) {
       if (!names.includes(key)) {
         root ??= { ...src };
         writePath(root, getSlotPath(key), null, true);
@@ -241,10 +240,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     return root;
   }
 
-  function commitOption(): void {
-    appliedSlotNames = patchedSlotNames;
-  }
-
   onUpdated(() => {
     if (syncSlotNames(nextSlotNames)) {
       onSlotsChange();
@@ -260,7 +255,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     render,
     hasNewSlots,
     patchOption,
-    commitOption,
   };
 }
 

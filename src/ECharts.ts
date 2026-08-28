@@ -113,7 +113,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       render: renderSlot,
       hasNewSlots,
       patchOption,
-      commitOption: commitSlotOption,
     } = useSlotOption(slots, requestUpdate, isReady);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
@@ -207,7 +206,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isCurrent(instance) || clearRevision !== revision) {
         return;
       }
-      commitSlotOption();
       graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
       optionApplied = true;
       if (!skipPlanning) {
