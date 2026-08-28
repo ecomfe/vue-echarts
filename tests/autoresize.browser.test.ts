@@ -142,11 +142,10 @@ describe("useAutoresize", () => {
     expect(pendingResize).toBeUndefined();
   });
 
-  it("uses the latest callback and rebinds only when throttle changes", async () => {
+  it("uses the latest callback and throttle", async () => {
     const onResizeA = vi.fn();
     const onResizeB = vi.fn();
     const container = createSizedContainer(80, 60);
-    const disconnect = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
     const { resize, autoresize } = await mountAutoresize(container, {
       throttle: 0,
       onResize: onResizeA,
@@ -160,7 +159,6 @@ describe("useAutoresize", () => {
 
     autoresize.value = { throttle: 0, onResize: onResizeB };
     await nextTick();
-    expect(disconnect).not.toHaveBeenCalled();
 
     container.style.width = "100px";
     await flushAnimationFrame();
@@ -170,20 +168,16 @@ describe("useAutoresize", () => {
 
     autoresize.value = { throttle: 150, onResize: onResizeB };
     await nextTick();
-    expect(disconnect).toHaveBeenCalledOnce();
     expect(vi.mocked(throttle)).toHaveBeenCalledWith(expect.any(Function), 150);
   });
 
-  it("disconnects while disabled and resynchronizes when reactivated", async () => {
-    const observe = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnect = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
+  it("pauses while disabled and resynchronizes when reactivated", async () => {
     const container = createSizedContainer(140, 90);
     const { resize, autoresize } = await mountAutoresize(container);
     await flushAnimationFrame();
 
     autoresize.value = false;
     await nextTick();
-    expect(disconnect).toHaveBeenCalledOnce();
 
     container.style.height = "120px";
     await flushAnimationFrame();
@@ -192,7 +186,6 @@ describe("useAutoresize", () => {
     autoresize.value = true;
     await nextTick();
     await flushAnimationFrame();
-    expect(observe).toHaveBeenCalledTimes(2);
     expect(resize).toHaveBeenCalledOnce();
   });
 

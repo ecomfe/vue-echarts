@@ -27,11 +27,12 @@ export function useAutoresize(
 
       let observedWidth = chart.getWidth();
       let observedHeight = chart.getHeight();
-      const isSynchronized = () =>
-        observedWidth === chart.getWidth() && observedHeight === chart.getHeight();
 
       const resize = () => {
-        if (hasZeroDimension(observedWidth, observedHeight) || isSynchronized()) {
+        if (
+          hasZeroDimension(observedWidth, observedHeight) ||
+          (observedWidth === chart.getWidth() && observedHeight === chart.getHeight())
+        ) {
           return;
         }
         chart.resize();
@@ -42,9 +43,7 @@ export function useAutoresize(
       const observer = new ResizeObserver(([entry]) => {
         observedWidth = entry.contentRect.width;
         observedHeight = entry.contentRect.height;
-        if (!hasZeroDimension(observedWidth, observedHeight) && !isSynchronized()) {
-          (throttledResize ?? resize)();
-        }
+        (throttledResize ?? resize)();
       });
 
       observer.observe(container);
