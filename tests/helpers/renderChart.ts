@@ -5,10 +5,8 @@ import { render } from "vitest-browser-vue/pure";
 import ECharts from "../../src/ECharts";
 import type { ComponentExposed } from "vue-component-type-helpers";
 
-export type RenderChartProps = () => Record<string, unknown>;
-
 export function renderChart<T extends ComponentExposed<typeof ECharts>>(
-  propsFactory: RenderChartProps,
+  propsFactory: () => Record<string, unknown>,
   exposes: Ref<T | undefined>,
 ) {
   const setExposed: VNodeRef = (value) => {

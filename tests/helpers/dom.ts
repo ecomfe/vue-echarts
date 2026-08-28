@@ -47,7 +47,3 @@ export async function withConsoleWarnAsync<T>(
     warnSpy.mockRestore();
   }
 }
-
-export function resetDocumentBody(): void {
-  document.body.innerHTML = "";
-}

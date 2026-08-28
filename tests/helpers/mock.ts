@@ -15,7 +15,7 @@ type ThrottleControls = {
 
 export const init = vi.fn<InitFn>();
 export const throttle = vi.fn<ThrottleFn>();
-export const use = vi.fn<(modules?: unknown[]) => void>();
+const use = vi.fn<(modules?: unknown[]) => void>();
 
 export function createEChartsModule() {
   return {
@@ -64,7 +64,7 @@ export interface ChartStub extends ChartMethodMocks {
 
 const queue: ChartStub[] = [];
 
-export function createChartStub(): ChartStub {
+function createChartStub(): ChartStub {
   const zr: ZRenderStub = {
     on: vi.fn(),
     off: vi.fn(),
