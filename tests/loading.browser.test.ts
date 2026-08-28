@@ -59,13 +59,12 @@ describe("useLoading", () => {
     await nextTick();
 
     expect(showLoading).not.toHaveBeenCalled();
-    expect(hideLoading).not.toHaveBeenCalled();
 
     loadingOptions.value = { text: "Ready..." };
     await nextTick();
     expect(showLoading).not.toHaveBeenCalled();
-    expect(hideLoading).not.toHaveBeenCalled();
 
+    hideLoading.mockClear();
     loading.value = true;
     await nextTick();
 
@@ -101,34 +100,7 @@ describe("useLoading", () => {
     expect(hideLoading).not.toHaveBeenCalled();
   });
 
-  it("defers reading loading options while the effect is hidden", async () => {
-    const revision = ref(0);
-    const readText = vi.fn((value: number) => `Loading ${value}`);
-    const showLoading = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const loading = ref<boolean | undefined>(false);
-    const loadingOptions = ref<LoadingOptions | undefined>({
-      get text() {
-        return readText(revision.value);
-      },
-    });
-
-    renderUseLoading(chart, loading, loadingOptions);
-    chart.value = createChart(showLoading, vi.fn());
-    await nextTick();
-    readText.mockClear();
-
-    revision.value++;
-    await nextTick();
-    expect(readText).not.toHaveBeenCalled();
-
-    loading.value = true;
-    await nextTick();
-    expect(showLoading).toHaveBeenCalledOnce();
-    expect(showLoading).toHaveBeenCalledWith({ text: "Loading 1" });
-  });
-
-  it("updates effective options and skips equivalent replacements", async () => {
+  it("updates effective options while loading is visible", async () => {
     const showLoading = vi.fn();
     const hideLoading = vi.fn();
     const chart = ref<EChartsType | undefined>();
@@ -147,14 +119,9 @@ describe("useLoading", () => {
       text: "Loading",
     });
 
-    showLoading.mockClear();
-    loadingOptions.value = { text: "Loading" };
-    await nextTick();
-    expect(showLoading).not.toHaveBeenCalled();
-
     defaults.value = { color: "#000" };
     await nextTick();
-    expect(showLoading).toHaveBeenCalledOnce();
+    expect(showLoading).toHaveBeenCalledTimes(2);
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#000",
       text: "Loading",

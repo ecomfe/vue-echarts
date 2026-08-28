@@ -60,8 +60,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - model lifecycle around the component scope and single current chart; cancel owned queued work on scope disposal instead of giving subordinate runtimes or collectors their own disposed modes;
 - let the configured throttle govern every observed resize, including recovery from zero size,
   without a separate recovery mode;
-- drive loading visibility and options through one watcher, without guarding custom effects that
-  mutate their reactive inputs.
+- drive loading visibility and options through one watcher, without caching equivalent inputs or
+  guarding custom effects that mutate their reactive inputs.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
