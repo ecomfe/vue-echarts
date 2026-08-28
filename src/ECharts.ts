@@ -113,7 +113,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       render: renderSlot,
       hasNewSlots,
       patchOption,
-      patchUpdateOptions: patchSlotUpdateOptions,
       commitOption: commitSlotOption,
     } = useSlotOption(slots, requestUpdate, isReady);
 
@@ -161,7 +160,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       updateOptions: UpdateOptions | undefined,
       forceGraphic: boolean,
     ): UpdateOptions | undefined {
-      updateOptions = patchSlotUpdateOptions(updateOptions);
       const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
       const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
       return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;

@@ -193,10 +193,9 @@ describe("ECharts callback slots (real echarts)", () => {
     const theme = ref<Theme | undefined>("dark");
     const option: Option = {
       legend: { data: ["A", "B"] },
-      tooltip: { id: "tooltip", trigger: "item" },
       series: [
-        { name: "A", type: "graph", data: [] },
-        { name: "B", type: "graph", data: [] },
+        { id: "a", name: "A", type: "graph", data: [] },
+        { id: "b", name: "B", type: "graph", data: [] },
       ],
     };
     const exposed = shallowRef<Exposed>();
@@ -212,7 +211,9 @@ describe("ECharts callback slots (real echarts)", () => {
               style: "width: 640px; height: 420px;",
               ref: createExposeSetter(exposed),
             },
-            showTooltipSlot.value ? { tooltip: () => [h("span", "custom-tooltip")] } : undefined,
+            showTooltipSlot.value
+              ? { "tooltip-series-0": () => [h("span", "custom-tooltip")] }
+              : undefined,
           );
       },
     });
@@ -222,7 +223,8 @@ describe("ECharts callback slots (real echarts)", () => {
 
     const chart = getChart(exposed.value);
     const getFormatter = () =>
-      (chart.getOption() as { tooltip?: Array<{ formatter?: unknown }> }).tooltip?.[0]?.formatter;
+      (chart.getOption() as { series?: Array<{ tooltip?: { formatter?: unknown } }> }).series?.[0]
+        ?.tooltip?.formatter;
 
     expect(getFormatter()).toBeTypeOf("function");
 

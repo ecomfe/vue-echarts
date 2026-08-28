@@ -27,7 +27,7 @@ const SlotTestComponent = defineComponent({
   },
   setup(props, ctx) {
     const ready = shallowRef(true);
-    const { render, patchOption, patchUpdateOptions, commitOption } = useSlotOption(
+    const { render, patchOption, commitOption } = useSlotOption(
       ctx.slots,
       props.onChange ?? (() => {}),
       ready,
@@ -35,7 +35,6 @@ const SlotTestComponent = defineComponent({
 
     ctx.expose({
       patchOption,
-      patchUpdateOptions,
       commitOption,
       render,
       setReady: (value: boolean) => {
@@ -100,23 +99,6 @@ function renderSlotComponent(
   return {
     exposed,
   };
-}
-
-async function removeSlot(slotName: string, option: Option): Promise<SlotTestHandle> {
-  const visible = ref(true);
-  const { exposed } = renderSlotComponent(() =>
-    visible.value ? { [slotName]: () => h("span", slotName) } : {},
-  );
-
-  await nextTick();
-  const handle = getExposed(exposed);
-  handle.patchOption(option);
-  handle.patchUpdateOptions();
-  handle.commitOption();
-
-  visible.value = false;
-  await nextTick();
-  return handle;
 }
 
 function getTooltipFormatter(option: Option, label: string): TooltipFormatter {
@@ -465,31 +447,7 @@ describe("useSlotOption", () => {
     expect(tooltipSlot).not.toHaveBeenCalled();
   });
 
-  it("preserves merge updates when callback slots are added", async () => {
-    const changeSpy = vi.fn();
-    const showExtra = ref(false);
-
-    renderSlotComponent(() => {
-      const slots: SlotDictionary = {
-        tooltip: () => [h("span", "tooltip")],
-      };
-      if (showExtra.value) {
-        slots["tooltip-extra"] = () => [h("span", "extra")];
-      }
-      return slots;
-    }, changeSpy);
-
-    await nextTick();
-    changeSpy.mockClear();
-
-    showExtra.value = true;
-    await nextTick();
-
-    expect(changeSpy).toHaveBeenCalledOnce();
-    expect(changeSpy.mock.calls[0]?.[0]).toBeUndefined();
-  });
-
-  it("does not rebuild when a removed callback slot is restored before submission", async () => {
+  it("clears a removed callback without replacing a source callback", async () => {
     const visible = ref(true);
     const { exposed } = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
@@ -502,96 +460,17 @@ describe("useSlotOption", () => {
     await nextTick();
     const handle = getExposed(exposed);
     handle.patchOption({});
-    expect(handle.patchUpdateOptions()).toBeUndefined();
     handle.commitOption();
 
     visible.value = false;
     await nextTick();
-    visible.value = true;
-    await nextTick();
+    expect(handle.patchOption({})).toHaveProperty("tooltip.formatter", null);
 
-    handle.patchOption({});
-    expect(handle.patchUpdateOptions()).toBeUndefined();
-  });
-
-  it.each([
-    ["tooltip", "tooltip"],
-    ["tooltip-0", "tooltip"],
-    ["dataView", "toolbox"],
-    ["dataView-0", "toolbox"],
-  ])("targets %s callback removal to its root component", async (slotName, replacement) => {
-    const visible = ref(true);
-    const { exposed } = renderSlotComponent(() =>
-      visible.value ? { [slotName]: () => h("span", slotName) } : {},
-    );
-
-    await nextTick();
-    const handle = getExposed(exposed);
-    handle.patchOption({});
-    handle.patchUpdateOptions();
-    handle.commitOption();
-
-    visible.value = false;
-    await nextTick();
-    handle.patchOption({});
-
-    expect(handle.patchUpdateOptions({ replaceMerge: "series" })).toEqual({
-      replaceMerge: ["series", replacement],
-    });
-  });
-
-  it.each([
-    ["tooltip", { tooltip: { id: "main" } }, "tooltip.formatter"],
-    ["dataView", { toolbox: { id: 1 } }, "toolbox.feature.dataView.optionToContent"],
-  ])("clears a removed %s callback on an identified root", async (slotName, option, path) => {
-    const handle = await removeSlot(slotName, option);
-
-    expect(handle.patchOption(option)).toHaveProperty(path, null);
-  });
-
-  it("restores a callback supplied after an identified slot is removed", async () => {
     const formatter = vi.fn();
-    const option = { tooltip: { id: "main", formatter } };
-    const handle = await removeSlot("tooltip", option);
-
-    expect(handle.patchOption(option)).toHaveProperty("tooltip.formatter", formatter);
-  });
-
-  it.each([
-    ["tooltip-0", { tooltip: [{ id: "main" }] }],
-    ["dataView-0", { toolbox: [{ id: "main" }] }],
-  ])("rebuilds when removing %s from an identified collection", async (slotName, option) => {
-    const handle = await removeSlot(slotName, option);
-    handle.patchOption(option);
-
-    expect(handle.patchUpdateOptions({ replaceMerge: "series" })).toEqual({
-      notMerge: true,
-      replaceMerge: "series",
-    });
-  });
-
-  it("preserves an existing rebuild option when a callback slot is removed", async () => {
-    const visible = ref(true);
-    const { exposed } = renderSlotComponent(() => {
-      const slots: SlotDictionary = {};
-      if (visible.value) {
-        slots.tooltip = () => h("span", "tooltip");
-      }
-      return slots;
-    });
-
-    await nextTick();
-    const handle = getExposed(exposed);
-    handle.patchOption({});
-    handle.patchUpdateOptions();
-    handle.commitOption();
-
-    visible.value = false;
-    await nextTick();
-    handle.patchOption({});
-    const updateOptions = { notMerge: true };
-
-    expect(handle.patchUpdateOptions(updateOptions)).toBe(updateOptions);
+    expect(handle.patchOption({ tooltip: { formatter } })).toHaveProperty(
+      "tooltip.formatter",
+      formatter,
+    );
   });
 
   it("warns and skips invalid slot names", async () => {
@@ -700,12 +579,10 @@ describe("useSlotOption", () => {
 
     expect(patched.series).toBe(1);
     expect(typeof patched.series).toBe("number");
-    expect(handle.patchUpdateOptions()).toBeUndefined();
 
     visible.value = false;
     await nextTick();
     handle.patchOption(option);
-    expect(handle.patchUpdateOptions()).toBeUndefined();
   });
 
   it("does not cross object and array path segments", async () => {

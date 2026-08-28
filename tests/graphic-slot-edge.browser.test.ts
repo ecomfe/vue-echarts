@@ -672,8 +672,7 @@ describe("graphic slot edge and integration behavior", () => {
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
     expect(getLastGraphicOption(chartStub).graphic.elements[0].children).toEqual([]);
     expect(getLastSetOptionCall(chartStub)[1]).toEqual({
-      notMerge: true,
-      replaceMerge: "series",
+      replaceMerge: ["series", "graphic"],
     });
   });
 

@@ -505,7 +505,7 @@ The slot props correspond to the first parameter of the callback function.
 
 > [!NOTE]
 > Slots take precedence over the corresponding callback defined in `props.option`.
-> Removing a root `tooltip`/`dataView` callback slot replaces only its owning component; nested callback removal rebuilds the chart so the stale function cannot survive ECharts' merge.
+> Removing a callback slot explicitly clears its injected function without rebuilding the chart.
 > After adding or removing a callback slot in `manual-update` mode, call `chartRef.setOption(...)` to submit the latest slot set.
 
 #### Graphic slot&nbsp;<sup><a href="#slots"><img src="https://img.shields.io/badge/new-A855F7" alt="new" align="middle" height="16"></a></sup>

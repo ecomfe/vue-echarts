@@ -9,8 +9,8 @@ import {
   watchSyncEffect,
 } from "vue";
 import type { Ref, Slots, SlotsType } from "vue";
-import type { Option, UpdateOptions } from "../types";
-import { appendReplaceMerge, isPlainObject, isValidArrayIndex, warn } from "../utils";
+import type { Option } from "../types";
+import { isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
 import type { VChartSlotsExtension } from "../index";
 
@@ -39,14 +39,18 @@ function getSlotPrefix(key: SlotName): SlotPrefix {
   return key.startsWith("tooltip") ? "tooltip" : "dataView";
 }
 
-function getRootComponent(key: SlotName): string | undefined {
+function getSlotPath(key: SlotName): string[] {
   const prefix = getSlotPrefix(key);
-  const suffix = key.slice(prefix.length);
-  return !suffix || isValidArrayIndex(suffix.slice(1)) ? SLOT_OPTION_PATHS[prefix][0] : undefined;
-}
-
-function hasExplicitId(value: unknown): boolean {
-  return isPlainObject(value) && (typeof value.id === "string" || typeof value.id === "number");
+  const rest = key.slice(prefix.length);
+  const path = rest ? rest.slice(1).split("-") : [];
+  const target = SLOT_OPTION_PATHS[prefix];
+  if (isValidArrayIndex(path[0] ?? "")) {
+    const index = path.shift()!;
+    path.push(target[0], index, ...target.slice(1));
+  } else {
+    path.push(...target);
+  }
+  return path;
 }
 
 type Container = Record<string, unknown> | unknown[];
@@ -135,14 +139,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   let nextSlotNames = slotNames;
   let appliedSlotNames = slotNames;
   let patchedSlotNames = slotNames;
-  let rebuildOnRemoval = false;
 
   const hasNewSlots = () => collectSlotNames().some((name) => !slotNames.includes(name));
 
   watchSyncEffect(() => {
     if (!ready.value) {
       appliedSlotNames = patchedSlotNames = [];
-      rebuildOnRemoval = false;
       for (const key of Object.keys(params) as SlotName[]) {
         delete params[key];
       }
@@ -198,31 +200,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   };
 
   function patchOption(src: Option): Option {
-    rebuildOnRemoval = false;
     const names = collectSlotNames();
     syncSlotNames(names);
     let root: Option | undefined;
 
     for (const key of appliedSlotNames) {
-      if (names.includes(key)) {
-        continue;
-      }
-      const replacement = getRootComponent(key);
-      if (!replacement) {
-        continue;
-      }
-      const prefix = getSlotPrefix(key);
-      const component = (src as Record<string, unknown>)[replacement];
-      if (key !== prefix) {
-        if (Array.isArray(component) && component.some(hasExplicitId)) {
-          rebuildOnRemoval = true;
-        }
-        continue;
-      }
-      const path = SLOT_OPTION_PATHS[prefix];
-      if (hasExplicitId(component)) {
+      if (!names.includes(key)) {
         root ??= { ...src };
-        writePath(root, path, null, true);
+        writePath(root, getSlotPath(key), null, true);
       }
     }
 
@@ -246,18 +231,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
         return containers[key];
       };
 
-      const prefix = getSlotPrefix(key);
-      const rest = key.slice(prefix.length);
-      const path = rest ? rest.slice(1).split("-") : [];
-      const target = SLOT_OPTION_PATHS[prefix];
-      if (isValidArrayIndex(path[0] ?? "")) {
-        const index = path.shift()!;
-        path.push(target[0], index, ...target.slice(1));
-      } else {
-        path.push(...target);
-      }
-
-      if (!writePath(root, path, formatter)) {
+      if (!writePath(root, getSlotPath(key), formatter)) {
         continue;
       }
       patchedNames.push(key);
@@ -265,22 +239,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
     patchedSlotNames = patchedNames;
     return root;
-  }
-
-  function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
-    // ECharts merge retains formatter fields omitted after a slot is removed.
-    const original = updateOptions;
-    for (const key of appliedSlotNames) {
-      if (patchedSlotNames.includes(key)) {
-        continue;
-      }
-      const replacement = getRootComponent(key);
-      if (!replacement || rebuildOnRemoval) {
-        return { ...original, notMerge: true };
-      }
-      updateOptions = appendReplaceMerge(updateOptions, replacement);
-    }
-    return updateOptions;
   }
 
   function commitOption(): void {
@@ -302,7 +260,6 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     render,
     hasNewSlots,
     patchOption,
-    patchUpdateOptions,
     commitOption,
   };
 }

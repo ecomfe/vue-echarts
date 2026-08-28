@@ -1920,60 +1920,14 @@ describe("ECharts component", () => {
     await nextTick();
   });
 
-  it("preserves update options when the callback slot set changes", async () => {
-    const option = { title: { text: "with-slots" } };
-    const showExtra = ref(true);
-    const updateOptions = {
-      notMerge: false,
-      lazyUpdate: true,
-      silent: true,
-      replaceMerge: ["series"],
-    };
-
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            {
-              option,
-              updateOptions,
-            },
-            showExtra.value
-              ? {
-                  tooltip: () => [h("span", "t")],
-                  "tooltip-extra": () => [h("span", "x")],
-                }
-              : {
-                  tooltip: () => [h("span", "t")],
-                },
-          );
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    chartStub.setOption.mockClear();
-
-    showExtra.value = false;
-    await nextTick();
-    await nextTick();
-
-    expect(chartStub.setOption).toHaveBeenCalledOnce();
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual({
-      ...updateOptions,
-      notMerge: true,
-    });
-  });
-
   it.each([
-    ["added with an option change", false, true, "second", false],
-    ["removed with an option change", true, false, "second", true],
-    ["added after option becomes absent", false, true, undefined, false],
-    ["removed after option becomes absent", true, false, undefined, true],
+    ["added with an option change", false, true, "second"],
+    ["removed with an option change", true, false, "second"],
+    ["added after option becomes absent", false, true, undefined],
+    ["removed after option becomes absent", true, false, undefined],
   ] as const)(
     "updates callback slots when a slot is %s",
-    async (_, initiallyVisible, nextVisible, nextText, expectedNotMerge) => {
+    async (_, initiallyVisible, nextVisible, nextText) => {
       const option = ref<Option | undefined>({ title: { text: "first" } });
       const showExtra = ref(initiallyVisible);
 
@@ -2005,7 +1959,7 @@ describe("ECharts component", () => {
       expect(chartStub.setOption).toHaveBeenCalledOnce();
       const [patched, updateOptions] = getLastSetOptionCall(chartStub);
       expect(patched).toMatchObject({ title: { text: nextText ?? "first" } });
-      expect(updateOptions?.notMerge).toBe(expectedNotMerge);
+      expect(updateOptions?.notMerge).toBe(false);
     },
   );
 
@@ -2095,7 +2049,10 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls.length).toBe(initialCalls);
 
     getExposed(exposed).setOption(option.value);
-    expect(chartStub.setOption).toHaveBeenLastCalledWith(expect.anything(), { notMerge: true });
+    expect(chartStub.setOption).toHaveBeenLastCalledWith(
+      expect.objectContaining({ extra: { tooltip: { formatter: null } } }),
+      undefined,
+    );
 
     chartStub.setOption.mockClear();
     getExposed(exposed).setOption(option.value);
