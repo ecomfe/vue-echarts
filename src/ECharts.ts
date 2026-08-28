@@ -129,7 +129,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     // `null` means the last option skipped analysis, so the next smart update must rebuild.
     let lastSignature: Signature | null | undefined;
     let lastAutoOption: Option | undefined;
-    let themedChart: EChartsType | undefined;
+    let themeApplied = false;
     let initOptionsInvalidated = false;
     let clearRevision = 0;
     let optionApplied = false;
@@ -169,7 +169,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function applyTheme(instance: EChartsType): boolean {
       // ECharts ignores setTheme until its first option creates the chart model.
-      if (!optionApplied || !isActive(instance) || instance === themedChart) {
+      if (!optionApplied || !isActive(instance) || themeApplied) {
         return false;
       }
       const revision = themeRevision.value;
@@ -177,7 +177,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isActive(instance) || themeRevision.value !== revision) {
         return false;
       }
-      themedChart = instance;
+      themeApplied = true;
       return true;
     }
 
@@ -270,7 +270,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       isReady.value = false;
       lastSignature = undefined;
       lastAutoOption = undefined;
-      themedChart = undefined;
       graphicSlotApplied = false;
       if (instance && !instance.isDisposed()) {
         instance.dispose();
@@ -288,7 +287,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isActive(instance)) {
         return;
       }
-      themedChart = instance;
+      themeApplied = true;
 
       function commit(): void {
         const option = manualUpdate.value ? props.option : getAutoOption();
@@ -358,7 +357,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
           return;
         }
         themeRevision.value++;
-        themedChart = undefined;
+        themeApplied = false;
       },
       { deep: true, flush: "sync" },
     );
@@ -417,7 +416,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
           !initOptionsInvalidated &&
           manualUpdate.value === manualUpdateAtInit &&
           isActive(instance) &&
-          instance !== themedChart
+          !themeApplied
         ) {
           const revision = clearRevision;
           if (!applyTheme(instance)) {
