@@ -14,8 +14,6 @@ type ListenerBinding = {
   emitter: EventEmitter;
   event: string;
   source: unknown;
-  once: boolean;
-  invoke: { value: EventHandler };
   handler: EventHandler;
 };
 
@@ -77,13 +75,6 @@ export function useReactiveChartListeners(
       }
 
       const invoke = createEventInvoker(source);
-      if (existing && !existing.once && invoke) {
-        existing.source = source;
-        existing.invoke.value = invoke;
-        seen.add(key);
-        continue;
-      }
-
       if (existing) {
         existing.emitter.off(existing.event, existing.handler);
         bindings.delete(key);
@@ -94,9 +85,7 @@ export function useReactiveChartListeners(
       }
 
       const emitter = zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
-      const current = { value: invoke };
-      const invokeCurrent: EventHandler = (...args) => current.value(...args);
-      let handler = invokeCurrent;
+      let handler = invoke;
       if (parsed.once) {
         let called = false;
         handler = (...args): void => {
@@ -107,7 +96,7 @@ export function useReactiveChartListeners(
           bindings.delete(key);
           consumedSources.set(key, source);
           emitter.off(event, handler);
-          invokeCurrent(...args);
+          invoke(...args);
         };
       }
 
@@ -116,8 +105,6 @@ export function useReactiveChartListeners(
         emitter,
         event,
         source,
-        once: parsed.once,
-        invoke: current,
         handler,
       });
       seen.add(key);

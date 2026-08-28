@@ -1091,7 +1091,7 @@ describe("ECharts component", () => {
     expect(onClickOnce).toHaveBeenCalledOnce();
   });
 
-  it("reactively updates chart and zr handlers without rebinding", async () => {
+  it("reactively replaces chart and zr handlers", async () => {
     const option = ref({});
     const onClickA = vi.fn();
     const onClickB = vi.fn();
@@ -1139,16 +1139,16 @@ describe("ECharts component", () => {
     zrHandler.value = onZrMoveB;
     await nextTick();
 
-    expect(chartStub.off).not.toHaveBeenCalled();
-    expect(zr.off).not.toHaveBeenCalled();
-    expect(chartStub.on).not.toHaveBeenCalled();
-    expect(zr.on).not.toHaveBeenCalled();
+    expect(chartStub.off).toHaveBeenCalledWith("click", firstChartListener);
+    expect(zr.off).toHaveBeenCalledWith("mousemove", firstZrListener);
+    expect(chartStub.on).toHaveBeenCalledWith("click", expect.any(Function));
+    expect(zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
 
-    firstChartListener("second");
+    chartStub.on.mock.calls[0][1]("second");
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledWith("second");
 
-    firstZrListener("zr-second");
+    zr.on.mock.calls[0][1]("zr-second");
     expect(onZrMoveA).toHaveBeenCalledTimes(1);
     expect(onZrMoveB).toHaveBeenCalledWith("zr-second");
   });

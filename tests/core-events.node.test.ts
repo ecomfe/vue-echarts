@@ -76,7 +76,7 @@ describe("core events", () => {
     expect(rootAttrs.value["on:clickOnce"]).toBe(attrs["onNative:clickOnce"]);
   });
 
-  it("binds chart and ZRender listeners and updates handlers without rebinding", () => {
+  it("binds chart and ZRender listeners and replaces changed handlers", () => {
     const first = vi.fn();
     const second = vi.fn();
     const move = vi.fn();
@@ -97,9 +97,9 @@ describe("core events", () => {
     emitter.off.mockClear();
     attrs.onDataZoom = second;
 
-    expect(emitter.on).not.toHaveBeenCalled();
-    expect(emitter.off).not.toHaveBeenCalled();
-    dataZoom("updated");
+    expect(emitter.off).toHaveBeenCalledWith("datazoom", dataZoom);
+    expect(emitter.on).toHaveBeenCalledWith("datazoom", expect.any(Function));
+    findBoundHandler(emitter, "datazoom")("updated");
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith("updated");
 
