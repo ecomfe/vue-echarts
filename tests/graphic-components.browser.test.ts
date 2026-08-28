@@ -5,7 +5,7 @@ import type { LinearGradientObject, PatternObject } from "echarts";
 import { render } from "./helpers/testing";
 import { createFrame, withConsoleWarn } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
-import { GArc, GCircle, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
+import { GArc, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
@@ -50,21 +50,6 @@ function getLastRegisterPayload(collector: CollectorMock): any {
 }
 
 describe("graphic components", () => {
-  it("declares only props supported by each element type", () => {
-    const propsOf = (component: unknown) => (component as { props: Record<string, unknown> }).props;
-
-    expect(propsOf(GGroup)).toHaveProperty("width");
-    expect(propsOf(GGroup)).not.toHaveProperty("fill");
-    expect(propsOf(GRect)).toHaveProperty("width");
-    expect(propsOf(GRect)).not.toHaveProperty("cx");
-    expect(propsOf(GCircle)).toHaveProperty("cx");
-    expect(propsOf(GCircle)).not.toHaveProperty("width");
-    expect(propsOf(GText)).toHaveProperty("text");
-    expect(propsOf(GText)).not.toHaveProperty("textContent");
-    expect(propsOf(GImage)).toHaveProperty("image");
-    expect(propsOf(GImage)).not.toHaveProperty("fill");
-  });
-
   it("warns when component is used outside #graphic slot", async () => {
     const Root = defineComponent({
       setup() {
@@ -266,23 +251,6 @@ describe("graphic components", () => {
     expect(props).toMatchObject(paint);
   });
 
-  it("validates shape prop types", async () => {
-    const collector = createCollectorMock();
-    const Root = withGraphicProvider(collector, () => [
-      h(GRect, { id: "rect", r: [2, 4] }),
-      h(GCircle, { id: "circle", r: [2, 4] as unknown as number }),
-      h(GPolyline, { id: "polyline", smooth: true as unknown as number }),
-    ]);
-
-    withConsoleWarn((warnSpy) => {
-      render(Root);
-      const warnings = warnSpy.mock.calls.flat().join(" ");
-      expect(warnings.match(/type check failed for prop "r"/g)).toHaveLength(1);
-      expect(warnings).toContain('type check failed for prop "smooth"');
-    });
-    await nextTick();
-  });
-
   it("accepts native text styles", async () => {
     const collector = createCollectorMock();
     const textStyle = {
@@ -316,37 +284,6 @@ describe("graphic components", () => {
     await nextTick();
 
     expect(getLastRegisterPayload(collector).props).toMatchObject(textStyle);
-  });
-
-  it("validates text paint values", async () => {
-    const collector = createCollectorMock();
-    const gradient: LinearGradientObject = {
-      type: "linear",
-      x: 0,
-      y: 0,
-      x2: 1,
-      y2: 0,
-      colorStops: [],
-    };
-    const pattern: PatternObject = { image: "pattern.png", repeat: "repeat" };
-    const Root = withGraphicProvider(collector, () =>
-      h(GText, {
-        id: "text-paint",
-        text: "Label",
-        fill: gradient as unknown as string,
-        stroke: pattern as unknown as string,
-        lineDash: "dashed" as unknown as number[],
-      }),
-    );
-
-    withConsoleWarn((warnSpy) => {
-      render(Root);
-      const warnings = warnSpy.mock.calls.flat().join(" ");
-      expect(warnings).toContain('type check failed for prop "fill"');
-      expect(warnings).toContain('type check failed for prop "stroke"');
-      expect(warnings).toContain('type check failed for prop "lineDash"');
-    });
-    await nextTick();
   });
 
   it("preserves zrender defaults until explicitly overridden", async () => {

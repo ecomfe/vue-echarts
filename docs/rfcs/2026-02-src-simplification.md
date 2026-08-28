@@ -46,7 +46,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - keep parsing and application logic close to where it is used;
 - use named shared helpers only when they remove repetition without adding indirection;
 - clear removed callback-slot functions in the option instead of maintaining a separate merge plan;
-- compare ordered component identities directly instead of maintaining parallel identity indexes.
+- compare ordered component identities directly instead of maintaining parallel identity indexes;
+- keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
