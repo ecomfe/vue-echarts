@@ -131,7 +131,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     let clearRevision = 0;
     let optionApplied = false;
     let manualUpdateAtInit = manualUpdate.value;
-    const deferredCharts = new WeakSet<EChartsType>();
+    let initDeferred = false;
     let graphicSlotApplied = false;
     const updateFlush = patchGraphicOption ? "post" : "pre";
 
@@ -179,7 +179,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       // `updated` listeners run synchronously and may clear during this attempt.
       const revision = clearRevision;
       const manual = mode === "manual";
-      deferredCharts.delete(instance);
+      initDeferred = false;
       const slotted = patchOption(option);
       const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
       const forceGraphic = mode === "graphic";
@@ -224,7 +224,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function requestUpdate(mode?: "graphic"): void {
       const instance = chart.value;
-      if (!isCurrent(instance) || manualUpdate.value || deferredCharts.has(instance)) {
+      if (!isCurrent(instance) || manualUpdate.value || initDeferred) {
         return;
       }
 
@@ -258,6 +258,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       isReady.value = false;
       lastSignature = undefined;
       lastAutoOption = undefined;
+      initDeferred = false;
       graphicSlotApplied = false;
       instance?.dispose();
     }
@@ -288,7 +289,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
 
       if (autoresize.value) {
-        deferredCharts.add(instance);
+        initDeferred = true;
         nextTick(() => {
           if (!isCurrent(instance)) {
             return;
@@ -299,13 +300,14 @@ const ECharts = /* @__PURE__ */ defineComponent({
               return;
             }
           }
-          if (deferredCharts.has(instance)) {
+          if (initDeferred) {
             commit();
           } else {
-            isReady.value = isCurrent(instance);
+            isReady.value = true;
           }
           queueMicrotask(() => {
-            if (deferredCharts.delete(instance) && isCurrent(instance)) {
+            if (isCurrent(instance) && initDeferred) {
+              initDeferred = false;
               requestUpdate();
             }
           });
@@ -373,7 +375,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (initOptionsInvalidated || !isCurrent(instance) || deferredCharts.has(instance)) {
+        if (initOptionsInvalidated || !isCurrent(instance) || initDeferred) {
           return;
         }
         // Let the updated hook apply once the new callback containers exist.
@@ -416,7 +418,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             isCurrent(instance) &&
             option &&
             !manualUpdate.value &&
-            !deferredCharts.has(instance) &&
+            !initDeferred &&
             !hasNewSlots()
           ) {
             applyOption(instance, option, "theme");
@@ -463,7 +465,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
       // `updated` listeners run synchronously during clear, so invalidate replay state first.
       clearRevision++;
-      deferredCharts.delete(instance);
+      initDeferred = false;
       lastSignature = undefined;
       lastAutoOption = undefined;
       instance.clear();
