@@ -39,7 +39,7 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
     manualUpdate: ref(false),
     requestUpdate: () => undefined,
     ...overrides,
-  } as GraphicContext;
+  };
 }
 
 beforeEach(async () => {
@@ -93,8 +93,8 @@ describe("graphic runtime", () => {
 
     try {
       const context = createContext({
-        slots: { graphic: () => null } as any,
-        manualUpdate: ref(true) as any,
+        slots: { graphic: () => [] },
+        manualUpdate: ref(true),
         requestUpdate,
       });
 
@@ -140,31 +140,17 @@ describe("graphic runtime", () => {
   });
 
   it("registers runtime via graphic entry side effect", async () => {
-    const originalImage = (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement;
-    const originalCanvas = (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement;
-    const originalVideo = (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement;
+    vi.resetModules();
+    mockState.use.mockReset();
 
-    try {
-      (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = class {};
-      (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement = class {};
-      (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = class {};
+    const runtime = await import("../src/graphic/runtime");
+    const { GraphicComponent } = await import("echarts/components");
+    await import("../src/graphic/index");
 
-      vi.resetModules();
-      mockState.use.mockReset();
-
-      const runtime = await import("../src/graphic/runtime");
-      const { GraphicComponent } = await import("echarts/components");
-      await import("../src/graphic/index");
-
-      const scope = effectScope();
-      const graphicRuntime = scope.run(() => runtime.useRuntime(createContext()));
-      expect(graphicRuntime).toBeTruthy();
-      expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
-      scope.stop();
-    } finally {
-      (globalThis as { HTMLImageElement?: unknown }).HTMLImageElement = originalImage;
-      (globalThis as { HTMLCanvasElement?: unknown }).HTMLCanvasElement = originalCanvas;
-      (globalThis as { HTMLVideoElement?: unknown }).HTMLVideoElement = originalVideo;
-    }
+    const scope = effectScope();
+    const graphicRuntime = scope.run(() => runtime.useRuntime(createContext()));
+    expect(graphicRuntime).toBeTruthy();
+    expect(mockState.use).toHaveBeenCalledWith([GraphicComponent]);
+    scope.stop();
   });
 });

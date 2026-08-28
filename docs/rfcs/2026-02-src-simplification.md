@@ -62,6 +62,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   without a separate recovery mode;
 - drive loading visibility and options through one watcher, without caching equivalent inputs or
   guarding custom effects that mutate their reactive inputs.
+- let Node entry tests import the Graphic runtime without provisioning browser constructors that
+  production code does not read.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
