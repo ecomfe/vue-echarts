@@ -70,6 +70,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   production code does not read.
 - verify Graphic SSR through the public component and hydration flow, without a parallel internal
   mount probe that asserts collector call counts.
+- verify Graphic ordering through public slot and component behavior, without a parallel VNode
+  traversal suite that fixes internal map and scan details.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
