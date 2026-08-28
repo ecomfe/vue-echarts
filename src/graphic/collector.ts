@@ -23,7 +23,7 @@ export type GraphicCollector = {
   dispose: () => void;
 };
 
-export type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & {
+type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & {
   order?: number;
 };
 

@@ -9,7 +9,7 @@ export type GraphicContext = {
   requestUpdate: () => void;
 };
 
-export type GraphicRuntime = {
+type GraphicRuntime = {
   patchOption: (option: Option) => Option;
   render: () => VNodeChild;
 };
