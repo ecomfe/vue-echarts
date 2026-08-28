@@ -21,16 +21,8 @@ function toIdentity(value: unknown): string | undefined {
   return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 }
 
-function isComponentOption(value: unknown): boolean {
-  return typeof value === "function" || (typeof value === "object" && value !== null);
-}
-
 /** Structural summary of an option collection for deletion detection. */
 interface CollectionSummary {
-  /** Unique ids used to match component items; empty for positional arrays. */
-  ids: ReadonlySet<string>;
-  /** Anonymous component items, or all items in a positional array. */
-  noIdCount: number;
   /** Structural snapshots in merge order. */
   shapes: ItemShape[];
 }
@@ -113,30 +105,19 @@ function analyzeItems(
   mode: ShapeMode | undefined,
   componentItems: boolean,
 ): CollectionSummary {
-  const ids = new Set<string>();
-  let noIdCount = 0;
   const shapes: ItemShape[] = [];
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    if (componentItems && !isComponentOption(item)) {
+    if (componentItems && !isPlainObject(item)) {
       continue;
     }
     const itemShape: ItemShape = { id: undefined, name: undefined, shape: true };
     itemShape.shape = buildShape(item, context, mode, componentItems ? itemShape : undefined);
     shapes.push(itemShape);
-    if (itemShape.id === undefined) {
-      noIdCount++;
-      continue;
-    }
-    ids.add(itemShape.id);
   }
 
-  return {
-    ids,
-    noIdCount,
-    shapes,
-  };
+  return { shapes };
 }
 
 /**
@@ -181,7 +162,7 @@ function buildSignature(option: Option): Signature {
       continue;
     }
 
-    if (value != null && (!componentItems || isComponentOption(value))) {
+    if (value != null && !componentItems) {
       leaves.push(key);
     }
   }
@@ -201,16 +182,7 @@ function hasCollectionRemoval(
   if (!next) {
     return prev.shapes.length > 0;
   }
-
-  if (next.shapes.length < prev.shapes.length || next.noIdCount < prev.noIdCount) {
-    return true;
-  }
-  for (const id of prev.ids) {
-    if (!next.ids.has(id)) {
-      return true;
-    }
-  }
-  return false;
+  return next.shapes.length < prev.shapes.length;
 }
 
 function getItemIdentity(item: ItemShape): string | undefined {
@@ -221,28 +193,16 @@ function getItemIdentity(item: ItemShape): string | undefined {
       : undefined;
 }
 
-function hasMergeOrderChange(prev: ItemShape[], next: ItemShape[]): boolean {
-  const positions = new Map<string, number[]>();
-  for (let i = prev.length - 1; i >= 0; i--) {
-    const identity = getItemIdentity(prev[i]);
-    if (identity !== undefined) {
-      const matches = positions.get(identity);
-      if (matches) {
-        matches.push(i);
-      } else {
-        positions.set(identity, [i]);
-      }
+function hasIdentityChange(prev: ItemShape[], next: ItemShape[]): boolean {
+  const length = Math.min(prev.length, next.length);
+  for (let index = 0; index < length; index++) {
+    const previous = getItemIdentity(prev[index]);
+    const current = getItemIdentity(next[index]);
+    if (previous !== current && (previous !== undefined || current !== undefined)) {
+      return true;
     }
   }
-
-  return next.some((item, index) => {
-    const identity = getItemIdentity(item);
-    const previousIndex = identity === undefined ? undefined : positions.get(identity)?.pop();
-    // Normal merge appends unmatched explicit ids after every existing model.
-    return previousIndex === undefined
-      ? item.id !== undefined && index < prev.length
-      : previousIndex !== index;
-  });
+  return false;
 }
 
 function preservesReplacementOrder(prev: ItemShape[], next: ItemShape[]): boolean {
@@ -272,7 +232,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
       !prevIsCollection ||
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
-      hasMergeOrderChange(prev.shapes, next.shapes) ||
+      hasIdentityChange(prev.shapes, next.shapes) ||
       findItemShapeRemoval(prev.shapes, next.shapes) !== undefined
     );
   }
@@ -287,67 +247,21 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
 }
 
 function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape | undefined {
-  let nextById: Map<string, Shape> | undefined;
-  let nextByName: Map<string, ItemShape[]> | undefined;
-  let namedMatches: Set<ItemShape> | undefined;
   let anonymousRemoval: ItemShape | undefined;
 
-  for (const item of prev) {
+  for (let index = 0; index < prev.length; index++) {
+    const item = prev[index];
+    let nextShape: Shape | undefined;
     if (item.id !== undefined) {
-      if (!nextById) {
-        nextById = new Map();
-        for (const nextItem of next) {
-          if (nextItem.id !== undefined) {
-            nextById.set(nextItem.id, nextItem.shape);
-          }
-        }
-      }
-      const nextShape = nextById.get(item.id);
-      if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
+      nextShape = next.find((candidate) => candidate.id === item.id)?.shape;
+    } else {
+      nextShape = next[index]?.shape;
+    }
+    if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
+      if (item.id !== undefined) {
         return item;
       }
-      continue;
-    }
-
-    // ECharts matches anonymous components by name before falling back to their array order.
-    if (item.name !== undefined) {
-      if (!nextByName) {
-        nextByName = new Map();
-        for (let i = next.length - 1; i >= 0; i--) {
-          const nextItem = next[i];
-          if (nextItem.id === undefined && nextItem.name !== undefined) {
-            const matches = nextByName.get(nextItem.name);
-            if (matches) {
-              matches.push(nextItem);
-            } else {
-              nextByName.set(nextItem.name, [nextItem]);
-            }
-          }
-        }
-      }
-      const nextItem = nextByName.get(item.name)?.pop();
-      if (nextItem) {
-        const matches = (namedMatches ??= new Set());
-        matches.add(item);
-        matches.add(nextItem);
-        if (hasShapeRemoval(item.shape, nextItem.shape)) {
-          anonymousRemoval ??= item;
-        }
-      }
-    }
-  }
-
-  let nextIndex = 0;
-  for (const item of prev) {
-    if (item.id !== undefined || namedMatches?.has(item)) {
-      continue;
-    }
-    while (next[nextIndex]?.id !== undefined || namedMatches?.has(next[nextIndex])) {
-      nextIndex++;
-    }
-    const nextShape = next[nextIndex++]?.shape;
-    if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
-      return item;
+      anonymousRemoval ??= item;
     }
   }
   return anonymousRemoval;
@@ -411,10 +325,10 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       return null;
     }
     const collectionRemoval = hasCollectionRemoval(prevCollection, nextCollection);
-    const orderChange =
+    const identityChange =
       nextCollection &&
       !collectionRemoval &&
-      hasMergeOrderChange(prevCollection.shapes, nextCollection.shapes);
+      hasIdentityChange(prevCollection.shapes, nextCollection.shapes);
     const shapeRemoval = nextCollection
       ? findItemShapeRemoval(prevCollection.shapes, nextCollection.shapes)
       : undefined;
@@ -423,7 +337,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       return null;
     }
 
-    if (!shapeRemoval && !collectionRemoval && !orderChange) {
+    if (!shapeRemoval && !collectionRemoval && !identityChange) {
       continue;
     }
     if (!ComponentModel.hasClass(key)) {

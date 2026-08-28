@@ -45,7 +45,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - avoid descriptor/compiler-style layers unless they reduce concrete complexity;
 - keep parsing and application logic close to where it is used;
 - use named shared helpers only when they remove repetition without adding indirection;
-- clear removed callback-slot functions in the option instead of maintaining a separate merge plan.
+- clear removed callback-slot functions in the option instead of maintaining a separate merge plan;
+- compare ordered component identities directly instead of maintaining parallel identity indexes.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.

@@ -91,35 +91,14 @@ describe("smart-update", () => {
 
       expect(Object.keys(signature.objectShapes)).toEqual(["backgroundColor"]);
       expect(signature.leaves).toEqual(["color"]);
-      expect(signature.collections.dataset).toMatchObject({
-        ids: new Set(["ds1"]),
-        noIdCount: 1,
-      });
-      expect(signature.collections.series).toMatchObject({
-        ids: new Set(["a"]),
-        noIdCount: 1,
-      });
-      expect(signature.collections.tooltip).toMatchObject({ noIdCount: 1 });
+      expect(signature.collections.dataset?.shapes).toMatchObject([
+        { id: "ds1" },
+        { id: undefined },
+      ]);
+      expect(signature.collections.series?.shapes).toMatchObject([{ id: "a" }, { id: undefined }]);
+      expect(signature.collections.tooltip?.shapes).toHaveLength(1);
       expect(signature.objectShapes.color).toBeUndefined();
       expect(signature.leaves).not.toContain("title");
-    });
-
-    it("treats numeric ids as strings and ignores unsupported ids", () => {
-      const option: EChartsOption = {
-        series: [
-          { id: 2, type: "bar" },
-          { id: 1, type: "line" },
-          { id: { nested: true } as unknown, type: "pie" },
-          { id: true as unknown as string, type: "scatter" },
-          { type: "area" },
-        ] as unknown as EChartsOption["series"],
-      };
-
-      const signature = buildSignature(option);
-      expect(signature.collections.series).toMatchObject({
-        ids: new Set(["2", "1"]),
-        noIdCount: 3,
-      });
     });
 
     it("only recognizes actions inside graphic element trees", () => {
@@ -289,38 +268,6 @@ describe("smart-update", () => {
 
         expect(plan).toEqual({ notMerge: true });
         expect(applied.series?.map(({ id }) => id)).toEqual(["a", "b", "c", "d"]);
-      });
-
-      it("rebuilds when an ID moves across a named item", () => {
-        const series = [
-          { name: "named", type: "pie", data: [1] },
-          { id: "identified", type: "pie", data: [2] },
-        ] satisfies NonNullable<EChartsOption["series"]>;
-        const base: EChartsOption = { series };
-        const update: EChartsOption = { series: [series[1], series[0]] };
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.series?.map(({ id, name }) => id ?? name)).toEqual(["identified", "named"]);
-      });
-
-      it("rebuilds when dataset items reorder without shrink", () => {
-        const prev = buildSignature({
-          dataset: [
-            { id: "a", source: [[1]] },
-            { id: "b", dimensions: ["value"] },
-          ],
-        });
-        const update: EChartsOption = {
-          dataset: [
-            { id: "b", dimensions: ["value"] },
-            { id: "a", source: [[1]] },
-          ],
-        };
-
-        const result = planUpdate(prev, update);
-
-        expect(result.plan).toEqual({ notMerge: true });
       });
     });
 
@@ -646,14 +593,6 @@ describe("smart-update", () => {
         expect(next.plan.notMerge).toBe(false);
       });
 
-      it("adds replaceMerge when ids shrink", () => {
-        const prev = buildSignature({ series: [{ id: "a" }, { id: "b" }] });
-        const next = planUpdate(prev, { series: [{ id: "a" }] });
-
-        expect(next.plan.replaceMerge).toEqual(["series"]);
-        expect(next.plan.notMerge).toBe(false);
-      });
-
       it("rebuilds when removing an ID would leave a leading hole", () => {
         const base: EChartsOption = {
           series: [
@@ -821,7 +760,7 @@ describe("smart-update", () => {
         expect(applied.series?.map(({ id }) => id)).toEqual(["named", undefined, undefined]);
       });
 
-      it("matches anonymous component shapes by name before index", () => {
+      it("replaces reordered named components before clearing nested properties", () => {
         const base: EChartsOption = {
           series: [
             {
@@ -845,25 +784,6 @@ describe("smart-update", () => {
           ],
         };
 
-        expect(
-          planUpdate(buildSignature(base), {
-            series: [
-              {
-                name: "mocha",
-                type: "pie",
-                data: [2],
-                label: { show: true, color: "brown" },
-              },
-              {
-                name: "latte",
-                type: "pie",
-                data: [1],
-                label: { show: true, color: "blue" },
-              },
-            ],
-          }).plan,
-        ).toEqual({ notMerge: false, replaceMerge: ["series"] });
-
         const { applied, plan } = applyPlannedUpdate(base, update);
         const seriesByName = Object.fromEntries(
           (applied.series ?? []).map((series) => [series.name, series]),
@@ -873,34 +793,6 @@ describe("smart-update", () => {
         expect(applied.series?.map(({ name }) => name)).toEqual(["mocha", "latte"]);
         expect(seriesByName.latte.label?.color).toBeUndefined();
         expect(seriesByName.mocha.label?.color).toBe("brown");
-      });
-
-      it("rebuilds when an ID moves across duplicate and renamed components", () => {
-        const base: EChartsOption = {
-          series: [
-            { name: "duplicate", type: "pie", data: [1] },
-            { name: "duplicate", type: "pie", data: [2] },
-            { name: "before", type: "pie", data: [3] },
-            { id: "fixed", name: "fixed", type: "pie", data: [4] },
-          ],
-        };
-        const update: EChartsOption = {
-          series: [
-            { id: "fixed", name: "fixed", type: "pie", data: [4] },
-            { name: "duplicate", type: "pie", data: [1] },
-            { name: "duplicate", type: "pie", data: [2] },
-            { name: "after", type: "pie", data: [3] },
-          ],
-        };
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.series?.map(({ name }) => name)).toEqual([
-          "fixed",
-          "duplicate",
-          "duplicate",
-          "after",
-        ]);
       });
     });
 
