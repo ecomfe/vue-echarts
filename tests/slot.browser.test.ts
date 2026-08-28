@@ -14,9 +14,7 @@ import type {
   TooltipComponentOption,
 } from "echarts";
 
-type SlotTestHandle = ReturnType<typeof useSlotOption> & {
-  setReady: (value: boolean) => void;
-};
+type SlotTestHandle = ReturnType<typeof useSlotOption>;
 
 const SlotTestComponent = defineComponent({
   props: {
@@ -26,18 +24,11 @@ const SlotTestComponent = defineComponent({
     },
   },
   setup(props, ctx) {
-    const ready = shallowRef(true);
-    const { render, patchOption } = useSlotOption(ctx.slots, props.onChange ?? (() => {}), ready);
+    const slot = useSlotOption(ctx.slots, props.onChange ?? (() => {}));
+    slot.setReady(true);
+    ctx.expose(slot);
 
-    ctx.expose({
-      patchOption,
-      render,
-      setReady: (value: boolean) => {
-        ready.value = value;
-      },
-    });
-
-    return () => h("div", render());
+    return () => h("div", slot.render());
   },
 });
 

@@ -6,9 +6,8 @@ import {
   onMounted,
   shallowRef,
   shallowReactive,
-  watchSyncEffect,
 } from "vue";
-import type { Ref, Slots, SlotsType } from "vue";
+import type { Slots, SlotsType } from "vue";
 import type { Option } from "../types";
 import { isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
@@ -104,12 +103,13 @@ function writePath(
   return true;
 }
 
-export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Ref<boolean>) {
+export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
   const containers = shallowReactive<SlotMap<HTMLElement>>({});
   const params = shallowReactive<SlotMap<unknown>>({});
   const isMounted = shallowRef(false);
+  const ready = shallowRef(false);
 
   const collectSlotNames = (warnInvalid = false): SlotName[] => {
     const names: SlotName[] = [];
@@ -133,14 +133,16 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   const hasNewSlots = () => collectSlotNames().some((name) => !slotNames.includes(name));
 
-  watchSyncEffect(() => {
-    if (!ready.value) {
-      patchedSlotNames = [];
-      for (const key of Object.keys(params) as SlotName[]) {
-        delete params[key];
-      }
+  function setReady(value: boolean): void {
+    ready.value = value;
+    if (value) {
+      return;
     }
-  });
+    patchedSlotNames = [];
+    for (const key of Object.keys(params) as SlotName[]) {
+      delete params[key];
+    }
+  }
 
   function syncSlotNames(names: readonly SlotName[]): boolean {
     if (names.length === slotNames.length && slotNames.every((name) => names.includes(name))) {
@@ -247,6 +249,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
     render,
     hasNewSlots,
     patchOption,
+    setReady,
   };
 }
 

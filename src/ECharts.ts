@@ -82,7 +82,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
-    const isReady = shallowRef(false);
     const themeRevision = shallowRef(0);
     const initOptionsRevision = shallowRef(0);
     const defaultTheme = inject(THEME_KEY, null);
@@ -108,7 +107,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
       render: renderSlot,
       hasNewSlots,
       patchOption,
-    } = useSlotOption(slots, requestUpdate, isReady);
+      setReady: setSlotsReady,
+    } = useSlotOption(slots, requestUpdate);
 
     const { patchOption: patchGraphicOption, render: renderGraphic } =
       useGraphic({
@@ -231,7 +231,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     function cleanup(): void {
       const instance = chart.value;
       chart.value = undefined;
-      isReady.value = false;
+      setSlotsReady(false);
       lastSignature = undefined;
       lastAutoOption = undefined;
       initDeferred = false;
@@ -261,7 +261,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             applyOption(instance, option);
           }
         }
-        isReady.value = isCurrent(instance);
+        setSlotsReady(isCurrent(instance));
       }
 
       if (autoresize.value) {
@@ -280,7 +280,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
             initDeferred = false;
             commit();
           } else {
-            isReady.value = true;
+            setSlotsReady(true);
           }
         });
         return;

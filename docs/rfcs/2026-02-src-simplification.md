@@ -110,6 +110,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   disposal inside mocked option commits and invoke formatters retained from the disposed chart.
 - use callback-slot readiness to reset payloads and rebuild containers across chart replacement;
   do not guard formatters retained from an inactive chart.
+- keep callback-slot readiness inside its composable and expose a direct lifecycle method instead
+  of passing a Ref across modules and watching it with another reactive effect.
 - group Graphic public-prop type assertions by semantic contract instead of repeating one alias per
   field; retain exact, accepted-input, and rejected-key coverage.
 
