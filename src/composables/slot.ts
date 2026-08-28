@@ -276,18 +276,15 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
   function patchUpdateOptions(updateOptions?: UpdateOptions): UpdateOptions | undefined {
     // ECharts merge retains formatter fields omitted after a slot is removed.
-    const replacements = new Set<string>();
+    const original = updateOptions;
     for (const key of appliedSlotNames) {
       if (patchedSlotNames.includes(key)) {
         continue;
       }
       const replacement = getRootComponent(key);
       if (!replacement || rebuildOnRemoval) {
-        return { ...updateOptions, notMerge: true };
+        return { ...original, notMerge: true };
       }
-      replacements.add(replacement);
-    }
-    for (const replacement of replacements) {
       updateOptions = appendReplaceMerge(updateOptions, replacement);
     }
     return updateOptions;
