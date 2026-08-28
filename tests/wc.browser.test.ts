@@ -23,15 +23,6 @@ describe("register", () => {
 
     let registry: CustomElementRegistryStub;
 
-    function getDisconnectedCallback(tagName: string): (this: HTMLElement) => void {
-      const ctor = registry.get(tagName);
-      if (!ctor) {
-        throw new Error("Expected custom element constructor to be registered.");
-      }
-      return (ctor.prototype as { disconnectedCallback: (this: HTMLElement) => void })
-        .disconnectedCallback;
-    }
-
     beforeEach(() => {
       vi.unstubAllGlobals();
 
@@ -42,24 +33,6 @@ describe("register", () => {
     afterEach(() => {
       vi.unstubAllGlobals();
       vi.restoreAllMocks();
-    });
-
-    it("returns false when browser APIs are disabled", () => {
-      vi.stubGlobal("customElements", undefined as unknown as CustomElementRegistry);
-
-      expect(register()).toBe(false);
-    });
-
-    it("registers the custom element once", () => {
-      const defineSpy = vi.spyOn(registry, "define");
-
-      expect(register()).toBe(true);
-      expect(defineSpy).toHaveBeenCalledTimes(1);
-      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
-
-      defineSpy.mockClear();
-      expect(register()).toBe(true);
-      expect(defineSpy).not.toHaveBeenCalled();
     });
 
     it("rejects an incompatible element already registered", () => {
@@ -73,26 +46,15 @@ describe("register", () => {
       expect(registry.get(TAG_NAME)).toBe(existing);
     });
 
-    it("recognizes its lifecycle implementation from another module instance", async () => {
+    it("reuses its registration across module instances", async () => {
       expect(register()).toBe(true);
+      expect(registry.get(TAG_NAME)).toBeTypeOf("function");
       vi.resetModules();
 
       const defineSpy = vi.spyOn(registry, "define");
       const reloaded = await import("../src/wc");
       expect(reloaded.register()).toBe(true);
       expect(defineSpy).not.toHaveBeenCalled();
-    });
-
-    it("exposes a constructor that skips disconnect work without a disposal hook", () => {
-      expect(register()).toBe(true);
-
-      const disconnectedCallback = getDisconnectedCallback(TAG_NAME);
-      expect(disconnectedCallback).toBeTypeOf("function");
-      const queueSpy = vi.spyOn(globalThis, "queueMicrotask");
-
-      disconnectedCallback.call({ __dispose: null } as unknown as HTMLElement);
-
-      expect(queueSpy).not.toHaveBeenCalled();
     });
   });
 

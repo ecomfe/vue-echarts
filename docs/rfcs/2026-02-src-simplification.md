@@ -80,6 +80,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   event units only for mutable arrays and listener state across chart replacement.
 - keep injection keys owned by one module instance instead of coupling duplicate package instances
   through the global symbol registry.
+- test custom-element registration through registry collisions and observable disconnect behavior,
+  without fixing internal early-return or repeated same-module call details.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
