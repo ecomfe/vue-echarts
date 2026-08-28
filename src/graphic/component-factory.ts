@@ -112,9 +112,8 @@ export function createComponent<T extends GraphicComponentType>(
         warn(`\`${name}\` must be used inside \`#graphic\` slot.`);
         return () => null;
       }
-      const { register: registerNode, unregister, requestFlush, warn: warnScoped } = collector;
+      const { register: registerNode, unregister, requestFlush } = collector;
       let currentId: string | null = null;
-      let warnedMissingIdentity = false;
 
       watch([props, () => attrs], requestFlush, { deep: true });
 
@@ -124,12 +123,6 @@ export function createComponent<T extends GraphicComponentType>(
           instance.vnode.key,
           instance.uid,
         );
-        if (orderKey === undefined && !warnedMissingIdentity) {
-          warnedMissingIdentity = true;
-          warnScoped(
-            `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
-          );
-        }
         if (currentId !== null && currentId !== id) {
           unregister(currentId, instance.uid);
         }

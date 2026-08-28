@@ -337,7 +337,7 @@ describe("graphic components", () => {
     expect(propsById.clockwise.clockwise).toBe(true);
   });
 
-  it("generates fallback id and warns when both id and key are missing", async () => {
+  it("keeps a generated fallback id stable", async () => {
     const collector = createCollectorMock();
     const x = ref(0);
 
@@ -345,13 +345,13 @@ describe("graphic components", () => {
 
     render(Root);
     await nextTick();
+    const id = getLastRegisterPayload(collector).id;
+    expect(id).toEqual(expect.any(String));
+
     x.value++;
     await nextTick();
 
-    const payload = getLastRegisterPayload(collector);
-    expect(payload.id).toMatch(/^__ve_graphic_/);
-    expect(collector.warn).toHaveBeenCalledOnce();
-    expect(collector.warn).toHaveBeenCalledWith(expect.stringContaining("missing `id` and `key`"));
+    expect(getLastRegisterPayload(collector).id).toBe(id);
   });
 
   it("unregisters an empty-string id when it changes", async () => {
