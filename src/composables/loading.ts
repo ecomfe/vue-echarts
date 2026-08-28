@@ -22,7 +22,6 @@ export function useLoading(
   let shown:
     | { instance: EChartsType; type: string | undefined; options: LoadingOptions }
     | undefined;
-  let applying = false;
 
   return watch(
     () =>
@@ -36,7 +35,7 @@ export function useLoading(
         : { instance: chart.value, visible: false as const },
     (state) => {
       const { instance } = state;
-      if (!instance || applying) {
+      if (!instance) {
         return;
       }
 
@@ -59,15 +58,10 @@ export function useLoading(
         return;
       }
 
-      applying = true;
-      try {
-        if (type) {
-          instance.showLoading(type, { ...currentOptions });
-        } else {
-          instance.showLoading({ ...currentOptions });
-        }
-      } finally {
-        applying = false;
+      if (type) {
+        instance.showLoading(type, { ...currentOptions });
+      } else {
+        instance.showLoading({ ...currentOptions });
       }
       shown = { instance, type, options: currentOptions };
     },

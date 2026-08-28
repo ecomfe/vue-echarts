@@ -53,7 +53,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
 - arbitrate custom-element constructors before synchronous registration instead of recovering from fabricated mid-call races;
 - model lifecycle around the component scope and single current chart; cancel owned queued work on scope disposal instead of giving subordinate runtimes or collectors their own disposed modes;
-- drive loading visibility and options through one watcher instead of parallel force-update paths.
+- drive loading visibility and options through one watcher, without guarding custom effects that
+  mutate their reactive inputs.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
