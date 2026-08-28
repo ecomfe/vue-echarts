@@ -1,6 +1,5 @@
-import { init } from "echarts/core";
-
 import type {
+  init,
   SetOptionOpts,
   ECElementEvent,
   ElementEvent,
@@ -54,8 +53,7 @@ export type PublicComponent<
 
 export type Injection<T> = MaybeRefOrGetter<T | null | undefined>;
 
-type InitType = typeof init;
-export type InitParameters = Parameters<InitType>;
+type InitParameters = Parameters<typeof init>;
 export type Theme = NonNullable<InitParameters[1]>;
 export type ThemeInjection = Injection<Theme>;
 export type InitOptions = NonNullable<InitParameters[2]>;
@@ -63,7 +61,7 @@ export type InitOptionsInjection = Injection<InitOptions>;
 export type UpdateOptions = SetOptionOpts;
 export type UpdateOptionsInjection = Injection<UpdateOptions>;
 
-export type EChartsType = ReturnType<InitType>;
+export type EChartsType = ReturnType<typeof init>;
 
 export type SetOptionType = EChartsType["setOption"];
 export type Option = Parameters<SetOptionType>[0];
