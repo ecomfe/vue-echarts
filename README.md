@@ -104,7 +104,7 @@ import "echarts";
 
 #### Styles
 
-Vue ECharts injects its base styles into the chart's document or shadow root on first render, so no CSS import is normally required. If your stylesheet pipeline needs to load them explicitly, import `vue-echarts/style.css`; see [CSP](#csp-style-src-or-style-src-elem) for when this is required.
+When Vue ECharts is imported in a browser, it injects its base styles into the global document, so no CSS import is normally required. For a shadow root or another document, include `vue-echarts/style.css` in that styling scope; see [CSP](#csp-style-src-or-style-src-elem) for the fallback required by older browsers.
 
 ### Server-side rendering
 
@@ -589,8 +589,9 @@ Static methods can be accessed from [`echarts` itself](https://echarts.apache.or
 
 ## CSP: `style-src` or `style-src-elem`
 
-`VChart` automatically injects its base styles into the document or shadow root where it is
-mounted.
+Vue ECharts injects its base styles into the global document when its module is evaluated. Shadow
+roots and other documents do not receive these styles; include `vue-echarts/style.css` in each
+target styling scope when needed.
 
 If you are **both** enforcing a strict CSP that prevents inline `<style>` injection and targeting browsers that don't support the [CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility), you need to manually include `vue-echarts/style.css`.
 

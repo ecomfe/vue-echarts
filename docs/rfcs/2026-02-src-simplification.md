@@ -66,7 +66,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   production code does not read.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
-second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
+second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption. Public
+documentation directs those scopes to the explicit stylesheet entry instead.
 
 ## Behavior
 

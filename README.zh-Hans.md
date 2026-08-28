@@ -104,7 +104,7 @@ import "echarts";
 
 #### 样式
 
-Vue ECharts 会在首次渲染时将基础样式注入图表所在的 document 或 shadow root，通常无需导入 CSS。如果样式管线需要显式加载，可引入 `vue-echarts/style.css`；必须引入的情形请参见 [CSP](#csp-style-src-或-style-src-elem)。
+在浏览器中导入 Vue ECharts 时，它会将基础样式注入全局 document，通常无需另行引入 CSS。若组件位于 shadow root 或另一个 document，请在相应的样式作用域中引入 `vue-echarts/style.css`；旧版浏览器所需的 CSP 回退方式请参见 [CSP](#csp-style-src-或-style-src-elem)。
 
 ### 服务端渲染
 
@@ -588,7 +588,7 @@ function onDrag(event: ElementEvent) {
 
 ## CSP: `style-src` 或 `style-src-elem`
 
-`VChart` 会自动将基础样式注入其挂载所在的 document 或 shadow root。
+Vue ECharts 会在模块执行时将基础样式注入全局 document。shadow root 和其它 document 不会获得这些样式；需要时请在每个目标样式作用域中引入 `vue-echarts/style.css`。
 
 如果你执行严格的 CSP 策略来防止内联 `<style>` 注入，**并且**需要兼容不支持 [CSSStyleSheet() 构造函数](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet#browser_compatibility) 的浏览器，则需要手动引入 `vue-echarts/style.css`。
 
