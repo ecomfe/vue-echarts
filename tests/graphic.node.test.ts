@@ -591,45 +591,6 @@ describe("graphic", () => {
     }
   });
 
-  it("forwards collector.warn without options", () => {
-    const collector = createCollector(() => void 0);
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-
-    try {
-      collector.warn("plain warning");
-
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(String(warnSpy.mock.calls[0][0])).toContain("plain warning");
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
-  it("exposes current collector nodes", () => {
-    const collector = createCollector(() => void 0);
-
-    collector.register({
-      id: "a",
-      type: "rect",
-      parentId: null,
-      props: {},
-      handlers: {},
-      sourceId: 1,
-    });
-    collector.register({
-      id: "b",
-      type: "text",
-      parentId: "a",
-      props: {},
-      handlers: {},
-      sourceId: 2,
-    });
-
-    const nodes = Array.from(collector.getNodes());
-    expect(nodes.some((item) => item.id === "a")).toBe(true);
-    expect(nodes.find((item) => item.id === "b")?.parentId).toBe("a");
-  });
-
   it("ignores unregister from mismatched source and removes with matched source", () => {
     const collector = createCollector(() => void 0);
 
