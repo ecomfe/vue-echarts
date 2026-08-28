@@ -17,15 +17,10 @@ import { init as initChart } from "echarts/core";
 
 import type { InjectionKey, PropType, VNodeChild } from "vue";
 
-import {
-  usePublicAPI,
-  useAutoresize,
-  autoresizeProps,
-  useLoading,
-  loadingProps,
-  useSlotOption,
-} from "./composables";
-import type { PublicMethods, SlotsTypes } from "./composables";
+import { usePublicAPI, type PublicMethods } from "./composables/api";
+import { useAutoresize, autoresizeProps } from "./composables/autoresize";
+import { useLoading, loadingProps } from "./composables/loading";
+import { useSlotOption, type SlotsTypes } from "./composables/slot";
 import { appendReplaceMerge, hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
@@ -61,7 +56,7 @@ export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol.for(
 export const UPDATE_OPTIONS_KEY: InjectionKey<UpdateOptionsInjection> = Symbol.for(
   "vue-echarts.update-options",
 );
-export { LOADING_OPTIONS_KEY } from "./composables";
+export { LOADING_OPTIONS_KEY } from "./composables/loading";
 
 const chartProps = {
   option: Object as PropType<Option>,
