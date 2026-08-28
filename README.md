@@ -418,7 +418,8 @@ export default {
 - `isDisposed` [→](https://echarts.apache.org/en/api.html#echartsInstance.isDisposed)
 - `dispose` [→](https://echarts.apache.org/en/api.html#echartsInstance.dispose)
 
-`dispose` is terminal for the current component instance. Remount the component to initialize a new chart.
+`dispose` is terminal for the current component instance. Use it instead of calling `dispose` on
+the raw `chart` instance; remount the component to initialize a new chart.
 
 > [!NOTE]
 > The following ECharts instance methods aren't exposed because their functionality is already provided by component [props](#props):

@@ -145,15 +145,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
       );
     }
 
-    function isActive(instance: EChartsType | undefined): instance is EChartsType {
-      if (instance === undefined || chart.value !== instance || terminallyDisposed.value) {
-        return false;
-      }
-      if (instance.isDisposed()) {
-        dispose();
-        return false;
-      }
-      return true;
+    function isCurrent(instance: EChartsType | undefined): instance is EChartsType {
+      return instance !== undefined && chart.value === instance && !terminallyDisposed.value;
     }
 
     function patchUpdateOptions(
@@ -167,12 +160,12 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function applyTheme(instance: EChartsType): boolean {
       // ECharts ignores setTheme until its first option creates the chart model.
-      if (!optionApplied || !isActive(instance) || themeApplied) {
+      if (!optionApplied || themeApplied) {
         return false;
       }
       const revision = themeRevision.value;
       instance.setTheme(realTheme.value || {});
-      if (!isActive(instance) || themeRevision.value !== revision) {
+      if (!isCurrent(instance) || themeRevision.value !== revision) {
         return false;
       }
       themeApplied = true;
@@ -211,7 +204,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
 
       instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
-      if (!isActive(instance) || clearRevision !== revision) {
+      if (!isCurrent(instance) || clearRevision !== revision) {
         return;
       }
       commitSlotOption();
@@ -224,7 +217,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         lastAutoOption = option;
       }
       const themeApplied = applyTheme(instance);
-      if (!isActive(instance) || clearRevision !== revision) {
+      if (!isCurrent(instance) || clearRevision !== revision) {
         return;
       }
       if (themeApplied && !manual) {
@@ -234,7 +227,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     function requestUpdate(mode?: "graphic"): void {
       const instance = chart.value;
-      if (!isActive(instance) || manualUpdate.value || deferredCharts.has(instance)) {
+      if (!isCurrent(instance) || manualUpdate.value || deferredCharts.has(instance)) {
         return;
       }
 
@@ -269,9 +262,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       lastSignature = undefined;
       lastAutoOption = undefined;
       graphicSlotApplied = false;
-      if (instance && !instance.isDisposed()) {
-        instance.dispose();
-      }
+      instance?.dispose();
     }
 
     function init(): void {
@@ -282,7 +273,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       const host = chartHost.value as HTMLDivElement;
       const instance = initChart(host, realTheme.value, realInitOptions.value);
       chart.value = instance;
-      if (!isActive(instance)) {
+      if (!isCurrent(instance)) {
         return;
       }
       themeApplied = true;
@@ -296,28 +287,28 @@ const ECharts = /* @__PURE__ */ defineComponent({
             applyOption(instance, option);
           }
         }
-        isReady.value = isActive(instance);
+        isReady.value = isCurrent(instance);
       }
 
       if (autoresize.value) {
         deferredCharts.add(instance);
         nextTick(() => {
-          if (!isActive(instance)) {
+          if (!isCurrent(instance)) {
             return;
           }
           if (autoresize.value && !hasZeroDimension(host.offsetWidth, host.offsetHeight)) {
             instance.resize();
-            if (!isActive(instance)) {
+            if (!isCurrent(instance)) {
               return;
             }
           }
           if (deferredCharts.has(instance)) {
             commit();
           } else {
-            isReady.value = isActive(instance);
+            isReady.value = isCurrent(instance);
           }
           queueMicrotask(() => {
-            if (deferredCharts.delete(instance) && isActive(instance)) {
+            if (deferredCharts.delete(instance) && isCurrent(instance)) {
               requestUpdate();
             }
           });
@@ -335,7 +326,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       }
 
       const instance = chart.value;
-      if (!isActive(instance)) {
+      if (!isCurrent(instance)) {
         return;
       }
 
@@ -385,7 +376,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         }
 
         const instance = chart.value;
-        if (initOptionsInvalidated || !isActive(instance) || deferredCharts.has(instance)) {
+        if (initOptionsInvalidated || !isCurrent(instance) || deferredCharts.has(instance)) {
           return;
         }
         // Let the updated hook apply once the new callback containers exist.
@@ -399,7 +390,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     );
 
     const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
-      if (!chart.value || terminallyDisposed.value || chart.value.isDisposed()) {
+      if (!chart.value) {
         return;
       }
       cleanup();
@@ -413,7 +404,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         if (
           !initOptionsInvalidated &&
           manualUpdate.value === manualUpdateAtInit &&
-          isActive(instance) &&
+          isCurrent(instance) &&
           !themeApplied
         ) {
           const revision = clearRevision;
@@ -425,7 +416,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
           const option = lastAutoOption;
           if (
             clearRevision === revision &&
-            isActive(instance) &&
+            isCurrent(instance) &&
             option &&
             !manualUpdate.value &&
             !deferredCharts.has(instance) &&
@@ -442,7 +433,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     const stopGroupWatch = watchSyncEffect(() => {
       const instance = chart.value;
-      if (isActive(instance)) {
+      if (isCurrent(instance)) {
         instance.group = props.group ?? "";
       }
     });
@@ -470,7 +461,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     const guardedClear = publicApi.clear;
     publicApi.clear = () => {
       const instance = chart.value;
-      if (!isActive(instance)) {
+      if (!isCurrent(instance)) {
         return guardedClear();
       }
       // `updated` listeners run synchronously during clear, so invalidate replay state first.
@@ -508,7 +499,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       },
       get chart() {
         const instance = chart.value;
-        return isActive(instance) ? instance : undefined;
+        return isCurrent(instance) ? instance : undefined;
       },
     };
     expose(Object.assign(exposed, publicApi));

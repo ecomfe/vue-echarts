@@ -16,7 +16,6 @@ describe("usePublicAPI", () => {
     const chartImpl = {
       getWidth: vi.fn(() => 320),
       getHeight: vi.fn(() => 180),
-      isDisposed: vi.fn(() => false),
     };
     chart.value = chartImpl as unknown as EChartsType;
 
@@ -60,13 +59,9 @@ describe("usePublicAPI", () => {
     ] as const;
 
     type MethodName = (typeof methodNames)[number];
-    type ChartImpl = Record<MethodName, (...args: unknown[]) => unknown> & {
-      isDisposed: () => boolean;
-      marker: string;
-    };
+    type ChartImpl = Record<MethodName, (...args: unknown[]) => unknown> & { marker: string };
 
     const chartImpl = {
-      isDisposed: vi.fn(() => false),
       marker: "chart-instance",
     } as unknown as ChartImpl;
     const callArgs: Record<string, unknown[]> = {};
@@ -134,7 +129,6 @@ describe("usePublicAPI", () => {
 
     const chartImpl = {
       getWidth: vi.fn(() => 240),
-      isDisposed: vi.fn(() => false),
     };
 
     chart.value = chartImpl as unknown as EChartsType;
@@ -145,27 +139,6 @@ describe("usePublicAPI", () => {
     chart.value = undefined;
 
     expect(() => api.getWidth()).toThrowError("ECharts is not initialized yet.");
-  });
-
-  it("rejects method calls after the underlying chart is externally disposed", () => {
-    const chart = shallowRef<EChartsType | undefined>();
-    const getWidth = vi.fn(() => {
-      throw new Error("Disposed internals accessed");
-    });
-    chart.value = {
-      getWidth,
-      isDisposed: vi.fn(() => true),
-    } as unknown as EChartsType;
-    let disposed = false;
-    const dispose = vi.fn(() => {
-      disposed = true;
-    });
-    const api = usePublicAPI(chart, dispose, () => disposed);
-
-    expect(api.isDisposed()).toBe(true);
-    expect(() => api.getWidth()).toThrowError("ECharts has been disposed.");
-    expect(dispose).toHaveBeenCalledOnce();
-    expect(getWidth).not.toHaveBeenCalled();
   });
 
   it("reports terminal disposal when a chart method can no longer run", () => {

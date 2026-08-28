@@ -35,24 +35,13 @@ export type PublicMethods = Pick<EChartsType, MethodName | "dispose" | "isDispos
 export function usePublicAPI(
   chart: Ref<EChartsType | undefined>,
   dispose: () => void,
-  isPubliclyDisposed: () => boolean,
+  isDisposed: () => boolean,
 ): PublicMethods {
-  const disposeIfDisposed = (instance: EChartsType | undefined): boolean => {
-    if (isPubliclyDisposed()) {
-      return true;
-    }
-    if (!instance?.isDisposed()) {
-      return false;
-    }
-    dispose();
-    return true;
-  };
-
   const getInstance = (): EChartsType => {
-    const instance = chart.value;
-    if (disposeIfDisposed(instance)) {
+    if (isDisposed()) {
       throw new Error("ECharts has been disposed.");
     }
+    const instance = chart.value;
     if (!instance) {
       throw new Error("ECharts is not initialized yet.");
     }
@@ -67,6 +56,6 @@ export function usePublicAPI(
     };
   }
   api.dispose = dispose;
-  api.isDisposed = () => disposeIfDisposed(chart.value);
+  api.isDisposed = isDisposed;
   return api as PublicMethods;
 }
