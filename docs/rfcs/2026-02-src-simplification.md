@@ -69,9 +69,9 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - let Node entry tests import the Graphic runtime without provisioning browser constructors that
   production code does not read.
 
-Styles retain the original import-time document injection. Runtime code does not maintain a
-second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption. Public
-documentation directs those scopes to the explicit stylesheet entry instead.
+Styles retain the original base rules and import-time document injection. Runtime code does not
+maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
+adoption. Public documentation directs those scopes to the explicit stylesheet entry instead.
 
 ## Behavior
 
