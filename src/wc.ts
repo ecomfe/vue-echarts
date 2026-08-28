@@ -26,28 +26,24 @@ export function register(): boolean {
     return supportsLifecycle(existing);
   }
 
-  try {
-    class ECElement extends HTMLElement implements EChartsElement {
-      __dispose: (() => void) | null = null;
+  class ECElement extends HTMLElement implements EChartsElement {
+    __dispose: (() => void) | null = null;
 
-      disconnectedCallback(): void {
-        if (!this.__dispose) {
-          return;
-        }
-        queueMicrotask(() => {
-          if (!this.isConnected && this.__dispose) {
-            const dispose = this.__dispose;
-            this.__dispose = null;
-            dispose();
-          }
-        });
+    disconnectedCallback(): void {
+      if (!this.__dispose) {
+        return;
       }
+      queueMicrotask(() => {
+        if (!this.isConnected && this.__dispose) {
+          const dispose = this.__dispose;
+          this.__dispose = null;
+          dispose();
+        }
+      });
     }
-
-    Object.defineProperty(ECElement, LIFECYCLE_MARKER, { value: true });
-    registry.define(TAG_NAME, ECElement);
-  } catch {
-    return supportsLifecycle(registry.get(TAG_NAME));
   }
+
+  Object.defineProperty(ECElement, LIFECYCLE_MARKER, { value: true });
+  registry.define(TAG_NAME, ECElement);
   return true;
 }

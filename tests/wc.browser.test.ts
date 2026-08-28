@@ -13,9 +13,6 @@ describe("register", () => {
       private readonly registry = new Map<string, CustomElementConstructor>();
 
       define(name: string, ctor: CustomElementConstructor): void {
-        if (this.registry.has(name)) {
-          throw new DOMException("already defined", "NotSupportedError");
-        }
         this.registry.set(name, ctor);
       }
 
@@ -25,14 +22,6 @@ describe("register", () => {
     }
 
     let registry: CustomElementRegistryStub;
-
-    function installDuringDefinition(ctor: CustomElementConstructor): void {
-      const define = registry.define.bind(registry);
-      vi.spyOn(registry, "define").mockImplementation((name) => {
-        define(name, ctor);
-        throw new DOMException("already defined", "NotSupportedError");
-      });
-    }
 
     function getDisconnectedCallback(tagName: string): (this: HTMLElement) => void {
       const ctor = registry.get(tagName);
@@ -71,23 +60,6 @@ describe("register", () => {
       defineSpy.mockClear();
       expect(register()).toBe(true);
       expect(defineSpy).not.toHaveBeenCalled();
-    });
-
-    it("rejects an incompatible element registered during definition", () => {
-      const competing = class extends HTMLElement {};
-      installDuringDefinition(competing);
-
-      expect(register()).toBe(false);
-      expect(registry.get(TAG_NAME)).toBe(competing);
-    });
-
-    it("accepts a compatible element registered during definition", () => {
-      const competing = class extends HTMLElement {};
-      Object.defineProperty(competing, Symbol.for("vue-echarts.lifecycle"), { value: true });
-      installDuringDefinition(competing);
-
-      expect(register()).toBe(true);
-      expect(registry.get(TAG_NAME)).toBe(competing);
     });
 
     it("rejects an incompatible element already registered", () => {
