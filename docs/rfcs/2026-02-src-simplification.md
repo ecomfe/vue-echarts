@@ -86,6 +86,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   duplicate plan-only scenarios and excluding malformed option shapes.
 - keep watch-change comparison in one helper and analyze local plain objects without a parallel
   shallow-equality API or cross-realm prototype heuristic.
+- test loading lifecycle through the public component, including injected option merging, instead
+  of maintaining a parallel composable watcher suite.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet

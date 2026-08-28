@@ -17,7 +17,12 @@ import type { ChartStub } from "./helpers/mock";
 import type { InitOptions, Option, SetOptionType, Theme, UpdateOptions } from "../src/types";
 import { withConsoleWarn } from "./helpers/dom";
 import { makeTooltipParams } from "./helpers/tooltip";
-import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
+import ECharts, {
+  INIT_OPTIONS_KEY,
+  LOADING_OPTIONS_KEY,
+  THEME_KEY,
+  UPDATE_OPTIONS_KEY,
+} from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
 import type { EChartsElement } from "../src/wc";
 import type { ComponentExposed } from "vue-component-type-helpers";
@@ -945,6 +950,46 @@ describe("ECharts component", () => {
     loading.value = false;
     await nextTick();
     expect(chartStub.hideLoading).toHaveBeenCalledTimes(1);
+  });
+
+  it("merges reactive loading defaults with explicit options", async () => {
+    const defaults = ref({ color: "#fff", text: "Default" });
+    const loadingOptions = reactive({
+      text: "Loading",
+      custom: { color: "#fff" },
+    });
+
+    const Root = defineComponent({
+      setup() {
+        provide(LOADING_OPTIONS_KEY, () => defaults.value);
+        return () => h(ECharts, { option: {}, loading: true, loadingOptions });
+      },
+    });
+
+    render(Root);
+    await nextTick();
+
+    expect(chartStub.showLoading).toHaveBeenLastCalledWith({
+      color: "#fff",
+      custom: { color: "#fff" },
+      text: "Loading",
+    });
+
+    defaults.value = { color: "#000", text: "Default" };
+    await nextTick();
+    expect(chartStub.showLoading).toHaveBeenLastCalledWith({
+      color: "#000",
+      custom: { color: "#fff" },
+      text: "Loading",
+    });
+
+    loadingOptions.custom.color = "#000";
+    await nextTick();
+    expect(chartStub.showLoading).toHaveBeenLastCalledWith({
+      color: "#000",
+      custom: { color: "#000" },
+      text: "Loading",
+    });
   });
 
   it("binds chart listeners before the initial option commit", async () => {
