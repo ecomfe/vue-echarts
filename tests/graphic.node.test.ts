@@ -250,8 +250,6 @@ describe("graphic", () => {
               blend: "screen",
               textFill: "#f00",
               textStroke: "#0f0",
-              textContent: { type: "text", style: { text: "nested" } },
-              textConfig: { position: "inside" },
             },
           },
           { ...common, id: "image", type: "image", props: { shapeTransition: "all" } },

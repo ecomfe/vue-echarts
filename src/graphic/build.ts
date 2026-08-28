@@ -9,10 +9,8 @@ import {
   PATH_PROP_KEYS,
   PATH_STYLE_KEYS,
   STYLE_KEYS_BY_TYPE,
-  TEXT_ATTACHMENT_PROP_KEYS,
   TEXT_COMMON_STYLE_KEYS,
 } from "./props-common";
-import type { GraphicTextAttachmentPropKey } from "./props-common";
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 import { GRAPHIC_EVENTS } from "./types";
@@ -130,14 +128,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
 
   for (const key of COMMON_PROP_KEYS) {
     const value = props[key];
-    if (
-      value !== undefined &&
-      !(
-        type === "text" && TEXT_ATTACHMENT_PROP_KEYS.includes(key as GraphicTextAttachmentPropKey)
-      ) &&
-      !shapeKeys?.includes(key) &&
-      !styleKeys?.includes(key)
-    ) {
+    if (value !== undefined && !shapeKeys?.includes(key) && !styleKeys?.includes(key)) {
       out[key] = value;
     }
   }
