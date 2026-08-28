@@ -211,7 +211,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
 
     for (const key of names) {
       const formatter = (payload: unknown): HTMLElement | undefined => {
-        if (!ready.value || !slots[key]) {
+        if (!slots[key]) {
           return undefined;
         }
         // ECharts may update and reuse the same formatter payload object.

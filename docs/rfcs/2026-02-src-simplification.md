@@ -108,6 +108,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   and deduplicate dynamically added invalid names.
 - test callback-slot reset behavior at the composable boundary; do not synthesize terminal chart
   disposal inside mocked option commits and invoke formatters retained from the disposed chart.
+- use callback-slot readiness to reset payloads and rebuild containers across chart replacement;
+  do not guard formatters retained from an inactive chart.
 - group Graphic public-prop type assertions by semantic contract instead of repeating one alias per
   field; retain exact, accepted-input, and rejected-key coverage.
 

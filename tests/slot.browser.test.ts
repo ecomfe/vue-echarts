@@ -224,7 +224,7 @@ describe("useSlotOption", () => {
     expect(container.textContent).toBe("tooltip-43");
   });
 
-  it("releases callback containers while the chart is not ready", async () => {
+  it("releases callback containers across chart replacement", async () => {
     const tooltip = vi.fn(() => h("span", "tooltip"));
     const exposed = renderSlotComponent(() => ({ tooltip }));
 
@@ -239,8 +239,6 @@ describe("useSlotOption", () => {
 
     handle.setReady(false);
     await nextTick();
-
-    expect(formatter(makeTooltipParams(1), "")).toBeUndefined();
 
     handle.setReady(true);
     await nextTick();
