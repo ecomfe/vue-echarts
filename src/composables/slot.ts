@@ -51,7 +51,7 @@ function getSlotPath(key: SlotName): string[] {
 
 type Container = Record<string, unknown> | unknown[];
 
-function ensureChild(parent: Container, seg: string, nextSeg?: string): Container | undefined {
+function ensureChild(parent: Container, seg: string, nextSeg: string): Container | undefined {
   const parentIsArray = Array.isArray(parent);
   if (parentIsArray !== isValidArrayIndex(seg)) {
     return undefined;
@@ -64,7 +64,7 @@ function ensureChild(parent: Container, seg: string, nextSeg?: string): Containe
   } else if (isPlainObject(next)) {
     child = { ...next };
   } else if (next === undefined) {
-    child = nextSeg && isValidArrayIndex(nextSeg) ? [] : {};
+    child = isValidArrayIndex(nextSeg) ? [] : {};
   } else {
     return undefined;
   }
