@@ -37,7 +37,6 @@ function createContext(overrides: Partial<GraphicContext> = {}): GraphicContext 
   return {
     slots: {},
     manualUpdate: ref(false),
-    disposed: ref(false),
     requestUpdate: () => undefined,
     ...overrides,
   } as GraphicContext;

@@ -119,7 +119,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       useGraphic({
         slots,
         manualUpdate,
-        disposed: terminallyDisposed,
         // Graphic is always replaced, so slot-only changes do not alter the source signature.
         requestUpdate: () => requestUpdate("graphic"),
       }) ?? {};

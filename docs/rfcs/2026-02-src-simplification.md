@@ -49,7 +49,7 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - treat each callback-slot patch as current state, with no separate post-update commit phase;
 - compare ordered component identities directly instead of maintaining parallel identity indexes;
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
-- let the component's terminal `dispose` path own the chart lifetime instead of monitoring externally disposed raw instances;
+- let the component's terminal `dispose` path and update request own chart liveness instead of duplicating it in subordinate runtimes;
 - drive loading visibility and options through one watcher instead of parallel force-update paths.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
