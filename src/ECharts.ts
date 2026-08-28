@@ -22,7 +22,6 @@ import { useAutoresize, autoresizeProps } from "./composables/autoresize";
 import { useLoading, loadingProps } from "./composables/loading";
 import { useSlotOption, type SlotsTypes } from "./composables/slot";
 import { appendReplaceMerge, hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
-import type { AttrMap } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
 import { useReactiveChartListeners, useRootAttrs } from "./core/events";
@@ -84,7 +83,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
   emits: {} as Emits,
   slots: Object as SlotsTypes,
   setup(props, { attrs, expose, slots }) {
-    const attrsMap: AttrMap = attrs;
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
@@ -107,7 +105,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     );
     const realUpdateOptions = computed(() => props.updateOptions ?? toValue(defaultUpdateOptions));
 
-    const rootAttrs = useRootAttrs(attrsMap);
+    const rootAttrs = useRootAttrs(attrs);
     const terminallyDisposed = shallowRef(false);
 
     const {
@@ -269,7 +267,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       onUpdated(warnMissingGraphic);
     }
 
-    const stopListeners = useReactiveChartListeners(chart, attrsMap);
+    const stopListeners = useReactiveChartListeners(chart, attrs);
 
     function cleanup(): void {
       const instance = chart.value;
