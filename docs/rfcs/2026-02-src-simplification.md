@@ -1,7 +1,7 @@
 # RFC: `src` Simplification and Reactive Attr Events
 
 - Status: Implemented
-- Released in: v8.1.0
+- Released in: v8.2.0
 - Scope: `/src` runtime internals and docs
 
 ## Goals

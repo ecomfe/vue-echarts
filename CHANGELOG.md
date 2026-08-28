@@ -1,3 +1,24 @@
+## 8.2.0
+
+### New features
+
+- Expanded the exposed chart API with modern ECharts rendering, conversion, visual, layout, export, and action-event methods, plus typed read-only `chart` and `root` properties.
+- Added `loading-type` and custom loading option support for registered loading effects.
+- Expanded `vue-echarts/graphic` with `GEllipse`, richer shape, text, animation, and transition props, and repeatable callback-slot targeting.
+- Exported `AutoResize` and `LoadingOptions`, and expanded TypeScript coverage for chart, ZRender, native, action, and `.once` events.
+
+### Fixes
+
+- Made smart updates handle component removal, reordering, shape changes, nested deletions, and graphic actions without leaving stale option state.
+- Fixed chart lifecycle coordination across theme changes, manual updates, external disposal, deferred initialization, autoresize, and loading transitions.
+- Fixed reactive chart, ZRender, native, and callback-slot listeners so replacements and one-shot handlers keep their expected lifecycle.
+- Preserved automatic base-style injection in the published bundle and corrected the global build's ECharts dependency mapping.
+- Removed the unusable `GCompoundPath` export; the ECharts graphic component does not support `compoundPath` elements.
+
+### Improvements
+
+- Reduced redundant runtime work and simplified option planning, listener ownership, callback-slot state, graphic bookkeeping, resize handling, and tests.
+
 ## 8.1.0
 
 ### New features
