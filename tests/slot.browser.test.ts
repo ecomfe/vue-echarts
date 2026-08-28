@@ -152,7 +152,7 @@ describe("useSlotOption", () => {
   });
 
   it("creates callback containers in the component owner document", async () => {
-    const { iframe, ownerDocument, ownerWindow } = createFrame();
+    const { iframe, ownerDocument } = createFrame();
     const container = ownerDocument.body.appendChild(ownerDocument.createElement("div"));
     const exposed = shallowRef<SlotTestHandle>();
     const Root = defineComponent({
@@ -175,7 +175,7 @@ describe("useSlotOption", () => {
       app.mount(container);
       await nextTick();
 
-      const option = ownerWindow.JSON.parse('{"tooltip":{"show":true}}') as Option;
+      const option: Option = { tooltip: { show: true } };
       const patched = getExposed(exposed).patchOption(option);
       const tooltipContainer = getTooltipFormatter(patched, "iframe")(makeTooltipParams(0), "");
       const element = tooltipContainer as HTMLElement | undefined;

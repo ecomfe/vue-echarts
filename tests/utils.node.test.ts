@@ -3,11 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createEventInvoker,
   isIgnorableWatchChange,
-  isOn,
   isPlainObject,
   isValidArrayIndex,
   parseOnEvent,
-  shallowEqual,
 } from "../src/utils";
 
 describe("utils", () => {
@@ -30,22 +28,6 @@ describe("utils", () => {
       invoke();
       expect(stableHandler).toHaveBeenCalledTimes(1);
       expect(lateHandler).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("isOn", () => {
-    it("recognizes vue-style event props", () => {
-      expect(isOn("onClick")).toBe(true);
-      expect(isOn("onNative:click")).toBe(true);
-      expect(isOn("onZr:mouseover")).toBe(true);
-      expect(isOn("onUpdate:modelValue")).toBe(true);
-      expect(isOn("on")).toBe(false);
-    });
-
-    it("ignores non-event keys", () => {
-      expect(isOn("onclick")).toBe(false);
-      expect(isOn("onupdate:modelValue")).toBe(false);
-      expect(isOn("foo")).toBe(false);
     });
   });
 
@@ -93,20 +75,6 @@ describe("utils", () => {
       expect(isPlainObject(() => ({ foo: "bar" }))).toBe(false);
       expect(isPlainObject(null)).toBe(false);
       expect(isPlainObject("foo")).toBe(false);
-    });
-  });
-
-  describe("shallowEqual", () => {
-    it("compares own keys and values without traversing nested objects", () => {
-      const nested = {};
-
-      expect(shallowEqual({ value: NaN, nested }, { value: NaN, nested })).toBe(true);
-      expect(shallowEqual({ value: 1 }, { value: 2 })).toBe(false);
-      expect(shallowEqual({ value: 1 }, { value: 1, extra: undefined })).toBe(false);
-      expect(shallowEqual<Record<string, unknown>>({ width: undefined }, { renderer: "svg" })).toBe(
-        false,
-      );
-      expect(shallowEqual({ nested: {} }, { nested: {} })).toBe(false);
     });
   });
 

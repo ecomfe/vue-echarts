@@ -64,23 +64,11 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
     return false;
   }
   const prototype = Object.getPrototypeOf(value);
-  return (
-    prototype === null ||
-    prototype === Object.prototype ||
-    (Object.getPrototypeOf(prototype) === null && prototype.constructor?.name === "Object")
-  );
+  return prototype === null || prototype === Object.prototype;
 }
 
 export function hasZeroDimension(width: number, height: number): boolean {
   return width === 0 || height === 0;
-}
-
-export function shallowEqual<T extends object>(left: T, right: T): boolean {
-  const keys = Object.keys(left) as (keyof T)[];
-  return (
-    keys.length === Object.keys(right).length &&
-    keys.every((key) => Object.hasOwn(right, key) && Object.is(left[key], right[key]))
-  );
 }
 
 export function appendReplaceMerge(
@@ -106,7 +94,15 @@ export function isIgnorableWatchChange(value: unknown, previous: unknown): boole
     return value === null || typeof value !== "object";
   }
 
-  return isPlainObject(value) && isPlainObject(previous) && shallowEqual(value, previous);
+  if (!isPlainObject(value) || !isPlainObject(previous)) {
+    return false;
+  }
+
+  const keys = Object.keys(value);
+  return (
+    keys.length === Object.keys(previous).length &&
+    keys.every((key) => Object.hasOwn(previous, key) && Object.is(value[key], previous[key]))
+  );
 }
 
 const LOG_PREFIX = "[vue-echarts]";

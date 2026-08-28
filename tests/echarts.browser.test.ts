@@ -15,7 +15,7 @@ import { render } from "./helpers/testing";
 import { init, enqueueChart, resetECharts, createEChartsModule } from "./helpers/mock";
 import type { ChartStub } from "./helpers/mock";
 import type { InitOptions, Option, SetOptionType, Theme, UpdateOptions } from "../src/types";
-import { createFrame, withConsoleWarn } from "./helpers/dom";
+import { withConsoleWarn } from "./helpers/dom";
 import { makeTooltipParams } from "./helpers/tooltip";
 import ECharts, { INIT_OPTIONS_KEY, THEME_KEY, UPDATE_OPTIONS_KEY } from "../src/ECharts";
 import { renderChart } from "./helpers/renderChart";
@@ -1598,31 +1598,6 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject({
       series: [{ data: [1, 2, 3, 4] }],
     });
-  });
-
-  it("detects removals in option objects from another realm", async () => {
-    const { iframe, ownerWindow } = createFrame();
-    const option = ref<Option>(
-      ownerWindow.JSON.parse('{"title":{"text":"Coffee","subtext":"Daily"}}'),
-    );
-    const exposed = shallowRef<Exposed>();
-    const screen = renderChart(() => ({ option: option.value }), exposed);
-
-    try {
-      await nextTick();
-      chartStub.setOption.mockClear();
-
-      option.value = ownerWindow.JSON.parse('{"title":{"text":"Coffee"}}');
-      await nextTick();
-
-      expect(getLastSetOptionCall(chartStub)[1]).toEqual({
-        notMerge: false,
-        replaceMerge: ["title"],
-      });
-    } finally {
-      screen.unmount();
-      iframe.remove();
-    }
   });
 
   it("honors override.replaceMerge in update options", async () => {

@@ -84,6 +84,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   without fixing internal early-return or repeated same-module call details.
 - keep one planner test per distinct structural decision, preferring observable ECharts state over
   duplicate plan-only scenarios and excluding malformed option shapes.
+- keep watch-change comparison in one helper and analyze local plain objects without a parallel
+  shallow-equality API or cross-realm prototype heuristic.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
