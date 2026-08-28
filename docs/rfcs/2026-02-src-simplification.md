@@ -19,8 +19,8 @@
 
 ## Decisions
 
-1. Keep only event-reactivity logic in `src/core/events.ts`; keep option/lifecycle flow in `ECharts.ts` for readability.
-2. Keep `ECharts.ts` as the primary, explicit runtime flow.
+1. Keep attrs event reactivity in `src/core/events.ts` and structural update planning in `src/update.ts`.
+2. Keep lifecycle and option-application orchestration explicit in `ECharts.ts`.
 3. Do not add a `reactive-events` switch.
 4. Do not add a `VChartExposed` export.
 5. Prefer straightforward implementation over speculative abstraction.
@@ -31,8 +31,10 @@
 - `src/core/events.ts`
   - Reactive chart/zr listener binding with diff + cleanup.
   - Reactive native listener projection for render attrs.
-- Option patch + smart-update flow remains in `src/ECharts.ts`.
-- Chart init/cleanup and unmount disposal flow remains in `src/ECharts.ts`.
+- `src/update.ts`
+  - Structural option summaries and smart-update planning, independent of Vue lifecycle state.
+- `src/ECharts.ts`
+  - Chart init/cleanup, reactive source coordination, and option-plan application.
 
 ## Implementation Principle
 
@@ -58,8 +60,8 @@ Template syntax and runtime method signatures remain unchanged.
    - Control: per-key binding table and full unmount cleanup.
 2. `once` listeners losing stable identity.
    - Control: store wrapped callback and unbind old callback before rebinding.
-3. Regression in setOption call patterns.
-   - Control: setOption call-pattern contracts in component tests.
+3. Regression in option update behavior.
+   - Control: planner unit tests plus observable component and real-ECharts integration tests.
 
 ## Validation
 
@@ -76,3 +78,5 @@ Behavior contracts:
 - attrs zr handler switch A -> B
 - attrs native handler switch A -> B
 - once handler replacement remains one-shot
+- item and nested-property removals do not leave stale option state
+- ordinary updates preserve interactive ECharts state
