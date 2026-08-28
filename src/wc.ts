@@ -10,20 +10,16 @@ export interface EChartsElement extends HTMLElement {
   __dispose: (() => void) | null;
 }
 
-function supportsLifecycle(ctor: CustomElementConstructor | undefined): boolean {
-  return Boolean((ctor as LifecycleConstructor | undefined)?.[LIFECYCLE_MARKER]);
-}
-
 export function register(): boolean {
   const registry = globalThis.customElements;
 
-  if (!registry?.get) {
+  if (!registry) {
     return false;
   }
 
   const existing = registry.get(TAG_NAME);
   if (existing) {
-    return supportsLifecycle(existing);
+    return Boolean((existing as LifecycleConstructor)[LIFECYCLE_MARKER]);
   }
 
   class ECElement extends HTMLElement implements EChartsElement {
