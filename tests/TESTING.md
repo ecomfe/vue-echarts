@@ -9,7 +9,7 @@ We run Vitest in two projects:
   - Browser: `tests/setup.browser.ts` (resets DOM after each test).
   - Node: `tests/setup.node.ts`.
 - Prefer shared helpers under `tests/helpers/` to avoid duplicated setup.
-- Test only public behavior; avoid internal implementation details.
+- Test public behavior at the boundary that owns it; avoid repeating it through neighboring internals.
 - For generated APIs, test the shared behavior and complete method set; leave individual signatures to type tests.
 - Use coverage reports to find gaps, not as a percentage target; prioritize supported behavior and regression risk.
 - Keep tests deterministic: silence console noise and flush updates/animation frames with provided helpers.

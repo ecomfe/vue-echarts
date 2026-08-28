@@ -160,7 +160,7 @@ describe("graphic slot event handling", () => {
     const fnA = vi.fn();
     const fnB = vi.fn();
     const fnC = vi.fn();
-    const mutableHandlers = reactive<unknown[]>(["invalid"]);
+    const mutableHandlers = reactive<(typeof fnA)[]>([]);
     const currentHandler = shallowRef<unknown>(fnA);
 
     const Root = defineComponent({
@@ -227,7 +227,7 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
     expect(getNode()?.onclick).toBeUndefined();
 
-    mutableHandlers[0] = fnA;
+    mutableHandlers.push(fnA);
     await nextTick();
     await flushAnimationFrame();
 

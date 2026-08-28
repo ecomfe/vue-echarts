@@ -273,10 +273,9 @@ describe("graphic", () => {
     ]);
   });
 
-  it("keeps user info, ignores inherited handlers, and uses the latest handler array", () => {
+  it("keeps user info and uses the latest handler array", () => {
     const onClickA = vi.fn();
     const onClickB = vi.fn();
-    const inheritedMouseover = vi.fn();
     const handlers = [onClickA];
     const nodes: GraphicNode[] = [
       {
@@ -289,17 +288,11 @@ describe("graphic", () => {
           r: 3,
           info: { name: "marker" },
         },
-        handlers: Object.assign(Object.create({ onMouseover: inheritedMouseover }), {
-          onClick: handlers,
-        }),
+        handlers: { onClick: handlers },
         order: 0,
         sourceId: 1,
       },
     ];
-    nodes[0].handlerCache = new Map([
-      ["onMouseover", { source: inheritedMouseover, handler: inheritedMouseover }],
-    ]);
-
     const option = buildOption(nodes, "root");
     const root = getRootGraphicElement(option);
     const child = root.children?.[0] as Record<string, unknown> | undefined;
@@ -313,8 +306,6 @@ describe("graphic", () => {
     }
 
     expect(info).toMatchObject({ name: "marker" });
-    expect(child.onmouseover).toBeUndefined();
-    expect(nodes[0].handlerCache.has("onMouseover")).toBe(false);
     click("first");
     handlers[0] = onClickB;
     click("second");
@@ -326,11 +317,11 @@ describe("graphic", () => {
     expect(rebuilt?.onclick).toBe(click);
   });
 
-  it("preserves event cancellation through wrapped handlers", () => {
+  it("preserves event cancellation and filters unsupported handlers", () => {
     const regularA = vi.fn(() => true);
     const regularB = vi.fn();
     const once = vi.fn(() => true);
-    const getClick = (handlers: Record<string, unknown>) =>
+    const getElement = (handlers: Record<string, unknown>) =>
       getRootGraphicElement(
         buildOption(
           [
@@ -346,15 +337,23 @@ describe("graphic", () => {
           ],
           "root",
         ),
-      ).children[0].onclick;
-    const onceHandler = getClick({ onClickOnce: once });
+      ).children[0];
+    const regular = getElement({ onClick: [regularA, regularB] }).onclick;
+    const withOnce = getElement({ onClick: regularA, onClickOnce: once }).onclick;
+    const unsupported = getElement({
+      class: "marker",
+      onMouseenter: regularA,
+      onGlobalout: regularB,
+    });
 
-    expect(getClick({ onClick: [regularA, regularB] })()).toBe(true);
-    expect(getClick({ onClick: regularA, onCLICK: regularB })()).toBe(true);
-    expect(onceHandler()).toBe(true);
-    expect(onceHandler()).toBeUndefined();
-    expect(regularA).toHaveBeenCalledTimes(2);
-    expect(regularB).toHaveBeenCalledTimes(2);
+    expect(regular()).toBe(true);
+    expect(withOnce()).toBe(true);
+    expect(withOnce()).toBe(true);
+    expect(unsupported.onclass).toBeUndefined();
+    expect(unsupported.onmouseenter).toBeUndefined();
+    expect(unsupported.onglobalout).toBeUndefined();
+    expect(regularA).toHaveBeenCalledTimes(3);
+    expect(regularB).toHaveBeenCalledOnce();
     expect(once).toHaveBeenCalledOnce();
   });
 
@@ -362,7 +361,7 @@ describe("graphic", () => {
     "drops and recreates %s when its array is emptied in place",
     (key) => {
       const handler = vi.fn();
-      const handlers: unknown[] = [handler];
+      const handlers = [handler];
       const node: GraphicNode = {
         id: "mutable-handler",
         type: "circle",

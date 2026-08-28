@@ -43,6 +43,7 @@
 For callback slots and internal runtime logic, prioritize direct and explicit code paths:
 
 - avoid descriptor/compiler-style layers unless they reduce concrete complexity;
+- treat listener arrays as type-valid function arrays while still supporting empty/non-empty mutations;
 - keep parsing and application logic close to where it is used;
 - use named shared helpers only when they remove repetition without adding indirection;
 - clear removed callback-slot functions in the option instead of maintaining a separate merge plan;

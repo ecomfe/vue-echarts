@@ -5,10 +5,7 @@ export type AttrMap = Record<string, unknown>;
 export type EventHandler = (...args: unknown[]) => unknown;
 
 export function hasEventHandler(value: unknown): boolean {
-  return (
-    typeof value === "function" ||
-    (Array.isArray(value) && value.some((candidate) => typeof candidate === "function"))
-  );
+  return typeof value === "function" || (Array.isArray(value) && value.length > 0);
 }
 
 export function createEventInvoker(value: unknown): EventHandler | undefined {
@@ -16,16 +13,14 @@ export function createEventInvoker(value: unknown): EventHandler | undefined {
     return value as EventHandler;
   }
 
-  if (!Array.isArray(value) || !hasEventHandler(value)) {
+  if (!Array.isArray(value) || value.length === 0) {
     return undefined;
   }
 
   return (...args: unknown[]): unknown => {
     let result: unknown;
     for (const handler of value.slice()) {
-      if (typeof handler === "function") {
-        result = handler(...args) || result;
-      }
+      result = handler(...args) || result;
     }
     return result;
   };
