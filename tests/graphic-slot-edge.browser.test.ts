@@ -53,32 +53,6 @@ describe("graphic slot edge and integration behavior", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
-  it("warns once when graphic slot is added without the graphic entry", async () => {
-    const showGraphic = ref(false);
-    const option = { series: [] };
-    const Root = defineComponent({
-      setup() {
-        return () => h(ECharts, { option }, showGraphic.value ? { graphic: () => h("div") } : {});
-      },
-    });
-
-    await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
-      await nextTick();
-      expect(warnSpy).not.toHaveBeenCalled();
-
-      showGraphic.value = true;
-      await nextTick();
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-
-      showGraphic.value = false;
-      await nextTick();
-      showGraphic.value = true;
-      await nextTick();
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-    });
-  });
-
   it("hydrates a server-rendered graphic slot without mismatch warnings", async () => {
     registerExtension();
 

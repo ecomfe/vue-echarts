@@ -100,6 +100,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   without fixing internal observer rebind counts.
 - replace changed Graphic collector records directly while preserving their handler cache; do not
   mutate records in place or prefilter occupied IDs merely to save small temporary allocations.
+- warn about a missing Graphic extension when the slot is declared at setup; do not maintain an
+  updated-hook state machine solely to detect a dynamically added unsupported slot.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
