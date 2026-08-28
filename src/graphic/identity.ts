@@ -7,20 +7,19 @@ export function resolveIdentity(
   propsId: string | number | undefined,
   vnodeKey: PropertyKey | null | undefined,
   uid: number,
-): { id: string; orderKey?: PropertyKey; missingIdentity: boolean } {
+): { id: string; orderKey?: PropertyKey } {
   if (propsId != null) {
     const id = String(propsId);
-    return { id, orderKey: `id:${id}`, missingIdentity: false };
+    return { id, orderKey: `id:${id}` };
   }
   const orderKey = toOrderKey(vnodeKey);
   if (orderKey !== undefined) {
     return {
       id: typeof vnodeKey === "string" ? vnodeKey : `__ve_graphic_${uid}`,
       orderKey,
-      missingIdentity: false,
     };
   }
-  return { id: `__ve_graphic_${uid}`, missingIdentity: true };
+  return { id: `__ve_graphic_${uid}` };
 }
 
 export function resolveOrderKey(

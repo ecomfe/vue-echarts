@@ -171,28 +171,26 @@ export function createComponent<T extends GraphicComponentType>(
       watch([props, () => attrs], requestFlush, { deep: true });
 
       function register(): string {
-        const identity = resolveIdentity(
+        const { id, orderKey } = resolveIdentity(
           (props as { id?: string | number }).id,
           instance.vnode.key,
           instance.uid,
         );
-        if (identity.missingIdentity && !warnedMissingIdentity) {
+        if (orderKey === undefined && !warnedMissingIdentity) {
           warnedMissingIdentity = true;
           warnScoped(
             `\`${name}\` is missing \`id\` and \`key\`. Updates might be unstable in \`v-for\`.`,
           );
         }
-        if (currentId !== null && currentId !== identity.id) {
+        if (currentId !== null && currentId !== id) {
           unregister(currentId, instance.uid);
         }
-        currentId = identity.id;
+        currentId = id;
         const hintedOrder =
-          identity.orderKey !== undefined
-            ? parentOrderRef?.value.get(identity.orderKey)
-            : undefined;
+          orderKey !== undefined ? parentOrderRef?.value.get(orderKey) : undefined;
 
         registerNode({
-          id: currentId,
+          id,
           type,
           parentId: parentIdRef?.value ?? null,
           order: hintedOrder,
@@ -200,7 +198,7 @@ export function createComponent<T extends GraphicComponentType>(
           handlers: attrs as Record<string, unknown>,
           sourceId: instance.uid,
         });
-        return currentId;
+        return id;
       }
 
       onBeforeUnmount(() => unregister(currentId!, instance.uid));

@@ -78,7 +78,6 @@ describe("graphic order helpers", () => {
     order.update(keys.map((key) => h(RectGraphic, { key })));
 
     expect(new Set(identities.map(({ id }) => id)).size).toBe(5);
-    expect(identities.every(({ missingIdentity }) => !missingIdentity)).toBe(true);
     expect([...order.ref.value.values()]).toEqual([0, 1, 2, 3, 4]);
   });
 
