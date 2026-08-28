@@ -581,7 +581,7 @@ describe("graphic", () => {
 
       expect(onFlush).toHaveBeenCalledTimes(1);
 
-      collector.unregister("dup");
+      collector.unregister("dup", 2);
       await flushMicrotasks();
 
       expect(onFlush).toHaveBeenCalledTimes(2);

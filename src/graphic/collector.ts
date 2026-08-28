@@ -15,8 +15,8 @@ export type GraphicNode = {
 export type GraphicCollector = {
   beginPass: () => void;
   register: (node: GraphicRegisterNode) => void;
-  unregister: (id: string, sourceId?: number) => void;
-  warn: (message: string, onceKey?: string) => void;
+  unregister: (id: string, sourceId: number) => void;
+  warn: (message: string, onceKey: string) => void;
   getNodes: () => Iterable<GraphicNode>;
   requestFlush: () => void;
   cancelPendingFlush: () => void;
@@ -39,19 +39,17 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     seenInPass.clear();
   }
 
-  function warn(message: string, onceKey?: string): void {
-    if (onceKey !== undefined) {
-      if (warnedKeys.has(onceKey)) {
-        return;
-      }
-      warnedKeys.add(onceKey);
+  function warn(message: string, onceKey: string): void {
+    if (warnedKeys.has(onceKey)) {
+      return;
     }
+    warnedKeys.add(onceKey);
     coreWarn(message);
   }
 
   function register(node: GraphicRegisterNode): void {
     const seenSource = seenInPass.get(node.id);
-    if (seenSource != null && seenSource !== node.sourceId) {
+    if (seenSource !== undefined && seenSource !== node.sourceId) {
       warn(
         `Duplicate graphic id "${node.id}" detected. Updates may be unstable.`,
         `duplicate-id:${node.id}`,
@@ -91,9 +89,9 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     requestFlush();
   }
 
-  function unregister(id: string, sourceId?: number): void {
+  function unregister(id: string, sourceId: number): void {
     const existing = nodes.get(id);
-    if (!existing || (sourceId != null && existing.sourceId !== sourceId)) {
+    if (!existing || existing.sourceId !== sourceId) {
       return;
     }
     nodes.delete(id);
