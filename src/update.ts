@@ -42,7 +42,7 @@ export interface Signature {
   collections: Record<string, CollectionSummary | undefined>;
   /** Structural snapshots used to detect nested property removal without retaining option values. */
   objectShapes: Record<string, Shape | undefined>;
-  /** Sorted top-level keys whose values are not traversed. */
+  /** Top-level keys whose values are not traversed. */
   leaves: string[];
   /** Whether the option delegates graphic element changes to `$action`. */
   hasAction: boolean;
@@ -195,8 +195,6 @@ function buildSignature(option: Option): Signature {
       leaves.push(key);
     }
   }
-
-  leaves.sort();
 
   return {
     collections,
@@ -400,13 +398,9 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     }
   }
 
-  let nextLeafIndex = 0;
   for (const key of prev.leaves) {
-    while (nextLeafIndex < next.leaves.length && next.leaves[nextLeafIndex] < key) {
-      nextLeafIndex++;
-    }
     if (
-      next.leaves[nextLeafIndex] !== key &&
+      !next.leaves.includes(key) &&
       next.collections[key] === undefined &&
       next.objectShapes[key] === undefined
     ) {

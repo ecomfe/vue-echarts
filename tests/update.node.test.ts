@@ -125,12 +125,9 @@ describe("smart-update", () => {
       });
     });
 
-    it("filters primitive component items and sorts leaf keys", () => {
+    it("filters primitive component items", () => {
       const option: EChartsOption = {
         dataset: ["raw", { id: "has-id" }],
-        animation: false,
-        backgroundColor: "#000",
-        color: "#fff",
       } as unknown as EChartsOption;
 
       const signature = buildSignature(option);
@@ -139,7 +136,6 @@ describe("smart-update", () => {
         ids: new Set(["has-id"]),
         noIdCount: 0,
       });
-      expect(signature.leaves).toEqual(["animation", "backgroundColor", "color"]);
     });
 
     it("handles malformed option container entries", () => {
