@@ -346,68 +346,6 @@ describe("ECharts component", () => {
     expect(readLocale).toHaveBeenCalledOnce();
   });
 
-  it.each(["clear", "dispose"] as const)(
-    "does not replay an option after a theme event calls %s",
-    async (method) => {
-      const option = ref<Option>({ title: { text: "theme-event" } });
-      const theme = ref<Theme | undefined>("dark");
-      const exposed = shallowRef<Exposed>();
-
-      renderChart(
-        () => ({
-          option: option.value,
-          theme: theme.value,
-          onRendered: () => getExposed(exposed)[method](),
-        }),
-        exposed,
-      );
-      await nextTick();
-
-      chartStub.setOption.mockClear();
-      chartStub.setTheme.mockImplementation(() => {
-        const binding = chartStub.on.mock.calls.find(([event]) => event === "rendered");
-        binding?.[1]({ elapsedTime: 1 });
-      });
-
-      option.value = { title: { text: "discarded" } };
-      theme.value = undefined;
-      await nextTick();
-
-      expect(chartStub.setTheme).toHaveBeenCalledWith({});
-      expect(chartStub[method]).toHaveBeenCalledOnce();
-      expect(chartStub.setOption).toHaveBeenCalledOnce();
-    },
-  );
-
-  it("applies a theme changed by a synchronous ECharts event", async () => {
-    const theme = reactive({ color: ["dark"] });
-    const applied: string[] = [];
-    chartStub.setTheme.mockImplementation(() => {
-      applied.push(theme.color[0]);
-      const binding = chartStub.on.mock.calls.find(([event]) => event === "updated");
-      binding?.[1]({});
-    });
-
-    renderChart(
-      () => ({
-        option: {},
-        theme,
-        onUpdated: () => {
-          if (theme.color[0] === "light") {
-            theme.color[0] = "contrast";
-          }
-        },
-      }),
-      shallowRef<Exposed>(),
-    );
-    await nextTick();
-
-    theme.color[0] = "light";
-    await nextTick();
-
-    expect(applied).toEqual(["light", "contrast"]);
-  });
-
   it("lets an empty theme prop override an injected theme", async () => {
     const option: Option = {};
     const theme = ref<Theme | undefined>("");
@@ -1449,81 +1387,32 @@ describe("ECharts component", () => {
     expect(chartStub.setOption.mock.calls[0][0]).toMatchObject(option.value);
   });
 
-  it("uses a fresh update baseline after clear", async () => {
+  it("keeps clear authoritative until the option changes", async () => {
     const option = ref<Option>({
       series: [
         { id: "a", type: "bar" },
         { id: "b", type: "bar" },
       ],
     });
+    const theme = ref<Theme>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
     await nextTick();
 
     getExposed(exposed).clear();
     chartStub.setOption.mockClear();
+    theme.value = "light";
+    await nextTick();
+
+    expect(chartStub.setTheme).toHaveBeenCalledWith("light");
+    expect(chartStub.setOption).not.toHaveBeenCalled();
+
     option.value = { series: [{ id: "a", type: "bar" }] };
     await nextTick();
 
-    expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
+    expect(chartStub.setOption.mock.calls[0][1]).toEqual({ notMerge: false });
   });
-
-  it.each(["option commit", "theme application"])(
-    "preserves a public clear triggered during %s",
-    async (phase) => {
-      const option = ref<Option>({
-        series: [
-          { id: "a", type: "bar" },
-          { id: "b", type: "bar" },
-        ],
-      });
-      const theme = reactive({ backgroundColor: "white" });
-      const exposed = shallowRef<Exposed>();
-      const clearAt = phase === "option commit" ? 2 : 3;
-      let updates = 0;
-
-      const emitUpdated = () => {
-        const listener = chartStub.on.mock.calls.find(([event]) => event === "updated")?.[1];
-        listener?.({});
-      };
-      chartStub.setOption.mockImplementation(emitUpdated);
-      chartStub.setTheme.mockImplementation(emitUpdated);
-      renderChart(
-        () => ({
-          option: option.value,
-          theme,
-          onUpdated: () => {
-            if (++updates === clearAt) {
-              getExposed(exposed).clear();
-            } else if (updates === 2) {
-              theme.backgroundColor = "#222";
-            }
-          },
-        }),
-        exposed,
-      );
-      await nextTick();
-
-      chartStub.setOption.mockClear();
-      option.value = { series: [{ id: "a", type: "bar" }] };
-      await nextTick();
-
-      expect(chartStub.setOption).toHaveBeenCalledOnce();
-      expect(chartStub.clear).toHaveBeenCalledOnce();
-
-      chartStub.setOption.mockClear();
-      theme.backgroundColor = "#333";
-      await nextTick();
-
-      expect(chartStub.setOption).not.toHaveBeenCalled();
-
-      option.value = { title: { text: "after clear" } };
-      await nextTick();
-
-      expect(getLastSetOptionCall(chartStub)[1]).toEqual({ notMerge: false });
-    },
-  );
 
   it.each([false, true])(
     "initializes the latest option and theme before autoresize completes (manual: %s)",

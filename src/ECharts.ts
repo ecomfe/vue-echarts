@@ -124,7 +124,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     let lastAutoOption: Option | undefined;
     let themeApplied = false;
     let initOptionsInvalidated = false;
-    let clearRevision = 0;
     let optionApplied = false;
     let manualUpdateAtInit = manualUpdate.value;
     let initDeferred = false;
@@ -157,13 +156,9 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!optionApplied || themeApplied) {
         return false;
       }
-      const revision = themeRevision.value;
-      instance.setTheme(realTheme.value || {});
-      if (!isCurrent(instance) || themeRevision.value !== revision) {
-        return false;
-      }
       themeApplied = true;
-      return true;
+      instance.setTheme(realTheme.value || {});
+      return isCurrent(instance);
     }
 
     function applyOption(
@@ -172,8 +167,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       mode?: ApplyMode,
       manualOptions?: UpdateOptions,
     ): void {
-      // `updated` listeners run synchronously and may clear during this attempt.
-      const revision = clearRevision;
       const manual = mode === "manual";
       initDeferred = false;
       const slotted = patchOption(option);
@@ -197,10 +190,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
-      instance.setOption(patched, patchUpdateOptions(updateOptions, forceGraphic));
-      if (!isCurrent(instance) || clearRevision !== revision) {
-        return;
-      }
+      updateOptions = patchUpdateOptions(updateOptions, forceGraphic);
       graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
       optionApplied = true;
       if (!skipPlanning) {
@@ -209,11 +199,15 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!manual) {
         lastAutoOption = option;
       }
-      const themeApplied = applyTheme(instance);
-      if (!isCurrent(instance) || clearRevision !== revision) {
+      instance.setOption(patched, updateOptions);
+      if (!isCurrent(instance) || (!manual && lastAutoOption !== option)) {
         return;
       }
-      if (themeApplied && !manual) {
+      if (mode === "theme") {
+        return;
+      }
+      const themeChanged = applyTheme(instance);
+      if (themeChanged && !manual && lastAutoOption === option) {
         applyOption(instance, option, "theme");
       }
     }
@@ -402,21 +396,13 @@ const ECharts = /* @__PURE__ */ defineComponent({
           isCurrent(instance) &&
           !themeApplied
         ) {
-          const revision = clearRevision;
           if (!applyTheme(instance)) {
             return;
           }
 
           // `clear()` deliberately drops the applied option until its source changes again.
           const option = lastAutoOption;
-          if (
-            clearRevision === revision &&
-            isCurrent(instance) &&
-            option &&
-            !manualUpdate.value &&
-            !initDeferred &&
-            !hasNewSlots()
-          ) {
+          if (option && !manualUpdate.value && !initDeferred && !hasNewSlots()) {
             applyOption(instance, option, "theme");
           }
         }
@@ -459,8 +445,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!isCurrent(instance)) {
         return guardedClear();
       }
-      // `updated` listeners run synchronously during clear, so invalidate replay state first.
-      clearRevision++;
       initDeferred = false;
       lastSignature = undefined;
       lastAutoOption = undefined;

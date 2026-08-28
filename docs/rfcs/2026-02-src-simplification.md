@@ -90,6 +90,10 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   of maintaining a parallel composable watcher suite.
 - let callback slots create missing object containers, but never synthesize component/data arrays
   or their entries when the source option does not define them.
+- record option state before invoking ECharts so public `clear()` resets that same state directly;
+  do not maintain revision counters for nested ECharts callbacks.
+- test `clear()` and theme changes as sequential public interactions instead of synthesizing
+  `clear()` or `dispose()` from mocked `setOption()` and `setTheme()` calls.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
