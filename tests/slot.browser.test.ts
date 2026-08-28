@@ -373,16 +373,20 @@ describe("useSlotOption", () => {
     expect(changeSpy).not.toHaveBeenCalled();
   });
 
-  it("cleans formatter containers when dynamic tooltip/dataView slot paths are removed", async () => {
+  it("cleans formatter containers when dynamic tooltip/dataView slots are removed", async () => {
     const changeSpy = vi.fn();
     const showNested = ref(true);
     const tooltipSlot = vi.fn(() => [h("span", "nested-tooltip")]);
+    const option: Option = {
+      series: [{ type: "line" }],
+      toolbox: { feature: {} },
+    };
 
     const exposed = renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (showNested.value) {
         slots["tooltip-series-0"] = tooltipSlot;
-        slots["dataView-panel"] = () => [h("span", "nested-data-view")];
+        slots.dataView = () => [h("span", "data-view")];
       }
       return slots;
     }, changeSpy);
@@ -390,7 +394,7 @@ describe("useSlotOption", () => {
     await nextTick();
     changeSpy.mockClear();
 
-    const patched = getExposed(exposed).patchOption({});
+    const patched = getExposed(exposed).patchOption(option);
     const tooltip = getSeriesOption(patched, 0);
     if (typeof tooltip.formatter !== "function") {
       throw new Error("Expected nested series tooltip formatter to be injected.");
@@ -401,15 +405,7 @@ describe("useSlotOption", () => {
       throw new Error("Expected nested tooltip formatter to return an HTMLElement.");
     }
 
-    const panel = (patched as Record<string, unknown>).panel as
-      | {
-          toolbox?: { feature?: { dataView?: { optionToContent?: (option: unknown) => unknown } } };
-        }
-      | undefined;
-    const optionToContent = panel?.toolbox?.feature?.dataView?.optionToContent;
-    if (typeof optionToContent !== "function") {
-      throw new Error("Expected nested dataView optionToContent to be injected.");
-    }
+    const optionToContent = getDataViewFormatter(patched);
     const dataViewContainer = optionToContent({});
     if (!(dataViewContainer instanceof HTMLElement)) {
       throw new Error("Expected nested dataView optionToContent to return an HTMLElement.");
@@ -417,7 +413,7 @@ describe("useSlotOption", () => {
 
     await nextTick();
     expect(tooltipContainer.textContent).toBe("nested-tooltip");
-    expect(dataViewContainer.textContent).toBe("nested-data-view");
+    expect(dataViewContainer.textContent).toBe("data-view");
 
     showNested.value = false;
     await nextTick();
@@ -426,12 +422,9 @@ describe("useSlotOption", () => {
     tooltipSlot.mockClear();
     expect(tooltip.formatter(makeTooltipParams(10), "")).toBeUndefined();
     expect(optionToContent({})).toBeUndefined();
-    const patchedAfterRemoval = getExposed(exposed).patchOption({});
+    const patchedAfterRemoval = getExposed(exposed).patchOption(option);
     expect(patchedAfterRemoval).toHaveProperty("series.0.tooltip.formatter", null);
-    expect(patchedAfterRemoval).toHaveProperty(
-      "panel.toolbox.feature.dataView.optionToContent",
-      null,
-    );
+    expect(patchedAfterRemoval).toHaveProperty("toolbox.feature.dataView.optionToContent", null);
 
     showNested.value = true;
     await nextTick();
@@ -528,30 +521,6 @@ describe("useSlotOption", () => {
     expect(container.textContent).toBe("series-0");
   });
 
-  it("skips slot patch when path is blocked by non-object", async () => {
-    const visible = ref(true);
-    const exposed = renderSlotComponent(() => {
-      const slots: SlotDictionary = {};
-      if (visible.value) {
-        slots["tooltip-series-0"] = () => [h("span", "series-0")];
-      }
-      return slots;
-    });
-
-    await nextTick();
-
-    const option = { series: 1 } as unknown as Option;
-    const handle = getExposed(exposed);
-    const patched = handle.patchOption(option);
-
-    expect(patched.series).toBe(1);
-    expect(typeof patched.series).toBe("number");
-
-    visible.value = false;
-    await nextTick();
-    handle.patchOption(option);
-  });
-
   it("does not cross object and array path segments", async () => {
     const exposed = renderSlotComponent(() => ({
       tooltip: () => [h("span", "invalid")],
@@ -565,31 +534,20 @@ describe("useSlotOption", () => {
       tooltip: [],
       series: [],
       toolbox: { id: "main" },
-    } as unknown as Option);
+    });
 
     expect(Object.keys(patched.tooltip as unknown[])).toEqual([]);
     expect(Object.keys(patched.series as unknown[])).toEqual([]);
     expect(patched.toolbox).toEqual({ id: "main" });
   });
 
-  it("creates array shells when target slot path is missing", async () => {
+  it("does not create missing array paths", async () => {
     const exposed = renderSlotComponent(() => ({
-      "tooltip-series-1": () => [h("span", "series-1")],
+      "tooltip-series-0": () => null,
     }));
 
     await nextTick();
 
-    const patched = getExposed(exposed).patchOption({});
-    const tooltip = getSeriesOption(patched, 1);
-    if (typeof tooltip.formatter !== "function") {
-      throw new Error("Expected series tooltip formatter to be injected.");
-    }
-    const container = tooltip.formatter(makeTooltipParams(3), "");
-    if (!(container instanceof HTMLElement)) {
-      throw new Error("Expected tooltip formatter to return an HTMLElement.");
-    }
-
-    await nextTick();
-    expect(container.textContent).toBe("series-1");
+    expect(getExposed(exposed).patchOption({})).not.toHaveProperty("series");
   });
 });

@@ -88,6 +88,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   shallow-equality API or cross-realm prototype heuristic.
 - test loading lifecycle through the public component, including injected option merging, instead
   of maintaining a parallel composable watcher suite.
+- let callback slots create missing object containers, but never synthesize component/data arrays
+  or their entries when the source option does not define them.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet

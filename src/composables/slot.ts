@@ -63,8 +63,8 @@ function ensureChild(parent: Container, seg: string, nextSeg: string): Container
     child = [...next];
   } else if (isPlainObject(next)) {
     child = { ...next };
-  } else if (next === undefined) {
-    child = isValidArrayIndex(nextSeg) ? [] : {};
+  } else if (next === undefined && !parentIsArray && !isValidArrayIndex(nextSeg)) {
+    child = {};
   } else {
     return undefined;
   }
