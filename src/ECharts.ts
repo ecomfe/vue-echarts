@@ -20,7 +20,7 @@ import { usePublicAPI, type PublicMethods } from "./composables/api";
 import { useAutoresize, autoresizeProps } from "./composables/autoresize";
 import { useLoading, loadingProps } from "./composables/loading";
 import { useSlotOption, type SlotsTypes } from "./composables/slot";
-import { appendReplaceMerge, hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
+import { hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
 import { useReactiveChartListeners, useRootAttrs } from "./core/events";
@@ -141,15 +141,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       return instance !== undefined && chart.value === instance && !terminallyDisposed.value;
     }
 
-    function patchUpdateOptions(
-      updateOptions: UpdateOptions | undefined,
-      forceGraphic: boolean,
-    ): UpdateOptions | undefined {
-      const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
-      const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
-      return replaceGraphic ? appendReplaceMerge(updateOptions, "graphic") : updateOptions;
-    }
-
     function applyTheme(instance: EChartsType): boolean {
       // ECharts ignores setTheme until its first option creates the chart model.
       if (!optionApplied || themeApplied) {
@@ -189,8 +180,19 @@ const ECharts = /* @__PURE__ */ defineComponent({
         nextSignature = planned.signature;
       }
 
-      updateOptions = patchUpdateOptions(updateOptions, forceGraphic);
-      graphicSlotApplied = Boolean(patchGraphicOption && slots.graphic);
+      const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
+      const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
+      if (replaceGraphic && !updateOptions?.notMerge) {
+        const replaceMerge = updateOptions?.replaceMerge;
+        const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
+        if (!replacements?.includes("graphic")) {
+          updateOptions = {
+            ...updateOptions,
+            replaceMerge: replacements ? [...replacements, "graphic"] : ["graphic"],
+          };
+        }
+      }
+      graphicSlotApplied = hasGraphicSlot;
       optionApplied = true;
       if (!skipPlanning) {
         lastSignature = nextSignature;

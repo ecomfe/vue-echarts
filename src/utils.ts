@@ -1,5 +1,4 @@
 import { warn as vueWarn } from "vue";
-import type { UpdateOptions } from "./types";
 
 export type AttrMap = Record<string, unknown>;
 export type EventHandler = (...args: unknown[]) => unknown;
@@ -69,24 +68,6 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
 
 export function hasZeroDimension(width: number, height: number): boolean {
   return width === 0 || height === 0;
-}
-
-export function appendReplaceMerge(
-  options: UpdateOptions | undefined,
-  replacement: string,
-): UpdateOptions | undefined {
-  if (options?.notMerge) {
-    return options;
-  }
-  const replaceMerge = options?.replaceMerge;
-  const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
-  if (replacements?.includes(replacement)) {
-    return options;
-  }
-  return {
-    ...options,
-    replaceMerge: replacements ? [...replacements, replacement] : [replacement],
-  };
 }
 
 export function isIgnorableWatchChange(value: unknown, previous: unknown): boolean {
