@@ -59,7 +59,6 @@ export function useAutoresize(
         getOptions()?.onResize?.();
       };
       const throttledResize = wait ? throttle(resize, wait) : undefined;
-      const runResize = throttledResize ?? resize;
       function stop(): void {
         active = false;
         observer.disconnect();
@@ -84,7 +83,7 @@ export function useAutoresize(
         if (wasZeroSized) {
           resize();
         } else if (!isSynchronized(observedWidth, observedHeight)) {
-          runResize();
+          (throttledResize ?? resize)();
         }
       };
 
