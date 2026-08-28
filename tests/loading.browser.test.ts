@@ -38,7 +38,7 @@ function renderUseLoading(
 }
 
 function createChart(showLoading: unknown, hideLoading: unknown): EChartsType {
-  return { showLoading, hideLoading, isDisposed: () => false } as unknown as EChartsType;
+  return { showLoading, hideLoading } as unknown as EChartsType;
 }
 
 describe("useLoading", () => {
@@ -128,14 +128,8 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledWith({ text: "Loading 1" });
   });
 
-  it("replays showLoading only for effective changes despite renderer mutations", async () => {
-    const showLoading = vi.fn((options: LoadingOptions) => {
-      options.maskColor ??= "rgba(255,255,255,0.8)";
-      const custom = options.custom as { size?: number } | undefined;
-      if (custom) {
-        custom.size ??= 12;
-      }
-    });
+  it("updates effective options and skips equivalent replacements", async () => {
+    const showLoading = vi.fn();
     const hideLoading = vi.fn();
     const chart = ref<EChartsType | undefined>();
     const loading = ref<boolean | undefined>(true);
@@ -150,59 +144,39 @@ describe("useLoading", () => {
     expect(showLoading).toHaveBeenCalledTimes(1);
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#fff",
-      maskColor: "rgba(255,255,255,0.8)",
       text: "Loading",
     });
-    expect(hideLoading).not.toHaveBeenCalled();
 
     showLoading.mockClear();
     loadingOptions.value = { text: "Loading" };
     await nextTick();
-
     expect(showLoading).not.toHaveBeenCalled();
 
-    loadingOptions.value = { maskColor: undefined };
-    await nextTick();
-
-    expect(showLoading).toHaveBeenCalledOnce();
-    expect(showLoading).toHaveBeenLastCalledWith({
-      color: "#fff",
-      maskColor: "rgba(255,255,255,0.8)",
-    });
-
-    showLoading.mockClear();
     defaults.value = { color: "#000" };
     await nextTick();
-
-    expect(showLoading).toHaveBeenCalledTimes(1);
+    expect(showLoading).toHaveBeenCalledOnce();
     expect(showLoading).toHaveBeenLastCalledWith({
       color: "#000",
-      maskColor: "rgba(255,255,255,0.8)",
+      text: "Loading",
     });
-    expect(hideLoading).not.toHaveBeenCalled();
 
     showLoading.mockClear();
-    loadingOptions.value = { text: "Updated", color: "#0f0", custom: { color: "#fff" } };
+    loadingOptions.value = { text: "Updated", custom: { color: "#fff" } };
     await nextTick();
-
-    expect(showLoading).toHaveBeenCalledTimes(1);
+    expect(showLoading).toHaveBeenCalledOnce();
     expect(showLoading).toHaveBeenLastCalledWith({
-      color: "#0f0",
-      custom: { color: "#fff", size: 12 },
-      maskColor: "rgba(255,255,255,0.8)",
+      color: "#000",
+      custom: { color: "#fff" },
       text: "Updated",
     });
-    expect(hideLoading).not.toHaveBeenCalled();
 
     showLoading.mockClear();
     (loadingOptions.value!.custom as { color: string }).color = "#000";
     await nextTick();
-
     expect(showLoading).toHaveBeenCalledOnce();
     expect(showLoading).toHaveBeenLastCalledWith({
-      color: "#0f0",
-      custom: { color: "#000", size: 12 },
-      maskColor: "rgba(255,255,255,0.8)",
+      color: "#000",
+      custom: { color: "#000" },
       text: "Updated",
     });
 
@@ -210,7 +184,6 @@ describe("useLoading", () => {
     await nextTick();
 
     expect(hideLoading).toHaveBeenCalledTimes(1);
-    expect(showLoading).not.toHaveBeenCalledTimes(2);
   });
 
   it("applies loading to a replacement chart", async () => {

@@ -1,4 +1,4 @@
-import { computed, inject, toValue, watch, watchSyncEffect } from "vue";
+import { computed, inject, toValue, watch } from "vue";
 
 import type { Ref, InjectionKey, PropType } from "vue";
 import type { EChartsType, LoadingOptions, LoadingOptionsInjection } from "../types";
@@ -24,60 +24,55 @@ export function useLoading(
     | undefined;
   let applying = false;
 
-  function sync(force = false): void {
-    const instance = chart.value;
-    if (!instance || instance.isDisposed() || applying) {
-      return;
-    }
+  return watch(
+    () =>
+      loading.value
+        ? {
+            instance: chart.value,
+            visible: true as const,
+            type: loadingType.value || undefined,
+            options: options.value,
+          }
+        : { instance: chart.value, visible: false as const },
+    (state) => {
+      const { instance } = state;
+      if (!instance || applying) {
+        return;
+      }
 
-    if (loading.value) {
-      const type = loadingType.value || undefined;
-      const nextOptions = options.value;
-      const previous = shown?.instance === instance ? shown : undefined;
+      if (!state.visible) {
+        if (shown?.instance === instance) {
+          instance.hideLoading();
+          shown = undefined;
+        }
+        return;
+      }
 
+      const { type, options: currentOptions } = state;
+      const previous = shown?.instance === instance && shown.type === type ? shown : undefined;
       if (
-        !force &&
         previous &&
-        previous.type === type &&
-        shallowEqual(nextOptions, previous.options)
+        currentOptions !== previous.options &&
+        shallowEqual(currentOptions, previous.options)
       ) {
+        previous.options = currentOptions;
         return;
       }
 
       applying = true;
       try {
         if (type) {
-          instance.showLoading(type, { ...nextOptions });
+          instance.showLoading(type, { ...currentOptions });
         } else {
-          instance.showLoading({ ...nextOptions });
+          instance.showLoading({ ...currentOptions });
         }
       } finally {
         applying = false;
       }
-      shown = { instance, type, options: nextOptions };
-      return;
-    }
-
-    if (shown?.instance === instance) {
-      instance.hideLoading();
-      shown = undefined;
-    }
-  }
-
-  const stopSync = watchSyncEffect(() => sync());
-  const stopOptions = watch(
-    () => (loading.value ? options.value : undefined),
-    (value, previous) => value !== undefined && value === previous && sync(true),
-    {
-      deep: true,
-      flush: "sync",
+      shown = { instance, type, options: currentOptions };
     },
+    { deep: true, immediate: true, flush: "sync" },
   );
-
-  return () => {
-    stopSync();
-    stopOptions();
-  };
 }
 
 export const loadingProps = {
