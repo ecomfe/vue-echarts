@@ -15,9 +15,7 @@ type ThrottleControls = {
 
 export const init = vi.fn<InitFn>();
 export const throttle = vi.fn<ThrottleFn>();
-export const use = vi.fn((modules?: unknown[]) => {
-  void modules;
-});
+export const use = vi.fn<(modules?: unknown[]) => void>();
 
 export function createEChartsModule() {
   return {
@@ -65,7 +63,6 @@ export interface ChartStub extends ChartMethodMocks {
 }
 
 const queue: ChartStub[] = [];
-let cursor = 0;
 
 export function createChartStub(): ChartStub {
   const zr: ZRenderStub = {
@@ -100,13 +97,6 @@ export function createChartStub(): ChartStub {
   };
 }
 
-function ensureStub(): ChartStub {
-  if (cursor >= queue.length) {
-    queue.push(createChartStub());
-  }
-  return queue[cursor++];
-}
-
 const defaultThrottleImplementation: ThrottleFn = ((fn) => {
   const wrapped = ((...args: Parameters<ThrottleFunction>) =>
     (fn as (...args: Parameters<ThrottleFunction>) => unknown)(...args)) as ReturnType<ThrottleFn> &
@@ -119,7 +109,6 @@ const defaultThrottleImplementation: ThrottleFn = ((fn) => {
 
 export function resetECharts(): void {
   queue.length = 0;
-  cursor = 0;
 
   init.mockReset();
   throttle.mockReset();
@@ -127,15 +116,12 @@ export function resetECharts(): void {
 
   init.mockImplementation((...args: Parameters<InitFn>) => {
     const [root] = args;
-    const stub = ensureStub();
+    const stub = queue.shift() ?? createChartStub();
     stub.getWidth.mockImplementation(() => root?.offsetWidth ?? 0);
     stub.getHeight.mockImplementation(() => root?.offsetHeight ?? 0);
     return stub as unknown as ReturnType<InitFn>;
   });
   throttle.mockImplementation(defaultThrottleImplementation);
-  use.mockImplementation((modules?: unknown[]) => {
-    void modules;
-  });
 }
 
 export function enqueueChart(): ChartStub {
