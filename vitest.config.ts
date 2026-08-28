@@ -23,7 +23,6 @@ export default defineConfig({
         plugins: [vue()],
         test: {
           name: "browser",
-          globals: true,
           setupFiles: ["./tests/setup.browser.ts"],
           include: ["tests/**/*.browser.test.ts"],
           browser: {
@@ -41,13 +40,8 @@ export default defineConfig({
       {
         test: {
           name: "node",
-          globals: true,
           setupFiles: ["./tests/setup.node.ts"],
           include: ["tests/**/*.node.test.ts"],
-          environment: "node",
-          browser: {
-            enabled: false,
-          },
         },
       },
     ],
