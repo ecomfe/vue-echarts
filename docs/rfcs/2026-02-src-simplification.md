@@ -121,6 +121,14 @@ Styles retain the original base rules and import-time document injection. Runtim
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
 adoption. Public documentation directs those scopes to the explicit stylesheet entry instead.
 
+## Convergence Boundary
+
+The remaining runtime state corresponds to observable contracts: chart lifecycle and theme replay,
+callback-slot containers, listener ownership, smart option removal, Graphic identity and ordering,
+and throttled resize cleanup. Do not add more fast paths or recovery state for these paths without a
+measured bottleneck or a reproducible public failure; the small allocations and scans that remain are
+preferred to additional branches, caches, or revision bookkeeping.
+
 ## Behavior
 
 Attrs listeners now update reactively:
