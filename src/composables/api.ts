@@ -47,7 +47,6 @@ export function usePublicAPI(
     dispose();
     return true;
   };
-  const isDisposed = () => disposeIfDisposed(chart.value);
 
   const getInstance = (): EChartsType => {
     const instance = chart.value;
@@ -68,6 +67,6 @@ export function usePublicAPI(
     };
   }
   api.dispose = dispose;
-  api.isDisposed = isDisposed;
+  api.isDisposed = () => disposeIfDisposed(chart.value);
   return api as PublicMethods;
 }
