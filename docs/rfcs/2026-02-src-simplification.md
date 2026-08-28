@@ -104,6 +104,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   mutate records in place or prefilter occupied IDs merely to save small temporary allocations.
 - warn about a missing Graphic extension when the slot is declared at setup; do not maintain an
   updated-hook state machine solely to detect a dynamically added unsupported slot.
+- warn about invalid callback slot names declared at setup; do not retain a `Set` solely to detect
+  and deduplicate dynamically added invalid names.
 - test callback-slot reset behavior at the composable boundary; do not synthesize terminal chart
   disposal inside mocked option commits and invoke formatters retained from the disposed chart.
 - group Graphic public-prop type assertions by semantic contract instead of repeating one alias per

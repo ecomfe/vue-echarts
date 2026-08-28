@@ -110,9 +110,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
   const containers = shallowReactive<SlotMap<HTMLElement>>({});
   const params = shallowReactive<SlotMap<unknown>>({});
   const isMounted = shallowRef(false);
-  const warnedInvalidSlots = new Set<string>();
 
-  const collectSlotNames = (): SlotName[] => {
+  const collectSlotNames = (warnInvalid = false): SlotName[] => {
     const names: SlotName[] = [];
     for (const key in slots) {
       if (key === "graphic") {
@@ -120,13 +119,13 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void, ready: Re
       }
       if (isValidSlotName(key)) {
         names.push(key);
-      } else if (!warnedInvalidSlots.has(key)) {
+      } else if (warnInvalid) {
         warn(`Invalid slot name: ${key}`);
-        warnedInvalidSlots.add(key);
       }
     }
     return names;
   };
+  collectSlotNames(true);
 
   let slotNames: readonly SlotName[] = [];
   let nextSlotNames = slotNames;

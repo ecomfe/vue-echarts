@@ -456,7 +456,7 @@ describe("useSlotOption", () => {
     );
   });
 
-  it("warns and skips invalid slot names", async () => {
+  it("warns for declared invalid slot names", async () => {
     const changeSpy = vi.fn();
     await withConsoleWarnAsync(async (warnSpy) => {
       const exposed = renderSlotComponent(
