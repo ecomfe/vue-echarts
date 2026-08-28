@@ -94,6 +94,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   do not maintain revision counters for nested ECharts callbacks.
 - test `clear()` and theme changes as sequential public interactions instead of synthesizing
   `clear()` or `dispose()` from mocked `setOption()` and `setTheme()` calls.
+- after ECharts calls, only verify that the chart remains current; do not retain option-identity
+  guards solely for synchronous re-entry from mocked ECharts callbacks.
 - end initial autoresize deferral immediately after the first resize and let normal Vue watchers
   process later prop changes, without a second microtask retry path.
 - route every observed size through one resize eligibility check; test enabled behavior and cleanup

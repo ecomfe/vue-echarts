@@ -199,14 +199,10 @@ const ECharts = /* @__PURE__ */ defineComponent({
         lastAutoOption = option;
       }
       instance.setOption(patched, updateOptions);
-      if (!isCurrent(instance) || (!manual && lastAutoOption !== option)) {
+      if (!isCurrent(instance) || mode === "theme") {
         return;
       }
-      if (mode === "theme") {
-        return;
-      }
-      const themeChanged = applyTheme(instance);
-      if (themeChanged && !manual && lastAutoOption === option) {
+      if (applyTheme(instance) && !manual) {
         applyOption(instance, option, "theme");
       }
     }
