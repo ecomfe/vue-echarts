@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "vite/client"],
-    "noEmit": true
+    "types": ["vite/client"]
   },
-  "include": ["tests/**/*.ts", "tests/types/**/*.d.ts", "demo/shims-vue.d.ts"]
+  "include": ["tests/**/*.ts", "demo/shims-vue.d.ts"]
 }
