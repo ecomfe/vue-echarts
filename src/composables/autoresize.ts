@@ -10,8 +10,6 @@ export function useAutoresize(
   autoresize: Ref<AutoResize | undefined>,
   container: Ref<HTMLElement | undefined>,
 ): () => void {
-  let wasZeroSized = false;
-
   const getOptions = () => (typeof autoresize.value === "object" ? autoresize.value : undefined);
   const resizeSources = [
     container,
@@ -24,40 +22,27 @@ export function useAutoresize(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
       if (!chart || !container || !enabled) {
-        wasZeroSized = false;
         return;
       }
 
       let observedWidth = chart.getWidth();
       let observedHeight = chart.getHeight();
       const isSynchronized = () =>
-        !wasZeroSized && observedWidth === chart.getWidth() && observedHeight === chart.getHeight();
+        observedWidth === chart.getWidth() && observedHeight === chart.getHeight();
 
       const resize = () => {
-        if (hasZeroDimension(observedWidth, observedHeight)) {
-          wasZeroSized = true;
-          return;
-        }
-        if (isSynchronized()) {
+        if (hasZeroDimension(observedWidth, observedHeight) || isSynchronized()) {
           return;
         }
         chart.resize();
-        wasZeroSized = false;
         getOptions()?.onResize?.();
       };
       const throttledResize = wait ? throttle(resize, wait) : undefined;
 
-      const observer = new ResizeObserver((entries) => {
-        const rect = entries.find(({ target }) => target === container)?.contentRect;
-        observedWidth = rect?.width ?? container.offsetWidth;
-        observedHeight = rect?.height ?? container.offsetHeight;
-        if (hasZeroDimension(observedWidth, observedHeight)) {
-          wasZeroSized = true;
-          return;
-        }
-        if (wasZeroSized) {
-          resize();
-        } else if (!isSynchronized()) {
+      const observer = new ResizeObserver(([entry]) => {
+        observedWidth = entry.contentRect.width;
+        observedHeight = entry.contentRect.height;
+        if (!hasZeroDimension(observedWidth, observedHeight) && !isSynchronized()) {
           (throttledResize ?? resize)();
         }
       });

@@ -93,21 +93,10 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledOnce();
   });
 
-  it("waits through zero size and resizes immediately on recovery", async () => {
-    let pendingResize: (() => void) | undefined;
-    vi.mocked(throttle).mockImplementation((fn) => {
-      const throttled = (() => {
-        pendingResize = fn as () => void;
-      }) as ReturnType<typeof throttle>;
-      throttled.clear = vi.fn(() => {
-        pendingResize = undefined;
-      });
-      return throttled;
-    });
-
+  it("skips zero-sized containers and resizes on recovery", async () => {
     const onResize = vi.fn();
     const container = createSizedContainer(0, 0);
-    const { resize } = await mountAutoresize(container, { throttle: 1000, onResize });
+    const { resize } = await mountAutoresize(container, { throttle: 0, onResize });
     await flushAnimationFrame();
 
     container.style.height = "120px";
@@ -118,7 +107,6 @@ describe("useAutoresize", () => {
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledOnce();
     expect(onResize).toHaveBeenCalledOnce();
-    expect(pendingResize).toBeUndefined();
   });
 
   it("rechecks throttled dimensions and cancels pending work on cleanup", async () => {

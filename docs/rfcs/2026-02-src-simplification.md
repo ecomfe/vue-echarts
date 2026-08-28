@@ -55,6 +55,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   came from an unkeyed `v-for`;
 - arbitrate custom-element constructors before synchronous registration instead of recovering from fabricated mid-call races;
 - model lifecycle around the component scope and single current chart; cancel owned queued work on scope disposal instead of giving subordinate runtimes or collectors their own disposed modes;
+- let the configured throttle govern every observed resize, including recovery from zero size,
+  without a separate recovery mode;
 - drive loading visibility and options through one watcher, without guarding custom effects that
   mutate their reactive inputs.
 
