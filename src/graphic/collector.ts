@@ -103,10 +103,7 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     }
 
     const existing = nodes.get(id);
-    if (!existing) {
-      return;
-    }
-    if (sourceId != null && existing.sourceId !== sourceId) {
+    if (!existing || (sourceId != null && existing.sourceId !== sourceId)) {
       return;
     }
     nodes.delete(id);
