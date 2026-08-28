@@ -25,24 +25,16 @@ export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
   attrs: AttrMap,
 ): () => void {
-  let bindings = new Map<string, ListenerBinding>();
+  const bindings = new Map<string, ListenerBinding>();
   const consumedSources = new Map<string, unknown>();
   const seen = new Set<string>();
-  let activeInstance: EChartsType | undefined;
+  let boundChart: EChartsType | undefined;
 
   function clearBindings(): void {
-    if (bindings.size === 0) {
-      return;
-    }
-    const current = bindings;
-    bindings = new Map();
-    // ECharts disposal already releases both emitters and rejects later off calls.
-    if (activeInstance?.isDisposed()) {
-      return;
-    }
-    for (const binding of current.values()) {
+    for (const binding of bindings.values()) {
       binding.emitter.off(binding.event, binding.handler);
     }
+    bindings.clear();
   }
 
   const stopWatch = watchSyncEffect(() => {
@@ -53,16 +45,16 @@ export function useReactiveChartListeners(
         consumedSources.delete(key);
       }
     }
-    if (!instance || instance.isDisposed()) {
+    if (!instance) {
       clearBindings();
-      activeInstance = undefined;
+      boundChart = undefined;
       return;
     }
 
-    if (activeInstance && activeInstance !== instance) {
+    if (boundChart && boundChart !== instance) {
       clearBindings();
     }
-    activeInstance = instance;
+    boundChart = instance;
 
     for (const key in attrs) {
       const parsed = parseOnEvent(key);

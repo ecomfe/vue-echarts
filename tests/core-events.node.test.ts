@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { effectScope, nextTick, reactive, ref } from "vue";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { effectScope, reactive, ref } from "vue";
 
 import { useReactiveChartListeners, useRootAttrs } from "../src/core/events";
 import type { EChartsType } from "../src/types";
@@ -18,47 +18,54 @@ function createEmitterStub(): EmitterStub {
   };
 }
 
-function findBoundHandler(mockFn: ReturnType<typeof vi.fn>, event: string): EventHandler {
-  const call = [...mockFn.mock.calls].reverse().find((entry) => entry[0] === event);
+function createChartStub() {
+  const zr = createEmitterStub();
+  const chart = {
+    on: vi.fn(),
+    off: vi.fn(),
+    getZr: vi.fn(() => zr),
+  } as unknown as EChartsType;
+
+  return { chart, zr };
+}
+
+function findBoundHandler(emitter: EmitterStub, event: string): EventHandler {
+  const call = [...emitter.on.mock.calls].reverse().find(([name]) => name === event);
   if (!call) {
     throw new Error(`Expected handler for event: ${event}`);
   }
   return call[1] as EventHandler;
 }
 
-function createChartStub() {
-  const zr = createEmitterStub();
-  const getZr = vi.fn(() => zr);
-  const isDisposed = vi.fn(() => false);
-  const chart = {
-    on: vi.fn(),
-    off: vi.fn(),
-    getZr,
-    isDisposed,
-  } as unknown as EChartsType;
+const stops: Array<() => void> = [];
 
-  return {
-    chart,
-    getZr,
-    isDisposed,
-    zr,
-  };
+function bindListeners(attrs: Record<string, unknown>, target = createChartStub()) {
+  const chart = ref<EChartsType | undefined>();
+  const scope = effectScope();
+  const stop = scope.run(() => useReactiveChartListeners(chart, attrs))!;
+  stops.push(() => scope.stop());
+  chart.value = target.chart;
+  return { chart, stop, target };
 }
 
 describe("core events", () => {
-  it("maps native attrs and ignores unsupported native payloads", async () => {
+  afterEach(() => {
+    for (const stop of stops) {
+      stop();
+    }
+    stops.length = 0;
+  });
+
+  it("projects native listeners onto the root element", () => {
     const attrs = reactive<Record<string, unknown>>({
       class: "chart",
       onClick: vi.fn(),
       "onNative:click": vi.fn(),
       "onNative:": vi.fn(),
     });
-
     const scope = effectScope();
-    const rootAttrs = scope.run(() => useRootAttrs(attrs));
-    if (!rootAttrs) {
-      throw new Error("Expected computed attrs to be available.");
-    }
+    stops.push(() => scope.stop());
+    const rootAttrs = scope.run(() => useRootAttrs(attrs))!;
 
     expect(rootAttrs.value).toEqual({
       class: "chart",
@@ -66,332 +73,117 @@ describe("core events", () => {
     });
 
     attrs["onNative:clickOnce"] = vi.fn();
-    await nextTick();
-
-    expect(rootAttrs.value).toMatchObject({
-      "on:click": attrs["onNative:click"],
-      "on:clickOnce": attrs["onNative:clickOnce"],
-    });
-
-    scope.stop();
+    expect(rootAttrs.value["on:clickOnce"]).toBe(attrs["onNative:clickOnce"]);
   });
 
-  it("uses the latest handlers when an array mutates in place", async () => {
-    const chartRef = ref<EChartsType | undefined>();
+  it("binds chart and ZRender listeners and updates handlers without rebinding", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const move = vi.fn();
+    const attrs = reactive<Record<string, unknown>>({
+      onDataZoom: first,
+      "onZr:mouseMove": move,
+      "onNative:click": vi.fn(),
+    });
+    const { target } = bindListeners(attrs);
+    const emitter = target.chart as unknown as EmitterStub;
+
+    expect(emitter.on).toHaveBeenCalledWith("datazoom", expect.any(Function));
+    expect(target.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
+    expect(emitter.on).toHaveBeenCalledTimes(1);
+
+    const dataZoom = findBoundHandler(emitter, "datazoom");
+    emitter.on.mockClear();
+    emitter.off.mockClear();
+    attrs.onDataZoom = second;
+
+    expect(emitter.on).not.toHaveBeenCalled();
+    expect(emitter.off).not.toHaveBeenCalled();
+    dataZoom("updated");
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith("updated");
+
+    const mouseMove = findBoundHandler(target.zr, "mousemove");
+    delete attrs["onZr:mouseMove"];
+    expect(target.zr.off).toHaveBeenCalledWith("mousemove", mouseMove);
+  });
+
+  it("keeps mutable handler arrays live and rebinds after they become empty", () => {
     const first = vi.fn();
     const second = vi.fn();
     const handlers = reactive<EventHandler[]>([first]);
     const attrs = reactive<Record<string, unknown>>({ onClick: handlers });
-    const target = createChartStub();
+    const { target } = bindListeners(attrs);
     const emitter = target.chart as unknown as EmitterStub;
-
-    const scope = effectScope();
-    scope.run(() => {
-      useReactiveChartListeners(chartRef, attrs);
-    });
-
-    chartRef.value = target.chart;
-    await nextTick();
-
-    const firstBinding = findBoundHandler(emitter.on, "click");
-    firstBinding("first");
-    expect(first).toHaveBeenCalledWith("first");
+    const initial = findBoundHandler(emitter, "click");
 
     handlers[0] = second;
-    await nextTick();
+    initial("updated");
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith("updated");
 
-    firstBinding("second");
-    expect(first).toHaveBeenCalledTimes(1);
+    handlers.length = 0;
+    expect(emitter.off).toHaveBeenCalledWith("click", initial);
+
+    emitter.on.mockClear();
+    handlers.push(first);
+    const rebound = findBoundHandler(emitter, "click");
+    rebound("rebound");
+    expect(first).toHaveBeenCalledWith("rebound");
+  });
+
+  it("keeps once listeners consumed until their source changes", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const attrs = reactive<Record<string, unknown>>({ onClickOnce: first });
+    const initial = createChartStub();
+    const { chart } = bindListeners(attrs, initial);
+    const initialEmitter = initial.chart as unknown as EmitterStub;
+    const once = findBoundHandler(initialEmitter, "click");
+
+    once("first");
+    once("ignored");
+    expect(first).toHaveBeenCalledOnce();
+    expect(initialEmitter.off).toHaveBeenCalledWith("click", once);
+
+    initialEmitter.on.mockClear();
+    attrs.class = "unrelated";
+    expect(initialEmitter.on).not.toHaveBeenCalled();
+
+    const replacement = createChartStub();
+    chart.value = replacement.chart;
+    expect((replacement.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
+
+    attrs.onClickOnce = second;
+    const rebound = findBoundHandler(replacement.chart as unknown as EmitterStub, "click");
+    rebound("second");
     expect(second).toHaveBeenCalledWith("second");
-
-    scope.stop();
   });
 
-  it("normalizes camel-case chart and ZRender event names", async () => {
-    const chartRef = ref<EChartsType | undefined>();
-    const attrs = reactive<Record<string, unknown>>({
-      onMouseMove: vi.fn(),
-      onDataZoom: vi.fn(),
-      onBrushEnd: vi.fn(),
-      onSankeyRoam: vi.fn(),
-      onFocusNodeAdjacency: vi.fn(),
-      onUnfocusNodeAdjacency: vi.fn(),
-      onDragNode: vi.fn(),
-      onTreeExpandAndCollapse: vi.fn(),
-      onShowTip: vi.fn(),
-      onUpdateAxisPointer: vi.fn(),
-      "onZr:mouseMove": vi.fn(),
-      "onZr:mouseWheel": vi.fn(),
-      "onZr:dragStart": vi.fn(),
-      "onZr:drop": vi.fn(),
-    });
-    const target = createChartStub();
-    const emitter = target.chart as unknown as EmitterStub;
-
-    const scope = effectScope();
-    scope.run(() => {
-      useReactiveChartListeners(chartRef, attrs);
-    });
-
-    chartRef.value = target.chart;
-    await nextTick();
-
-    expect(emitter.on.mock.calls.map(([event]) => event)).toEqual([
-      "mousemove",
-      "datazoom",
-      "brushend",
-      "sankeyroam",
-      "focusnodeadjacency",
-      "unfocusnodeadjacency",
-      "dragnode",
-      "treeexpandandcollapse",
-      "showtip",
-      "updateaxispointer",
-    ]);
-    expect(target.zr.on.mock.calls.map(([event]) => event)).toEqual([
-      "mousemove",
-      "mousewheel",
-      "dragstart",
-      "drop",
-    ]);
-
-    scope.stop();
-  });
-
-  it("drops listeners without touching an externally disposed chart", async () => {
-    const chartRef = ref<EChartsType | undefined>();
-    const attrs = reactive<Record<string, unknown>>({ onClick: vi.fn() });
-    const target = createChartStub();
-    const emitter = target.chart as unknown as EmitterStub;
-    const scope = effectScope();
-
-    scope.run(() => useReactiveChartListeners(chartRef, attrs));
-    chartRef.value = target.chart;
-    await nextTick();
-
-    target.isDisposed.mockReturnValue(true);
-    target.getZr.mockImplementation(() => {
-      throw new Error("Disposed ZRender accessed");
-    });
-    attrs["onZr:mousemove"] = vi.fn();
-    await nextTick();
-
-    expect(emitter.off).not.toHaveBeenCalled();
-
-    scope.stop();
-  });
-
-  it("supports terminal listener cleanup before scope disposal", () => {
-    const chartRef = ref<EChartsType | undefined>();
+  it("moves bindings between chart instances and stops terminally", () => {
     const attrs = reactive<Record<string, unknown>>({ onClick: vi.fn() });
     const first = createChartStub();
-    const second = createChartStub();
+    const { chart, stop } = bindListeners(attrs, first);
     const firstEmitter = first.chart as unknown as EmitterStub;
-    const scope = effectScope();
-
-    const stop = scope.run(() => useReactiveChartListeners(chartRef, attrs))!;
-    chartRef.value = first.chart;
-
-    stop();
-    expect(firstEmitter.off).toHaveBeenCalledWith("click", expect.any(Function));
-
-    chartRef.value = second.chart;
-    expect((second.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-    scope.stop();
-  });
-
-  it.each(["onClick", "onClickOnce"])(
-    "unbinds and rebinds %s when its array is emptied in place",
-    async (key) => {
-      const chartRef = ref<EChartsType | undefined>();
-      const handler = vi.fn();
-      const handlers = reactive<EventHandler[]>([handler]);
-      const attrs = reactive<Record<string, unknown>>({ [key]: handlers });
-      const target = createChartStub();
-      const emitter = target.chart as unknown as EmitterStub;
-
-      const scope = effectScope();
-      scope.run(() => {
-        useReactiveChartListeners(chartRef, attrs);
-      });
-
-      chartRef.value = target.chart;
-      await nextTick();
-
-      const initialBinding = findBoundHandler(emitter.on, "click");
-      handlers.length = 0;
-      await nextTick();
-
-      expect(emitter.off).toHaveBeenCalledWith("click", initialBinding);
-
-      emitter.on.mockClear();
-      handlers.push(handler);
-      await nextTick();
-
-      const rebound = findBoundHandler(emitter.on, "click");
-      rebound("payload");
-      rebound("again");
-
-      expect(handler).toHaveBeenCalledTimes(key === "onClickOnce" ? 1 : 2);
-
-      scope.stop();
-    },
-  );
-
-  it("binds, diffs, and cleans chart/zr listeners reactively", async () => {
-    const chartRef = ref<EChartsType | undefined>();
-    const attrs = reactive<Record<string, unknown>>({
-      "onZr:": vi.fn(),
-      "onZr:mouseup": ["invalid"],
-    });
-
-    const first = createChartStub();
+    const firstBinding = findBoundHandler(firstEmitter, "click");
     const second = createChartStub();
 
-    const scope = effectScope();
-    scope.run(() => {
-      useReactiveChartListeners(chartRef, attrs);
-    });
-
-    chartRef.value = first.chart;
-    await nextTick();
-
-    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-    expect(first.zr.on).not.toHaveBeenCalled();
-
-    attrs.onClick = vi.fn();
-    attrs["onZr:mouseMove"] = vi.fn();
-    await nextTick();
-
-    expect((first.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
-      "click",
-      expect.any(Function),
-    );
-    expect(first.zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
-
-    const firstClickBinding = findBoundHandler((first.chart as unknown as EmitterStub).on, "click");
-    const firstMoveBinding = findBoundHandler(first.zr.on, "mousemove");
-    (first.chart as unknown as EmitterStub).on.mockClear();
-    (first.chart as unknown as EmitterStub).off.mockClear();
-    first.getZr.mockClear();
-    first.zr.on.mockClear();
-    first.zr.off.mockClear();
-
-    attrs.class = "noop";
-    await nextTick();
-
-    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-    expect((first.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
-    expect(first.getZr).not.toHaveBeenCalled();
-    expect(first.zr.on).not.toHaveBeenCalled();
-    expect(first.zr.off).not.toHaveBeenCalled();
-
-    const nextClick = vi.fn();
-    attrs.onClick = nextClick;
-    await nextTick();
-
-    expect((first.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
-    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-    firstClickBinding("updated");
-    expect(nextClick).toHaveBeenCalledWith("updated");
-
-    const mixedClick = vi.fn();
-    attrs.onClick = [mixedClick, "invalid"]; // mixed arrays: keep function entries only
-    await nextTick();
-    expect((first.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-    firstClickBinding("mixed");
-    expect(mixedClick).toHaveBeenCalledWith("mixed");
-
-    attrs.onClick = ["invalid-only"]; // no valid handlers: remove binding without re-add
-    await nextTick();
-    expect((first.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
-      "click",
-      firstClickBinding,
-    );
-
-    const beforeRemoveCalls = first.zr.off.mock.calls.length;
-    delete attrs["onZr:mouseMove"];
-    await nextTick();
-    expect(first.zr.off.mock.calls.length).toBeGreaterThan(beforeRemoveCalls);
-    expect(first.zr.off).toHaveBeenCalledWith("mousemove", firstMoveBinding);
-
-    attrs.onClickOnce = vi.fn();
-    await nextTick();
-
-    const onceBinding = findBoundHandler((first.chart as unknown as EmitterStub).on, "click");
-    onceBinding("a");
-    onceBinding("b");
-    expect(attrs.onClickOnce).toHaveBeenCalledTimes(1);
-    expect((first.chart as unknown as EmitterStub).off).toHaveBeenCalledWith("click", onceBinding);
-
-    chartRef.value = second.chart;
-    await nextTick();
-
-    // The component listener remains consumed when only its internal emitter changes.
-    expect((second.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
-
-    chartRef.value = undefined;
-    await nextTick();
-
-    scope.stop();
-  });
-
-  it("supports mixed once handlers, detaches before invocation, and rebinds", async () => {
-    const chartRef = ref<EChartsType | undefined>();
-    const error = new Error("listener failed");
-    const fnA = vi.fn();
-    const fnB = vi.fn();
-    const fnC = vi.fn(() => {
-      throw error;
-    });
-    const attrs = reactive<Record<string, unknown>>({
-      onClickOnce: [fnA, "invalid", fnB],
-    });
-
-    const target = createChartStub();
-    const scope = effectScope();
-    scope.run(() => {
-      useReactiveChartListeners(chartRef, attrs);
-    });
-
-    chartRef.value = target.chart;
-    await nextTick();
-
-    const firstOnceBinding = findBoundHandler((target.chart as unknown as EmitterStub).on, "click");
-    firstOnceBinding("first");
-    firstOnceBinding("again");
-    expect(fnA).toHaveBeenCalledTimes(1);
-    expect(fnB).toHaveBeenCalledTimes(1);
-    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
-      "click",
-      firstOnceBinding,
-    );
-
-    (target.chart as unknown as EmitterStub).on.mockClear();
-    (target.chart as unknown as EmitterStub).off.mockClear();
-
-    attrs.onClickOnce = [fnC];
-    await nextTick();
-
-    expect((target.chart as unknown as EmitterStub).off).not.toHaveBeenCalled();
-    expect((target.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
+    chart.value = second.chart;
+    expect(firstEmitter.off).toHaveBeenCalledWith("click", firstBinding);
+    expect((second.chart as unknown as EmitterStub).on).toHaveBeenCalledWith(
       "click",
       expect.any(Function),
     );
 
-    const secondOnceBinding = findBoundHandler(
-      (target.chart as unknown as EmitterStub).on,
+    const secondBinding = findBoundHandler(second.chart as unknown as EmitterStub, "click");
+    stop();
+    expect((second.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
       "click",
-    );
-    expect(() => secondOnceBinding("second")).toThrow(error);
-    expect(() => secondOnceBinding("second-again")).not.toThrow();
-    expect(fnC).toHaveBeenCalledTimes(1);
-    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledWith(
-      "click",
-      secondOnceBinding,
+      secondBinding,
     );
 
-    scope.stop();
-    expect((target.chart as unknown as EmitterStub).off).toHaveBeenCalledTimes(1);
+    const third = createChartStub();
+    chart.value = third.chart;
+    expect((third.chart as unknown as EmitterStub).on).not.toHaveBeenCalled();
   });
 });

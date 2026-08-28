@@ -48,7 +48,7 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - clear removed callback-slot functions in the option instead of maintaining a separate merge plan;
 - compare ordered component identities directly instead of maintaining parallel identity indexes;
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
-- stop autoresize work with the owning Vue lifecycle instead of monitoring externally disposed charts.
+- stop observers and listener bindings with the owning Vue lifecycle instead of monitoring externally disposed charts.
 
 Styles retain the original import-time document injection. Runtime code does not maintain a
 second registry for ShadowRoot, cross-document restoration, or failed stylesheet adoption.
