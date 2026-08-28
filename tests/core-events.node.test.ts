@@ -142,8 +142,7 @@ describe("core events", () => {
     const once = findBoundHandler(initialEmitter, "click");
 
     once("first");
-    once("ignored");
-    expect(first).toHaveBeenCalledOnce();
+    expect(first).toHaveBeenCalledWith("first");
     expect(initialEmitter.off).toHaveBeenCalledWith("click", once);
 
     initialEmitter.on.mockClear();

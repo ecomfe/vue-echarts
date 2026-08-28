@@ -1040,8 +1040,7 @@ describe("ECharts component", () => {
     }
     const chartOnceListener = chartOnceCall[1];
     chartOnceListener("once");
-    chartOnceListener("again");
-    expect(clickOnce).toHaveBeenCalledTimes(1);
+    expect(clickOnce).toHaveBeenCalledWith("once");
     expect(chartStub.off).toHaveBeenCalledWith("click", chartOnceListener);
 
     const zrOnceCall = zr.on.mock.calls.find((call) => call[0] === "click");
@@ -1050,8 +1049,7 @@ describe("ECharts component", () => {
     }
     const zrOnceListener = zrOnceCall[1];
     zrOnceListener("once");
-    zrOnceListener("again");
-    expect(zrOnce).toHaveBeenCalledTimes(1);
+    expect(zrOnce).toHaveBeenCalledWith("once");
     expect(zr.off).toHaveBeenCalledWith("click", zrOnceListener);
 
     await nextTick();
@@ -1186,7 +1184,7 @@ describe("ECharts component", () => {
     expect(nativeB).toHaveBeenCalledTimes(1);
   });
 
-  it("rebinds once handlers when attrs change and keeps one-shot behavior", async () => {
+  it("rebinds once handlers when attrs change", async () => {
     const option = ref({});
     const onceA = vi.fn();
     const onceB = vi.fn();
@@ -1208,8 +1206,7 @@ describe("ECharts component", () => {
     }
     const firstListener = firstBinding[1];
     firstListener("first");
-    firstListener("first-again");
-    expect(onceA).toHaveBeenCalledTimes(1);
+    expect(onceA).toHaveBeenCalledWith("first");
 
     chartStub.on.mockClear();
     chartStub.off.mockClear();
@@ -1225,8 +1222,7 @@ describe("ECharts component", () => {
     }
     const secondListener = secondBinding[1];
     secondListener("second");
-    secondListener("second-again");
-    expect(onceB).toHaveBeenCalledTimes(1);
+    expect(onceB).toHaveBeenCalledWith("second");
     expect(chartStub.off).toHaveBeenCalledOnce();
     expect(chartStub.off).toHaveBeenCalledWith("click", secondListener);
   });

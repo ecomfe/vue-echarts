@@ -49,6 +49,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
 - clear removed callback-slot functions in the option instead of maintaining a separate merge plan;
 - treat each callback-slot patch as current state, with no separate post-update commit phase;
 - rebind changed event sources directly instead of routing listeners through mutable invoker boxes;
+- implement chart and ZRender `once` listeners by detaching before user code, without a second
+  wrapper-local consumed state;
 - keep ordered component shapes as direct arrays and compare their identities without parallel indexes;
 - keep per-element Graphic restrictions in the public types and option builder, not duplicated runtime prop tables;
 - give unkeyed Graphic nodes a stable component-local identity without guessing whether they

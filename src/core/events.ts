@@ -87,12 +87,7 @@ export function useReactiveChartListeners(
       const emitter = zr ? (instance.getZr() as EventEmitter) : (instance as EventEmitter);
       let handler = invoke;
       if (parsed.once) {
-        let called = false;
         handler = (...args): void => {
-          if (called) {
-            return;
-          }
-          called = true;
           bindings.delete(key);
           consumedSources.set(key, source);
           emitter.off(event, handler);
