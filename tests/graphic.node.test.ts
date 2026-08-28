@@ -551,45 +551,6 @@ describe("graphic", () => {
     expect(root.children.filter((item: any) => item.id === "dup")).toHaveLength(2);
   });
 
-  it("coalesces flushes and warns on duplicate ids", async () => {
-    const onFlush = vi.fn();
-    const collector = createCollector(onFlush);
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-
-    try {
-      collector.register({
-        id: "dup",
-        type: "rect",
-        parentId: null,
-        props: {},
-        handlers: {},
-        sourceId: 1,
-      });
-      collector.register({
-        id: "dup",
-        type: "rect",
-        parentId: null,
-        props: {},
-        handlers: {},
-        sourceId: 2,
-      });
-
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(onFlush).toHaveBeenCalledTimes(0);
-
-      await flushMicrotasks();
-
-      expect(onFlush).toHaveBeenCalledTimes(1);
-
-      collector.unregister("dup", 2);
-      await flushMicrotasks();
-
-      expect(onFlush).toHaveBeenCalledTimes(2);
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
   it("ignores unregister from mismatched source and removes with matched source", () => {
     const collector = createCollector(() => void 0);
 

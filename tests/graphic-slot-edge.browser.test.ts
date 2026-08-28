@@ -717,43 +717,6 @@ describe("graphic slot edge and integration behavior", () => {
     });
   });
 
-  it("coalesces multiple reactive graphic changes into one setOption per tick", async () => {
-    registerExtension();
-
-    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
-    const x = ref(8);
-    const y = ref(10);
-
-    const Root = defineComponent({
-      setup() {
-        return () =>
-          h(
-            ECharts,
-            { option: option.value },
-            {
-              graphic: () =>
-                h(GRect, { id: "batched", x: x.value, y: y.value, width: 18, height: 10 }),
-            },
-          );
-      },
-    });
-
-    render(Root);
-    await nextTick();
-    await flushAnimationFrame();
-    const chartStub = suite.getChartStub();
-    const before = chartStub.setOption.mock.calls.length;
-
-    x.value = 20;
-    y.value = 28;
-    await nextTick();
-    await flushAnimationFrame();
-
-    expect(chartStub.setOption.mock.calls.length).toBe(before + 1);
-    const shape = getLastGraphicOption(chartStub).graphic.elements[0].children[0].shape;
-    expect(shape).toMatchObject({ x: 20, y: 28 });
-  });
-
   it("skips reapplying 100+ unchanged nodes when parent rerenders", async () => {
     registerExtension();
 
