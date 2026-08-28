@@ -76,6 +76,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   for ownership, render-pass, and pending-work contracts unique to the collector.
 - test the Graphic entry's automatic registration directly, while exercising extension rendering,
   warnings, and inactive paths through the public component.
+- test ordinary, native, and ZRender listener behavior through the public component; keep core
+  event units only for mutable arrays and listener state across chart replacement.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet

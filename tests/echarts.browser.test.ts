@@ -1089,21 +1089,22 @@ describe("ECharts component", () => {
     expect(onClickOnce).toHaveBeenCalledOnce();
   });
 
-  it("reactively replaces chart and zr handlers", async () => {
+  it("reactively replaces and removes chart and zr handlers", async () => {
     const option = ref({});
     const onClickA = vi.fn();
     const onClickB = vi.fn();
     const onZrMoveA = vi.fn();
     const onZrMoveB = vi.fn();
-    const clickHandler = ref(onClickA);
-    const zrHandler = ref(onZrMoveA);
+    const listeners = ref<Record<string, unknown>>({
+      onClick: onClickA,
+      "onZr:mousemove": onZrMoveA,
+    });
     const exposed = shallowRef<Exposed>();
 
     renderChart(
       () => ({
         option: option.value,
-        onClick: clickHandler.value,
-        "onZr:mousemove": zrHandler.value,
+        ...listeners.value,
       }),
       exposed,
     );
@@ -1133,8 +1134,10 @@ describe("ECharts component", () => {
     zr.on.mockClear();
     zr.off.mockClear();
 
-    clickHandler.value = onClickB;
-    zrHandler.value = onZrMoveB;
+    listeners.value = {
+      onClick: onClickB,
+      "onZr:mousemove": onZrMoveB,
+    };
     await nextTick();
 
     expect(chartStub.off).toHaveBeenCalledWith("click", firstChartListener);
@@ -1142,13 +1145,28 @@ describe("ECharts component", () => {
     expect(chartStub.on).toHaveBeenCalledWith("click", expect.any(Function));
     expect(zr.on).toHaveBeenCalledWith("mousemove", expect.any(Function));
 
-    chartStub.on.mock.calls[0][1]("second");
+    const secondChartListener = chartStub.on.mock.calls[0][1];
+    secondChartListener("second");
     expect(onClickA).toHaveBeenCalledTimes(1);
     expect(onClickB).toHaveBeenCalledWith("second");
 
-    zr.on.mock.calls[0][1]("zr-second");
+    const secondZrListener = zr.on.mock.calls[0][1];
+    secondZrListener("zr-second");
     expect(onZrMoveA).toHaveBeenCalledTimes(1);
     expect(onZrMoveB).toHaveBeenCalledWith("zr-second");
+
+    chartStub.on.mockClear();
+    chartStub.off.mockClear();
+    zr.on.mockClear();
+    zr.off.mockClear();
+
+    listeners.value = {};
+    await nextTick();
+
+    expect(chartStub.off).toHaveBeenCalledWith("click", secondChartListener);
+    expect(zr.off).toHaveBeenCalledWith("mousemove", secondZrListener);
+    expect(chartStub.on).not.toHaveBeenCalled();
+    expect(zr.on).not.toHaveBeenCalled();
   });
 
   it("reactively updates native DOM handlers", async () => {
