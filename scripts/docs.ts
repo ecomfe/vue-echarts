@@ -13,23 +13,14 @@ const DEP_VERSIONS = {
   [name]: version,
 };
 
-function getScripts() {
-  return Object.entries(DEP_VERSIONS)
-    .map(([dep, version]) => {
-      const [, name] = dep.match(/^(.+?)(?:@.+)?$/) || [];
-      return `<script src="${CDN_PREFIX}${name}@${version}"></script>`;
-    })
-    .join("\n");
-}
-
-function getCodeBlock(code: string) {
-  return "\n```html\n" + code + "\n```\n";
-}
+const scriptTags = Object.entries(DEP_VERSIONS)
+  .map(([packageName, version]) => `<script src="${CDN_PREFIX}${packageName}@${version}"></script>`)
+  .join("\n");
+const scripts = `\n\`\`\`html\n${scriptTags}\n\`\`\`\n`;
 
 const README_FILES = ["../README.md", "../README.zh-Hans.md"].map((name) =>
   fileURLToPath(new URL(name, import.meta.url)),
 );
-const scripts = getCodeBlock(getScripts());
 
 for (const file of README_FILES) {
   const content = readFileSync(file, "utf8");
