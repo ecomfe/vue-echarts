@@ -186,14 +186,12 @@ export function createComponent<T extends GraphicComponentType>(
           unregister(currentId, instance.uid);
         }
         currentId = id;
-        const hintedOrder =
-          orderKey !== undefined ? parentOrderRef?.value.get(orderKey) : undefined;
 
         registerNode({
           id,
           type,
           parentId: parentIdRef?.value ?? null,
-          order: hintedOrder,
+          order: orderKey !== undefined ? parentOrderRef?.value.get(orderKey) : undefined,
           props: props as Record<string, unknown>,
           handlers: attrs as Record<string, unknown>,
           sourceId: instance.uid,
