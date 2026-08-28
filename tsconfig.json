@@ -3,19 +3,16 @@
     "target": "ESNext",
     "module": "ESNext",
     "strict": true,
-    "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "bundler",
     "removeComments": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "types": ["vite/client"],
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules"],
+  "include": ["src/**/*.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
