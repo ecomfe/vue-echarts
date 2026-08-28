@@ -26,7 +26,7 @@
 5. Prefer straightforward implementation over speculative abstraction.
 6. Internal module APIs are not compatibility-bound and can be refactored with callsites together.
 7. Own Vue-side cleanup and scheduling, but do not retry or roll back failed ECharts operations.
-8. Plan updates for supported ECharts options, not cyclic, malformed, or fabricated internal state.
+8. Plan updates for type-valid ECharts options, not cyclic data or null/primitive component entries rejected by the public types.
 
 ## Runtime Structure
 

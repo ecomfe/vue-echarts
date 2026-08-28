@@ -12,7 +12,6 @@ const linearGradient = {
   global: true,
 };
 type AppliedOption = {
-  backgroundColor?: unknown;
   color?: unknown;
   dataset?: unknown;
   graphic?: Array<{ elements?: Array<{ id?: string }> }>;
@@ -447,48 +446,6 @@ describe("smart-update", () => {
         const next = planUpdate(prev, {});
 
         expect(next.plan).toEqual({ notMerge: false, replaceMerge: ["legend"] });
-      });
-
-      it.each([null, false])("removes top-level components replaced with %s", (value) => {
-        const base = { title: { text: "before" } };
-        const update = { title: value } as unknown as EChartsOption;
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
-        expect(applied.title?.[0]).toBeUndefined();
-      });
-
-      it("removes top-level settings explicitly cleared with null", () => {
-        const { applied, plan } = applyPlannedUpdate({ backgroundColor: "red" }, {
-          backgroundColor: null,
-        } as unknown as EChartsOption);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.backgroundColor).toBeUndefined();
-      });
-
-      it("removes component entries replaced by null holes", () => {
-        const base: EChartsOption = {
-          series: [{ type: "pie", data: [1] }],
-        };
-        const update = { series: [null] } as unknown as EChartsOption;
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: false, replaceMerge: ["series"] });
-        expect(applied.series).toEqual([]);
-      });
-
-      it.each(optionContainers)("aligns component shapes around null holes in %s", (container) => {
-        const base = wrapOption(container, {
-          series: [{ type: "pie", data: [1], label: { show: true, color: "red" } }, null],
-        } as unknown as EChartsOption);
-        const update = wrapOption(container, {
-          series: [null, { type: "pie", data: [2], label: { show: true } }],
-        } as unknown as EChartsOption);
-        const { applied, plan } = applyPlannedUpdate(base, update);
-
-        expect(plan).toEqual({ notMerge: true });
-        expect(applied.series?.[0]?.label?.color).toBeUndefined();
       });
 
       it("removes planned object and array options from the ECharts model", () => {

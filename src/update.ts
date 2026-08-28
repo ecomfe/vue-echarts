@@ -91,11 +91,7 @@ function analyzeItems(
 ): ItemShape[] {
   const shapes: ItemShape[] = [];
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (componentItems && !isPlainObject(item)) {
-      continue;
-    }
+  for (const item of items) {
     const identity = componentItems ? (item as Record<string, unknown>) : undefined;
     shapes.push({
       id: toIdentity(identity?.id),
@@ -149,7 +145,7 @@ function buildSignature(option: Option): Signature {
       continue;
     }
 
-    if (value != null && !componentItems) {
+    if (value !== undefined && !componentItems) {
       leaves.push(key);
     }
   }
