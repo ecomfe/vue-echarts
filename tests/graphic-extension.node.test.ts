@@ -52,29 +52,6 @@ beforeEach(async () => {
 });
 
 describe("graphic runtime", () => {
-  it("keeps first runtime registration", () => {
-    const first = () => ({
-      patchOption: (option: any) => ({ ...option, tag: "first" }),
-      render: () => null,
-    });
-    const second = () => ({
-      patchOption: (option: any) => ({ ...option, tag: "second" }),
-      render: () => null,
-    });
-
-    runtimeModule.registerRuntime(first as any);
-    runtimeModule.registerRuntime(second as any);
-
-    const scope = effectScope();
-    const runtime = scope.run(() => runtimeModule.useRuntime(createContext()));
-    if (!runtime) {
-      throw new Error("Expected runtime to be initialized.");
-    }
-
-    expect(runtime.patchOption({}).tag).toBe("first");
-    scope.stop();
-  });
-
   it("registers the graphic component and runtime", async () => {
     const { GraphicComponent } = await import("echarts/components");
 

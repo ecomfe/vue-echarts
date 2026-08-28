@@ -14,15 +14,12 @@ type GraphicRuntime = {
   render: () => VNodeChild;
 };
 
-let registeredRuntime: ((context: GraphicContext) => GraphicRuntime) | null = null;
+let runtimeFactory: ((context: GraphicContext) => GraphicRuntime) | null = null;
 
 export function registerRuntime(factory: (context: GraphicContext) => GraphicRuntime): void {
-  if (registeredRuntime) {
-    return;
-  }
-  registeredRuntime = factory;
+  runtimeFactory = factory;
 }
 
 export function useRuntime(context: GraphicContext): GraphicRuntime | null {
-  return registeredRuntime ? registeredRuntime(context) : null;
+  return runtimeFactory ? runtimeFactory(context) : null;
 }
