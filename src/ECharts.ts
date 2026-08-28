@@ -139,7 +139,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
     let initOptionsInvalidated = false;
     let clearRevision = 0;
     let optionApplied = false;
-    let mounted = false;
     let manualUpdateAtInit = manualUpdate.value;
     const deferredCharts = new WeakSet<EChartsType>();
     let graphicSlotApplied = false;
@@ -430,7 +429,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     );
 
     const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
-      if (!mounted || terminallyDisposed.value || chart.value?.isDisposed()) {
+      if (!chart.value || terminallyDisposed.value || chart.value.isDisposed()) {
         return;
       }
       cleanup();
@@ -518,7 +517,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
 
     onMounted(() => {
       register(root.value);
-      mounted = true;
       if (!terminallyDisposed.value) {
         init();
       }
