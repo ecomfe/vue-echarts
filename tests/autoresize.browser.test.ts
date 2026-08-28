@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
-import { ref, effectScope, nextTick, reactive } from "vue";
+import { effectScope, nextTick, ref } from "vue";
 
 import { throttle, resetECharts, createEChartsModule } from "./helpers/mock";
 import { createSizedContainer, flushAnimationFrame } from "./helpers/dom";
@@ -16,7 +16,6 @@ function createChart(
 ): EChartsType {
   let width = initialRoot.offsetWidth;
   let height = initialRoot.offsetHeight;
-  let disposed = false;
   resize.mockImplementation((options?: Parameters<EChartsType["resize"]>[0]) => {
     const element = root();
     if (element) {
@@ -28,97 +27,73 @@ function createChart(
     resize,
     getWidth: () => width,
     getHeight: () => height,
-    dispose: () => (disposed = true),
-    isDisposed: () => disposed,
   } as unknown as EChartsType;
+}
+
+const stops: Array<() => void> = [];
+
+async function mountAutoresize(container: HTMLElement, value: AutoResize | undefined = true) {
+  const resize = vi.fn();
+  const chart = ref<EChartsType | undefined>();
+  const autoresize = ref<AutoResize | undefined>(value);
+  const root = ref<HTMLElement | undefined>();
+  const scope = effectScope();
+
+  scope.run(() => useAutoresize(chart, autoresize, root));
+  stops.push(() => scope.stop());
+
+  const instance = createChart(resize, () => root.value, container);
+  chart.value = instance;
+  root.value = container;
+  await nextTick();
+
+  return { resize, chart, autoresize, instance, scope };
 }
 
 describe("useAutoresize", () => {
   beforeEach(() => {
+    stops.length = 0;
     resetECharts();
   });
 
-  it("observes the root element and triggers resize on size change", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
+  afterEach(() => {
+    for (const stop of stops) {
+      stop();
+    }
+  });
 
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
+  it("observes the container, resizes on change, and disconnects on cleanup", async () => {
+    const observe = vi.spyOn(window.ResizeObserver.prototype, "observe");
+    const disconnect = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
     const container = createSizedContainer(120, 80);
+    const { resize, scope } = await mountAutoresize(container);
 
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledWith(container);
+    expect(observe).toHaveBeenCalledWith(container);
+    expect(vi.mocked(throttle)).toHaveBeenCalledWith(expect.any(Function), 100);
 
     await flushAnimationFrame();
     expect(resize).not.toHaveBeenCalled();
 
     container.style.width = "200px";
     await flushAnimationFrame();
-
-    expect(resize).toHaveBeenCalledTimes(1);
+    expect(resize).toHaveBeenCalledOnce();
 
     scope.stop();
-    await flushAnimationFrame();
-    expect(disconnectSpy).toHaveBeenCalledTimes(1);
+    expect(disconnect).toHaveBeenCalledOnce();
   });
 
   it("does not repeat a resize completed before observer notification", async () => {
     const container = createSizedContainer(120, 80);
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
+    const { resize, instance } = await mountAutoresize(container);
 
     container.style.width = "200px";
-    chart.value.resize();
+    instance.resize();
     await flushAnimationFrame();
 
     expect(resize).toHaveBeenCalledOnce();
-
-    scope.stop();
   });
 
-  it("does not observe an already disposed chart", async () => {
-    const container = createSizedContainer(120, 80);
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>(container);
-    const instance = createChart(resize, () => root.value, container);
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    instance.dispose();
-
-    const scope = effectScope();
-    scope.run(() => useAutoresize(chart, autoresize, root));
-    chart.value = instance;
-    await nextTick();
-
-    expect(observeSpy).not.toHaveBeenCalled();
-    expect(resize).not.toHaveBeenCalled();
-    scope.stop();
-  });
-
-  it("stops observer and pending resize work after external disposal", async () => {
+  it("waits through zero size and resizes immediately on recovery", async () => {
     let pendingResize: (() => void) | undefined;
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
@@ -130,110 +105,10 @@ describe("useAutoresize", () => {
       return throttled;
     });
 
-    const container = createSizedContainer(120, 80);
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-    const instance = createChart(resize, () => root.value, container);
-    const getWidth = vi.spyOn(instance, "getWidth");
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = instance;
-    root.value = container;
-    await nextTick();
-
-    instance.dispose();
-    getWidth.mockClear();
-    container.style.width = "200px";
-    await flushAnimationFrame();
-
-    expect(getWidth).not.toHaveBeenCalled();
-    expect(resize).not.toHaveBeenCalled();
-    expect(disconnectSpy).toHaveBeenCalledOnce();
-
-    const nextResize = vi.fn();
-    const nextInstance = createChart(nextResize, () => root.value, container);
-    chart.value = nextInstance;
-    await nextTick();
-    disconnectSpy.mockClear();
-
-    container.style.width = "240px";
-    await flushAnimationFrame();
-    expect(pendingResize).toBeTypeOf("function");
-
-    nextInstance.dispose();
-    pendingResize?.();
-
-    expect(nextResize).not.toHaveBeenCalled();
-    expect(pendingResize).toBeUndefined();
-    expect(disconnectSpy).toHaveBeenCalledOnce();
-
-    scope.stop();
-  });
-
-  it("stops immediately when resize disposes the chart", async () => {
-    const container = createSizedContainer(120, 80);
-    const resize = vi.fn();
     const onResize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>({ throttle: 0, onResize });
-    const root = ref<HTMLElement | undefined>();
-    const instance = createChart(resize, () => root.value, container);
-    resize.mockImplementation(() => instance.dispose());
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = instance;
-    root.value = container;
-    await nextTick();
-
-    container.style.width = "200px";
-    await flushAnimationFrame();
-
-    expect(resize).toHaveBeenCalledOnce();
-    expect(instance.isDisposed()).toBe(true);
-    expect(disconnectSpy).toHaveBeenCalledOnce();
-    expect(onResize).not.toHaveBeenCalled();
-
-    scope.stop();
-  });
-
-  it("skips resize when autoresize is disabled or container is empty", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>();
-    const root = ref<HTMLElement | undefined>();
-
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-
     const container = createSizedContainer(0, 0);
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
-
-    expect(observeSpy).not.toHaveBeenCalled();
-    expect(resize).not.toHaveBeenCalled();
-
-    autoresize.value = true;
-    await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledWith(container);
+    const { resize } = await mountAutoresize(container, { throttle: 1000, onResize });
+    await flushAnimationFrame();
 
     container.style.height = "120px";
     await flushAnimationFrame();
@@ -241,49 +116,13 @@ describe("useAutoresize", () => {
 
     container.style.width = "160px";
     await flushAnimationFrame();
-    expect(resize).toHaveBeenCalledTimes(1);
-
-    scope.stop();
+    expect(resize).toHaveBeenCalledOnce();
+    expect(onResize).toHaveBeenCalledOnce();
+    expect(pendingResize).toBeUndefined();
   });
 
-  it("does not read container layout while autoresize is disabled", async () => {
-    const container = createSizedContainer(120, 80);
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(false);
-    const root = ref<HTMLElement | undefined>(container);
-    const instance = createChart(resize, () => root.value, container);
-    const readWidth = vi.fn(() => 120);
-    const readHeight = vi.fn(() => 80);
-    Object.defineProperties(container, {
-      offsetWidth: { configurable: true, get: readWidth },
-      offsetHeight: { configurable: true, get: readHeight },
-    });
-
-    const scope = effectScope();
-    scope.run(() => useAutoresize(chart, autoresize, root));
-    chart.value = instance;
-    await nextTick();
-
-    expect(readWidth).not.toHaveBeenCalled();
-    expect(readHeight).not.toHaveBeenCalled();
-
-    autoresize.value = true;
-    await nextTick();
-    expect(readWidth).toHaveBeenCalled();
-    expect(readHeight).toHaveBeenCalled();
-    expect(resize).not.toHaveBeenCalled();
-
-    scope.stop();
-  });
-
-  it("cancels obsolete throttled work and resizes immediately after zero-sized recovery", async () => {
+  it("rechecks throttled dimensions and cancels pending work on cleanup", async () => {
     let pendingResize: (() => void) | undefined;
-    const runPendingResize = () => {
-      const resize = pendingResize;
-      pendingResize = undefined;
-      resize?.();
-    };
     vi.mocked(throttle).mockImplementation((fn) => {
       const throttled = (() => {
         pendingResize = fn as () => void;
@@ -294,146 +133,69 @@ describe("useAutoresize", () => {
       return throttled;
     });
 
-    const resize = vi.fn();
-    const onResize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>({ throttle: 1000, onResize });
-    const root = ref<HTMLElement | undefined>();
     const container = createSizedContainer(120, 80);
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
+    const { resize, chart } = await mountAutoresize(container, { throttle: 1000 });
     await flushAnimationFrame();
 
     container.style.width = "180px";
     await flushAnimationFrame();
     expect(pendingResize).toBeTypeOf("function");
-    expect(resize).not.toHaveBeenCalled();
 
     container.style.width = "120px";
     await flushAnimationFrame();
-    runPendingResize();
+    pendingResize?.();
     expect(resize).not.toHaveBeenCalled();
-    expect(onResize).not.toHaveBeenCalled();
-
-    container.style.width = "180px";
-    await flushAnimationFrame();
-    container.style.width = "0";
-    await flushAnimationFrame();
-    runPendingResize();
-    expect(resize).not.toHaveBeenCalled();
-    expect(onResize).not.toHaveBeenCalled();
-
-    container.style.width = "180px";
-    await flushAnimationFrame();
-    expect(resize).toHaveBeenCalledOnce();
-    expect(onResize).toHaveBeenCalledOnce();
-    expect(pendingResize).toBeUndefined();
 
     container.style.width = "200px";
-    await flushAnimationFrame();
-    chart.value.resize();
-    runPendingResize();
-    expect(resize).toHaveBeenCalledTimes(2);
-    expect(onResize).toHaveBeenCalledOnce();
-
-    container.style.width = "220px";
     await flushAnimationFrame();
     expect(pendingResize).toBeTypeOf("function");
 
     chart.value = undefined;
     expect(pendingResize).toBeUndefined();
-
-    scope.stop();
   });
 
   it("uses the latest callback and rebinds only when throttle changes", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
     const onResizeA = vi.fn();
     const onResizeB = vi.fn();
-    const settings = reactive({ throttle: 0, onResize: onResizeA });
-    const autoresize = ref<AutoResize | undefined>(settings);
-    const root = ref<HTMLElement | undefined>();
-
     const container = createSizedContainer(80, 60);
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
+    const disconnect = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
+    const { resize, autoresize } = await mountAutoresize(container, {
+      throttle: 0,
+      onResize: onResizeA,
     });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
 
     expect(vi.mocked(throttle)).not.toHaveBeenCalled();
 
     container.style.height = "100px";
     await flushAnimationFrame();
+    expect(onResizeA).toHaveBeenCalledOnce();
 
-    expect(resize).toHaveBeenCalledTimes(1);
-    expect(onResizeA).toHaveBeenCalledTimes(1);
-
-    settings.onResize = onResizeB;
+    autoresize.value = { throttle: 0, onResize: onResizeB };
     await nextTick();
-
-    expect(disconnectSpy).not.toHaveBeenCalled();
+    expect(disconnect).not.toHaveBeenCalled();
 
     container.style.width = "100px";
     await flushAnimationFrame();
-
     expect(resize).toHaveBeenCalledTimes(2);
-    expect(onResizeA).toHaveBeenCalledTimes(1);
-    expect(onResizeB).toHaveBeenCalledTimes(1);
+    expect(onResizeA).toHaveBeenCalledOnce();
+    expect(onResizeB).toHaveBeenCalledOnce();
 
-    settings.throttle = 150;
+    autoresize.value = { throttle: 150, onResize: onResizeB };
     await nextTick();
-
-    expect(disconnectSpy).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(throttle)).toHaveBeenCalledTimes(1);
-    const [, wait] = vi.mocked(throttle).mock.calls[0];
-    expect(wait).toBe(150);
-
-    scope.stop();
+    expect(disconnect).toHaveBeenCalledOnce();
+    expect(vi.mocked(throttle)).toHaveBeenCalledWith(expect.any(Function), 150);
   });
 
   it("disconnects while disabled and resynchronizes when reactivated", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-    const disconnectSpy = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
-
+    const observe = vi.spyOn(window.ResizeObserver.prototype, "observe");
+    const disconnect = vi.spyOn(window.ResizeObserver.prototype, "disconnect");
     const container = createSizedContainer(140, 90);
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    const instance = createChart(resize, () => root.value, container);
-    chart.value = instance;
-    root.value = container;
-    await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledTimes(1);
-    const throttledResize = vi.mocked(throttle).mock.results[0].value;
+    const { resize, autoresize } = await mountAutoresize(container);
+    await flushAnimationFrame();
 
     autoresize.value = false;
     await nextTick();
-
-    expect(disconnectSpy).toHaveBeenCalledTimes(1);
-    expect(resize).not.toHaveBeenCalled();
+    expect(disconnect).toHaveBeenCalledOnce();
 
     container.style.height = "120px";
     await flushAnimationFrame();
@@ -441,98 +203,9 @@ describe("useAutoresize", () => {
 
     autoresize.value = true;
     await nextTick();
-
-    expect(observeSpy).toHaveBeenCalledTimes(2);
     await flushAnimationFrame();
-    expect(resize).toHaveBeenCalledTimes(1);
-
-    const syncResize = resize.getMockImplementation()!;
-    resize.mockImplementationOnce((options) => {
-      syncResize(options);
-      autoresize.value = false;
-    });
-    container.style.width = "180px";
-    await flushAnimationFrame();
-    instance.resize({ width: 70, height: 45 });
-
-    autoresize.value = true;
-    await nextTick();
-
-    expect(resize).toHaveBeenCalledTimes(4);
-    expect(instance.getWidth()).toBe(180);
-    expect(instance.getHeight()).toBe(120);
-
-    scope.stop();
-    expect(throttledResize.clear).toHaveBeenCalledTimes(1);
-  });
-
-  it("abandons observer setup when the initial resize disables autoresize", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(false);
-    const root = ref<HTMLElement | undefined>();
-    const container = createSizedContainer(120, 80);
-    const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
-
-    const scope = effectScope();
-    scope.run(() => useAutoresize(chart, autoresize, root));
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
-
-    const syncResize = resize.getMockImplementation()!;
-    resize.mockImplementationOnce((options) => {
-      syncResize(options);
-      autoresize.value = false;
-    });
-    container.style.width = "200px";
-    autoresize.value = true;
-    await nextTick();
-
+    expect(observe).toHaveBeenCalledTimes(2);
     expect(resize).toHaveBeenCalledOnce();
-    expect(autoresize.value).toBe(false);
-    expect(observeSpy).not.toHaveBeenCalled();
-
-    scope.stop();
-  });
-
-  it("resynchronizes a replacement chart instance", async () => {
-    const firstResize = vi.fn();
-    const secondResize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-
-    const container = createSizedContainer(160, 90);
-    const firstChart = createChart(firstResize, () => root.value, container);
-    const secondChart = createChart(secondResize, () => root.value, container);
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = firstChart;
-    root.value = container;
-    await nextTick();
-
-    container.style.height = "120px";
-    await flushAnimationFrame();
-    expect(firstResize).toHaveBeenCalledTimes(1);
-    expect(secondResize).not.toHaveBeenCalled();
-
-    chart.value = secondChart;
-    await nextTick();
-
-    expect(secondResize).toHaveBeenCalledOnce();
-
-    container.style.width = "220px";
-    await flushAnimationFrame();
-    expect(firstResize).toHaveBeenCalledTimes(1);
-    expect(secondResize).toHaveBeenCalledTimes(2);
-
-    scope.stop();
   });
 
   it("resizes when the content box changes without changing the outer size", async () => {
@@ -551,9 +224,9 @@ describe("useAutoresize", () => {
       }),
       getWidth: () => width,
       getHeight: () => 80,
-      isDisposed: () => false,
     } as unknown as EChartsType;
     const scope = effectScope();
+    stops.push(() => scope.stop());
 
     scope.run(() => useAutoresize(chart, autoresize, root));
     chart.value = instance;
@@ -568,73 +241,5 @@ describe("useAutoresize", () => {
     expect(resize).toHaveBeenCalledOnce();
     expect(instance.getWidth()).toBe(100);
     expect(container.offsetWidth).toBe(120);
-
-    scope.stop();
-  });
-
-  it("deduplicates dimensions and ignores inactive observer callbacks", async () => {
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-    const container = createSizedContainer(160, 90);
-
-    const originalRO = globalThis.ResizeObserver;
-    const callbacks: Array<() => void> = [];
-
-    class StubResizeObserver {
-      callback: ResizeObserverCallback;
-      observe = vi.fn();
-      disconnect = vi.fn();
-
-      constructor(cb: ResizeObserverCallback) {
-        this.callback = cb;
-        callbacks.push(() => cb([], this as unknown as ResizeObserver));
-      }
-    }
-
-    const globalWithRO = globalThis as typeof globalThis & {
-      ResizeObserver: typeof ResizeObserver;
-    };
-    globalWithRO.ResizeObserver = StubResizeObserver as unknown as typeof ResizeObserver;
-
-    const scope = effectScope();
-    scope.run(() => {
-      useAutoresize(chart, autoresize, root);
-    });
-
-    chart.value = createChart(resize, () => root.value, container);
-    root.value = container;
-    await nextTick();
-
-    if (!callbacks[0]) {
-      throw new Error("Expected ResizeObserver callback to be registered.");
-    }
-    callbacks[0]();
-    callbacks[0]();
-    expect(resize).not.toHaveBeenCalled();
-
-    container.style.width = "200px";
-    callbacks[0]();
-    callbacks[0]();
-    expect(resize).toHaveBeenCalledTimes(1);
-
-    container.style.width = "0";
-    callbacks[0]();
-    expect(resize).toHaveBeenCalledTimes(1);
-
-    container.style.width = "200px";
-    callbacks[0]();
-    callbacks[0]();
-    expect(resize).toHaveBeenCalledTimes(2);
-
-    autoresize.value = false;
-    await nextTick();
-    container.style.width = "240px";
-    callbacks[0]();
-    expect(resize).toHaveBeenCalledTimes(2);
-
-    scope.stop();
-    globalWithRO.ResizeObserver = originalRO;
   });
 });

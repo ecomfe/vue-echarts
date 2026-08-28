@@ -23,57 +23,32 @@ export function useAutoresize(
   return watch(
     resizeSources,
     ([container, chart, enabled, wait], _, onCleanup) => {
-      if (!chart || chart.isDisposed() || !container) {
-        return;
-      }
-      if (!enabled) {
+      if (!chart || !container || !enabled) {
         wasZeroSized = false;
         return;
       }
 
-      let observedWidth = container.offsetWidth;
-      let observedHeight = container.offsetHeight;
-      let active = true;
-      const isSynchronized = (width: number, height: number) =>
-        !wasZeroSized && width === chart.getWidth() && height === chart.getHeight();
+      let observedWidth = chart.getWidth();
+      let observedHeight = chart.getHeight();
+      const isSynchronized = () =>
+        !wasZeroSized && observedWidth === chart.getWidth() && observedHeight === chart.getHeight();
 
       const resize = () => {
-        // Observer notifications can repeat, and throttled work can outlive its triggering size.
-        if (chart.isDisposed()) {
-          stop();
-          return;
-        }
         if (hasZeroDimension(observedWidth, observedHeight)) {
           wasZeroSized = true;
           return;
         }
-        if (isSynchronized(observedWidth, observedHeight)) {
+        if (isSynchronized()) {
           return;
         }
         chart.resize();
-        if (!active || chart.isDisposed()) {
-          stop();
-          return;
-        }
         wasZeroSized = false;
         getOptions()?.onResize?.();
       };
       const throttledResize = wait ? throttle(resize, wait) : undefined;
-      function stop(): void {
-        active = false;
-        observer.disconnect();
-        throttledResize?.clear();
-      }
 
-      const observeResize = (entries?: ResizeObserverEntry[]) => {
-        if (!active) {
-          return;
-        }
-        if (chart.isDisposed()) {
-          stop();
-          return;
-        }
-        const rect = entries?.find(({ target }) => target === container)?.contentRect;
+      const observer = new ResizeObserver((entries) => {
+        const rect = entries.find(({ target }) => target === container)?.contentRect;
         observedWidth = rect?.width ?? container.offsetWidth;
         observedHeight = rect?.height ?? container.offsetHeight;
         if (hasZeroDimension(observedWidth, observedHeight)) {
@@ -82,17 +57,16 @@ export function useAutoresize(
         }
         if (wasZeroSized) {
           resize();
-        } else if (!isSynchronized(observedWidth, observedHeight)) {
+        } else if (!isSynchronized()) {
           (throttledResize ?? resize)();
         }
-      };
+      });
 
-      const observer = new ResizeObserver(observeResize);
-      onCleanup(stop);
-      observeResize();
-      if (active) {
-        observer.observe(container);
-      }
+      observer.observe(container);
+      onCleanup(() => {
+        observer.disconnect();
+        throttledResize?.clear();
+      });
     },
     // Stop observer work before the outgoing chart can be disposed.
     { flush: "sync" },
