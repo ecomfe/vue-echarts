@@ -291,16 +291,11 @@ const ECharts = /* @__PURE__ */ defineComponent({
             }
           }
           if (initDeferred) {
+            initDeferred = false;
             commit();
           } else {
             isReady.value = true;
           }
-          queueMicrotask(() => {
-            if (isCurrent(instance) && initDeferred) {
-              initDeferred = false;
-              requestUpdate();
-            }
-          });
         });
         return;
       }

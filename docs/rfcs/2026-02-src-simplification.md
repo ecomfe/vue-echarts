@@ -94,6 +94,8 @@ For callback slots and internal runtime logic, prioritize direct and explicit co
   do not maintain revision counters for nested ECharts callbacks.
 - test `clear()` and theme changes as sequential public interactions instead of synthesizing
   `clear()` or `dispose()` from mocked `setOption()` and `setTheme()` calls.
+- end initial autoresize deferral immediately after the first resize and let normal Vue watchers
+  process later prop changes, without a second microtask retry path.
 
 Styles retain the original base rules and import-time document injection. Runtime code does not
 maintain a second registry for ShadowRoot, cross-document restoration, or failed stylesheet
