@@ -46,10 +46,7 @@ function getRootComponent(key: SlotName): string | undefined {
 }
 
 function hasExplicitId(value: unknown): boolean {
-  if (!isPlainObject(value)) {
-    return false;
-  }
-  return typeof value.id === "string" || typeof value.id === "number";
+  return isPlainObject(value) && (typeof value.id === "string" || typeof value.id === "number");
 }
 
 type Container = Record<string, unknown> | unknown[];
