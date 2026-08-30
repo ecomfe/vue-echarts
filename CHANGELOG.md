@@ -17,10 +17,10 @@
 
 ### Events and callback slots
 
-- Made chart and ZRender listeners reactive, with stable array dispatch and consistent `.once` consumption when handlers change during an event.
+- Made chart and ZRender listeners reactive. Replaced or removed handlers take effect immediately, array dispatch remains stable during an event, and `.once` handlers stay consumed until replaced.
 - Preserved case-sensitive `native:` event names and Vue DOM modifiers, and expanded typed coverage for chart actions and ZRender pointer and drag events.
 - Let callback slots target indexed components and nested option structures, with validated paths that do not invent missing arrays or entries.
-- Cleared removed callbacks and refreshed reused formatter payloads after their render containers become ready.
+- Cleared callbacks when slots are removed and refreshed slots when ECharts reuses formatter payloads.
 - In `manual-update` mode, callback-slot additions and removals remain pending until the next manual `setOption` call.
 
 ### `vue-echarts/graphic`
@@ -29,16 +29,15 @@
 - Added `auto-batch` and expanded path, text, transform, clipping, tooltip, state, style, transition, animation, and `during` prop coverage.
 - Narrowed each `G*` component to the props and slots its ECharts element type actually accepts; only `GGroup` exposes a default child slot.
 - Added `dblclick`, `contextmenu`, and `.once` graphic handlers; returning `true` from a graphic handler stops bubbling.
-- Preserved element order, parent changes, handler identity, and duplicate-ID diagnostics while batching Vue-side graphic changes.
+- Preserved element order, parent changes, handler identity, and duplicate-ID diagnostics across graphic updates.
 - Allowed graphic-only charts to omit the `option` prop. `#graphic` continues to replace `option.graphic`, with a warning when both sources are supplied.
 - Removed the unusable `GCompoundPath` export because the ECharts graphic component rejects `compoundPath` elements at runtime.
 
 ### Smart update and option flow
 
-- Reworked smart updates around ECharts' registered component models, including custom components, identities, collection shapes, nested properties, timelines, media, and graphic children.
-- Used `replaceMerge` for safe removals and reorders, `notMerge: true` when a structural rebuild is required, and normal merge for value updates that should preserve interaction state.
-- Forwarded explicit `update-options` directly to ECharts; the next automatic update rebuilds once before resuming smart updates.
-- Kept graphic `$action` updates on the existing tree, reset smart-update state after `clear()`, and treated temporary `option` removal as a pause instead of restoring stale data.
+- Improved smart updates for built-in and custom components, nested options, timelines, media, and graphic children. Removals and reorders now apply correctly while ordinary updates preserve interaction state where possible.
+- Forwarded explicit `update-options` directly to ECharts and correctly reconciled the next automatic update.
+- Kept graphic `$action` updates on the existing tree, prevented `clear()` from being undone by later theme changes, and treated temporary `option` removal as a pause instead of restoring stale data.
 
 ### Theme, initialization, manual mode, and lifecycle
 
@@ -46,26 +45,23 @@
 - Replayed the latest automatic or graphic-only option after theme changes without restoring options cleared by the user.
 - Re-initialized the chart when `init-options` or `manual-update` mode changes and cleared `group` when the prop is removed.
 - Stopped deeply observing `option` after the initial render in manual mode, preserved positional `setOption` calls, and gave early manual calls precedence over deferred rendering.
-- Stopped watchers, observers, listeners, slots, and pending graphic work when the component is disposed or unmounted.
+- Stopped all component-managed updates and pending graphic work after disposal or unmounting.
 - Kept the chart alive across DOM moves and disposed it only when the custom-element root remains disconnected after the current microtask.
 - Kept server rendering side-effect free: Vue SSR emits the chart container and ECharts initializes only after browser mount.
 
 ### Autoresize and styles
 
 - Observed the ECharts host container's content-box size, skipping zero-sized and unchanged resizes, throttling recovery, and invoking `onResize` only after a real chart resize.
-- Resized before the autoresize-deferred first option commit and cancelled the observer and pending throttle work synchronously during cleanup.
+- Resized before the deferred first render and prevented pending resize callbacks after cleanup.
 - Preserved automatic base-style injection in both JavaScript entry bundles; `vue-echarts/style.css` remains available for shadow roots, other documents, and restrictive CSP environments.
 
-### Performance and maintainability
+### Performance
 
-- Avoided deep option tracking in manual mode, layout reads when autoresize is disabled, redundant listener work, repeated loading traversals, and duplicate graphic flushes.
-- Batched graphic, theme, and slot-driven work and simplified lifecycle ownership.
+- Reduced unnecessary work in manual mode and when autoresize is disabled, and batched listener, loading, graphic, theme, and slot updates.
 
-### Build, release, and documentation
+### Bundles
 
-- Corrected the global CDN bundle to use the full `echarts` package as one external dependency while preserving the component's named exports on the default global export.
-- Added declaration builds against minimum peer versions, package validation, generated-document checks, preview publishing, and safer tag and dist-tag handling to the release pipeline.
-- Expanded English and Chinese documentation for the public APIs and runtime behavior introduced in this release.
+- Fixed the global CDN bundle to work with the full `echarts` package while preserving named exports on its default global export.
 
 ## 8.1.0
 
