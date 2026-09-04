@@ -6,7 +6,7 @@ pre-commit:
       run: pnpm typecheck
     lint:
       glob: "*.{ts,js,mjs,cjs,mts,cts,vue}"
-      run: pnpm exec eslint --fix {staged_files}
+      run: pnpm exec oxlint --fix {staged_files}
       stage_fixed: true
     format:
       glob: "*.{ts,js,mjs,cjs,cts,mts,json,md,yml,yaml,vue}"

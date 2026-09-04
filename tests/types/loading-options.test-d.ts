@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import type { LoadingOptions } from "../../src";
 
 type Assert<T extends true> = T;

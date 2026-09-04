@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import ECharts, { type AutoResize } from "../../src";
 import type { EChartsType } from "../../src/types";
 
