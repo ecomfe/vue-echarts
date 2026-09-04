@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import type { ElementEvent } from "echarts/core";
 
 import type { GraphicEmits, GraphicEventName, GraphicOnEventName } from "../../src/graphic";

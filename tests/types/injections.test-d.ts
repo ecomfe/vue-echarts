@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import type { Ref } from "vue";
 
 import type { InitOptions, Injection, LoadingOptions, Theme, UpdateOptions } from "../../src/types";
