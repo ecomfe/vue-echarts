@@ -11,8 +11,7 @@ import {
 
 import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
-import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_ORDER_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
-import { createOrderTracker } from "./order";
+import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 
 export const GraphicMount = defineComponent({
   name: "GraphicMount",
@@ -30,7 +29,6 @@ export const GraphicMount = defineComponent({
     // A pre-existing vnode element means Vue is hydrating the empty SSR Teleport.
     const contentReady = shallowRef(isBrowser() && !instance.vnode.el);
     const parentId = shallowRef<string | null>(null);
-    const order = createOrderTracker();
 
     onBeforeMount(() => {
       // Keeping the target inside the host lets iframe adoption finish before child mounted hooks.
@@ -39,6 +37,7 @@ export const GraphicMount = defineComponent({
         const target = host.ownerDocument.createElement("div");
         host.appendChild(target);
         detachedRoot.value = target;
+        collector.setRoot(target);
       }
     });
 
@@ -48,18 +47,17 @@ export const GraphicMount = defineComponent({
       target?.remove();
       if (target?.ownerDocument !== ownerDocument) {
         detachedRoot.value = ownerDocument.createElement("div");
+        collector.setRoot(detachedRoot.value);
       }
       contentReady.value = true;
     });
 
     provide(GRAPHIC_COLLECTOR_KEY, collector);
     provide(GRAPHIC_PARENT_ID_KEY, parentId);
-    provide(GRAPHIC_ORDER_KEY, order.ref);
 
     return () => {
       beginPass();
       const content = slots.default!();
-      order.update(content);
       const target = detachedRoot.value;
 
       return h(

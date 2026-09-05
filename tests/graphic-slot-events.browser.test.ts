@@ -7,7 +7,7 @@ import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
 import { GRect } from "../src/graphic/components";
-import { getLastGraphicRootChildren, setupGraphicSlotSuite } from "./helpers/graphic-slot";
+import { getLastGraphicChanges, setupGraphicSlotSuite } from "./helpers/graphic-slot";
 
 vi.mock("echarts/core", () => createEChartsModule());
 
@@ -48,9 +48,9 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const firstNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "event-node",
-    ) as Record<string, unknown> | undefined;
+    const firstNode = getLastGraphicChanges(chartStub).find((item) => item.id === "event-node") as
+      | Record<string, unknown>
+      | undefined;
     if (!firstNode || typeof firstNode.onclick !== "function") {
       throw new Error("Expected first click handler to exist.");
     }
@@ -64,9 +64,9 @@ describe("graphic slot event handling", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    const secondNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "event-node",
-    ) as Record<string, unknown> | undefined;
+    const secondNode = getLastGraphicChanges(chartStub).find((item) => item.id === "event-node") as
+      | Record<string, unknown>
+      | undefined;
     if (!secondNode || typeof secondNode.onclick !== "function") {
       throw new Error("Expected second click handler to exist.");
     }
@@ -110,9 +110,9 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const firstNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "event-node",
-    ) as Record<string, unknown> | undefined;
+    const firstNode = getLastGraphicChanges(chartStub).find((item) => item.id === "event-node") as
+      | Record<string, unknown>
+      | undefined;
     if (!firstNode || typeof firstNode.onclick !== "function") {
       throw new Error("Expected first click handler to exist.");
     }
@@ -126,9 +126,9 @@ describe("graphic slot event handling", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    const secondNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "event-node",
-    ) as Record<string, unknown> | undefined;
+    const secondNode = getLastGraphicChanges(chartStub).find((item) => item.id === "event-node") as
+      | Record<string, unknown>
+      | undefined;
     if (!secondNode) {
       throw new Error("Expected second node to exist.");
     }
@@ -143,9 +143,9 @@ describe("graphic slot event handling", () => {
     await nextTick();
     await flushAnimationFrame();
 
-    const thirdNode = getLastGraphicRootChildren(chartStub).find(
-      (item) => item.id === "event-node",
-    ) as Record<string, unknown> | undefined;
+    const thirdNode = getLastGraphicChanges(chartStub).find((item) => item.id === "event-node") as
+      | Record<string, unknown>
+      | undefined;
     if (!thirdNode) {
       throw new Error("Expected third node to exist.");
     }
@@ -185,7 +185,7 @@ describe("graphic slot event handling", () => {
 
     const chartStub = suite.getChartStub();
     const getNode = () =>
-      getLastGraphicRootChildren(chartStub).find((item) => item.id === "channel-node");
+      getLastGraphicChanges(chartStub).find((item) => item.id === "channel-node");
     const singleNode = getNode();
     if (!singleNode || typeof singleNode.onclick !== "function") {
       throw new Error("Expected first click handler to exist.");
@@ -272,8 +272,7 @@ describe("graphic slot event handling", () => {
     await flushAnimationFrame();
 
     const chartStub = suite.getChartStub();
-    const getNode = () =>
-      getLastGraphicRootChildren(chartStub).find((item) => item.id === "once-node");
+    const getNode = () => getLastGraphicChanges(chartStub).find((item) => item.id === "once-node");
     const getClick = (): ((params: unknown) => void) => {
       const node = getNode();
       if (typeof node?.onclick !== "function") {

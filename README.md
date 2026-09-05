@@ -152,6 +152,8 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
 
   Pass an empty string to use ECharts' default theme while overriding an injected theme.
 
+  ECharts recreates its model when changing themes. Vue ECharts reapplies the latest automatic option, but uncontrolled interaction state (such as legend selection or data zoom) may reset. Keep state that must survive a rebuild in `option`.
+
   Injection key: `THEME_KEY`.
 
 - `option: object`
@@ -160,9 +162,14 @@ See more examples [here](https://github.com/ecomfe/vue-echarts/tree/main/demo).
   Temporarily removing the prop pauses automatic updates without letting a later theme change roll the chart back to its initial option.
 
   #### Smart update
-  - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner. After you remove it, the first smart update rebuilds once to establish a safe structural baseline.
+
+  Reactive updates describe the complete configuration. Vue ECharts preserves existing models where merging can apply that configuration, and rebuilds when necessary to remove stale settings. A rebuild can reset interaction state such as legend selections and data zoom.
+
+  - If you supply `update-options` (via prop or injection), Vue ECharts forwards it directly to `setOption` and skips the planner. After you remove it, the first smart source-option update rebuilds once to establish a safe structural baseline.
+  - A failed option or theme submission invalidates that baseline. The next smart update rebuilds instead of trusting a potentially partial update.
+  - Automatic option, theme, and slot changes are batched after Vue updates. `clear()` takes effect immediately and cancels already queued automatic work; later changes can populate the chart again.
   - Manual `setOption` calls (only available when `manual-update` is `true`) behave like native ECharts, honouring only the per-call override you pass in and are not carried across re-initializations.
-  - Updates containing a graphic element `$action` keep normal merge for `graphic` so the command can target the existing element tree; safe removals of unrelated components still use `replaceMerge`.
+  - Updates containing a graphic element `$action` keep normal merge for `graphic` so the command can target the existing element tree; safe removals of unrelated components still use `replaceMerge`. Changes requiring a full rebuild cannot be applied together with these commands. For complete snapshot semantics, describe the resulting graphic tree without `$action` commands.
   - Otherwise, Vue ECharts analyses the change: component removals, reordering, and deletions inside anonymous components use `replaceMerge` when it can reproduce the requested order; deletions inside ID-matched components, identity ordering that `replaceMerge` cannot reproduce, newly introduced or shrinking non-component arrays, first-time ARIA configuration, and other risky changes fall back to `notMerge: true`.
 
 - `update-options: object`
@@ -542,6 +549,8 @@ Read more at [ECharts `option.graphic` →](https://echarts.apache.org/en/option
 > - Path components accept `auto-batch` to opt into ZRender's Canvas path batching.
 > - The `option` prop may be omitted for graphic-only charts.
 > - `#graphic` overrides `option.graphic`. In `manual-update` mode, call `chartRef.setOption(...)` to apply changes.
+> - Wrapper components and Fragments preserve their rendered graphic order. Compatible property changes update only changed elements, preserving unchanged elements and their running animations. Removing fields, changing types, or changing tree structure rebuilds the graphic component.
+> - Graphic-only changes omit unrelated source options when safe. Explicit `notMerge` or `replaceMerge` targeting other components still submits the full source option.
 
 <details>
 <summary>Usage</summary>

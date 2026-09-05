@@ -1,4 +1,3 @@
-import type { Option } from "../types";
 import { createEventInvoker, hasEventHandler, parseOnEvent } from "../utils";
 import type { EventHandler } from "../utils";
 import {
@@ -14,6 +13,12 @@ import {
 import { SHAPE_KEYS_BY_TYPE } from "./props-shape";
 import type { GraphicNode } from "./collector";
 import { GRAPHIC_EVENTS } from "./types";
+
+export type GraphicElement = Record<string, unknown> & {
+  type: string;
+  id: string;
+  children?: GraphicElement[];
+};
 
 function mergeProps(
   target: Record<string, unknown> | undefined,
@@ -113,7 +118,7 @@ function mergeHandlers(node: GraphicNode, target: Record<string, unknown>): void
   }
 }
 
-function toElement(node: GraphicNode, children?: Option[]): Option {
+function toElement(node: GraphicNode, children?: GraphicElement[]): GraphicElement {
   const { type, id, props } = node;
   const shapeKeys: readonly string[] | undefined =
     SHAPE_KEYS_BY_TYPE[type as keyof typeof SHAPE_KEYS_BY_TYPE];
@@ -143,7 +148,7 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     if (children?.length) {
       out.children = children;
     }
-    return out as Option;
+    return out as GraphicElement;
   }
 
   mergeProps(out, DISPLAYABLE_PROP_KEYS, props);
@@ -166,10 +171,13 @@ function toElement(node: GraphicNode, children?: Option[]): Option {
     out.style = style;
   }
 
-  return out as Option;
+  return out as GraphicElement;
 }
 
-export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Option {
+export function buildOption(
+  nodes: Iterable<GraphicNode>,
+  rootId: string,
+): { graphic: { elements: GraphicElement[] } } {
   const byParent = new Map<string | null, GraphicNode[]>();
   const occupiedRootIds = new Set<string>();
 
@@ -191,7 +199,7 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
     list.sort((a, b) => a.order - b.order);
   }
 
-  const childrenOf = (parentId: string | null): Option[] | undefined =>
+  const childrenOf = (parentId: string | null): GraphicElement[] | undefined =>
     byParent.get(parentId)?.map((node) => {
       if (node.type !== "group") {
         return toElement(node);
@@ -205,10 +213,9 @@ export function buildOption(nodes: Iterable<GraphicNode>, rootId: string): Optio
         {
           type: "group",
           id: rootId,
-          $action: "replace",
           children: childrenOf(null) ?? [],
         },
       ],
     },
-  } as Option;
+  };
 }

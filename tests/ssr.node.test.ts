@@ -15,7 +15,7 @@ describe("SSR environment", () => {
   it("slot: render undefined and formatter returns undefined", async () => {
     const exposed = shallowRef<{
       render: () => unknown;
-      patchOption: (option: Option) => Option;
+      prepare: (option: Option) => { option: Option };
     }>();
 
     const Probe = defineComponent({
@@ -41,7 +41,7 @@ describe("SSR environment", () => {
     const vnode = instance.render();
     expect(vnode).toBeUndefined();
 
-    const patched = instance.patchOption({});
+    const patched = instance.prepare({}).option;
     const tooltip = (
       patched as {
         tooltip?: TooltipComponentOption | TooltipComponentOption[];

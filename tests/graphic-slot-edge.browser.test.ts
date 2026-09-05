@@ -9,6 +9,7 @@ import { GGroup, GRect } from "../src/graphic/components";
 import {
   getLastGraphicIds,
   getLastGraphicOption,
+  getLastGraphicChanges,
   setupGraphicSlotSuite,
 } from "./helpers/graphic-slot";
 import { GRAPHIC_SSR_MARKUP } from "./helpers/ssr";
@@ -571,12 +572,12 @@ describe("graphic slot edge and integration behavior", () => {
     await flushAnimationFrame();
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    const graphic = getLastGraphicOption(chartStub).graphic.elements[0].children as any[];
+    const graphic = getLastGraphicChanges(chartStub);
     const marker = graphic.find((item) => item.id === "marker");
     const markerBg = graphic.find((item) => item.id === "marker-bg");
-    expect(marker.shape).toMatchObject({ x: 36 });
-    expect(marker.style).toMatchObject({ fill: "#22c55e" });
-    expect(markerBg.shape).toMatchObject({ x: 34 });
+    expect(marker?.shape).toMatchObject({ x: 36 });
+    expect(marker?.style).toMatchObject({ fill: "#22c55e" });
+    expect(markerBg?.shape).toMatchObject({ x: 34 });
     chartStub.setOption.mockClear();
 
     nestedShape.x = 36;
@@ -584,10 +585,10 @@ describe("graphic slot edge and integration behavior", () => {
     await flushAnimationFrame();
 
     expect(chartStub.setOption).toHaveBeenCalledTimes(1);
-    const nested = getLastGraphicOption(chartStub).graphic.elements[0].children.find(
+    const nested = getLastGraphicChanges(chartStub).find(
       (item: { id?: string }) => item.id === "nested",
     );
-    expect(nested.shape).toMatchObject({
+    expect(nested?.shape).toMatchObject({
       x: 36,
     });
   });
@@ -633,9 +634,9 @@ describe("graphic slot edge and integration behavior", () => {
     const replacements = chartStub.setOption.mock.calls.map(
       ([, updateArg]) => updateArg?.replaceMerge,
     );
-    expect(replacements).toContainEqual(["series", "graphic"]);
-    const marker = getLastGraphicOption(chartStub).graphic.elements[0].children[0];
-    expect(marker.shape).toMatchObject({ x: 36 });
+    expect(replacements).toContainEqual("series");
+    const marker = getLastGraphicChanges(chartStub)[0];
+    expect(marker?.shape).toMatchObject({ x: 36 });
 
     chartStub.setOption.mockClear();
     option.value = { series: [{ type: "line", data: [2, 1, 3] }] };
@@ -687,7 +688,7 @@ describe("graphic slot edge and integration behavior", () => {
     expect(getLastSetOptionCall(chartStub)[1]).toEqual({
       lazyUpdate: true,
       silent: true,
-      replaceMerge: ["series", "graphic"],
+      replaceMerge: "series",
     });
   });
 

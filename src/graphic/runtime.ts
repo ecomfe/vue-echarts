@@ -9,7 +9,11 @@ export type GraphicContext = {
 };
 
 type GraphicRuntime = {
-  patchOption: (option: Option) => Option;
+  cancelPendingFlush: () => void;
+  prepare: (
+    option: Option,
+    reset: boolean,
+  ) => { option: Option; replace: boolean; commit: () => void };
   render: () => VNodeChild;
 };
 

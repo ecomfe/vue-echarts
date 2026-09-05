@@ -1,6 +1,6 @@
 import type { ExtractPublicPropTypes, PropType } from "vue";
 
-import type { GraphicComponentType } from "./marker";
+import type { GraphicComponentType } from "./component-type";
 import { withUndefinedDefault } from "./props-common";
 
 export const SHAPE_KEYS_BY_TYPE = {

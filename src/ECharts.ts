@@ -23,7 +23,7 @@ import { useSlotOption, type SlotsTypes } from "./composables/slot";
 import { hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
-import { useReactiveChartListeners, useRootAttrs } from "./core/events";
+import { useReactiveChartListeners, getRootAttrs } from "./core/events";
 import { planUpdate } from "./update";
 import type { Signature } from "./update";
 
@@ -46,7 +46,13 @@ import "./style";
 
 const wcRegistered = register();
 const SKIP_AUTO_UPDATE = Symbol();
-type ApplyMode = "manual" | "graphic" | "theme";
+type ApplyMode = "manual" | "graphic";
+enum UpdateReason {
+  Option = 1,
+  Graphic = 2,
+  Theme = 4,
+  Reinit = 8,
+}
 
 export const THEME_KEY: InjectionKey<ThemeInjection> = Symbol();
 export const INIT_OPTIONS_KEY: InjectionKey<InitOptionsInjection> = Symbol();
@@ -82,8 +88,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
     const chart = shallowRef<EChartsType>();
-    const themeRevision = shallowRef(0);
-    const initOptionsRevision = shallowRef(0);
+    const updateRequest = shallowRef(0);
+    let pendingUpdate = 0;
     const defaultTheme = inject(THEME_KEY, null);
     const defaultInitOptions = inject(INIT_OPTIONS_KEY, null);
     const defaultUpdateOptions = inject(UPDATE_OPTIONS_KEY, null);
@@ -100,45 +106,57 @@ const ECharts = /* @__PURE__ */ defineComponent({
     );
     const realUpdateOptions = computed(() => props.updateOptions ?? toValue(defaultUpdateOptions));
 
-    const rootAttrs = useRootAttrs(attrs);
     const terminallyDisposed = shallowRef(false);
 
     const {
       render: renderSlot,
-      hasNewSlots,
-      patchOption,
+      prepare: prepareSlots,
       setReady: setSlotsReady,
+      cancelPendingUpdate: cancelSlotUpdate,
     } = useSlotOption(slots, requestUpdate);
 
-    const { patchOption: patchGraphicOption, render: renderGraphic } =
-      useGraphic({
-        slots,
-        manualUpdate,
-        // Graphic is always replaced, so slot-only changes do not alter the source signature.
-        requestUpdate: () => requestUpdate("graphic"),
-      }) ?? {};
+    const graphic = useGraphic({
+      slots,
+      manualUpdate,
+      requestUpdate: () => requestUpdate("graphic"),
+    });
 
-    // `null` means the last option skipped analysis, so the next smart update must rebuild.
+    // `null` means the model has no trusted signature, so the next smart update must rebuild.
     let lastSignature: Signature | null | undefined;
     let lastAutoOption: Option | undefined;
     let themeApplied = false;
-    let initOptionsInvalidated = false;
     let optionApplied = false;
-    let manualUpdateAtInit = manualUpdate.value;
     let initDeferred = false;
     let graphicSlotApplied = false;
-    const updateFlush = patchGraphicOption ? "post" : "pre";
+    let updateRevision = 0;
+    let modelValid = false;
 
     function getAutoOption(): Option | undefined {
       // A graphic slot is a complete option source even without an `option` prop.
-      return (
-        props.option ??
-        (patchGraphicOption && (slots.graphic || graphicSlotApplied) ? {} : undefined)
-      );
+      return props.option ?? (graphic && (slots.graphic || graphicSlotApplied) ? {} : undefined);
     }
 
     function isCurrent(instance: EChartsType | undefined): instance is EChartsType {
       return instance !== undefined && chart.value === instance && !terminallyDisposed.value;
+    }
+
+    function runUpdate(
+      instance: EChartsType,
+      update: () => void,
+      signature: Signature | null | undefined,
+    ): boolean {
+      const revision = ++updateRevision;
+      // A failed native call may have partially changed the model. Only a successful,
+      // uninterrupted submission can establish a new smart-update baseline.
+      lastSignature = null;
+      modelValid = false;
+      update();
+      if (!isCurrent(instance) || updateRevision !== revision) {
+        return false;
+      }
+      lastSignature = signature;
+      modelValid = true;
+      return true;
     }
 
     function applyTheme(instance: EChartsType): boolean {
@@ -146,9 +164,21 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!optionApplied || themeApplied) {
         return false;
       }
+      const revision = updateRevision + 1;
+      // Native update events can submit another option before setTheme returns.
       themeApplied = true;
-      instance.setTheme(realTheme.value || {});
-      return isCurrent(instance);
+      try {
+        return runUpdate(
+          instance,
+          () => instance.setTheme(realTheme.value || {}),
+          lastSignature === undefined ? undefined : null,
+        );
+      } catch (error) {
+        if (updateRevision === revision) {
+          themeApplied = false;
+        }
+        throw error;
+      }
     }
 
     function applyOption(
@@ -159,82 +189,118 @@ const ECharts = /* @__PURE__ */ defineComponent({
     ): void {
       const manual = mode === "manual";
       initDeferred = false;
-      const slotted = patchOption(option);
-      const patched = patchGraphicOption ? patchGraphicOption(slotted) : slotted;
-      const forceGraphic = mode === "graphic";
-      const skipPlanning = manual || forceGraphic;
-      let updateOptions: UpdateOptions | undefined;
-      let nextSignature: Signature | null | undefined;
+      const preparedSlots = prepareSlots(option);
+      const slotted = preparedSlots.option;
+      const hasGraphicSlot = Boolean(graphic && slots.graphic);
+      // An owned graphic tree is planned separately from the source it overrides.
+      const source = hasGraphicSlot ? { ...slotted, graphic: undefined } : slotted;
+      let updateOptions = manual ? manualOptions : (realUpdateOptions.value ?? undefined);
+      let nextSignature: Signature | null = null;
 
-      if (skipPlanning) {
-        updateOptions = forceGraphic ? (realUpdateOptions.value ?? undefined) : manualOptions;
-      } else if (realUpdateOptions.value) {
-        updateOptions = realUpdateOptions.value;
-        nextSignature = null;
-      } else {
-        const planned = planUpdate(lastSignature ?? undefined, slotted);
-        // Theme changes restore the first option; actions still need that existing element tree.
-        const rebuild =
-          !planned.signature.hasAction && (lastSignature === null || mode === "theme");
+      const graphicOnly = mode === "graphic" && hasGraphicSlot && graphicSlotApplied && modelValid;
+      if (graphicOnly) {
+        nextSignature = lastSignature ?? null;
+      } else if (!manual && !updateOptions) {
+        const planned = planUpdate(lastSignature ?? undefined, source);
+        const rebuild = !planned.signature.hasAction && lastSignature === null;
         updateOptions = rebuild ? { ...planned.plan, notMerge: true } : planned.plan;
         nextSignature = planned.signature;
       }
 
-      const hasGraphicSlot = Boolean(patchGraphicOption && slots.graphic);
-      const replaceGraphic = forceGraphic || graphicSlotApplied || hasGraphicSlot;
-      if (replaceGraphic && !updateOptions?.notMerge) {
-        const replaceMerge = updateOptions?.replaceMerge;
-        const replacements = typeof replaceMerge === "string" ? [replaceMerge] : replaceMerge;
-        if (!replacements?.includes("graphic")) {
-          updateOptions = {
-            ...updateOptions,
-            replaceMerge: replacements ? [...replacements, "graphic"] : ["graphic"],
-          };
-        }
+      const replaceMerge = updateOptions?.replaceMerge;
+      const replacements = typeof replaceMerge === "string" ? [replaceMerge] : (replaceMerge ?? []);
+      const preparedGraphic = graphic?.prepare(
+        slotted,
+        !modelValid ||
+          !graphicSlotApplied ||
+          Boolean(updateOptions?.notMerge) ||
+          replacements.includes("graphic") ||
+          manual,
+      );
+      let patched = preparedGraphic?.option ?? slotted;
+      const replaceGraphic = preparedGraphic?.replace || (graphicSlotApplied && !hasGraphicSlot);
+      if (replaceGraphic && !updateOptions?.notMerge && !replacements.includes("graphic")) {
+        updateOptions = { ...updateOptions, replaceMerge: [...replacements, "graphic"] };
       }
+      const replacesSource = replacements.some((key) => key !== "graphic");
+      if (graphicOnly && !updateOptions?.notMerge && !replacesSource) {
+        patched = { graphic: patched.graphic };
+      }
+      syncListeners();
+      if (!runUpdate(instance, () => instance.setOption(patched, updateOptions), nextSignature)) {
+        return;
+      }
+      preparedSlots.commit();
+      preparedGraphic?.commit();
       graphicSlotApplied = hasGraphicSlot;
       optionApplied = true;
-      if (!skipPlanning) {
-        lastSignature = nextSignature;
-      }
       if (!manual) {
         lastAutoOption = option;
       }
-      instance.setOption(patched, updateOptions);
-      if (!isCurrent(instance) || mode === "theme") {
-        return;
-      }
       if (applyTheme(instance) && !manual) {
-        applyOption(instance, option, "theme");
+        applyOption(instance, option);
       }
+    }
+
+    function scheduleUpdate(reason: UpdateReason): void {
+      pendingUpdate |= reason;
+      updateRequest.value++;
     }
 
     function requestUpdate(mode?: "graphic"): void {
-      const instance = chart.value;
-      if (!isCurrent(instance) || manualUpdate.value || initDeferred) {
-        return;
+      if (!manualUpdate.value && !initDeferred && !terminallyDisposed.value) {
+        scheduleUpdate(mode === "graphic" ? UpdateReason.Graphic : UpdateReason.Option);
       }
-
-      const option = getAutoOption() ?? lastAutoOption;
-      if (!option) {
-        return;
-      }
-      applyOption(instance, option, mode);
     }
 
-    if (slots.graphic && !patchGraphicOption) {
+    function flushUpdate(): void {
+      const reasons = pendingUpdate;
+      pendingUpdate = 0;
+      const instance = chart.value;
+      if (!reasons || !isCurrent(instance)) {
+        return;
+      }
+      if (reasons & UpdateReason.Reinit) {
+        cleanup();
+        init();
+        return;
+      }
+      if (initDeferred) {
+        return;
+      }
+
+      syncListeners();
+      const option =
+        reasons & (UpdateReason.Option | UpdateReason.Graphic)
+          ? (getAutoOption() ?? lastAutoOption)
+          : lastAutoOption;
+      const needsTheme = !themeApplied && optionApplied;
+      if (needsTheme && !applyTheme(instance)) {
+        return;
+      }
+      if (!manualUpdate.value && option) {
+        const graphicOnly = reasons === UpdateReason.Graphic && !needsTheme;
+        applyOption(instance, option, graphicOnly ? "graphic" : undefined);
+      }
+    }
+
+    if (slots.graphic && !graphic) {
       warn(
         "Detected `#graphic` slot but no extension is registered. Import from `vue-echarts/graphic` to enable it.",
       );
     }
 
-    const stopListeners = useReactiveChartListeners(chart, attrs);
+    const { sync: syncListeners, stop: stopListeners } = useReactiveChartListeners(chart, attrs);
 
     function cleanup(): void {
+      pendingUpdate = 0;
+      graphic?.cancelPendingFlush();
+      updateRevision++;
       const instance = chart.value;
       chart.value = undefined;
       setSlotsReady(false);
       lastSignature = undefined;
+      modelValid = false;
       lastAutoOption = undefined;
       initDeferred = false;
       graphicSlotApplied = false;
@@ -242,8 +308,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     }
 
     function init(): void {
-      initOptionsInvalidated = false;
-      manualUpdateAtInit = manualUpdate.value;
+      pendingUpdate = 0;
       optionApplied = false;
 
       const host = chartHost.value as HTMLDivElement;
@@ -317,8 +382,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
         if (isIgnorableWatchChange(theme, previousTheme)) {
           return;
         }
-        themeRevision.value++;
         themeApplied = false;
+        scheduleUpdate(UpdateReason.Theme);
       },
       { deep: true, flush: "sync" },
     );
@@ -327,73 +392,33 @@ const ECharts = /* @__PURE__ */ defineComponent({
       realInitOptions,
       (options, previousOptions) => {
         if (!isIgnorableWatchChange(options, previousOptions)) {
-          initOptionsInvalidated = true;
-          initOptionsRevision.value++;
+          scheduleUpdate(UpdateReason.Reinit);
         }
       },
       { deep: true, flush: "sync" },
     );
 
-    const stopOptionWatch = watch(
-      () => (manualUpdate.value ? SKIP_AUTO_UPDATE : props.option),
-      (option, previousOption) => {
-        // Mode changes reinitialize the chart, so the watcher must not update the outgoing instance.
-        if (option === SKIP_AUTO_UPDATE || previousOption === SKIP_AUTO_UPDATE) {
-          return;
-        }
-
-        const nextOption = option ?? getAutoOption();
-        if (!nextOption) {
-          return;
-        }
-
-        const instance = chart.value;
-        if (initOptionsInvalidated || !isCurrent(instance) || initDeferred) {
-          return;
-        }
-        // Let the updated hook apply once the new callback containers exist.
-        if (hasNewSlots()) {
-          return;
-        }
-        applyOption(instance, nextOption);
-      },
-      // Graphic nodes register during render, so update after the collected tree is current.
-      { deep: true, flush: updateFlush },
-    );
-
-    const stopReinitWatch = watch([manualUpdate, initOptionsRevision], () => {
-      if (!chart.value) {
-        return;
-      }
-      cleanup();
-      init();
+    function watchOption() {
+      return watch(
+        () => (manualUpdate.value ? SKIP_AUTO_UPDATE : props.option),
+        (option, previousOption) => {
+          if (
+            option !== SKIP_AUTO_UPDATE &&
+            previousOption !== SKIP_AUTO_UPDATE &&
+            (option ?? getAutoOption())
+          ) {
+            requestUpdate();
+          }
+        },
+        // Batch deep traversal, then submit after Vue has prepared slot containers and graphic nodes.
+        { deep: true },
+      );
+    }
+    let stopOptionWatch = watchOption();
+    const stopModeWatch = watch(manualUpdate, () => scheduleUpdate(UpdateReason.Reinit), {
+      flush: "sync",
     });
-
-    const stopThemeApplyWatch = watch(
-      themeRevision,
-      () => {
-        const instance = chart.value;
-        if (
-          !initOptionsInvalidated &&
-          manualUpdate.value === manualUpdateAtInit &&
-          isCurrent(instance) &&
-          !themeApplied
-        ) {
-          if (!applyTheme(instance)) {
-            return;
-          }
-
-          // `clear()` deliberately drops the applied option until its source changes again.
-          const option = lastAutoOption;
-          if (option && !manualUpdate.value && !initDeferred && !hasNewSlots()) {
-            applyOption(instance, option, "theme");
-          }
-        }
-      },
-      {
-        flush: updateFlush,
-      },
-    );
+    const stopUpdateWatch = watch(updateRequest, flushUpdate, { flush: "post" });
 
     const stopGroupWatch = watchSyncEffect(() => {
       const instance = chart.value;
@@ -412,8 +437,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
       stopThemeWatch();
       stopInitOptionsWatch();
       stopOptionWatch();
-      stopReinitWatch();
-      stopThemeApplyWatch();
+      stopModeWatch();
+      stopUpdateWatch();
       stopGroupWatch();
       stopLoading();
       stopAutoresize();
@@ -429,9 +454,17 @@ const ECharts = /* @__PURE__ */ defineComponent({
         return guardedClear();
       }
       initDeferred = false;
-      lastSignature = undefined;
-      lastAutoOption = undefined;
-      instance.clear();
+      pendingUpdate = 0;
+      graphic?.cancelPendingFlush();
+      cancelSlotUpdate();
+      // Drop earlier queued source changes while observing changes made inside clear's events.
+      stopOptionWatch();
+      stopOptionWatch = watchOption();
+      if (runUpdate(instance, () => instance.clear(), undefined)) {
+        lastAutoOption = undefined;
+        graphicSlotApplied = false;
+        optionApplied = true;
+      }
     };
 
     onMounted(() => {
@@ -441,6 +474,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     });
 
     onBeforeUnmount(() => {
+      stopOptionWatch();
       if (terminallyDisposed.value) {
         return;
       }
@@ -480,15 +514,13 @@ const ECharts = /* @__PURE__ */ defineComponent({
           children.push(teleported);
         }
 
-        if (renderGraphic) {
-          const graphic = renderGraphic();
-          if (graphic) {
-            children.push(graphic);
-          }
+        const graphicContent = graphic?.render();
+        if (graphicContent) {
+          children.push(graphicContent);
         }
       }
 
-      const forwardedAttrs = rootAttrs.value;
+      const forwardedAttrs = getRootAttrs(attrs);
 
       return h(
         TAG_NAME,

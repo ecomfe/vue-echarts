@@ -364,25 +364,48 @@ describe("smart-update", () => {
         },
       );
 
-      it("removes unrelated components while preserving graphic actions", () => {
-        const base = {
-          title: { text: "stale" },
-          graphic: {
-            elements: [
-              { type: "rect", id: "a", shape: { x: 0, y: 0, width: 10, height: 10 } },
-              { type: "rect", id: "b", shape: { x: 20, y: 0, width: 10, height: 10 } },
-            ],
-          },
-        } as EChartsOption;
-        const update = {
-          graphic: { elements: [{ id: "a", $action: "remove" }] },
-        } as unknown as EChartsOption;
-        const { applied, plan } = applyPlannedUpdate(base, update);
+      it.each([false, true])(
+        "removes unrelated components while preserving graphic actions (global reset: %s)",
+        (reset) => {
+          const base: EChartsOption = {
+            backgroundColor: reset ? "red" : undefined,
+            title: { text: "stale" },
+            graphic: {
+              elements: [
+                { type: "rect", id: "a", shape: { x: 0, y: 0, width: 10, height: 10 } },
+                { type: "rect", id: "b", shape: { x: 20, y: 0, width: 10, height: 10 } },
+              ],
+            },
+          };
+          const update = {
+            graphic: { elements: [{ id: "a", $action: "remove" }] },
+          } as EChartsOption;
+          const { applied, plan } = applyPlannedUpdate(base, update);
 
-        expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
-        expect(applied.title).toEqual([]);
-        expect(applied.graphic?.[0]?.elements?.map(({ id }) => id)).toEqual(["b"]);
-      });
+          expect(plan).toEqual({ notMerge: false, replaceMerge: ["title"] });
+          expect(applied.title).toEqual([]);
+          expect(applied.graphic?.[0]?.elements?.map(({ id }) => id)).toEqual(["b"]);
+        },
+      );
+
+      it.each(["root", ...optionContainers] as const)(
+        "replaces graphic types without relying on property removal in %s",
+        (container) => {
+          const baseOption: EChartsOption = {
+            graphic: { elements: [{ id: "marker", type: "rect", style: { fill: "red" } }] },
+          };
+          const updateOption: EChartsOption = {
+            graphic: { elements: [{ id: "marker", type: "circle", style: { fill: "blue" } }] },
+          };
+          const base = container === "root" ? baseOption : wrapOption(container, baseOption);
+          const update = container === "root" ? updateOption : wrapOption(container, updateOption);
+          const { applied } = applyPlannedUpdate(base, update);
+
+          expect(applied.graphic?.[0]?.elements).toMatchObject([
+            { id: "marker", type: "circle", style: { fill: "blue" } },
+          ]);
+        },
+      );
 
       it.each(optionContainers)("rebuilds reordered components in %s", (container) => {
         const series = [

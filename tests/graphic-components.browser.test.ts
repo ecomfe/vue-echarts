@@ -10,6 +10,7 @@ import { GraphicMount } from "../src/graphic/mount";
 
 type CollectorMock = {
   beginPass: ReturnType<typeof vi.fn>;
+  setRoot: ReturnType<typeof vi.fn>;
   register: ReturnType<typeof vi.fn>;
   unregister: ReturnType<typeof vi.fn>;
   warn: ReturnType<typeof vi.fn>;
@@ -21,6 +22,7 @@ type CollectorMock = {
 function createCollectorMock(): CollectorMock {
   return {
     beginPass: vi.fn(),
+    setRoot: vi.fn(),
     register: vi.fn(),
     unregister: vi.fn(),
     warn: vi.fn(),

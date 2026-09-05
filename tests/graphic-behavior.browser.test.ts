@@ -52,6 +52,17 @@ function collectGraphicIds(chart: EChartsType): Set<string> {
   return ids;
 }
 
+function getGraphicTree(chart: EChartsType): Array<Record<string, any>> {
+  const graphics = chart.getOption().graphic as Array<{ elements: Array<Record<string, any>> }>;
+  const elements = graphics[0].elements;
+  const nodes = new Map(elements.map((element) => [element.id, { ...element }]));
+  for (const node of nodes.values()) {
+    const parent = nodes.get(node.parentId);
+    if (parent) (parent.children ??= []).push(node);
+  }
+  return nodes.get(elements[0].id)?.children ?? [];
+}
+
 function createExposeSetter(exposed: { value?: Exposed }): VNodeRef {
   return (value) => {
     exposed.value = value ? (value as Exposed) : undefined;
@@ -254,5 +265,92 @@ describe("graphic update behavior (real echarts)", () => {
 
     ids = collectGraphicIds(chart);
     expect(ids.has("moving")).toBe(true);
+  });
+  it("keeps nested group tree consistent across v-if and v-for changes", async () => {
+    registerExtension();
+    const exposed = shallowRef<Exposed>();
+
+    const option = ref({ series: [{ type: "line", data: [1, 2, 3] }] });
+    const leftItems = ref(["a", "b"]);
+    const rightItems = ref(["c"]);
+    const showRight = ref(true);
+
+    const Root = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ECharts,
+            {
+              option: option.value,
+              initOptions: { width: 220, height: 140 },
+              ref: createExposeSetter(exposed),
+            },
+            {
+              graphic: () => [
+                h(
+                  GGroup,
+                  { id: "left", key: "left" },
+                  {
+                    default: () =>
+                      leftItems.value.map((id, index) =>
+                        h(GRect, { id, key: id, x: index * 10, y: 0, width: 8, height: 8 }),
+                      ),
+                  },
+                ),
+                showRight.value
+                  ? h(
+                      GGroup,
+                      { id: "right", key: "right" },
+                      {
+                        default: () =>
+                          rightItems.value.map((id, index) =>
+                            h(GRect, {
+                              id,
+                              key: id,
+                              x: 20 + index * 10,
+                              y: 0,
+                              width: 8,
+                              height: 8,
+                            }),
+                          ),
+                      },
+                    )
+                  : null,
+              ],
+            },
+          );
+      },
+    });
+
+    render(Root);
+    await nextTick();
+    await flushAnimationFrame();
+
+    let children = getGraphicTree(getChart(exposed.value));
+    let left = children.find((item) => item.id === "left") as any;
+    let right = children.find((item) => item.id === "right") as any;
+    expect(children.map((item) => item.id)).toEqual(["left", "right"]);
+    expect(left.children.map((item: any) => item.id)).toEqual(["a", "b"]);
+    expect(right.children.map((item: any) => item.id)).toEqual(["c"]);
+
+    leftItems.value = ["b", "a"];
+    showRight.value = false;
+    await nextTick();
+    await flushAnimationFrame();
+
+    children = getGraphicTree(getChart(exposed.value));
+    left = children.find((item) => item.id === "left") as any;
+    expect(children.map((item) => item.id)).toEqual(["left"]);
+    expect(left.children.map((item: any) => item.id)).toEqual(["b", "a"]);
+
+    rightItems.value = ["d", "c"];
+    showRight.value = true;
+    await nextTick();
+    await flushAnimationFrame();
+
+    children = getGraphicTree(getChart(exposed.value));
+    right = children.find((item) => item.id === "right") as any;
+    expect(children.map((item) => item.id)).toEqual(["left", "right"]);
+    expect(right.children.map((item: any) => item.id)).toEqual(["d", "c"]);
   });
 });

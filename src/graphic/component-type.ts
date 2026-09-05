@@ -1,5 +1,3 @@
-export const GRAPHIC_COMPONENT_MARKER = Symbol("vue-echarts:graphic-component");
-
 export type GraphicComponentType =
   | "group"
   | "rect"

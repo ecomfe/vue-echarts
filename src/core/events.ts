@@ -1,6 +1,6 @@
-import { computed, onScopeDispose, watchSyncEffect } from "vue";
+import { getCurrentInstance, onScopeDispose, onUpdated, watchSyncEffect } from "vue";
 
-import type { ComputedRef, Ref } from "vue";
+import type { Ref } from "vue";
 import type { EChartsType } from "../types";
 import { createEventInvoker, hasEventHandler, isOn, parseOnEvent } from "../utils";
 import type { AttrMap, EventHandler } from "../utils";
@@ -22,7 +22,7 @@ const NATIVE_EVENT_PREFIX = "onNative:";
 export function useReactiveChartListeners(
   chart: Ref<EChartsType | undefined>,
   attrs: AttrMap,
-): () => void {
+): { sync: () => void; stop: () => void } {
   const bindings = new Map<string, ListenerBinding>();
   const consumedSources = new Map<string, unknown>();
   const seen = new Set<string>();
@@ -35,7 +35,7 @@ export function useReactiveChartListeners(
     bindings.clear();
   }
 
-  const stopWatch = watchSyncEffect(() => {
+  function sync(): void {
     seen.clear();
     const instance = chart.value;
     for (const [key, source] of consumedSources) {
@@ -112,33 +112,36 @@ export function useReactiveChartListeners(
       binding.emitter.off(binding.event, binding.handler);
       bindings.delete(key);
     }
-  });
+  }
+
+  const stopWatch = watchSyncEffect(sync);
+  if (getCurrentInstance()) {
+    onUpdated(sync);
+  }
 
   const stop = () => {
     stopWatch();
     clearBindings();
   };
   onScopeDispose(stop);
-  return stop;
+  return { sync, stop };
 }
 
-export function useRootAttrs(attrs: AttrMap): ComputedRef<AttrMap> {
-  return computed(() => {
-    const result: AttrMap = {};
+export function getRootAttrs(attrs: AttrMap): AttrMap {
+  const result: AttrMap = {};
 
-    for (const key in attrs) {
-      if (key.startsWith(NATIVE_EVENT_PREFIX)) {
-        const event = key.slice(NATIVE_EVENT_PREFIX.length);
-        if (event) {
-          result[`on:${event}`] = attrs[key];
-        }
-        continue;
+  for (const key in attrs) {
+    if (key.startsWith(NATIVE_EVENT_PREFIX)) {
+      const event = key.slice(NATIVE_EVENT_PREFIX.length);
+      if (event) {
+        result[`on:${event}`] = attrs[key];
       }
-      if (!isOn(key)) {
-        result[key] = attrs[key];
-      }
+      continue;
     }
+    if (!isOn(key)) {
+      result[key] = attrs[key];
+    }
+  }
 
-    return result;
-  });
+  return result;
 }

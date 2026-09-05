@@ -26,14 +26,26 @@ export function getLastGraphicOption(chartStub: ChartStub): any {
 }
 
 export function getLastGraphicIds(chartStub: ChartStub): string[] {
-  const optionArg = getLastGraphicOption(chartStub);
-  const children = optionArg?.graphic?.elements?.[0]?.children as
-    | Array<{ id?: string }>
-    | undefined;
-  return (children ?? []).map((item) => String(item.id));
+  return getLastGraphicChanges(chartStub).map((item) => String(item.id));
 }
 
-export function getLastGraphicRootChildren(chartStub: ChartStub): Array<Record<string, unknown>> {
-  const optionArg = getLastGraphicOption(chartStub);
-  return (optionArg?.graphic?.elements?.[0]?.children ?? []) as Array<Record<string, unknown>>;
+// Read either a complete tree or the changed subtrees of a native graphic patch.
+export function getLastGraphicChanges(chartStub: ChartStub): Array<Record<string, any>> {
+  const elements = getLastGraphicOption(chartStub)?.graphic?.elements ?? [];
+  if (elements[0]?.children) {
+    return elements[0].children;
+  }
+  const nodes = new Map<string, Record<string, any>>(
+    elements.map((element: Record<string, any>) => [element.id, { ...element }]),
+  );
+  const roots: Array<Record<string, any>> = [];
+  for (const node of nodes.values()) {
+    const parent = nodes.get(node.parentId);
+    if (parent) {
+      (parent.children ??= []).push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
 }

@@ -3,8 +3,6 @@ import { init } from "echarts";
 
 import { buildOption } from "../src/graphic/build";
 import { createCollector, type GraphicNode } from "../src/graphic/collector";
-import * as components from "../src/graphic/components";
-import { GRAPHIC_COMPONENT_MARKER } from "../src/graphic/marker";
 
 const flushMicrotasks = () => new Promise<void>((resolve) => queueMicrotask(() => resolve()));
 
@@ -26,26 +24,7 @@ function createChart() {
 }
 
 describe("graphic", () => {
-  it("exports only element types supported by the ECharts graphic component", () => {
-    const nodes = Object.values(components).map((component, index): GraphicNode => ({
-      id: String(index),
-      type: (component as unknown as Record<symbol, string>)[GRAPHIC_COMPONENT_MARKER],
-      parentId: null,
-      props: {},
-      handlers: {},
-      order: index,
-      sourceId: index,
-    }));
-    const chart = createChart();
-
-    try {
-      expect(() => chart.setOption(buildOption(nodes, "root"))).not.toThrow();
-    } finally {
-      chart.dispose();
-    }
-  });
-
-  it("builds graphic option with ordered children and replace root", () => {
+  it("builds a declarative graphic option with ordered children", () => {
     const during = vi.fn();
     const extra = { progress: 0 };
     const typography = {
@@ -141,7 +120,7 @@ describe("graphic", () => {
     const root = getRootGraphicElement(option);
 
     expect(root.id).toBe("root");
-    expect(root.$action).toBe("replace");
+    expect(root.$action).toBeUndefined();
 
     const [text, rect, ellipse] = root.children as any[];
 
@@ -181,7 +160,7 @@ describe("graphic", () => {
     expect(root.children.some((child: any) => child.id === "rect")).toBe(true);
   });
 
-  it("builds an empty replace root when there are no nodes", () => {
+  it("builds an empty root when there are no nodes", () => {
     const root = getRootGraphicElement(buildOption([], "root"));
 
     expect(root.children).toEqual([]);

@@ -150,6 +150,8 @@ app.component('VChart', VueECharts)
 
   要应用的主题。请参考 `echarts.init` 的 `theme` 参数。[前往 →](https://echarts.apache.org/zh/api.html#echarts.init)
 
+  ECharts 在切换主题时会重建模型。Vue ECharts 会重新应用最新的自动更新配置，但未受控的交互状态（如图例选择、数据缩放）可能重置。需要跨重建保留的状态应维护在 `option` 中。
+
   传入空字符串可以在覆盖注入主题的同时使用 ECharts 默认主题。
 
   Inject 键名：`THEME_KEY`。
@@ -160,9 +162,15 @@ app.component('VChart', VueECharts)
   暂时移除该 prop 会暂停自动更新，之后的主题变更也不会让图表回退到初始 option。
 
   #### 智能更新
-  - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。移除它之后，首次智能更新会重建一次，以建立可靠的结构基线。
+
+  自动 option、theme 和插槽变化会在 Vue 更新后合并处理。`clear()` 立即生效并取消已经排队的自动更新，后续变化仍可重新填充图表。
+
+  响应式更新描述完整配置。Vue ECharts 会在合并能够正确应用配置时保留现有模型，并在必要时通过重建清除旧配置。重建可能重置图例选择、数据缩放等交互状态。
+
+  - 如果提供了 `update-options`（或通过 inject 注入），Vue ECharts 会直接把它传给 `setOption`，不会执行智能计划。移除它之后，首次源 option 智能更新会重建一次，以建立可靠的结构基线。
+  - option 或主题提交失败会使结构基线失效。下一次智能更新会重建，避免依赖可能只完成了一部分的更新。
   - 手动调用 `setOption`（仅当 `manual-update` 为 `true` 时可用）与原生 ECharts 保持一致，只使用本次调用传入的参数，重新初始化后不会保留这些调用的效果。
-  - 如果更新中有 graphic 元素使用 `$action`，`graphic` 会保留普通合并，让命令能够作用于现有元素树；无关组件的安全删除仍会使用 `replaceMerge`。
+  - 如果更新中有 graphic 元素使用 `$action`，`graphic` 会保留普通合并，让命令能够作用于现有元素树；无关组件的安全删除仍会使用 `replaceMerge`。需要完整重建的变更无法与这些命令一起应用。若需要完整快照语义，请直接描述更新后的 graphic 元素树，不使用 `$action` 命令。
   - 其他情况下，Vue ECharts 会分析差异：组件删除、重排及匿名组件内部的属性删除会在 `replaceMerge` 能还原目标顺序时使用它；已按 ID 匹配的组件内部属性删除、`replaceMerge` 无法还原的身份顺序变化、新增或缩短的非组件数组、首次 ARIA 配置及其他高风险变更会退回 `notMerge: true`。
 
 - `update-options: object`
@@ -540,6 +548,8 @@ import { GGroup, GRect, GText } from "vue-echarts/graphic";
 > - 路径组件支持通过 `auto-batch` 启用 ZRender 的 Canvas 路径批处理。
 > - 仅使用 graphic 插槽时可以省略 `option` prop。
 > - `#graphic` 会覆盖 `option.graphic`。`manual-update` 模式下需调用 `chartRef.setOption(...)` 提交变更。
+> - 包装组件和 Fragment 中的图形遵循实际渲染顺序。可合并的属性变化只更新变更节点，保留未变更元素及其正在运行的动画。删除字段、改变类型或树结构时，会重建 graphic 组件。
+> - 仅 graphic 变化时，会在安全的情况下省略无关的源配置。显式指定 `notMerge` 或针对其他组件的 `replaceMerge` 时，仍会提交完整源配置。
 
 <details>
 <summary>用法示例</summary>

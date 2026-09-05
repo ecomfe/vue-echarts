@@ -129,16 +129,18 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
   let slotNames: readonly SlotName[] = [];
   let nextSlotNames = slotNames;
-  let patchedSlotNames = slotNames;
-
-  const hasNewSlots = () => collectSlotNames().some((name) => !slotNames.includes(name));
+  const patchedSlotNames = new Set<SlotName>();
+  const callbacks = new Map<
+    SlotName,
+    { path: string[]; formatter: (payload: unknown) => HTMLElement | undefined }
+  >();
 
   function setReady(value: boolean): void {
     ready.value = value;
     if (value) {
       return;
     }
-    patchedSlotNames = [];
+    patchedSlotNames.clear();
     for (const key of Object.keys(params) as SlotName[]) {
       delete params[key];
     }
@@ -153,6 +155,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       if (!names.includes(key)) {
         delete params[key];
         delete containers[key];
+        callbacks.delete(key);
       }
     }
     slotNames = names;
@@ -192,7 +195,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     );
   };
 
-  function patchOption(src: Option): Option {
+  function prepare(src: Option): { option: Option; commit: () => void } {
     const names = collectSlotNames();
     syncSlotNames(names);
     let root: Option | undefined;
@@ -204,34 +207,43 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
       }
     }
 
-    if (names.length === 0) {
-      patchedSlotNames = [];
-      return root ?? src;
+    if (names.length) {
+      root ??= { ...src };
     }
-    root ??= { ...src };
     const patchedNames: SlotName[] = [];
 
     for (const key of names) {
-      const formatter = (payload: unknown): HTMLElement | undefined => {
-        if (!slots[key]) {
-          return undefined;
-        }
-        // ECharts may update and reuse the same formatter payload object.
-        if (key in params && Object.is(params[key], payload)) {
-          delete params[key];
-        }
-        params[key] = payload;
-        return containers[key];
-      };
+      let callback = callbacks.get(key);
+      if (!callback) {
+        const formatter = (payload: unknown): HTMLElement | undefined => {
+          if (!slots[key]) {
+            return undefined;
+          }
+          // ECharts may update and reuse the same formatter payload object.
+          if (key in params && Object.is(params[key], payload)) {
+            delete params[key];
+          }
+          params[key] = payload;
+          return containers[key];
+        };
+        callback = { path: getSlotPath(key), formatter };
+        callbacks.set(key, callback);
+      }
 
-      if (!writePath(root, getSlotPath(key), formatter)) {
+      if (!writePath(root!, callback.path, callback.formatter)) {
         continue;
       }
       patchedNames.push(key);
     }
 
-    patchedSlotNames = patchedNames;
-    return root;
+    return {
+      option: root ?? src,
+      commit: () => {
+        // Native theme changes can replay callbacks from an older option backup.
+        // Keep their cleanup paths until the chart instance is replaced.
+        patchedNames.forEach((name) => patchedSlotNames.add(name));
+      },
+    };
   }
 
   onUpdated(() => {
@@ -247,9 +259,12 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 
   return {
     render,
-    hasNewSlots,
-    patchOption,
+    prepare,
     setReady,
+    cancelPendingUpdate: () => {
+      // A queued updated hook must not replay slot changes preceding clear().
+      syncSlotNames(collectSlotNames());
+    },
   };
 }
 

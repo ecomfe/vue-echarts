@@ -10,6 +10,8 @@ type Shape = true | ObjectShape | ItemShape[];
 type ItemShape = {
   id: string | undefined;
   name: string | undefined;
+  /** Graphic elements cannot merge a change of type. */
+  type?: string;
   shape: Shape;
 };
 type ShapeMode = "option" | "media" | "graphic";
@@ -39,6 +41,12 @@ interface PlannedUpdate {
     notMerge: boolean;
     replaceMerge?: string[];
   };
+}
+
+enum UpdateKind {
+  Merge,
+  Replace,
+  Reset,
 }
 
 function buildShape(
@@ -96,6 +104,7 @@ function analyzeItems(
     shapes.push({
       id: toIdentity(identity?.id),
       name: toIdentity(identity?.name),
+      ...(mode === "graphic" ? { type: toIdentity(identity?.type) } : {}),
       shape: buildShape(item, context, mode),
     });
   }
@@ -213,7 +222,7 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
       !nextIsCollection ||
       hasCollectionRemoval(prev, next) ||
       hasIdentityChange(prev, next) ||
-      findItemShapeRemoval(prev, next) !== undefined
+      compareItemShapes(prev, next) !== UpdateKind.Merge
     );
   }
 
@@ -226,35 +235,37 @@ function hasShapeRemoval(prev: Shape, next: Shape): boolean {
   return false;
 }
 
-function findItemShapeRemoval(prev: ItemShape[], next: ItemShape[]): ItemShape | undefined {
-  let anonymousRemoval: ItemShape | undefined;
+function compareItemShapes(prev: ItemShape[], next: ItemShape[]): UpdateKind {
+  const byId = new Map<string, ItemShape>();
+  for (const item of next) {
+    if (item.id !== undefined && !byId.has(item.id)) {
+      byId.set(item.id, item);
+    }
+  }
+  let kind = UpdateKind.Merge;
 
   for (let index = 0; index < prev.length; index++) {
     const item = prev[index];
-    let nextShape: Shape | undefined;
-    if (item.id !== undefined) {
-      nextShape = next.find((candidate) => candidate.id === item.id)?.shape;
-    } else {
-      nextShape = next[index]?.shape;
-    }
-    if (nextShape && hasShapeRemoval(item.shape, nextShape)) {
+    const candidate = item.id !== undefined ? byId.get(item.id) : next[index];
+    if (
+      candidate &&
+      (item.type !== candidate.type || hasShapeRemoval(item.shape, candidate.shape))
+    ) {
+      // replaceMerge recreates anonymous items, but merges items with explicit IDs.
       if (item.id !== undefined) {
-        return item;
+        return UpdateKind.Reset;
       }
-      anonymousRemoval ??= item;
+      kind = UpdateKind.Replace;
     }
   }
-  return anonymousRemoval;
+  return kind;
 }
 
-/** Returns replacements, undefined for a plain merge, or null when a rebuild is required. */
-function collectReplacements(prev: Signature, next: Signature): string[] | null | undefined {
-  let replaceMerge: string[] | undefined;
-
+function needsGlobalReset(prev: Signature, next: Signature): boolean {
   // Global arrays may already contain theme/default entries, while aria is only
   // auto-enabled when it is present during initial model creation.
   if (next.objectShapes.aria && !prev.objectShapes.aria) {
-    return null;
+    return true;
   }
   for (const key in next.collections) {
     if (
@@ -263,7 +274,7 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       !prev.leaves.includes(key) &&
       !ComponentModel.hasClass(key)
     ) {
-      return null;
+      return true;
     }
   }
 
@@ -272,13 +283,13 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
     const nextShape = next.objectShapes[key];
     if (prevShape && nextShape) {
       if (hasShapeRemoval(prevShape, nextShape)) {
-        return null;
+        return true;
       }
       continue;
     }
 
     if (!next.leaves.includes(key)) {
-      return null;
+      return true;
     }
   }
 
@@ -288,46 +299,26 @@ function collectReplacements(prev: Signature, next: Signature): string[] | null 
       next.collections[key] === undefined &&
       next.objectShapes[key] === undefined
     ) {
-      return null;
+      return true;
     }
   }
 
-  for (const key in prev.collections) {
-    const prevCollection = prev.collections[key]!;
-    // Replacing graphic would discard the existing elements targeted by `$action`.
-    if (key === "graphic" && next.hasAction) {
-      continue;
-    }
+  return false;
+}
 
-    const nextCollection = next.collections[key];
-    // Empty setting arrays can override defaults, so removing them is still meaningful.
-    if (!nextCollection && !ComponentModel.hasClass(key)) {
-      return null;
-    }
-    const collectionRemoval = hasCollectionRemoval(prevCollection, nextCollection);
-    const identityChange =
-      nextCollection && !collectionRemoval && hasIdentityChange(prevCollection, nextCollection);
-    const shapeRemoval = nextCollection
-      ? findItemShapeRemoval(prevCollection, nextCollection)
-      : undefined;
-    // replaceMerge recreates anonymous items, but explicit ids are merged into existing models.
-    if (shapeRemoval?.id !== undefined) {
-      return null;
-    }
-
-    if (!shapeRemoval && !collectionRemoval && !identityChange) {
-      continue;
-    }
-    if (!ComponentModel.hasClass(key)) {
-      return null;
-    }
-    if (nextCollection && !preservesReplacementOrder(prevCollection, nextCollection)) {
-      return null;
-    }
-    (replaceMerge ??= []).push(key);
+function compareCollection(prev: ItemShape[], next: ItemShape[] | undefined): UpdateKind {
+  const kind = next ? compareItemShapes(prev, next) : UpdateKind.Merge;
+  if (kind === UpdateKind.Reset) {
+    return kind;
   }
-
-  return replaceMerge;
+  if (
+    kind === UpdateKind.Merge &&
+    !hasCollectionRemoval(prev, next) &&
+    !(next && hasIdentityChange(prev, next))
+  ) {
+    return UpdateKind.Merge;
+  }
+  return next && !preservesReplacementOrder(prev, next) ? UpdateKind.Reset : UpdateKind.Replace;
 }
 
 /**
@@ -344,18 +335,33 @@ export function planUpdate(prev: Signature | undefined, option: Option): Planned
     };
   }
 
-  const replaceMerge = collectReplacements(prev, next);
-  if (replaceMerge === null) {
-    return {
-      signature: next,
-      // Rebuilding would remove the existing graphic elements targeted by `$action`.
-      plan: { notMerge: !next.hasAction },
-    };
+  let reset = needsGlobalReset(prev, next);
+  const replaceMerge: string[] = [];
+  for (const key in prev.collections) {
+    const collection = next.collections[key];
+    const kind = compareCollection(prev.collections[key]!, collection);
+    if (!ComponentModel.hasClass(key)) {
+      // Removing even an empty setting array can expose theme/default entries.
+      reset ||= !collection || kind !== UpdateKind.Merge;
+    } else if (kind === UpdateKind.Reset) {
+      reset = true;
+    } else if (kind === UpdateKind.Replace) {
+      replaceMerge.push(key);
+    }
   }
-  replaceMerge?.sort();
+
+  // Command compatibility is separate from snapshot analysis: keep the target tree
+  // and all safe unrelated replacements even when a complete reset is unavailable.
+  const replacements = next.hasAction
+    ? replaceMerge.filter((key) => key !== "graphic")
+    : replaceMerge;
+  const notMerge = reset && !next.hasAction;
 
   return {
     signature: next,
-    plan: replaceMerge ? { notMerge: false, replaceMerge } : { notMerge: false },
+    plan:
+      !notMerge && replacements.length
+        ? { notMerge, replaceMerge: replacements.sort() }
+        : { notMerge },
   };
 }
