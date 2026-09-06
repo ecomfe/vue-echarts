@@ -54,6 +54,44 @@ describe("option worker issues", () => {
     expect(result.option).toBeUndefined();
   });
 
+  it("awaits asynchronous option exports", async () => {
+    const result = await analyze("export default Promise.resolve({ title: { text: 'async' } });");
+
+    expect(result.issues).toEqual([]);
+    expect(result.option).toEqual({ title: { text: "async" } });
+  });
+
+  it("reports rejected asynchronous exports as runtime failures", async () => {
+    const result = await analyze("export default Promise.reject(new Error('async failure'));");
+
+    expect(result.issues).toEqual([
+      { kind: "runtime", severity: "error", message: "async failure" },
+    ]);
+    expect(result.option).toBeUndefined();
+  });
+
+  it("uses JSON serialization when structured cloning is unavailable", async () => {
+    vi.stubGlobal("structuredClone", undefined);
+    try {
+      const result = await analyze("export default { title: { text: 'JSON' } };");
+      expect(result.issues).toEqual([]);
+      expect(result.option).toEqual({ title: { text: "JSON" } });
+
+      const circular = await analyze(
+        "const option = {}; option.self = option; export default option;",
+      );
+      expect(circular.issues).toContainEqual(
+        expect.objectContaining({
+          kind: "format",
+          message: expect.stringContaining("cannot be serialized"),
+        }),
+      );
+      expect(circular.option).toBeUndefined();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("flags non-serializable option exports", async () => {
     const result = await analyze("export default { label: () => 'hi' };");
 

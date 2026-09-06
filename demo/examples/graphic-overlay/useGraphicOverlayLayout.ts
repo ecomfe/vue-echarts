@@ -67,7 +67,6 @@ export function buildGraphicOverlayLayout(options: {
   const maxBubbleY = plotBottom - BUBBLE.height - 4;
 
   const placedRects: Rect[] = [];
-  const reservedRects: Rect[] = [];
   const laneBySide = { left: 0, right: 0 };
 
   const overlayMarkers = markers.map((marker) => {
@@ -81,7 +80,7 @@ export function buildGraphicOverlayLayout(options: {
 
     const bubbleWidthPx = bubbleWidth(label, plotWidth);
     const side = x > plotLeft + plotWidth * 0.58 ? "left" : "right";
-    const lane = side === "left" ? laneBySide.left++ : laneBySide.right++;
+    const lane = laneBySide[side]++;
     const laneOffset = lane * 22;
 
     const preferredLeftX = x - bubbleWidthPx - 12;
@@ -115,11 +114,8 @@ export function buildGraphicOverlayLayout(options: {
     });
 
     const picked =
-      candidates.find(
-        ({ rect }) =>
-          !reservedRects.some((reserved) => intersects(rect, reserved)) &&
-          !placedRects.some((placed) => intersects(rect, placed)),
-      ) ?? candidates[0];
+      candidates.find(({ rect }) => !placedRects.some((placed) => intersects(rect, placed))) ??
+      candidates[0];
 
     placedRects.push(picked.rect);
 

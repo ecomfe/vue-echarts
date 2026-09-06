@@ -3,6 +3,58 @@ import { describe, expect, it } from "vitest";
 import { getImportsFromOption } from "../demo/utils/codegen";
 
 describe("code generator", () => {
+  it("formats complete single-line imports and option types", () => {
+    expect(
+      getImportsFromOption({ series: { type: "bar" } }, { includeType: true, maxLen: 1000 }),
+    ).toBe(
+      "import { use } from 'echarts/core'\n" +
+        "import { BarChart } from 'echarts/charts'\n" +
+        "import { CanvasRenderer } from 'echarts/renderers'\n" +
+        "import type { ComposeOption } from 'echarts/core'\n" +
+        "import type { BarSeriesOption } from 'echarts/charts'\n\n" +
+        "use([BarChart, CanvasRenderer])\n\n" +
+        "type EChartsOption = ComposeOption<BarSeriesOption>\n",
+    );
+  });
+
+  it("preserves quotes, indentation and semicolons in multiline output", () => {
+    expect(
+      getImportsFromOption(
+        { series: { type: "bar" } },
+        {
+          includeType: true,
+          multiline: true,
+          quote: '"',
+          indent: "\t",
+          semi: true,
+          renderer: "svg",
+        },
+      ),
+    ).toBe(
+      'import { use } from "echarts/core";\n' +
+        'import {\n\tBarChart\n} from "echarts/charts";\n' +
+        'import {\n\tSVGRenderer\n} from "echarts/renderers";\n' +
+        'import type { ComposeOption } from "echarts/core";\n' +
+        'import type {\n\tBarSeriesOption\n} from "echarts/charts";\n\n' +
+        "use([\n\tBarChart,\n\tSVGRenderer\n]);\n\n" +
+        "type EChartsOption = ComposeOption<\n\t| BarSeriesOption\n>;\n",
+    );
+  });
+
+  it.each([
+    "import { BarChart } from 'echarts/charts'",
+    "use([BarChart, CanvasRenderer])",
+    "type EChartsOption = ComposeOption<BarSeriesOption>",
+  ])("wraps only when the line exceeds maxLen: %s", (line) => {
+    const option = { series: { type: "bar" } };
+    expect(getImportsFromOption(option, { includeType: true, maxLen: line.length })).toContain(
+      line,
+    );
+    expect(
+      getImportsFromOption(option, { includeType: true, maxLen: line.length - 1 }),
+    ).not.toContain(line);
+  });
+
   it("registers ARIA only when configured", () => {
     expect(getImportsFromOption({})).not.toContain("AriaComponent");
 

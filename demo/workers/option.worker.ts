@@ -1,57 +1,19 @@
 import * as ts from "typescript";
+import type {
+  AnalyzeRequest,
+  AnalyzeResponse,
+  AnalyzeDiagnostic,
+  AnalysisIssue,
+  DiagnosticSeverity,
+  IssueRange,
+  StrategyName,
+} from "./option.types";
 
 class ExternalImportError extends Error {
   constructor(readonly request?: string) {
     super();
     this.name = "ExternalImportError";
   }
-}
-
-interface AnalyzeRequest {
-  id: number;
-  code: string;
-}
-
-type DiagnosticSeverity = "error" | "warning" | "info" | "hint";
-
-interface AnalyzeDiagnostic {
-  message: string;
-  startLineNumber: number;
-  startColumn: number;
-  endLineNumber: number;
-  endColumn: number;
-  severity: DiagnosticSeverity;
-  code?: string;
-  source?: string;
-}
-
-interface AnalyzeResponse {
-  id: number;
-  strategy: StrategyName;
-  diagnostics: AnalyzeDiagnostic[];
-  issues: AnalysisIssue[];
-  output?: string;
-  option?: unknown;
-  runtimeError?: string | null;
-}
-
-type StrategyName = "expression" | "module";
-
-type IssueKind = "syntax" | "runtime" | "format";
-
-interface IssueRange {
-  startLineNumber: number;
-  startColumn: number;
-  endLineNumber: number;
-  endColumn: number;
-}
-
-interface AnalysisIssue {
-  kind: IssueKind;
-  severity: DiagnosticSeverity;
-  message: string;
-  hint?: string;
-  range?: IssueRange;
 }
 
 interface StrategySpec {
@@ -135,79 +97,49 @@ function convertDiagnostics(
   const issues: AnalysisIssue[] = [];
 
   diagnostics.forEach((diagnostic) => {
-    const file = diagnostic.file ?? sourceFile;
-    if (typeof diagnostic.start !== "number") {
-      const message = sanitizeDiagnosticMessage(
-        ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-      );
-      const mapped: AnalyzeDiagnostic = {
-        message,
-        startLineNumber: 1,
-        startColumn: 1,
-        endLineNumber: 1,
-        endColumn: 1,
-        severity: severityMap[diagnostic.category] ?? "error",
-        code: typeof diagnostic.code === "number" ? String(diagnostic.code) : undefined,
-        source: diagnostic.source,
-      };
-      results.push(mapped);
-      if (mapped.severity === "error") {
-        issues.push({
-          kind: "syntax",
-          severity: "error",
-          message,
-          range: {
-            startLineNumber: 1,
-            startColumn: 1,
-            endLineNumber: 1,
-            endColumn: 1,
-          },
-        });
-      }
-      return;
-    }
-
-    const startOffset = diagnostic.start;
-    const endOffset = startOffset + (diagnostic.length ?? 0);
-    const start = file.getLineAndCharacterOfPosition(startOffset);
-    const end = file.getLineAndCharacterOfPosition(endOffset);
-
-    if (start.line < prefixInfo.lines) {
-      return;
-    }
-    if (end.line > lastLineIndex - suffixInfo.lines) {
-      return;
-    }
-
-    const toUserLine = (line: number) => line - prefixInfo.lines + 1;
-    const toUserColumn = (line: number, column: number) => {
-      if (line === prefixInfo.lines) {
-        const offset = prefixInfo.lastLineLength;
-        const adjusted = column - offset;
-        return Math.max(1, adjusted + 1);
-      }
-      return column + 1;
+    let range: IssueRange = {
+      startLineNumber: 1,
+      startColumn: 1,
+      endLineNumber: 1,
+      endColumn: 1,
     };
 
-    const startLineNumber = toUserLine(start.line);
-    const endLineNumber = toUserLine(end.line);
+    if (typeof diagnostic.start === "number") {
+      const file = diagnostic.file ?? sourceFile;
+      const startOffset = diagnostic.start;
+      const endOffset = startOffset + (diagnostic.length ?? 0);
+      const start = file.getLineAndCharacterOfPosition(startOffset);
+      const end = file.getLineAndCharacterOfPosition(endOffset);
 
-    if (startLineNumber < 1 || endLineNumber < startLineNumber) {
-      return;
+      if (start.line < prefixInfo.lines || end.line > lastLineIndex - suffixInfo.lines) {
+        return;
+      }
+
+      const startLineNumber = start.line - prefixInfo.lines + 1;
+      const endLineNumber = end.line - prefixInfo.lines + 1;
+      if (startLineNumber < 1 || endLineNumber < startLineNumber) {
+        return;
+      }
+
+      const toUserColumn = (line: number, column: number) =>
+        line === prefixInfo.lines
+          ? Math.max(1, column - prefixInfo.lastLineLength + 1)
+          : column + 1;
+
+      range = {
+        startLineNumber,
+        startColumn: toUserColumn(start.line, start.character),
+        endLineNumber,
+        endColumn: toUserColumn(end.line, end.character),
+      };
     }
-
-    const startColumn = toUserColumn(start.line, start.character);
-    const endColumn = toUserColumn(end.line, end.character);
 
     const message = sanitizeDiagnosticMessage(
       ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
     );
     const mapped: AnalyzeDiagnostic = {
       message,
-      startLineNumber,
-      startColumn,
-      endLineNumber,
-      endColumn,
+      ...range,
       severity: severityMap[diagnostic.category] ?? "error",
       code: typeof diagnostic.code === "number" ? String(diagnostic.code) : undefined,
       source: diagnostic.source,
@@ -218,12 +150,7 @@ function convertDiagnostics(
         kind: "syntax",
         severity: "error",
         message,
-        range: {
-          startLineNumber,
-          startColumn,
-          endLineNumber,
-          endColumn,
-        },
+        range,
       });
     }
   });
@@ -248,12 +175,8 @@ async function evaluateModule(js: string) {
 
     const candidate = module.exports?.default ?? module.exports;
     if (candidate && typeof (candidate as Promise<unknown>).then === "function") {
-      try {
-        const value = await (candidate as Promise<unknown>);
-        return { value } as const;
-      } catch (error) {
-        return { error } as const;
-      }
+      const value = await (candidate as Promise<unknown>);
+      return { value } as const;
     }
     return { value: candidate } as const;
   } catch (error) {
@@ -263,21 +186,11 @@ async function evaluateModule(js: string) {
 
 function cloneSerializable(value: unknown) {
   try {
-    if (typeof structuredClone === "function") {
-      return { result: structuredClone(value), error: null };
-    }
-  } catch (error) {
-    return {
-      result: null,
-      error: error instanceof Error ? error.message : String(error ?? ""),
-    } as const;
-  }
-
-  try {
-    return {
-      result: JSON.parse(JSON.stringify(value)) as unknown,
-      error: null,
-    } as const;
+    const result =
+      typeof structuredClone === "function"
+        ? structuredClone(value)
+        : (JSON.parse(JSON.stringify(value)) as unknown);
+    return { result, error: null } as const;
   } catch (error) {
     return {
       result: null,
@@ -351,39 +264,20 @@ async function analyze(code: string): Promise<Omit<AnalyzeResponse, "id">> {
       strategy,
     );
 
-    const errorCount = syntaxIssues.length;
-
     return {
       strategy,
-      wrapped,
       diagnostics,
       syntaxIssues,
-      errorCount,
       output: result.outputText,
     };
   });
 
-  if (!candidates.length) {
-    return {
-      strategy: "module",
-      diagnostics: [],
-      issues: [
-        {
-          kind: "runtime",
-          severity: "error",
-          message: "Option analyzer could not find a parsing strategy for this code.",
-          hint: "Ensure the option is a valid JavaScript/TypeScript expression or module export.",
-        },
-      ],
-      runtimeError: "Option analyzer could not find a parsing strategy for this code.",
-    };
-  }
-
-  candidates.sort((a, b) => a.errorCount - b.errorCount);
+  // The module strategy is always enabled.
+  candidates.sort((a, b) => a.syntaxIssues.length - b.syntaxIssues.length);
   const winner = candidates[0];
   const issues: AnalysisIssue[] = [...winner.syntaxIssues];
 
-  if (winner.errorCount > 0 || !winner.output) {
+  if (winner.syntaxIssues.length > 0 || !winner.output) {
     return {
       strategy: winner.strategy.name,
       diagnostics: winner.diagnostics,
@@ -564,4 +458,3 @@ function createInvalidExportIssue(value: unknown): AnalysisIssue {
 }
 
 export { analyze };
-export type { AnalysisIssue, IssueKind, IssueRange };

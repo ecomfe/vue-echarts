@@ -329,25 +329,16 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
     options,
   );
 
-  const importSources: Array<[string[], string]> = [];
-  if (chartsImports.length) {
-    importSources.push([chartsImports, "echarts/charts"]);
-  }
-  if (componentsImports.length) {
-    importSources.push([componentsImports, "echarts/components"]);
-  }
-  if (featuresImports.length) {
-    importSources.push([featuresImports, "echarts/features"]);
-  }
-  if (renderersImports.length) {
-    importSources.push([renderersImports, "echarts/renderers"]);
-  }
-  if (chartsGLImports.length) {
-    importSources.push([chartsGLImports, "echarts-gl/charts"]);
-  }
-  if (componentsGLImports.length) {
-    importSources.push([componentsGLImports, "echarts-gl/components"]);
-  }
+  const importSources = (
+    [
+      [chartsImports, "echarts/charts"],
+      [componentsImports, "echarts/components"],
+      [featuresImports, "echarts/features"],
+      [renderersImports, "echarts/renderers"],
+      [chartsGLImports, "echarts-gl/charts"],
+      [componentsGLImports, "echarts-gl/components"],
+    ] satisfies Array<[string[], string]>
+  ).filter(([imports]) => imports.length > 0);
   const importStatements = importSources.map(([imports, mod]) =>
     importItems(
       imports.filter((a) => !a.endsWith("Option")),
@@ -388,131 +379,59 @@ ${optionTypeCode ? `\n${optionTypeCode}` : ""}
 `;
 }
 
-/** import */
 function importItems(
   items: string[],
   module: string,
-  options: FormatterOptionsWithDefaults,
+  { type, semi, quote, multiline, maxLen, indent }: FormatterOptionsWithDefaults,
 ): string {
   if (items.length === 0) {
     return "";
   }
 
-  const { multiline, maxLen } = options;
-
-  if (multiline) {
-    return importMultiLine(items, module, options);
-  }
-
-  const singleLine = importSingleLine(items, module, options);
-  if (singleLine.length <= maxLen) {
+  const typeStr = type ? "type " : "";
+  const semiStr = semi ? ";" : "";
+  const singleLine = `import ${typeStr}{ ${items.join(", ")} } from ${quote}${module}${quote}${semiStr}`;
+  if (!multiline && singleLine.length <= maxLen) {
     return singleLine;
   }
-
-  return importMultiLine(items, module, options);
-}
-
-// import { foo, bar } from 'module'
-function importSingleLine(
-  items: string[],
-  module: string,
-  { type, semi, quote }: FormatterOptionsWithDefaults,
-): string {
-  const typeStr = type ? "type " : "";
-  const semiStr = semi ? ";" : "";
-
-  return `import ${typeStr}{ ${items.join(", ")} } from ${quote}${module}${quote}${semiStr}`;
-}
-
-// import {
-//   foo,
-//   bar
-// } from 'module'
-function importMultiLine(
-  items: string[],
-  module: string,
-  { type, indent, semi, quote }: FormatterOptionsWithDefaults,
-): string {
-  const typeStr = type ? "type " : "";
-  const semiStr = semi ? ";" : "";
 
   return `import ${typeStr}{
 ${items.map((item) => `${indent}${item}`).join(",\n")}
 } from ${quote}${module}${quote}${semiStr}`;
 }
 
-/** use */
-function useItems(items: string[], options: FormatterOptionsWithDefaults): string {
+function useItems(
+  items: string[],
+  { semi, multiline, maxLen, indent }: FormatterOptionsWithDefaults,
+): string {
   if (items.length === 0) {
     return "";
   }
 
-  const { multiline, maxLen } = options;
-
-  if (multiline) {
-    return useMultiLine(items, options);
-  }
-
-  const singleLine = useSingleLine(items, options);
-  if (singleLine.length <= maxLen) {
+  const semiStr = semi ? ";" : "";
+  const singleLine = `use([${items.join(", ")}])${semiStr}`;
+  if (!multiline && singleLine.length <= maxLen) {
     return singleLine;
   }
 
-  return useMultiLine(items, options);
-}
-
-// use([foo, bar])
-function useSingleLine(items: string[], { semi }: FormatterOptionsWithDefaults): string {
-  const semiStr = semi ? ";" : "";
-
-  return `use([${items.join(`, `)}])${semiStr}`;
-}
-
-// use([
-//   foo,
-//   bar
-// ])
-function useMultiLine(items: string[], { indent, semi }: FormatterOptionsWithDefaults): string {
-  const semiStr = semi ? ";" : "";
-
   return `use([
-${items.map((item) => `${indent}${item}`).join(`,\n`)}
+${items.map((item) => `${indent}${item}`).join(",\n")}
 ])${semiStr}`;
 }
 
-/** type */
-function typeItems(items: string[], options: FormatterOptionsWithDefaults): string {
-  const { multiline, maxLen } = options;
-
+function typeItems(
+  items: string[],
+  { semi, multiline, maxLen, indent }: FormatterOptionsWithDefaults,
+): string {
   if (items.length === 0) {
     return "";
   }
 
-  if (multiline) {
-    return typeMultiLine(items, options);
-  }
-
-  const singleLine = typeSingleLine(items, options);
-  if (singleLine.length <= maxLen) {
+  const semiStr = semi ? ";" : "";
+  const singleLine = `type EChartsOption = ComposeOption<${items.join(" | ")}>${semiStr}`;
+  if (!multiline && singleLine.length <= maxLen) {
     return singleLine;
   }
-
-  return typeMultiLine(items, options);
-}
-
-// type EChartsOption = ComposeOption<FooOption | BarOption>
-function typeSingleLine(items: string[], { semi }: FormatterOptionsWithDefaults): string {
-  const semiStr = semi ? ";" : "";
-
-  return `type EChartsOption = ComposeOption<${items.join(` | `)}>${semiStr}`;
-}
-
-// type EChartsOption = ComposeOption<
-//   | FooOption
-//   | BarOption
-// >
-function typeMultiLine(items: string[], { indent, semi }: FormatterOptionsWithDefaults): string {
-  const semiStr = semi ? ";" : "";
 
   return `type EChartsOption = ComposeOption<
 ${items.map((item) => `${indent}| ${item}`).join("\n")}

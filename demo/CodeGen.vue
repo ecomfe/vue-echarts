@@ -11,7 +11,8 @@ import {
   type OptionEditor,
   type CodeViewer,
 } from "./services/monaco";
-import { useOptionAnalysis, type AnalyzerIssue } from "./composables/useOptionAnalysis";
+import { useOptionAnalysis } from "./composables/useOptionAnalysis";
+import type { AnalysisIssue } from "./workers/option.types";
 import { useDemoDark } from "./composables/useDemoDark";
 
 const DEFAULT_OPTION = `{
@@ -181,7 +182,7 @@ function showMessage(text: string) {
   scheduleMessageClose();
 }
 
-function formatIssues(issues: readonly AnalyzerIssue[]) {
+function formatIssues(issues: readonly AnalysisIssue[]) {
   if (!issues.length) {
     return "";
   }

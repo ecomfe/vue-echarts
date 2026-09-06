@@ -4,14 +4,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useOptionAnalysis } from "../demo/composables/useOptionAnalysis";
 import { render } from "./helpers/testing";
 
-interface WorkerRequest {
-  id: number;
-  code: string;
-}
+import type { AnalyzeRequest } from "../demo/workers/option.types";
 
 const worker = vi.hoisted(() => ({
   target: null as EventTarget | null,
-  postMessage: vi.fn<(request: WorkerRequest) => void>(),
+  postMessage: vi.fn<(request: AnalyzeRequest) => void>(),
   terminate: vi.fn(),
 }));
 
@@ -22,7 +19,7 @@ vi.mock("../demo/workers/option.worker?worker", () => ({
       worker.target = this;
     }
 
-    postMessage(request: WorkerRequest) {
+    postMessage(request: AnalyzeRequest) {
       worker.postMessage(request);
     }
 
@@ -38,7 +35,7 @@ beforeEach(() => {
   worker.terminate.mockReset();
 });
 
-function reply(request: WorkerRequest, option: unknown): void {
+function reply(request: AnalyzeRequest, option: unknown): void {
   worker.target?.dispatchEvent(
     new MessageEvent("message", {
       data: {

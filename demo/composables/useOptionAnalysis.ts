@@ -1,50 +1,20 @@
 import { onBeforeUnmount, reactive, ref, watch } from "vue";
-import type { MonacoMarkerLike, MonacoSeverity } from "../services/monaco";
 import OptionWorker from "../workers/option.worker?worker";
-
-export interface AnalyzerDiagnostic extends MonacoMarkerLike {
-  severity: MonacoSeverity;
-}
-
-export interface AnalyzerIssueRange {
-  startLineNumber: number;
-  startColumn: number;
-  endLineNumber: number;
-  endColumn: number;
-}
-
-export type AnalyzerIssueKind = "syntax" | "runtime" | "format";
-
-export interface AnalyzerIssue {
-  kind: AnalyzerIssueKind;
-  severity: MonacoSeverity;
-  message: string;
-  hint?: string;
-  range?: AnalyzerIssueRange;
-}
-
-interface WorkerMessage {
-  id: number;
-  strategy: "expression" | "module";
-  diagnostics: AnalyzerDiagnostic[];
-  issues: AnalyzerIssue[];
-  output?: string;
-  option?: unknown;
-  runtimeError?: string;
-}
-
-interface WorkerRequest {
-  id: number;
-  code: string;
-}
+import type {
+  AnalyzeDiagnostic,
+  AnalyzeRequest,
+  AnalyzeResponse,
+  AnalysisIssue,
+  StrategyName,
+} from "../workers/option.types";
 
 type AnalyzerStatus = "idle" | "analyzing" | "ready" | "error";
 
 export interface OptionAnalysisState {
   status: AnalyzerStatus;
-  strategy: "expression" | "module";
-  diagnostics: AnalyzerDiagnostic[];
-  issues: AnalyzerIssue[];
+  strategy: StrategyName;
+  diagnostics: AnalyzeDiagnostic[];
+  issues: AnalysisIssue[];
   runtimeError: string | null;
   option: unknown;
   output: string | null;
@@ -54,8 +24,7 @@ export interface OptionAnalysisState {
 const ANALYZE_DELAY = 120;
 
 export function useOptionAnalysis(initialCode: string) {
-  const isBrowser = typeof window !== "undefined";
-  const worker = isBrowser ? new OptionWorker() : null;
+  const worker = typeof window !== "undefined" ? new OptionWorker() : null;
   const code = ref(initialCode);
   const state = reactive<OptionAnalysisState>({
     status: "idle",
@@ -72,7 +41,7 @@ export function useOptionAnalysis(initialCode: string) {
   let timer: number | null = null;
 
   const postWork = (source: string) => {
-    if (!worker || !isBrowser) {
+    if (!worker) {
       return;
     }
     if (timer !== null) {
@@ -88,12 +57,12 @@ export function useOptionAnalysis(initialCode: string) {
     state.output = null;
     timer = window.setTimeout(() => {
       timer = null;
-      const payload: WorkerRequest = { id, code: source };
+      const payload: AnalyzeRequest = { id, code: source };
       worker.postMessage(payload);
     }, ANALYZE_DELAY);
   };
 
-  const handleMessage = (event: MessageEvent<WorkerMessage>) => {
+  const handleMessage = (event: MessageEvent<AnalyzeResponse>) => {
     const { id, diagnostics, issues, option, output, runtimeError, strategy } = event.data;
     if (id !== latestRequestId) {
       return;
@@ -126,7 +95,7 @@ export function useOptionAnalysis(initialCode: string) {
 
   onBeforeUnmount(stop);
 
-  if (worker && isBrowser) {
+  if (worker) {
     watch(
       code,
       (value) => {

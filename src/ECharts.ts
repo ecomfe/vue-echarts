@@ -118,7 +118,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
     const graphic = useGraphic({
       slots,
       manualUpdate,
-      requestUpdate: () => requestUpdate("graphic"),
+      requestUpdate: () => requestUpdate(UpdateReason.Graphic),
     });
 
     // `null` means the model has no trusted signature, so the next smart update must rebuild.
@@ -247,9 +247,9 @@ const ECharts = /* @__PURE__ */ defineComponent({
       updateRequest.value++;
     }
 
-    function requestUpdate(mode?: "graphic"): void {
+    function requestUpdate(reason = UpdateReason.Option): void {
       if (!manualUpdate.value && !initDeferred && !terminallyDisposed.value) {
-        scheduleUpdate(mode === "graphic" ? UpdateReason.Graphic : UpdateReason.Option);
+        scheduleUpdate(reason);
       }
     }
 
