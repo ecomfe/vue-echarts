@@ -1,3 +1,18 @@
+## 8.3.0
+
+### Improvements
+
+- Improved `#graphic` update performance and reduced unnecessary animation restarts on unchanged elements.
+
+### Fixes
+
+- Fixed graphic ordering and moves between groups when using wrapper components, Fragments, `v-if`, and `v-for`.
+- Fixed graphic element type changes during smart updates.
+- Fixed pending option, theme, or slot updates restoring charts after `clear()`.
+- Fixed removed tooltip and data-view slots reappearing after theme changes.
+- Fixed recovery after failed option or theme updates, including stale settings and graphics.
+- Fixed chart and ZRender listeners and root attributes added after mount not taking effect.
+
 ## 8.2.0
 
 ### Component API and TypeScript
