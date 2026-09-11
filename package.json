@@ -83,5 +83,5 @@
     "echarts": "^6.0.0",
     "vue": "^3.3.0"
   },
-  "packageManager": "pnpm@11.24.0"
+  "packageManager": "pnpm@12.3.4"
 }
