@@ -31,7 +31,7 @@ type Renderer = "canvas" | "svg";
 
 use([CanvasRenderer, SVGRenderer]);
 
-registerTheme("dark", darkTheme);
+registerTheme("dark", { ...darkTheme, backgroundColor: "rgba(0, 0, 0, 0)" });
 
 const isDark = useDemoDark();
 

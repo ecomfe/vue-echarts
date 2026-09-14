@@ -57,7 +57,6 @@ onMounted(async () => {
 
   option.value = {
     textStyle: { ...DEMO_TEXT_STYLE },
-    backgroundColor: "#000",
     globe: {
       baseTexture: world,
       heightTexture: world,

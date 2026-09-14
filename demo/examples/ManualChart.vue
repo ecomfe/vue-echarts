@@ -94,7 +94,6 @@ async function render(): Promise<void> {
         color: "#eee",
       },
     },
-    backgroundColor: "#003",
     tooltip: {
       formatter({ dataIndex }: { dataIndex: number }) {
         const route = data.routes[dataIndex];
