@@ -48,7 +48,10 @@ function convert(): void {
     return;
   }
   snapshot.value = {
-    src: chart.getDataURL({ pixelRatio: window.devicePixelRatio || 1 }),
+    src: chart.getDataURL({
+      pixelRatio: window.devicePixelRatio || 1,
+      backgroundColor: "#404a59",
+    }),
     width: chart.getWidth(),
     height: chart.getHeight(),
   };

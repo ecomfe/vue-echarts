@@ -413,7 +413,6 @@ export default function getData(): Option {
 
   const option = {
     textStyle: { ...DEMO_TEXT_STYLE },
-    backgroundColor: "#404a59",
     title: {
       text: "Air quality of major cities in China",
       subtext: "data from PM25.in",
