@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["tests/**/*.ts", "demo/shims-vue.d.ts"]
+  "include": ["tests/**/*.ts", "benchmarks/**/*.ts", "demo/shims-vue.d.ts"]
 }

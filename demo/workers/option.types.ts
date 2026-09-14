@@ -12,14 +12,15 @@ export interface AnalyzeDiagnostic extends IssueRange {
   source?: string;
 }
 
-export interface AnalyzeResponse {
-  id: number;
+export interface AnalyzeResult {
   strategy: StrategyName;
   diagnostics: AnalyzeDiagnostic[];
   issues: AnalysisIssue[];
-  output?: string;
-  option?: unknown;
-  runtimeError?: string | null;
+  dependencies?: string[];
+}
+
+export interface AnalyzeResponse extends AnalyzeResult {
+  id: number;
 }
 
 export type StrategyName = "expression" | "module";

@@ -519,6 +519,50 @@ describe("useSlotOption", () => {
     expect(container.textContent).toBe("series-0");
   });
 
+  it("keeps shared callback paths independent while removing a sibling slot", async () => {
+    const showFirst = ref(true);
+    const exposed = renderSlotComponent(() => ({
+      ...(showFirst.value ? { "tooltip-series-0": () => h("span", "first") } : {}),
+      "tooltip-series-1": () => h("span", "second"),
+      "tooltip-series-1-data-0": () => h("span", "data"),
+    }));
+    const tooltip = Object.freeze({ show: true });
+    const dataItem = Object.freeze({ value: 1 });
+    const series = [
+      { type: "line" as const, tooltip },
+      { type: "line" as const, tooltip, data: [dataItem] },
+    ];
+    series.forEach((entry) => {
+      Object.freeze(entry.data);
+      Object.freeze(entry);
+    });
+    Object.freeze(series);
+    const source: Option = Object.freeze({ series });
+
+    await nextTick();
+    const handle = getExposed(exposed);
+    const patched = handle.patchOption(source);
+    const firstFormatter = getSeriesOption(patched, 0).formatter;
+    const secondFormatter = getSeriesOption(patched, 1).formatter;
+    expect(firstFormatter).toBeTypeOf("function");
+    expect(secondFormatter).toBeTypeOf("function");
+    expect(firstFormatter).not.toBe(secondFormatter);
+    expect(patched).toHaveProperty("series.1.data.0.tooltip.formatter", expect.any(Function));
+
+    showFirst.value = false;
+    await nextTick();
+    const afterRemoval = handle.patchOption(source);
+    expect(getSeriesOption(afterRemoval, 0).formatter).toBeNull();
+    expect(getSeriesOption(afterRemoval, 1).formatter).toBe(secondFormatter);
+    expect(afterRemoval).toHaveProperty("series.1.data.0.tooltip.formatter", expect.any(Function));
+    expect(getSeriesOption(patched, 0).formatter).toBe(firstFormatter);
+    expect(source.series).toBe(series);
+    expect(series[0].tooltip).toBe(tooltip);
+    expect(series[1].tooltip).toBe(tooltip);
+    expect(tooltip).toEqual({ show: true });
+    expect(dataItem).toEqual({ value: 1 });
+  });
+
   it("does not cross object and array path segments", async () => {
     const exposed = renderSlotComponent(() => ({
       tooltip: () => [h("span", "invalid")],

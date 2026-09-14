@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { effectScope, reactive, ref } from "vue";
 
-import { useReactiveChartListeners } from "../src/core/events";
+import { getRootAttrs, useReactiveChartListeners } from "../src/core/events";
 import type { EChartsType } from "../src/types";
 
 type EventHandler = (...args: unknown[]) => void;
@@ -46,6 +46,18 @@ function bindListeners(attrs: Record<string, unknown>, target = createChartStub(
 }
 
 describe("core events", () => {
+  it("forwards named native events and ignores an empty native event name", () => {
+    const click = vi.fn();
+    expect(
+      getRootAttrs({
+        title: "Chart",
+        "onNative:click": click,
+        "onNative:": vi.fn(),
+        onClick: vi.fn(),
+      }),
+    ).toEqual({ title: "Chart", "on:click": click });
+  });
+
   afterEach(() => {
     for (const stop of stops) {
       stop();

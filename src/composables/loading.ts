@@ -14,34 +14,33 @@ export function useLoading(
   const defaultLoadingOptions = inject(LOADING_OPTIONS_KEY, undefined);
 
   return watch(
+    // Track chart availability without including its internals in deep traversal.
     () =>
-      loading.value
+      chart.value && loading.value
         ? {
-            instance: chart.value,
-            visible: true as const,
             type: loadingType.value || undefined,
             options: {
               ...toValue(defaultLoadingOptions),
               ...loadingOptions.value,
             },
           }
-        : { instance: chart.value, visible: false as const },
+        : null,
     (state) => {
-      const { instance } = state;
+      const instance = chart.value;
       if (!instance) {
         return;
       }
 
-      if (!state.visible) {
+      if (!state) {
         instance.hideLoading();
         return;
       }
 
-      const { type, options: currentOptions } = state;
+      const { type, options } = state;
       if (type) {
-        instance.showLoading(type, currentOptions);
+        instance.showLoading(type, options);
       } else {
-        instance.showLoading(currentOptions);
+        instance.showLoading(options);
       }
     },
     { deep: true, immediate: true, flush: "sync" },

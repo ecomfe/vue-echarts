@@ -206,6 +206,7 @@ describe("graphic components", () => {
 
       expect(teleported.value?.ownerDocument).toBe(ownerDocument);
       expect(mountedDocument).toBe(ownerDocument);
+      expect(teleported.value?.isConnected).toBe(false);
     } finally {
       app.unmount();
       iframe.remove();

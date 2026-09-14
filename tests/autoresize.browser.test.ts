@@ -122,7 +122,7 @@ describe("useAutoresize", () => {
     });
 
     const container = createSizedContainer(120, 80);
-    const { resize, chart } = await mountAutoresize(container, { throttle: 1000 });
+    const { resize, chart, instance } = await mountAutoresize(container, { throttle: 1000 });
     await flushAnimationFrame();
 
     container.style.width = "180px";
@@ -130,6 +130,18 @@ describe("useAutoresize", () => {
     expect(pendingResize).toBeTypeOf("function");
 
     container.style.width = "120px";
+    await flushAnimationFrame();
+    pendingResize?.();
+    expect(resize).not.toHaveBeenCalled();
+
+    container.style.width = "180px";
+    await flushAnimationFrame();
+    instance.resize();
+    resize.mockClear();
+    pendingResize?.();
+    expect(resize).not.toHaveBeenCalled();
+
+    container.style.width = "0px";
     await flushAnimationFrame();
     pendingResize?.();
     expect(resize).not.toHaveBeenCalled();

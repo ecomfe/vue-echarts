@@ -132,6 +132,10 @@ function toElement(node: GraphicNode, children?: GraphicElement[]): GraphicEleme
   };
 
   for (const key of COMMON_PROP_KEYS) {
+    // Keep the normalized string ID used by the collector and update versions.
+    if (key === "id") {
+      continue;
+    }
     const value = props[key];
     if (value !== undefined && !shapeKeys?.includes(key) && !styleKeys?.includes(key)) {
       out[key] = value;
@@ -174,6 +178,7 @@ function toElement(node: GraphicNode, children?: GraphicElement[]): GraphicEleme
   return out as GraphicElement;
 }
 
+/** Build the tree in the order supplied by the collector. */
 export function buildOption(
   nodes: Iterable<GraphicNode>,
   rootId: string,
@@ -193,10 +198,6 @@ export function buildOption(
 
   while (occupiedRootIds.has(rootId)) {
     rootId += "_";
-  }
-
-  for (const list of byParent.values()) {
-    list.sort((a, b) => a.order - b.order);
   }
 
   const childrenOf = (parentId: string | null): GraphicElement[] | undefined =>

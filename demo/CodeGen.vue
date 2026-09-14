@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue"
 import { useLocalStorage, useTimeoutFn } from "@vueuse/core";
 import { track } from "@vercel/analytics";
 
-import { getImportsFromOption, type Quote, type PublicCodegenOptions } from "./utils/codegen";
+import { getImportsFromDependencies, type Quote, type PublicCodegenOptions } from "./utils/codegen";
 import {
   createOptionEditor,
   createCodeViewer,
@@ -76,7 +76,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ "update:open": [boolean] }>();
 
-const { code: sourceCode, state: analysisState, updateSource } = useOptionAnalysis(DEFAULT_OPTION);
+const { code: sourceCode, state: analysisState } = useOptionAnalysis(DEFAULT_OPTION);
 
 const modal = ref<HTMLDialogElement | null>(null);
 const dialog = ref<HTMLElement | null>(null);
@@ -183,9 +183,6 @@ function showMessage(text: string) {
 }
 
 function formatIssues(issues: readonly AnalysisIssue[]) {
-  if (!issues.length) {
-    return "";
-  }
   return issues
     .map((issue) => {
       const lines = [`/* ${issue.message} */`];
@@ -201,8 +198,6 @@ function formatIssues(issues: readonly AnalysisIssue[]) {
     .join("\n\n");
 }
 
-const hasErrors = computed<boolean>(() => analysisState.hasBlockingIssue);
-
 const isBusy = computed<boolean>(() => initializing.value || showAnalyzingOverlay.value);
 
 const importCode = computed(() => {
@@ -215,12 +210,12 @@ const importCode = computed(() => {
     return "// Analyzing option…";
   }
 
-  if (hasErrors.value) {
+  if (analysisState.status === "error") {
     const blockingIssues = analysisState.issues.filter((issue) => issue.severity === "error");
     return formatIssues(blockingIssues);
   }
 
-  if (!analysisState.option) {
+  if (!analysisState.dependencies) {
     return "// Option analysis did not produce a result";
   }
 
@@ -235,7 +230,7 @@ const importCode = computed(() => {
       includeType: preferences.includeType,
       renderer: renderer.value,
     };
-    return getImportsFromOption(analysisState.option, config);
+    return getImportsFromDependencies(analysisState.dependencies, config);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
     return `/* Invalid ECharts option */\n\n// ${message}`;
@@ -268,7 +263,7 @@ onMounted(async () => {
         if (suppressNextEditorEvent) {
           return;
         }
-        updateSource(value);
+        sourceCode.value = value;
       },
     });
     optionEditor.setMarkers(analysisState.diagnostics);

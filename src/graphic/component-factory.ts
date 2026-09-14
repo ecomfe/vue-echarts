@@ -139,10 +139,10 @@ export function createComponent<T extends GraphicComponentType>(
         return () => null;
       }
       const { register: registerNode, unregister, requestFlush } = collector;
-      let currentId: string | null = null;
+      let currentId: string | undefined;
       let element: HTMLElement | undefined;
 
-      watch([props, () => attrs], () => requestFlush(currentId ?? undefined, instance.uid), {
+      watch([props, () => attrs], () => requestFlush(currentId, instance.uid), {
         deep: true,
       });
 
@@ -152,7 +152,7 @@ export function createComponent<T extends GraphicComponentType>(
           instance.vnode.key,
           instance.uid,
         );
-        if (currentId !== null && currentId !== id) {
+        if (currentId !== undefined && currentId !== id) {
           unregister(currentId, instance.uid);
         }
         currentId = id;

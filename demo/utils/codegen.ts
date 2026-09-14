@@ -12,13 +12,11 @@ interface FormatterOptions {
   multiline?: boolean;
   indent?: string;
   maxLen?: number;
-  type?: boolean;
 }
 
-type FormatterOptionsWithDefaults = Required<Omit<FormatterOptions, "type" | "includeType">> &
-  Pick<FormatterOptions, "type" | "includeType">;
+type FormatterOptionsWithDefaults = Required<FormatterOptions>;
 
-function isPlainObject(value: unknown): value is PlainObject {
+function isObject(value: unknown): value is PlainObject {
   return typeof value === "object" && value !== null;
 }
 
@@ -108,13 +106,7 @@ const CHARTS_GL_MAP: Record<string, string> = {
   linesGL: "LinesGLChart",
 };
 
-const FEATURES: string[] = [
-  "UniversalTransition",
-  "LabelLayout",
-  "AxisBreak",
-  // "LegacyGridContainLabel",
-  "ScatterJitter",
-];
+const FEATURES: string[] = ["UniversalTransition", "LabelLayout", "AxisBreak", "ScatterJitter"];
 const RENDERERS_MAP: Record<string, string> = {
   canvas: "CanvasRenderer",
   svg: "SVGRenderer",
@@ -122,63 +114,35 @@ const RENDERERS_MAP: Record<string, string> = {
 
 const EXTENSIONS_MAP: Record<string, string> = {
   bmap: "bmap/bmap",
-  // PENDING: There seem no examples that use dataTool
-  // dataTool: 'dataTool'
 };
 
 const MARKERS: string[] = ["markLine", "markArea", "markPoint"];
 
-// Component that was dependent.
-const DEPENDENT_COMPONENTS: string[] = [
-  "xAxis",
-  "yAxis",
-  "angleAxis",
-  "radiusAxis",
-  "xAxis3D",
-  "yAxis3D",
-  "zAxis3D",
-];
-
-function createReverseMap(map: Record<string, string>): Record<string, string> {
-  const reverseMap: Record<string, string> = {};
-  Object.keys(map).forEach((key) => {
-    // Exclude dependencies.
-    if (DEPENDENT_COMPONENTS.includes(key)) {
-      return;
-    }
-    reverseMap[map[key]] = key;
-  });
-
-  return reverseMap;
-}
-
-const COMPONENTS_MAP_REVERSE = createReverseMap(COMPONENTS_MAP);
-const CHARTS_MAP_REVERSE = createReverseMap(CHARTS_MAP);
-const COMPONENTS_GL_MAP_REVERSE = createReverseMap(COMPONENTS_GL_MAP);
-const CHARTS_GL_MAP_REVERSE = createReverseMap(CHARTS_GL_MAP);
-
-type DependencyList = string[];
+const COMPONENT_NAMES = new Set(Object.values(COMPONENTS_MAP));
+const CHART_NAMES = new Set(Object.values(CHARTS_MAP));
+const COMPONENT_GL_NAMES = new Set(Object.values(COMPONENTS_GL_MAP));
+const CHART_GL_NAMES = new Set(Object.values(CHARTS_GL_MAP));
 
 function toObjectList(value: unknown): PlainObject[] {
-  return (Array.isArray(value) ? value : [value]).filter(isPlainObject);
+  return (Array.isArray(value) ? value : [value]).filter(isObject);
 }
 
-function collectDeps(option: unknown): DependencyList {
-  const deps: DependencyList = [];
-  const optionObject = isPlainObject(option) ? option : null;
-  if (!optionObject) {
-    return deps;
+function collectDeps(option: unknown, visited: Set<object>, deps: Set<string>): void {
+  const optionObject = isObject(option) ? option : null;
+  if (!optionObject || visited.has(optionObject)) {
+    return;
   }
+  visited.add(optionObject);
 
   const nestedOptions = optionObject.options;
   if (Array.isArray(nestedOptions)) {
     nestedOptions.forEach((opt) => {
-      deps.push(...collectDeps(opt));
+      collectDeps(opt, visited, deps);
     });
   }
 
   if (optionObject.baseOption) {
-    deps.push(...collectDeps(optionObject.baseOption));
+    collectDeps(optionObject.baseOption, visited, deps);
   }
 
   Object.keys(optionObject).forEach((key) => {
@@ -188,14 +152,14 @@ function collectDeps(option: unknown): DependencyList {
       return;
     }
 
-    if (COMPONENTS_MAP[key]) {
-      deps.push(COMPONENTS_MAP[key]);
+    if (Object.hasOwn(COMPONENTS_MAP, key)) {
+      deps.add(COMPONENTS_MAP[key]);
     }
-    if (COMPONENTS_GL_MAP[key]) {
-      deps.push(COMPONENTS_GL_MAP[key]);
+    if (Object.hasOwn(COMPONENTS_GL_MAP, key)) {
+      deps.add(COMPONENTS_GL_MAP[key]);
     }
-    if (EXTENSIONS_MAP[key]) {
-      deps.push(key);
+    if (Object.hasOwn(EXTENSIONS_MAP, key)) {
+      deps.add(key);
     }
   });
 
@@ -206,28 +170,28 @@ function collectDeps(option: unknown): DependencyList {
     if (type === "scatter") {
       hasScatterSeries = true;
     }
-    if (CHARTS_MAP[type]) {
-      deps.push(CHARTS_MAP[type]);
+    if (Object.hasOwn(CHARTS_MAP, type)) {
+      deps.add(CHARTS_MAP[type]);
     }
-    if (CHARTS_GL_MAP[type]) {
-      deps.push(CHARTS_GL_MAP[type]);
+    if (Object.hasOwn(CHARTS_GL_MAP, type)) {
+      deps.add(CHARTS_GL_MAP[type]);
     }
     if (type === "map") {
-      deps.push(COMPONENTS_MAP.geo);
+      deps.add(COMPONENTS_MAP.geo);
     }
     if (seriesOpt.coordinateSystem === "bmap") {
-      deps.push("bmap");
+      deps.add("bmap");
     }
     MARKERS.forEach((markerType) => {
-      if (isPlainObject(seriesOpt[markerType])) {
-        deps.push(COMPONENTS_MAP[markerType]);
+      if (isObject(seriesOpt[markerType])) {
+        deps.add(COMPONENTS_MAP[markerType]);
       }
     });
     if (seriesOpt.labelLayout) {
-      deps.push("LabelLayout");
+      deps.add("LabelLayout");
     }
     if (seriesOpt.universalTransition) {
-      deps.push("UniversalTransition");
+      deps.add("UniversalTransition");
     }
   });
 
@@ -238,30 +202,28 @@ function collectDeps(option: unknown): DependencyList {
     const value = optionObject[key];
     const axes = Array.isArray(value) ? value : [value];
     axes.forEach((axisOption) => {
-      if (!isPlainObject(axisOption)) {
+      if (!isObject(axisOption)) {
         return;
       }
       if (hasScatterSeries && Number(axisOption.jitter) > 0) {
-        deps.push("ScatterJitter");
+        deps.add("ScatterJitter");
       }
       const breaks = axisOption.breaks;
       if (Array.isArray(breaks) && breaks.length > 0) {
-        deps.push("AxisBreak");
+        deps.add("AxisBreak");
       }
     });
   });
 
   toObjectList(optionObject.dataset).forEach((dataset) => {
     if (dataset.transform) {
-      deps.push("TransformComponent");
+      deps.add("TransformComponent");
     }
   });
 
   toObjectList(optionObject.media).forEach((media) => {
-    deps.push(...collectDeps(media.option));
+    collectDeps(media.option, visited, deps);
   });
-
-  return Array.from(new Set(deps));
 }
 
 function withDefaults(options: FormatterOptions): FormatterOptionsWithDefaults {
@@ -271,8 +233,7 @@ function withDefaults(options: FormatterOptions): FormatterOptionsWithDefaults {
     multiline: options.multiline ?? false,
     indent: options.indent ?? "  ",
     maxLen: options.maxLen ?? 80,
-    includeType: options.includeType,
-    type: options.type,
+    includeType: options.includeType ?? false,
   };
 }
 
@@ -290,23 +251,22 @@ function buildMinimalBundleCode(deps: string[], optionsInput: FormatterOptions):
   deps.forEach((dep) => {
     if (dep.endsWith("Renderer")) {
       renderersImports.push(dep);
-    } else if (CHARTS_MAP_REVERSE[dep]) {
+    } else if (CHART_NAMES.has(dep)) {
       chartsImports.push(dep);
       if (options.includeType) {
         chartsImports.push(dep.replace(/Chart$/, "SeriesOption"));
       }
-    } else if (COMPONENTS_MAP_REVERSE[dep]) {
+    } else if (COMPONENT_NAMES.has(dep)) {
       componentsImports.push(dep);
       if (options.includeType) {
         componentsImports.push(dep.replace(/Component$/, "ComponentOption"));
       }
     } else if (dep === "TransformComponent") {
-      // TransformComponent don't have individual option type.
-      // TODO will put in to an config if there are other similar components
+      // TransformComponent has no individual option type.
       componentsImports.push(dep);
-    } else if (CHARTS_GL_MAP_REVERSE[dep]) {
+    } else if (CHART_GL_NAMES.has(dep)) {
       chartsGLImports.push(dep);
-    } else if (COMPONENTS_GL_MAP_REVERSE[dep]) {
+    } else if (COMPONENT_GL_NAMES.has(dep)) {
       componentsGLImports.push(dep);
     } else if (FEATURES.includes(dep)) {
       featuresImports.push(dep);
@@ -382,7 +342,16 @@ ${optionTypeCode ? `\n${optionTypeCode}` : ""}
 function importItems(
   items: string[],
   module: string,
-  { type, semi, quote, multiline, maxLen, indent }: FormatterOptionsWithDefaults,
+  {
+    type,
+    semi,
+    quote,
+    multiline,
+    maxLen,
+    indent,
+  }: FormatterOptionsWithDefaults & {
+    type?: boolean;
+  },
 ): string {
   if (items.length === 0) {
     return "";
@@ -442,9 +411,15 @@ export interface PublicCodegenOptions extends FormatterOptions {
   renderer?: keyof typeof RENDERERS_MAP;
 }
 
-export function getImportsFromOption(
-  option: unknown,
+export function getDependenciesFromOption(option: unknown): string[] {
+  const deps = new Set<string>();
+  collectDeps(option, new Set(), deps);
+  return [...deps];
+}
+
+export function getImportsFromDependencies(
+  dependencies: readonly string[],
   { renderer = "canvas", ...options }: PublicCodegenOptions = {},
 ): string {
-  return buildMinimalBundleCode([...collectDeps(option), RENDERERS_MAP[renderer]], options);
+  return buildMinimalBundleCode([...dependencies, RENDERERS_MAP[renderer]], options);
 }

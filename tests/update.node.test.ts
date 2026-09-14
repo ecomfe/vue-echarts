@@ -407,6 +407,50 @@ describe("smart-update", () => {
         },
       );
 
+      it.each(["root", ...optionContainers] as const)(
+        "reparents flat graphic elements in %s",
+        (container) => {
+          const option = (parentId: string): EChartsOption => ({
+            graphic: {
+              elements: [
+                { id: "a", type: "group" },
+                { id: "b", type: "group" },
+                { id: "marker", type: "rect", parentId, shape: { width: 10, height: 10 } },
+              ],
+            },
+          });
+          const base = container === "root" ? option("a") : wrapOption(container, option("a"));
+          const update = container === "root" ? option("b") : wrapOption(container, option("b"));
+          const { applied, plan } = applyPlannedUpdate(base, update);
+
+          expect(plan).toEqual(
+            container === "root"
+              ? { notMerge: false, replaceMerge: ["graphic"] }
+              : { notMerge: true },
+          );
+          expect(applied.graphic?.[0]?.elements).toEqual(
+            expect.arrayContaining([expect.objectContaining({ id: "marker", parentId: "b" })]),
+          );
+        },
+      );
+
+      it("keeps graphic parent identity stable across number and string forms", () => {
+        const option = (parentId: string | number): EChartsOption => ({
+          graphic: {
+            elements: [
+              { id: "7", type: "group" },
+              { id: "marker", type: "rect", parentId, shape: { width: 10, height: 10 } },
+            ],
+          },
+        });
+        const { applied, plan } = applyPlannedUpdate(option(7), option("7"));
+
+        expect(plan).toEqual({ notMerge: false });
+        expect(applied.graphic?.[0]?.elements).toEqual(
+          expect.arrayContaining([expect.objectContaining({ id: "marker", parentId: "7" })]),
+        );
+      });
+
       it.each(optionContainers)("rebuilds reordered components in %s", (container) => {
         const series = [
           { id: "a", type: "pie", data: [1] },

@@ -41,16 +41,9 @@ export type OverlayViewport = {
   height: number;
 };
 
-export type OverlayPlotLayout = {
+export type OverlayPlotBounds = {
   left: number;
   right: number;
   top: number;
   bottom: number;
-  width: number;
-  height: number;
-};
-
-export type GraphicOverlayLayout = {
-  plot: OverlayPlotLayout;
-  markers: OverlayMarker[];
 };

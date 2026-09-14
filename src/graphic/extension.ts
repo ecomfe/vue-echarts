@@ -21,7 +21,7 @@ export function registerExtension(): void {
 
     function handleFlush(): void {
       if (manualUpdate.value) {
-        const nodes = Array.from(collector.getNodes());
+        const nodes = collector.getNodes();
         const changed =
           !slots.graphic ||
           nodes.length !== versions.size ||
@@ -72,7 +72,7 @@ export function registerExtension(): void {
             "option-graphic-override",
           );
         }
-        const nodes = Array.from(collector.getNodes());
+        const nodes = collector.getNodes();
         const nextOption = buildOption(nodes, ROOT_ID);
         const planned = planUpdate(signature, nextOption);
         const replace =
@@ -83,14 +83,15 @@ export function registerExtension(): void {
         const nextVersions = new Map(nodes.map((node) => [node.id, node.version]));
         const elements: GraphicElement[] = [];
         function collectChanges(element: GraphicElement, parentId?: string): void {
-          const { children, ...props } = element;
           if (
             nextVersions.has(element.id) &&
             nextVersions.get(element.id) !== versions.get(element.id)
           ) {
-            elements.push({ ...props, parentId });
+            const { children: _, ...props } = element;
+            props.parentId = parentId;
+            elements.push(props);
           }
-          children?.forEach((child) => collectChanges(child, element.id));
+          element.children?.forEach((child) => collectChanges(child, element.id));
         }
         if (!replace) {
           nextOption.graphic.elements.forEach((element) => collectChanges(element));

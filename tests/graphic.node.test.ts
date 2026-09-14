@@ -59,6 +59,28 @@ describe("graphic", () => {
     };
     const nodes: GraphicNode[] = [
       {
+        id: "text",
+        type: "text",
+        parentId: null,
+        props: {
+          x: 2,
+          y: 4,
+          width: 120,
+          height: 40,
+          overflow: "truncate",
+          ellipsis: "...",
+          placeholder: "…",
+          truncateMinChar: 2,
+          text: "Hi",
+          ...typography,
+          fill: "#123",
+          decal: paint.decal,
+          strokePercent: 0.25,
+        },
+        handlers: {},
+        sourceId: 2,
+      },
+      {
         id: "rect",
         type: "rect",
         parentId: null,
@@ -79,31 +101,7 @@ describe("graphic", () => {
           ...paint,
         },
         handlers: {},
-        order: 1,
         sourceId: 1,
-      },
-      {
-        id: "text",
-        type: "text",
-        parentId: null,
-        props: {
-          x: 2,
-          y: 4,
-          width: 120,
-          height: 40,
-          overflow: "truncate",
-          ellipsis: "...",
-          placeholder: "…",
-          truncateMinChar: 2,
-          text: "Hi",
-          ...typography,
-          fill: "#123",
-          decal: paint.decal,
-          strokePercent: 0.25,
-        },
-        handlers: {},
-        order: 0,
-        sourceId: 2,
       },
       {
         id: "ellipse",
@@ -111,7 +109,6 @@ describe("graphic", () => {
         parentId: null,
         props: { cx: 20, cy: 30, rx: 12, ry: 8 },
         handlers: {},
-        order: 2,
         sourceId: 3,
       },
     ];
@@ -173,7 +170,6 @@ describe("graphic", () => {
       parentId: null,
       props: { x: index, y: 0, width: 1, height: 1 },
       handlers: {},
-      order: index,
       sourceId: index,
     }));
     const option = buildOption(nodes, "root");
@@ -193,7 +189,6 @@ describe("graphic", () => {
     const common = {
       parentId: null,
       handlers: {},
-      order: 0,
       sourceId: 1,
     };
     const root = getRootGraphicElement(
@@ -268,7 +263,6 @@ describe("graphic", () => {
           info: { name: "marker" },
         },
         handlers: { onClick: handlers },
-        order: 0,
         sourceId: 1,
       },
     ];
@@ -310,7 +304,6 @@ describe("graphic", () => {
               parentId: null,
               props: {},
               handlers,
-              order: 0,
               sourceId: 1,
             },
           ],
@@ -347,7 +340,6 @@ describe("graphic", () => {
         parentId: null,
         props: {},
         handlers: { [key]: handlers },
-        order: 0,
         sourceId: 1,
       };
       const getClick = () =>
@@ -388,7 +380,6 @@ describe("graphic", () => {
           height: 40,
         },
         handlers: {},
-        order: 0,
         sourceId: 1,
       },
       {
@@ -409,19 +400,7 @@ describe("graphic", () => {
           styleTransition: "all",
         },
         handlers: {},
-        order: 0,
         sourceId: 2,
-      },
-      {
-        id: "img-hit",
-        type: "image",
-        parentId: "group",
-        props: {
-          image: "https://example.com/b.png",
-        },
-        handlers: { onClick: () => void 0 },
-        order: 2,
-        sourceId: 7,
       },
       {
         id: "line",
@@ -436,8 +415,17 @@ describe("graphic", () => {
           info: 42,
         },
         handlers: {},
-        order: 1,
         sourceId: 3,
+      },
+      {
+        id: "img-hit",
+        type: "image",
+        parentId: "group",
+        props: {
+          image: "https://example.com/b.png",
+        },
+        handlers: { onClick: () => void 0 },
+        sourceId: 7,
       },
       {
         id: "custom",
@@ -445,19 +433,7 @@ describe("graphic", () => {
         parentId: null,
         props: { info: { level: "custom" } },
         handlers: {},
-        order: 1,
         sourceId: 4,
-      },
-      {
-        id: "txt",
-        type: "text",
-        parentId: null,
-        props: {
-          text: "hello",
-        },
-        handlers: { onMouseover: () => void 0 },
-        order: 4,
-        sourceId: 8,
       },
       {
         id: "dup",
@@ -470,7 +446,6 @@ describe("graphic", () => {
           height: 1,
         },
         handlers: {},
-        order: 2,
         sourceId: 5,
       },
       {
@@ -484,8 +459,17 @@ describe("graphic", () => {
           height: 1,
         },
         handlers: {},
-        order: 3,
         sourceId: 6,
+      },
+      {
+        id: "txt",
+        type: "text",
+        parentId: null,
+        props: {
+          text: "hello",
+        },
+        handlers: { onMouseover: () => void 0 },
+        sourceId: 8,
       },
     ];
 
@@ -530,6 +514,31 @@ describe("graphic", () => {
     expect(root.children.filter((item: any) => item.id === "dup")).toHaveLength(2);
   });
 
+  it("keeps registration order without a DOM root", () => {
+    const collector = createCollector(() => undefined);
+    const register = (id: string) =>
+      collector.register({
+        id,
+        type: "rect",
+        parentId: null,
+        props: {},
+        handlers: {},
+        sourceId: id === "a" ? 1 : 2,
+      });
+
+    try {
+      register("b");
+      register("a");
+      expect(collector.getNodes().map((node) => node.id)).toEqual(["b", "a"]);
+      collector.beginPass();
+      register("a");
+      register("b");
+      expect(collector.getNodes().map((node) => node.id)).toEqual(["b", "a"]);
+    } finally {
+      collector.dispose();
+    }
+  });
+
   it("ignores unregister from mismatched source and removes with matched source", () => {
     const collector = createCollector(() => void 0);
 
@@ -543,12 +552,12 @@ describe("graphic", () => {
     });
 
     collector.unregister("x", 2);
-    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(true);
+    expect(collector.getNodes().some((item) => item.id === "x")).toBe(true);
     collector.unregister("missing", 1);
-    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(true);
+    expect(collector.getNodes().some((item) => item.id === "x")).toBe(true);
 
     collector.unregister("x", 1);
-    expect(Array.from(collector.getNodes()).some((item) => item.id === "x")).toBe(false);
+    expect(collector.getNodes().some((item) => item.id === "x")).toBe(false);
   });
 
   it("does not mark duplicate when same id appears across flushed updates", async () => {

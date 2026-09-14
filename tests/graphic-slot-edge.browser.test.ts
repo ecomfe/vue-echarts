@@ -57,13 +57,9 @@ describe("graphic slot edge and integration behavior", () => {
   it("hydrates a server-rendered graphic slot without mismatch warnings", async () => {
     registerExtension();
 
+    const graphic = vi.fn(() => h(GRect, { id: "server-rect", width: 20, height: 10 }));
     const app = createSSRApp({
-      render: () =>
-        h(
-          ECharts,
-          { option: {} },
-          { graphic: () => h(GRect, { id: "server-rect", width: 20, height: 10 }) },
-        ),
+      render: () => h(ECharts, { option: {} }, { graphic }),
     });
     const container = document.body.appendChild(document.createElement("div"));
     container.innerHTML = GRAPHIC_SSR_MARKUP;
@@ -74,10 +70,11 @@ describe("graphic slot edge and integration behavior", () => {
         await flushAnimationFrame();
 
         expect(
-          warnSpy.mock.calls.some((call: unknown[]) =>
+          warnSpy.mock.calls.filter((call: unknown[]) =>
             String(call[0]).toLowerCase().includes("hydration"),
           ),
-        ).toBe(false);
+        ).toEqual([]);
+        expect(graphic).toHaveBeenCalledOnce();
         expect(getLastGraphicIds(suite.getChartStub())).toContain("server-rect");
       });
     } finally {

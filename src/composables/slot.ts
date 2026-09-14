@@ -50,7 +50,12 @@ function getSlotPath(key: SlotName): string[] {
 
 type Container = Record<string, unknown> | unknown[];
 
-function ensureChild(parent: Container, seg: string, nextSeg: string): Container | undefined {
+function ensureChild(
+  parent: Container,
+  seg: string,
+  nextSeg: string,
+  writable: WeakSet<Container>,
+): Container | undefined {
   const parentIsArray = Array.isArray(parent);
   if (parentIsArray !== isValidArrayIndex(seg)) {
     return undefined;
@@ -59,14 +64,15 @@ function ensureChild(parent: Container, seg: string, nextSeg: string): Container
 
   let child: Container;
   if (Array.isArray(next)) {
-    child = [...next];
+    child = writable.has(next) ? next : [...next];
   } else if (isPlainObject(next)) {
-    child = { ...next };
+    child = writable.has(next) ? next : { ...next };
   } else if (next === undefined && !parentIsArray && !isValidArrayIndex(nextSeg)) {
     child = {};
   } else {
     return undefined;
   }
+  writable.add(child);
   writeSegment(parent, seg, child);
   return child;
 }
@@ -83,11 +89,12 @@ function writePath(
   root: Option,
   path: readonly string[],
   value: unknown,
+  writable: WeakSet<Container>,
   preserveDefined = false,
 ): boolean {
   let current: Container = root;
   for (let i = 0; i < path.length - 1; i++) {
-    const child = ensureChild(current, path[i], path[i + 1]);
+    const child = ensureChild(current, path[i], path[i + 1], writable);
     if (!child) {
       return false;
     }
@@ -111,14 +118,14 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   const isMounted = shallowRef(false);
   const ready = shallowRef(false);
 
-  const collectSlotNames = (warnInvalid = false): SlotName[] => {
-    const names: SlotName[] = [];
+  const collectSlotNames = (warnInvalid = false): Set<SlotName> => {
+    const names = new Set<SlotName>();
     for (const key in slots) {
       if (key === "graphic") {
         continue;
       }
       if (isValidSlotName(key)) {
-        names.push(key);
+        names.add(key);
       } else if (warnInvalid) {
         warn(`Invalid slot name: ${key}`);
       }
@@ -127,7 +134,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   };
   collectSlotNames(true);
 
-  let slotNames: readonly SlotName[] = [];
+  let slotNames: ReadonlySet<SlotName> = new Set();
   let nextSlotNames = slotNames;
   const patchedSlotNames = new Set<SlotName>();
   const callbacks = new Map<
@@ -146,25 +153,25 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     }
   }
 
-  function syncSlotNames(names: readonly SlotName[]): boolean {
-    if (names.length === slotNames.length && slotNames.every((name) => names.includes(name))) {
-      return false;
-    }
-
+  function syncSlotNames(names: ReadonlySet<SlotName>): boolean {
+    let changed = names.size !== slotNames.size;
     for (const key of slotNames) {
-      if (!names.includes(key)) {
+      if (!names.has(key)) {
+        changed = true;
         delete params[key];
         delete containers[key];
         callbacks.delete(key);
       }
     }
-    slotNames = names;
-    return true;
+    if (changed) {
+      slotNames = names;
+    }
+    return changed;
   }
 
   const render = () => {
     nextSlotNames = collectSlotNames();
-    if (nextSlotNames.length === 0 || !ready.value || !isMounted.value) {
+    if (nextSlotNames.size === 0 || !ready.value || !isMounted.value) {
       return undefined;
     }
     const ownerDocument = (instance.vnode.el as HTMLElement).ownerDocument;
@@ -173,7 +180,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
     return h(
       Teleport,
       { to: detachedRoot },
-      nextSlotNames.map((slotName) => {
+      Array.from(nextSlotNames, (slotName) => {
         const slot = slots[slotName];
         const slotContent = slotName in params ? slot?.(params[slotName]) : undefined;
         return h(
@@ -198,21 +205,21 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   function prepare(src: Option): { option: Option; commit: () => void } {
     const names = collectSlotNames();
     syncSlotNames(names);
+    // Shared callback paths only clone each container once per submission.
+    const writable = new WeakSet<Container>();
     let root: Option | undefined;
 
     for (const key of patchedSlotNames) {
-      if (!names.includes(key)) {
+      if (!names.has(key)) {
         root ??= { ...src };
-        writePath(root, getSlotPath(key), null, true);
+        writePath(root, getSlotPath(key), null, writable, true);
       }
     }
 
-    if (names.length) {
-      root ??= { ...src };
-    }
     const patchedNames: SlotName[] = [];
 
     for (const key of names) {
+      root ??= { ...src };
       let callback = callbacks.get(key);
       if (!callback) {
         const formatter = (payload: unknown): HTMLElement | undefined => {
@@ -230,7 +237,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
         callbacks.set(key, callback);
       }
 
-      if (!writePath(root!, callback.path, callback.formatter)) {
+      if (!writePath(root, callback.path, callback.formatter, writable)) {
         continue;
       }
       patchedNames.push(key);

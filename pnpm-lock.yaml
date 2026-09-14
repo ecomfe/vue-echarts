@@ -131,6 +131,9 @@ importers:
       '@vue/runtime-core-3.3':
         specifier: npm:@vue/runtime-core@3.3.0
         version: '@vue/runtime-core@3.3.0'
+      '@vue/runtime-dom-3.3':
+        specifier: npm:@vue/runtime-dom@3.3.0
+        version: '@vue/runtime-dom@3.3.0'
       '@vue/server-renderer':
         specifier: ^3.5.41
         version: 3.5.41
@@ -933,6 +936,9 @@ packages:
 
   '@vue/runtime-core@3.5.41':
     resolution: {integrity: sha512-Vcry58hiAKwGen9Z1jUZE0feFsNArPCMOImYI8el48A9Idf6DuQYD0U05zZIF2Iad1hGhPSvcbBbAOhNr55fhg==}
+
+  '@vue/runtime-dom@3.3.0':
+    resolution: {integrity: sha512-e2VwfvU6xk/BdXpFvh1UXo4mcOrKCAkPrCy/vFas9GkkYzW3nx3uJ7Jm2Zl08dRoCMP7Oy9FegT9JkJ5kU8C+g==}
 
   '@vue/runtime-dom@3.5.41':
     resolution: {integrity: sha512-3vVBahVBS9+U6cmXBLyb8nE6/yYo4J/CGI9eVFs3KiMc0YHuudwKyShTD65jtJy/L9PUUxNAFu4cj4LiJ0UFbw==}
@@ -2694,6 +2700,12 @@ snapshots:
     dependencies:
       '@vue/reactivity': 3.5.41
       '@vue/shared': 3.5.41
+
+  '@vue/runtime-dom@3.3.0':
+    dependencies:
+      '@vue/runtime-core': 3.3.0
+      '@vue/shared': 3.3.0
+      csstype: 3.2.3
 
   '@vue/runtime-dom@3.5.41':
     dependencies:

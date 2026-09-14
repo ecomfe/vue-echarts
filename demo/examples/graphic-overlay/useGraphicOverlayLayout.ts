@@ -1,4 +1,4 @@
-import type { EventMarker, GraphicOverlayLayout, OverlayViewport } from "./types";
+import type { EventMarker, OverlayMarker, OverlayPlotBounds, OverlayViewport } from "./types";
 
 type Rect = {
   x: number;
@@ -7,12 +7,7 @@ type Rect = {
   height: number;
 };
 
-const DEFAULT_VIEWPORT: OverlayViewport = {
-  width: 980,
-  height: 360,
-};
-
-const GRID_PERCENT = {
+export const OVERLAY_GRID = {
   left: 8,
   right: 5,
   top: 18,
@@ -49,19 +44,22 @@ export function buildGraphicOverlayLayout(options: {
   focusedMarkerId: string;
   yMax: number;
   viewport: OverlayViewport;
-}): GraphicOverlayLayout {
+  plot?: OverlayPlotBounds;
+}): OverlayMarker[] {
   const days = options.days;
   const values = options.values;
   const markers = options.markers;
   const focusedMarkerId = options.focusedMarkerId;
 
-  const viewportWidth = Math.max(options.viewport.width, DEFAULT_VIEWPORT.width * 0.55);
-  const viewportHeight = Math.max(options.viewport.height, DEFAULT_VIEWPORT.height * 0.58);
+  const viewportWidth = options.viewport.width;
+  const viewportHeight = options.viewport.height;
 
-  const plotLeft = (viewportWidth * GRID_PERCENT.left) / 100;
-  const plotRight = viewportWidth - (viewportWidth * GRID_PERCENT.right) / 100;
-  const plotTop = (viewportHeight * GRID_PERCENT.top) / 100;
-  const plotBottom = viewportHeight - (viewportHeight * GRID_PERCENT.bottom) / 100;
+  const plotLeft = options.plot?.left ?? (viewportWidth * OVERLAY_GRID.left) / 100;
+  const plotRight =
+    options.plot?.right ?? viewportWidth - (viewportWidth * OVERLAY_GRID.right) / 100;
+  const plotTop = options.plot?.top ?? (viewportHeight * OVERLAY_GRID.top) / 100;
+  const plotBottom =
+    options.plot?.bottom ?? viewportHeight - (viewportHeight * OVERLAY_GRID.bottom) / 100;
   const plotWidth = plotRight - plotLeft;
   const plotHeight = plotBottom - plotTop;
   const maxBubbleY = plotBottom - BUBBLE.height - 4;
@@ -69,7 +67,7 @@ export function buildGraphicOverlayLayout(options: {
   const placedRects: Rect[] = [];
   const laneBySide = { left: 0, right: 0 };
 
-  const overlayMarkers = markers.map((marker) => {
+  return markers.map((marker) => {
     const day = days[marker.dayIndex];
     const value = values[marker.dayIndex];
     const focused = marker.id === focusedMarkerId;
@@ -109,7 +107,7 @@ export function buildGraphicOverlayLayout(options: {
       return {
         bubbleX,
         bubbleY,
-        rect: { x: bubbleX, y: bubbleY, width: bubbleWidthPx, height: BUBBLE.height } as Rect,
+        rect: { x: bubbleX, y: bubbleY, width: bubbleWidthPx, height: BUBBLE.height },
       };
     });
 
@@ -151,16 +149,4 @@ export function buildGraphicOverlayLayout(options: {
       cpy2,
     };
   });
-
-  return {
-    plot: {
-      left: plotLeft,
-      right: plotRight,
-      top: plotTop,
-      bottom: plotBottom,
-      width: plotWidth,
-      height: plotHeight,
-    },
-    markers: overlayMarkers,
-  };
 }

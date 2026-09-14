@@ -10,8 +10,9 @@ type Shape = true | ObjectShape | ItemShape[];
 type ItemShape = {
   id: string | undefined;
   name: string | undefined;
-  /** Graphic elements cannot merge a change of type. */
+  /** Graphic elements cannot merge a change of type or parent. */
   type?: string;
+  parentId?: string;
   shape: Shape;
 };
 type ShapeMode = "option" | "media" | "graphic";
@@ -104,7 +105,9 @@ function analyzeItems(
     shapes.push({
       id: toIdentity(identity?.id),
       name: toIdentity(identity?.name),
-      ...(mode === "graphic" ? { type: toIdentity(identity?.type) } : {}),
+      ...(mode === "graphic"
+        ? { type: toIdentity(identity?.type), parentId: toIdentity(identity?.parentId) }
+        : {}),
       shape: buildShape(item, context, mode),
     });
   }
@@ -187,7 +190,7 @@ function hasIdentityChange(prev: ItemShape[], next: ItemShape[]): boolean {
   for (let index = 0; index < length; index++) {
     const previous = getItemIdentity(prev[index]);
     const current = getItemIdentity(next[index]);
-    if (previous !== current && (previous !== undefined || current !== undefined)) {
+    if (previous !== current) {
       return true;
     }
   }
@@ -249,7 +252,9 @@ function compareItemShapes(prev: ItemShape[], next: ItemShape[]): UpdateKind {
     const candidate = item.id !== undefined ? byId.get(item.id) : next[index];
     if (
       candidate &&
-      (item.type !== candidate.type || hasShapeRemoval(item.shape, candidate.shape))
+      (item.type !== candidate.type ||
+        item.parentId !== candidate.parentId ||
+        hasShapeRemoval(item.shape, candidate.shape))
     ) {
       // replaceMerge recreates anonymous items, but merges items with explicit IDs.
       if (item.id !== undefined) {

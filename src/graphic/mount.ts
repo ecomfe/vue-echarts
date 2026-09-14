@@ -9,7 +9,6 @@ import {
   shallowRef,
 } from "vue";
 
-import { isBrowser } from "../utils";
 import type { GraphicCollector } from "./collector";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 
@@ -26,14 +25,15 @@ export const GraphicMount = defineComponent({
     const { collector } = props;
     const { beginPass } = collector;
     const detachedRoot = shallowRef<HTMLDivElement>();
-    // A pre-existing vnode element means Vue is hydrating the empty SSR Teleport.
-    const contentReady = shallowRef(isBrowser() && !instance.vnode.el);
+    // A pre-existing vnode element means Vue is hydrating the SSR placeholder.
+    const hydrating = Boolean(instance.vnode.el);
     const parentId = shallowRef<string | null>(null);
 
     onBeforeMount(() => {
       // Keeping the target inside the host lets iframe adoption finish before child mounted hooks.
+      // Hydration waits for onMounted so the target cannot appear as an extra server node.
       const host = instance.parent?.subTree.el as HTMLElement | undefined;
-      if (host) {
+      if (host && !hydrating) {
         const target = host.ownerDocument.createElement("div");
         host.appendChild(target);
         detachedRoot.value = target;
@@ -49,7 +49,6 @@ export const GraphicMount = defineComponent({
         detachedRoot.value = ownerDocument.createElement("div");
         collector.setRoot(detachedRoot.value);
       }
-      contentReady.value = true;
     });
 
     provide(GRAPHIC_COLLECTOR_KEY, collector);
@@ -57,17 +56,14 @@ export const GraphicMount = defineComponent({
 
     return () => {
       beginPass();
-      const content = slots.default!();
+      // Mount the Teleport after hydration. Older Vue runtimes cannot hydrate an
+      // enabled Teleport into an empty target without server-rendered target anchors.
       const target = detachedRoot.value;
+      if (!target) {
+        return null;
+      }
 
-      return h(
-        Teleport,
-        {
-          to: target ?? "body",
-          disabled: !target,
-        },
-        target && contentReady.value ? content : [],
-      );
+      return h(Teleport, { to: target }, slots.default!());
     };
   },
 });

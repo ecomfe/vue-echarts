@@ -164,6 +164,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (!optionApplied || themeApplied) {
         return false;
       }
+      syncListeners();
       const revision = updateRevision + 1;
       // Native update events can submit another option before setTheme returns.
       themeApplied = true;
@@ -192,8 +193,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       const preparedSlots = prepareSlots(option);
       const slotted = preparedSlots.option;
       const hasGraphicSlot = Boolean(graphic && slots.graphic);
-      // An owned graphic tree is planned separately from the source it overrides.
-      const source = hasGraphicSlot ? { ...slotted, graphic: undefined } : slotted;
       let updateOptions = manual ? manualOptions : (realUpdateOptions.value ?? undefined);
       let nextSignature: Signature | null = null;
 
@@ -201,6 +200,8 @@ const ECharts = /* @__PURE__ */ defineComponent({
       if (graphicOnly) {
         nextSignature = lastSignature ?? null;
       } else if (!manual && !updateOptions) {
+        // An owned graphic tree is planned separately from the source it overrides.
+        const source = hasGraphicSlot ? { ...slotted, graphic: undefined } : slotted;
         const planned = planUpdate(lastSignature ?? undefined, source);
         const rebuild = !planned.signature.hasAction && lastSignature === null;
         updateOptions = rebuild ? { ...planned.plan, notMerge: true } : planned.plan;
@@ -269,7 +270,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
         return;
       }
 
-      syncListeners();
       const option =
         reasons & (UpdateReason.Option | UpdateReason.Graphic)
           ? (getAutoOption() ?? lastAutoOption)

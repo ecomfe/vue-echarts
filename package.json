@@ -42,7 +42,9 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "test:browser": "vitest run --project browser",
-    "test:node": "vitest run --project node"
+    "test:node": "vitest run --project node",
+    "test:min": "vitest run --project browser-min",
+    "bench:graphic": "node scripts/bench-graphic.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
@@ -51,6 +53,7 @@
     "@vitest/browser-playwright": "^4.1.11",
     "@vitest/coverage-istanbul": "^4.1.11",
     "@vue/runtime-core-3.3": "npm:@vue/runtime-core@3.3.0",
+    "@vue/runtime-dom-3.3": "npm:@vue/runtime-dom@3.3.0",
     "@vue/server-renderer": "^3.5.41",
     "@vue/tsconfig": "^0.9.1",
     "@vueuse/core": "^14.4.0",

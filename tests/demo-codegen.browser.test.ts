@@ -6,6 +6,7 @@ import CodeGen from "../demo/CodeGen.vue";
 import type { OptionAnalysisState } from "../demo/composables/useOptionAnalysis";
 
 const mocks = vi.hoisted(() => ({
+  analysis: null as OptionAnalysisState | null,
   analysisPending: false,
   analysisStop: vi.fn(),
   dark: null as { value: boolean } | null,
@@ -27,29 +28,29 @@ vi.mock("../demo/composables/useDemoDark", async () => {
 });
 
 vi.mock("../demo/composables/useOptionAnalysis", async () => {
-  const { onBeforeUnmount, reactive, ref } = await import("vue");
+  const { onBeforeUnmount, reactive, ref, watch } = await import("vue");
   return {
     useOptionAnalysis(initialCode: string) {
       const code = ref(initialCode);
       const state = reactive<OptionAnalysisState>({
         status: mocks.analysisPending ? "analyzing" : "ready",
-        strategy: "expression",
         diagnostics: [],
         issues: [],
-        runtimeError: null,
-        option: { series: [{ type: "pie" }] },
-        output: "",
-        hasBlockingIssue: false,
+        dependencies: ["PieChart"],
       });
+      mocks.analysis = state;
       onBeforeUnmount(mocks.analysisStop);
+      watch(
+        code,
+        () => {
+          state.status = "analyzing";
+          state.dependencies = null;
+        },
+        { flush: "sync" },
+      );
       return {
         code,
         state,
-        updateSource(value: string) {
-          code.value = value;
-          state.status = "analyzing";
-          state.option = null;
-        },
       };
     },
   };
@@ -91,6 +92,7 @@ vi.mock("../demo/services/monaco", () => ({
 }));
 
 beforeEach(() => {
+  mocks.analysis = null;
   mocks.analysisPending = false;
   mocks.analysisStop.mockReset();
   mocks.dark!.value = false;
@@ -273,6 +275,48 @@ describe("code generator dialog", () => {
     copyButton.click();
 
     expect(mocks.writeText).not.toHaveBeenCalled();
+  });
+
+  it("shows blocking issue details and restores generated code after recovery", async () => {
+    const { trigger } = renderCodegen();
+    const modal = await openCodegen(trigger);
+    const copyButton = modal.querySelector<HTMLButtonElement>("button.copy");
+    if (!copyButton || !mocks.analysis) {
+      throw new Error("Expected initialized code generator controls.");
+    }
+
+    Object.assign(mocks.analysis, {
+      status: "error",
+      dependencies: null,
+      issues: [
+        { kind: "runtime", severity: "warning", message: "Non-blocking warning" },
+        {
+          kind: "format",
+          severity: "error",
+          message: "An option object is required.",
+          hint: "Export an object.",
+          range: { startLineNumber: 2, startColumn: 3, endLineNumber: 2, endColumn: 4 },
+        },
+      ],
+    } satisfies Partial<OptionAnalysisState>);
+
+    await vi.waitFor(() => {
+      expect(copyButton.disabled).toBe(true);
+      expect(mocks.viewerSetValue).toHaveBeenLastCalledWith(
+        "/* An option object is required. */\n// Hint: Export an object.\n// 2:3",
+      );
+    });
+
+    Object.assign(mocks.analysis, {
+      status: "ready",
+      dependencies: ["BarChart"],
+      issues: [],
+    } satisfies Partial<OptionAnalysisState>);
+
+    await vi.waitFor(() => {
+      expect(copyButton.disabled).toBe(false);
+      expect(mocks.viewerSetValue).toHaveBeenLastCalledWith(expect.stringContaining("BarChart"));
+    });
   });
 
   it("keeps renderer selection out of formatter preferences", async () => {

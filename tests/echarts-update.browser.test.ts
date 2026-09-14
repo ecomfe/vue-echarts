@@ -14,18 +14,23 @@ import type { ECElementEvent } from "echarts/core";
 import { describe, expect, it, vi } from "vitest";
 import { use } from "echarts/core";
 import { PieChart } from "echarts/charts";
-import { LegendComponent, TitleComponent, TooltipComponent } from "echarts/components";
+import {
+  GraphicComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
+} from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
 import type { ComponentExposed } from "vue-component-type-helpers";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
-import { GRect } from "../src/graphic/components";
+import { GGroup, GRect } from "../src/graphic/components";
 import * as graphicComponents from "../src/graphic/components";
 import type { Option, UpdateOptions } from "../src/types";
 import { flushAnimationFrame } from "./helpers/dom";
 import { render } from "./helpers/testing";
 
-use([SVGRenderer, PieChart, LegendComponent, TitleComponent, TooltipComponent]);
+use([SVGRenderer, PieChart, GraphicComponent, LegendComponent, TitleComponent, TooltipComponent]);
 
 function mountChart(
   props: () => Record<string, unknown>,
@@ -205,7 +210,110 @@ describe("reactive update contracts", () => {
   );
 });
 
+describe("raw graphic updates", () => {
+  it("moves an element to its new parent without resetting unrelated series", async () => {
+    const graphic = (parentId: string): Option["graphic"] => ({
+      elements: [
+        { id: "a", name: "parent-a", type: "group", x: 10 },
+        { id: "b", name: "parent-b", type: "group", x: 40 },
+        { id: "marker", name: "marker", type: "rect", parentId, shape: { width: 10, height: 10 } },
+      ],
+    });
+    const option = ref<Option>({ ...pieOption(1), graphic: graphic("a") });
+    const chart = mountChart(() => ({ option: option.value }));
+    await nextTick();
+    const marker = () =>
+      chart
+        .getZr()
+        .storage.getDisplayList()
+        .find((el) => el.name === "marker")!;
+    expect(marker().parent?.name).toBe("parent-a");
+    const sector = chart
+      .getZr()
+      .storage.getDisplayList()
+      .find((el) => el.type === "sector")!;
+    chart.dispatchAction({ type: "legendUnSelect", name: "B" });
+
+    option.value.graphic = graphic("b");
+    await nextTick();
+
+    expect(marker().parent?.name).toBe("parent-b");
+    expect(chart.getZr().storage.getDisplayList()).toContain(sector);
+    expect(chart.getOption().legend).toMatchObject([{ selected: { B: false } }]);
+  });
+});
+
 describe("update ownership and scheduling", () => {
+  it("keeps clear authoritative when an option update is interrupted by its updated event", async () => {
+    const option = ref(pieOption(1));
+    const theme = ref({ backgroundColor: "white" });
+    const chart = mountChart(() => ({ option: option.value, theme: theme.value }));
+    await nextTick();
+    const clear = () => {
+      chart.chart!.off("updated", clear);
+      chart.clear();
+    };
+    chart.chart!.on("updated", clear);
+
+    option.value = pieOption(3);
+    await nextTick();
+    expect(chart.getOption().series ?? []).toEqual([]);
+
+    theme.value = { backgroundColor: "black" };
+    await nextTick();
+    expect(chart.getOption().series ?? []).toEqual([]);
+
+    option.value = pieOption(5);
+    await nextTick();
+    expect(chart.getOption()).toHaveProperty("series.0.data.0.value", 5);
+  });
+
+  it("keeps a manual submission made by a clear event", async () => {
+    const chart = mountChart(() => ({ option: pieOption(1), manualUpdate: true }));
+    await nextTick();
+    const latest = { title: { text: "After clear" } };
+    const submit = () => {
+      chart.chart!.off("updated", submit);
+      chart.setOption(latest);
+    };
+    chart.chart!.on("updated", submit);
+
+    chart.clear();
+    expect(chart.getOption().title).toMatchObject([{ text: "After clear" }]);
+    expect(chart.getOption().series ?? []).toEqual([]);
+
+    chart.setOption({ title: { subtext: "Next patch" } });
+    expect(chart.getOption().title).toMatchObject([{ text: "After clear", subtext: "Next patch" }]);
+  });
+
+  it("does not retry an obsolete theme operation after a newer manual submission succeeds", async () => {
+    const errors: unknown[] = [];
+    const theme = ref({ backgroundColor: "white" });
+    const chart = mountChart(
+      () => ({ option: {}, theme: theme.value, manualUpdate: true }),
+      errors,
+    );
+    await nextTick();
+    const failure = new Error("Theme callback failed");
+    const applyTheme = chart.chart!.setTheme.bind(chart.chart!);
+    const themeSpy = vi.spyOn(chart.chart!, "setTheme").mockImplementationOnce((...args) => {
+      applyTheme(...args);
+      chart.setOption({ title: { text: "Newer submission" } });
+      throw failure;
+    });
+
+    theme.value = { backgroundColor: "black" };
+    await nextTick();
+    expect(errors).toEqual([failure]);
+    expect(chart.getOption().title).toMatchObject([{ text: "Newer submission" }]);
+
+    chart.setOption({ title: { subtext: "Next patch" } });
+    expect(themeSpy).toHaveBeenCalledOnce();
+    expect(chart.getOption().title).toMatchObject([
+      { text: "Newer submission", subtext: "Next patch" },
+    ]);
+  });
+
   it("coalesces source, theme and graphic changes into theme then latest option", async () => {
     registerExtension();
     const option = ref(pieOption(1));
@@ -395,9 +503,56 @@ describe("update ownership and scheduling", () => {
     expect(zrClick).toHaveBeenCalledOnce();
     expect(chart.root?.title).toBe("");
   });
+
+  it("binds a newly added update listener before native theme notifications", async () => {
+    const attrs = shallowRef<Record<string, unknown>>({});
+    const theme = ref({ backgroundColor: "white" });
+    const chart = mountChart(() => ({ option: {}, theme: theme.value, ...attrs.value }));
+    await nextTick();
+    let applyingTheme = false;
+    const notifications: boolean[] = [];
+    const applyTheme = chart.chart!.setTheme.bind(chart.chart!);
+    vi.spyOn(chart.chart!, "setTheme").mockImplementation((...args) => {
+      applyingTheme = true;
+      try {
+        applyTheme(...args);
+      } finally {
+        applyingTheme = false;
+      }
+    });
+
+    attrs.value = { onUpdated: () => notifications.push(applyingTheme) };
+    theme.value = { backgroundColor: "black" };
+    await nextTick();
+
+    expect(notifications).toContain(true);
+  });
 });
 
 describe("graphic update continuity", () => {
+  it("omits unchanged graphics from a source-only update", async () => {
+    registerExtension();
+    const option = ref(pieOption(1));
+    const chart = mountChart(() => ({ option: option.value }), undefined, {
+      graphic: () => h(GRect, { id: "stable-marker", width: 10, height: 10 }),
+    });
+    await nextTick();
+    await flushAnimationFrame();
+    const marker = chart
+      .getZr()
+      .storage.getDisplayList()
+      .find((element) => String(element.id) === "stable-marker");
+    expect(marker).toBeDefined();
+    const submit = vi.spyOn(chart.chart!, "setOption");
+
+    option.value = pieOption(3);
+    await nextTick();
+    expect(submit).toHaveBeenCalledOnce();
+    expect(submit.mock.calls[0][0]).not.toHaveProperty("graphic");
+    expect(chart.getZr().storage.getDisplayList()).toContain(marker);
+    expect(chart.getOption()).toHaveProperty("series.0.data.0.value", 3);
+  });
+
   it("renders every exported graphic component with the native engine", async () => {
     registerExtension();
     const components: Array<[string, Component]> = Object.entries(graphicComponents);
@@ -450,6 +605,52 @@ describe("graphic update continuity", () => {
       expect(payload.graphic).toMatchObject({ elements: [{ id: "changing", shape: { x: 20 } }] });
       expect((payload.graphic as { elements: unknown[] }).elements).toHaveLength(1);
     }
+  });
+
+  it("updates numeric graphic IDs without replacing elements or their group", async () => {
+    registerExtension();
+    const x = ref(1);
+    const chart = mountChart(() => ({ option: { animation: false } }), undefined, {
+      graphic: () => [
+        h(GRect, { id: 0, x: x.value, width: 10, height: 10 }),
+        h(GGroup, { id: 7, x: x.value }, () => [
+          h(GRect, { id: 8, x: x.value, width: 10, height: 10 }),
+          h(GRect, { id: "stable", x: 40, width: 10, height: 10 }),
+        ]),
+      ],
+    });
+    await nextTick();
+    await flushAnimationFrame();
+    const before = [...chart.getZr().storage.getDisplayList()];
+    expect(before).toHaveLength(3);
+    const rect = before.find((element) => String(element.id) === "0")!;
+    const child = before.find((element) => String(element.id) === "8")!;
+    const group = child.parent;
+    expect(rect).toMatchObject({ shape: { x: 1 } });
+    expect(child).toMatchObject({ shape: { x: 1 } });
+    expect(group).toMatchObject({ x: 1 });
+    const submit = vi.spyOn(chart.chart!, "setOption");
+
+    x.value = 19;
+    await nextTick();
+    await flushAnimationFrame();
+
+    expect(submit).toHaveBeenCalledOnce();
+    expect(submit.mock.calls[0][0].graphic).toMatchObject({
+      elements: [
+        { id: "0", shape: { x: 19 } },
+        { id: "7", x: 19 },
+        { id: "8", parentId: "7", shape: { x: 19 } },
+      ],
+    });
+    const after = chart.getZr().storage.getDisplayList();
+    for (const element of before) {
+      expect(after).toContain(element);
+    }
+    expect(child.parent).toBe(group);
+    expect(rect).toMatchObject({ shape: { x: 19 } });
+    expect(child).toMatchObject({ shape: { x: 19 } });
+    expect(group).toMatchObject({ x: 19 });
   });
 
   it("preserves a sibling's running animation during a different node update", async () => {

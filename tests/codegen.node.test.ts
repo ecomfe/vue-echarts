@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { getImportsFromOption } from "../demo/utils/codegen";
+import {
+  getDependenciesFromOption,
+  getImportsFromDependencies,
+  type PublicCodegenOptions,
+} from "../demo/utils/codegen";
+
+function getImportsFromOption(option: unknown, options?: PublicCodegenOptions): string {
+  return getImportsFromDependencies(getDependenciesFromOption(option), options);
+}
 
 describe("code generator", () => {
   it("formats complete single-line imports and option types", () => {
@@ -128,5 +136,71 @@ describe("code generator", () => {
     expect(code).toContain("VisualMapComponent");
     expect(code).toContain("LineChart");
     expect(code).toContain("BarChart");
+  });
+
+  it("collects each shared option once and tolerates cycles", () => {
+    let reads = 0;
+    const leaf = {
+      get series() {
+        reads++;
+        return [{ type: "line" }];
+      },
+    };
+    let shared: object = leaf;
+    for (let index = 0; index < 12; index++) {
+      shared = { options: [shared, shared] };
+    }
+    const option = { baseOption: shared, media: [] as Array<{ option: object }> };
+    option.media.push({ option });
+
+    expect(getDependenciesFromOption(option)).toEqual(["LineChart"]);
+    // The same leaf appears thousands of times in the expanded tree.
+    expect(reads).toBeLessThan(10);
+    expect(getDependenciesFromOption(option)).toEqual(["LineChart"]);
+  });
+
+  it("preserves first-seen dependency order across nested and shared options", () => {
+    const shared = { title: {}, series: [{ type: "line" }] };
+    const dependencies = getDependenciesFromOption({
+      options: [shared, { legend: {}, series: [{ type: "bar" }] }],
+      baseOption: { grid3D: {}, series: [{ type: "bar3D" }] },
+      tooltip: {},
+      xAxis: { jitter: 2, breaks: [{}] },
+      dataset: { transform: { type: "filter" } },
+      series: [{ type: "scatter", labelLayout: {}, universalTransition: true }],
+      media: [{ option: shared }, { option: { visualMap: {} } }],
+    });
+
+    expect(dependencies).toEqual([
+      "TitleComponent",
+      "LineChart",
+      "LegendComponent",
+      "BarChart",
+      "Grid3DComponent",
+      "Bar3DChart",
+      "TooltipComponent",
+      "GridComponent",
+      "DatasetComponent",
+      "ScatterChart",
+      "LabelLayout",
+      "UniversalTransition",
+      "ScatterJitter",
+      "AxisBreak",
+      "TransformComponent",
+      "VisualMapComponent",
+    ]);
+
+    const code = getImportsFromDependencies(dependencies, { includeType: true, maxLen: 1000 });
+    expect(code).toContain("import { Bar3DChart } from 'echarts-gl/charts'");
+    expect(code).toContain("import { Grid3DComponent } from 'echarts-gl/components'");
+    expect(code).toContain(
+      "use([TitleComponent, LegendComponent, TooltipComponent, GridComponent, DatasetComponent, TransformComponent, VisualMapComponent, LineChart, BarChart, ScatterChart, Grid3DComponent, Bar3DChart, CanvasRenderer, LabelLayout, UniversalTransition, ScatterJitter, AxisBreak])",
+    );
+  });
+
+  it("does not treat inherited map properties as dependencies", () => {
+    expect(getDependenciesFromOption({ constructor: {}, series: [{ type: "toString" }] })).toEqual(
+      [],
+    );
   });
 });

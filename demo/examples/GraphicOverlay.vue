@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, shallowRef, watch, watchEffect } from "vue";
+import { computed, onUnmounted, shallowRef, watch } from "vue";
 import type { ComponentExposed } from "vue-component-type-helpers";
 import { usePreferredReducedMotion } from "@vueuse/core";
 import { use } from "echarts/core";
@@ -11,53 +11,53 @@ import VExample from "./Example.vue";
 import { useDemoDark } from "../composables/useDemoDark";
 import { GBezierCurve, GCircle, GGroup, GRect, GText } from "../../src/graphic";
 import { resolveGraphicOverlayTokens } from "./graphic-overlay/GraphicOverlayTokens";
-import { buildGraphicOverlayLayout } from "./graphic-overlay/useGraphicOverlayLayout";
+import { buildGraphicOverlayLayout, OVERLAY_GRID } from "./graphic-overlay/useGraphicOverlayLayout";
 import {
   OVERLAY_DAYS,
   OVERLAY_Y_MAX,
   useGraphicOverlayData,
 } from "./graphic-overlay/useGraphicOverlayData";
-import type { OverlayViewport } from "./graphic-overlay/types";
+import type { OverlayPlotBounds, OverlayViewport } from "./graphic-overlay/types";
 import type { EChartsOption } from "echarts";
 
 use([LineChart, GridComponent, TooltipComponent, GraphicComponent]);
-
-const GRID = {
-  left: 8,
-  right: 5,
-  top: 18,
-  bottom: 12,
-};
 
 const chartRef = shallowRef<ComponentExposed<typeof VChart>>();
 const viewport = shallowRef<OverlayViewport>({
   width: 980,
   height: 360,
 });
+const nativePlot = shallowRef<OverlayPlotBounds>();
 
-watchEffect((onCleanup) => {
-  const target = chartRef.value?.root as HTMLElement | undefined;
-  if (!target || typeof ResizeObserver === "undefined") {
+function syncLayout(): void {
+  const chart = chartRef.value?.chart;
+  if (!chart || chart.isDisposed()) {
     return;
   }
-
-  const updateViewport = () => {
-    const width = target.clientWidth;
-    const height = target.clientHeight;
-    if (!width || !height) {
-      return;
-    }
+  const topLeft = chart.convertToPixel({ seriesIndex: 0 }, [0, OVERLAY_Y_MAX]);
+  const bottomRight = chart.convertToPixel({ seriesIndex: 0 }, [OVERLAY_DAYS.length - 1, 0]);
+  if (!topLeft || !bottomRight) {
+    return;
+  }
+  const [left, top] = topLeft;
+  const [right, bottom] = bottomRight;
+  const width = chart.getWidth();
+  const height = chart.getHeight();
+  if (viewport.value.width !== width || viewport.value.height !== height) {
     viewport.value = { width, height };
-  };
-
-  updateViewport();
-  const observer = new ResizeObserver(updateViewport);
-  observer.observe(target);
-
-  onCleanup(() => {
-    observer.disconnect();
-  });
-});
+  }
+  const current = nativePlot.value;
+  // Graphic commits also emit updated; stable bounds must not schedule another commit.
+  if (
+    !current ||
+    current.left !== left ||
+    current.right !== right ||
+    current.top !== top ||
+    current.bottom !== bottom
+  ) {
+    nativePlot.value = { left, right, top, bottom };
+  }
+}
 
 const { values, markers, focusedMarkerId, randomizeTrend, rotateFocus, focusMarker, toggleMarker } =
   useGraphicOverlayData();
@@ -128,10 +128,10 @@ const option = computed(
       animationDurationUpdate: animationDuration.value,
       animationEasingUpdate: CHART_UPDATE_ANIMATION_EASING,
       grid: {
-        left: `${GRID.left}%`,
-        right: `${GRID.right}%`,
-        top: `${GRID.top}%`,
-        bottom: `${GRID.bottom}%`,
+        left: `${OVERLAY_GRID.left}%`,
+        right: `${OVERLAY_GRID.right}%`,
+        top: `${OVERLAY_GRID.top}%`,
+        bottom: `${OVERLAY_GRID.bottom}%`,
       },
       tooltip: { trigger: "axis" },
       xAxis: {
@@ -164,7 +164,7 @@ const option = computed(
     }) as const satisfies EChartsOption,
 );
 
-const layout = computed(() =>
+const overlayMarkers = computed(() =>
   buildGraphicOverlayLayout({
     days: OVERLAY_DAYS,
     values: overlayValues.value,
@@ -172,6 +172,7 @@ const layout = computed(() =>
     focusedMarkerId: focusedMarkerId.value,
     yMax: OVERLAY_Y_MAX,
     viewport: viewport.value,
+    plot: nativePlot.value,
   }),
 );
 
@@ -181,10 +182,10 @@ const ui = computed(() => resolveGraphicOverlayTokens(isDark.value));
 
 <template>
   <VExample id="graphic" title="Graphic overlay" desc="graphic · markers">
-    <VChart ref="chartRef" :option="option" autoresize>
+    <VChart ref="chartRef" :option="option" autoresize @updated="syncLayout">
       <template #graphic>
         <GGroup id="overlay-root">
-          <template v-for="marker in layout.markers" :key="marker.id">
+          <template v-for="marker in overlayMarkers" :key="marker.id">
             <GBezierCurve
               :id="`marker-curve-${marker.id}`"
               :x1="marker.x"

@@ -10,7 +10,6 @@ export type GraphicNode = {
   props: Record<string, unknown>;
   handlers: Record<string, unknown>;
   handlerCache?: Map<string, { source: unknown; handler: EventHandler }>;
-  order: number;
   sourceId: number;
   element?: HTMLElement;
   version?: number;
@@ -21,56 +20,65 @@ export type GraphicCollector = {
   register: (node: GraphicRegisterNode) => void;
   unregister: (id: string, sourceId: number) => void;
   warn: (message: string, onceKey: string) => void;
-  getNodes: () => Iterable<GraphicNode>;
+  getNodes: () => readonly GraphicNode[];
   requestFlush: (id?: string, sourceId?: number) => void;
   cancelPendingFlush: () => void;
   setRoot: (root: HTMLElement | undefined) => void;
   dispose: () => void;
 };
 
-type GraphicRegisterNode = Omit<GraphicNode, "handlerCache" | "order"> & {
-  order?: number;
-};
+type GraphicRegisterNode = Omit<GraphicNode, "handlerCache">;
 
 export function createCollector(onFlush: () => void): GraphicCollector {
   const nodes = new Map<string, GraphicNode>();
   const seenInPass = new Map<string, number>();
   const warnedKeys = new Set<string>();
 
-  let order = 0;
   let version = 0;
   let pending = false;
   let root: HTMLElement | undefined;
   let observer: MutationObserver | undefined;
   const byElement = new WeakMap<HTMLElement, GraphicNode>();
-  let orderedIds: string[] = [];
+  let orderedNodes: GraphicNode[] = [];
+  let orderDirty = true;
 
   function syncOrder(): boolean {
     if (!root) {
       return false;
     }
-    const ids: string[] = [];
+    // Vue may submit before MutationObserver delivers its callback. Consume queued
+    // records here as well, including when clear() absorbs earlier DOM changes.
+    if (observer?.takeRecords().length) {
+      orderDirty = true;
+    }
+    if (!orderDirty) {
+      return false;
+    }
+    orderDirty = false;
+    const nextNodes: GraphicNode[] = [];
     const walker = root.ownerDocument.createTreeWalker(root, 1);
     for (let element = walker.nextNode(); element; element = walker.nextNode()) {
       const node = byElement.get(element as HTMLElement);
       if (node && nodes.get(node.id) === node) {
-        node.order = ids.length;
-        ids.push(node.id);
+        nextNodes.push(node);
       }
     }
     const changed =
-      ids.length !== orderedIds.length || ids.some((id, index) => id !== orderedIds[index]);
-    orderedIds = ids;
+      nextNodes.length !== orderedNodes.length ||
+      nextNodes.some((node, index) => node.id !== orderedNodes[index].id);
+    orderedNodes = nextNodes;
     return changed;
   }
 
   function setRoot(value: HTMLElement | undefined): void {
     observer?.disconnect();
     root = value;
-    orderedIds = [];
+    orderedNodes = [];
+    orderDirty = true;
     if (root) {
       // Wrapper components can move unchanged children without rerendering a G* component.
       observer = new MutationObserver(() => {
+        orderDirty = true;
         if (syncOrder()) {
           requestFlush();
         }
@@ -80,7 +88,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
   }
 
   function beginPass(): void {
-    order = 0;
     seenInPass.clear();
   }
 
@@ -101,8 +108,6 @@ export function createCollector(onFlush: () => void): GraphicCollector {
       );
     }
 
-    const nextOrder = node.order ?? order;
-    order = Math.max(order, nextOrder + 1);
     const existing = nodes.get(node.id);
     const sameSource = existing?.sourceId === node.sourceId;
     const unchanged =
@@ -111,8 +116,7 @@ export function createCollector(onFlush: () => void): GraphicCollector {
       existing.parentId === node.parentId &&
       existing.props === node.props &&
       isIgnorableWatchChange(existing.handlers, node.handlers) &&
-      existing.element === node.element &&
-      (node.element !== undefined || existing.order === nextOrder);
+      existing.element === node.element;
 
     seenInPass.set(node.id, node.sourceId);
     // Props and attrs are stable proxies; their watcher covers value-only changes.
@@ -123,10 +127,10 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     const registered = {
       ...node,
       handlerCache: sameSource ? existing?.handlerCache : undefined,
-      order: nextOrder,
       version: ++version,
     };
     nodes.set(node.id, registered);
+    orderDirty = true;
     if (node.element) {
       byElement.set(node.element, registered);
     }
@@ -139,6 +143,7 @@ export function createCollector(onFlush: () => void): GraphicCollector {
       return;
     }
     nodes.delete(id);
+    orderDirty = true;
     requestFlush();
   }
 
@@ -161,9 +166,9 @@ export function createCollector(onFlush: () => void): GraphicCollector {
     });
   }
 
-  function getNodes(): Iterable<GraphicNode> {
+  function getNodes(): readonly GraphicNode[] {
     syncOrder();
-    return root ? orderedIds.map((id) => nodes.get(id)!) : nodes.values();
+    return root ? orderedNodes : Array.from(nodes.values());
   }
 
   function dispose(): void {
