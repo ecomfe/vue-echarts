@@ -42,7 +42,7 @@ describe("chart layout styles", () => {
         },
       });
 
-      render(Root);
+      await render(Root);
       await nextTick();
       const instance = exposed.value;
       if (!instance) {

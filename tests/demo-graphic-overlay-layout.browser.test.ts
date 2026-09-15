@@ -11,7 +11,7 @@ use([SVGRenderer]);
 
 it("aligns overlay markers after narrow resizes and native axis layout changes", async () => {
   const theme = shallowRef({ valueAxis: { axisLabel: { fontSize: 12 } } });
-  render(
+  await render(
     defineComponent(() => {
       provide(INIT_OPTIONS_KEY, { renderer: "svg" });
       provide(THEME_KEY, theme);

@@ -204,8 +204,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@24.13.3)(@vitest/browser-playwright@5.0.0)(@vitest/coverage-istanbul@5.0.0)(@vitest/ui@5.0.0)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))
       vitest-browser-vue:
-        specifier: ^2.1.0
-        version: 2.1.0(vitest@5.0.0)(vue@3.5.41(typescript@6.0.3))
+        specifier: ^3.0.0
+        version: 3.1.0(vitest@5.0.0)(vue@3.5.41(typescript@6.0.3))
       vue:
         specifier: ^3.5.41
         version: 3.5.41(typescript@6.0.3)
@@ -1988,10 +1988,10 @@ packages:
       yaml:
         optional: true
 
-  vitest-browser-vue@2.1.0:
-    resolution: {integrity: sha512-K3H/oxIOY4EjXx2bxwrLsPg4jTMvzpRW6Jb6T8XZRoxUvmDVwGkd8mua130F8GZezE7H5QYoXd/S8hYijw7j5g==}
+  vitest-browser-vue@3.1.0:
+    resolution: {integrity: sha512-HTWGzixoI9sSPb9LVuPOKtGy7URS6ipAIOiLD9ofdW/zgT3XGngXbMAJ3U9H/w1A6LWj4waGpYZsd3RPm8zPkw==}
     peerDependencies:
-      vitest: ^4.0.0-0
+      vitest: ^4.0.0 || ^5.0.0
       vue: ^3.0.0
 
   vitest@5.0.0:
@@ -3535,7 +3535,7 @@ snapshots:
       jiti: 2.7.0
       yaml: 2.9.0
 
-  vitest-browser-vue@2.1.0(vitest@5.0.0)(vue@3.5.41(typescript@6.0.3)):
+  vitest-browser-vue@3.1.0(vitest@5.0.0)(vue@3.5.41(typescript@6.0.3)):
     dependencies:
       '@vue/test-utils': 2.4.6
       vitest: 5.0.0(@types/node@24.13.3)(@vitest/browser-playwright@5.0.0)(@vitest/coverage-istanbul@5.0.0)(@vitest/ui@5.0.0)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))

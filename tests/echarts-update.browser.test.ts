@@ -32,14 +32,14 @@ import { render } from "./helpers/testing";
 
 use([SVGRenderer, PieChart, GraphicComponent, LegendComponent, TitleComponent, TooltipComponent]);
 
-function mountChart(
+async function mountChart(
   props: () => Record<string, unknown>,
   errors?: unknown[],
   slots?: Record<string, () => VNodeChild> | (() => Record<string, () => VNodeChild>),
 ) {
   const exposed = shallowRef<ComponentExposed<typeof ECharts>>();
   const initOptions = { renderer: "svg", width: 400, height: 300 } as const;
-  render(
+  await render(
     defineComponent({
       setup() {
         if (errors) {
@@ -83,7 +83,7 @@ function pieOption(value: number, animation = false): Option {
 describe("reactive update contracts", () => {
   it("preserves interaction and graphic elements while animating new data", async () => {
     const option = ref(pieOption(1));
-    const chart = mountChart(() => ({ option: option.value }));
+    const chart = await mountChart(() => ({ option: option.value }));
     await nextTick();
     chart.dispatchAction({ type: "legendUnSelect", name: "B" });
     const sector = chart
@@ -103,7 +103,7 @@ describe("reactive update contracts", () => {
   it("reapplies controlled interaction state after a theme recreates the native model", async () => {
     const option = ref(pieOption(1));
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(() => ({ option: option.value, theme: theme.value }));
+    const chart = await mountChart(() => ({ option: option.value, theme: theme.value }));
     await nextTick();
     chart.dispatchAction({ type: "legendUnSelect", name: "B" });
     // Keep state that must survive rebuilds in the full option snapshot.
@@ -117,7 +117,7 @@ describe("reactive update contracts", () => {
   it("recovers configuration deletion after a failed option submission", async () => {
     const option = ref<Option>({ title: { id: "title", text: "before", subtext: "stale" } });
     const errors: unknown[] = [];
-    const chart = mountChart(() => ({ option: option.value }), errors);
+    const chart = await mountChart(() => ({ option: option.value }), errors);
     const failure = new Error("setOption failed");
     vi.spyOn(chart.chart!, "setOption").mockImplementationOnce(() => {
       throw failure;
@@ -135,7 +135,7 @@ describe("reactive update contracts", () => {
   it("keeps a completed clear when an update event interrupts theme replay", async () => {
     const option = ref(pieOption(1));
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(() => ({ option: option.value, theme: theme.value }));
+    const chart = await mountChart(() => ({ option: option.value, theme: theme.value }));
     let cleared = false;
     chart.chart!.on("updated", () => {
       if (!cleared && chart.getOption().backgroundColor === "black") {
@@ -160,7 +160,7 @@ describe("reactive update contracts", () => {
     const option = ref(pieOption(1));
     const theme = ref({ backgroundColor: "white" });
     const errors: unknown[] = [];
-    const chart = mountChart(() => ({ option: option.value, theme: theme.value }), errors);
+    const chart = await mountChart(() => ({ option: option.value, theme: theme.value }), errors);
     const failure = new Error("setTheme failed");
     vi.spyOn(chart.chart!, "setTheme").mockImplementationOnce(() => {
       throw failure;
@@ -183,7 +183,7 @@ describe("reactive update contracts", () => {
       const option = ref<Option>({ title: { id: "title", text: "before", subtext: "stale" } });
       const x = ref(0);
       const errors: unknown[] = [];
-      const chart = mountChart(() => ({ option: option.value }), errors, {
+      const chart = await mountChart(() => ({ option: option.value }), errors, {
         graphic: () => [h(GRect, { id: "marker", x: x.value, width: 10, height: 10 })],
       });
       await nextTick();
@@ -220,7 +220,7 @@ describe("raw graphic updates", () => {
       ],
     });
     const option = ref<Option>({ ...pieOption(1), graphic: graphic("a") });
-    const chart = mountChart(() => ({ option: option.value }));
+    const chart = await mountChart(() => ({ option: option.value }));
     await nextTick();
     const marker = () =>
       chart
@@ -247,7 +247,7 @@ describe("update ownership and scheduling", () => {
   it("keeps clear authoritative when an option update is interrupted by its updated event", async () => {
     const option = ref(pieOption(1));
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(() => ({ option: option.value, theme: theme.value }));
+    const chart = await mountChart(() => ({ option: option.value, theme: theme.value }));
     await nextTick();
     const clear = () => {
       chart.chart!.off("updated", clear);
@@ -269,7 +269,7 @@ describe("update ownership and scheduling", () => {
   });
 
   it("keeps a manual submission made by a clear event", async () => {
-    const chart = mountChart(() => ({ option: pieOption(1), manualUpdate: true }));
+    const chart = await mountChart(() => ({ option: pieOption(1), manualUpdate: true }));
     await nextTick();
     const latest = { title: { text: "After clear" } };
     const submit = () => {
@@ -289,7 +289,7 @@ describe("update ownership and scheduling", () => {
   it("does not retry an obsolete theme operation after a newer manual submission succeeds", async () => {
     const errors: unknown[] = [];
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(
+    const chart = await mountChart(
       () => ({ option: {}, theme: theme.value, manualUpdate: true }),
       errors,
     );
@@ -319,9 +319,13 @@ describe("update ownership and scheduling", () => {
     const option = ref(pieOption(1));
     const theme = ref({ backgroundColor: "white" });
     const x = ref(0);
-    const chart = mountChart(() => ({ option: option.value, theme: theme.value }), undefined, {
-      graphic: () => [h(GRect, { id: "marker", x: x.value, width: 10, height: 10 })],
-    });
+    const chart = await mountChart(
+      () => ({ option: option.value, theme: theme.value }),
+      undefined,
+      {
+        graphic: () => [h(GRect, { id: "marker", x: x.value, width: 10, height: 10 })],
+      },
+    );
     await nextTick();
     const calls: string[] = [];
     const nativeTheme = chart.chart!.setTheme.bind(chart.chart);
@@ -350,7 +354,7 @@ describe("update ownership and scheduling", () => {
     const theme = ref({ backgroundColor: "white" });
     const x = ref(0);
     const tooltip = ref(false);
-    const chart = mountChart(
+    const chart = await mountChart(
       () => ({ option: option.value, theme: theme.value }),
       undefined,
       () => ({
@@ -377,7 +381,7 @@ describe("update ownership and scheduling", () => {
   it("cleans removed callback slots after native theme backup replay", async () => {
     const visible = ref(true);
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(
+    const chart = await mountChart(
       () => ({ option: { tooltip: {} }, updateOptions: {}, theme: theme.value }),
       undefined,
       () =>
@@ -399,7 +403,7 @@ describe("update ownership and scheduling", () => {
     async (themeFirst) => {
       const option = ref(pieOption(1));
       const theme = ref({ backgroundColor: "white" });
-      const chart = mountChart(() =>
+      const chart = await mountChart(() =>
         themeFirst
           ? { theme: theme.value, option: option.value }
           : { option: option.value, theme: theme.value },
@@ -434,7 +438,7 @@ describe("update ownership and scheduling", () => {
     });
     const warnings = vi.spyOn(console, "warn").mockImplementation(() => {});
     try {
-      const chart = mountChart(() => ({ option: option.value }), undefined, {
+      const chart = await mountChart(() => ({ option: option.value }), undefined, {
         graphic: () => [h(GRect, { id: "visible", width: 10, height: 10 })],
       });
       await nextTick();
@@ -452,7 +456,7 @@ describe("update ownership and scheduling", () => {
     const exposed = shallowRef<ComponentExposed<typeof ECharts>>();
     const errors: unknown[] = [];
     const initOptions = { renderer: "svg", width: 400, height: 300 } as const;
-    render(
+    await render(
       defineComponent({
         setup() {
           onErrorCaptured((error) => {
@@ -486,7 +490,7 @@ describe("update ownership and scheduling", () => {
     const attrs = ref<Record<string, unknown>>({});
     const click = vi.fn();
     const zrClick = vi.fn();
-    const chart = mountChart(() => ({ option: {}, ...attrs.value }));
+    const chart = await mountChart(() => ({ option: {}, ...attrs.value }));
     await nextTick();
     attrs.value = { title: "added", onClick: click, "onZr:click": zrClick };
     await nextTick();
@@ -507,7 +511,7 @@ describe("update ownership and scheduling", () => {
   it("binds a newly added update listener before native theme notifications", async () => {
     const attrs = shallowRef<Record<string, unknown>>({});
     const theme = ref({ backgroundColor: "white" });
-    const chart = mountChart(() => ({ option: {}, theme: theme.value, ...attrs.value }));
+    const chart = await mountChart(() => ({ option: {}, theme: theme.value, ...attrs.value }));
     await nextTick();
     let applyingTheme = false;
     const notifications: boolean[] = [];
@@ -533,7 +537,7 @@ describe("graphic update continuity", () => {
   it("omits unchanged graphics from a source-only update", async () => {
     registerExtension();
     const option = ref(pieOption(1));
-    const chart = mountChart(() => ({ option: option.value }), undefined, {
+    const chart = await mountChart(() => ({ option: option.value }), undefined, {
       graphic: () => h(GRect, { id: "stable-marker", width: 10, height: 10 }),
     });
     await nextTick();
@@ -556,7 +560,7 @@ describe("graphic update continuity", () => {
   it("renders every exported graphic component with the native engine", async () => {
     registerExtension();
     const components: Array<[string, Component]> = Object.entries(graphicComponents);
-    const chart = mountChart(() => ({ option: {} }), undefined, {
+    const chart = await mountChart(() => ({ option: {} }), undefined, {
       graphic: () => components.map(([name, component]) => h(component, { id: name })),
     });
     await nextTick();
@@ -577,7 +581,7 @@ describe("graphic update continuity", () => {
   ])("submits the required source scope for graphic changes with %j", async (updateOptions) => {
     registerExtension();
     const x = ref(0);
-    const chart = mountChart(() => ({ option: pieOption(1), updateOptions }), undefined, {
+    const chart = await mountChart(() => ({ option: pieOption(1), updateOptions }), undefined, {
       graphic: () => [
         h(GRect, { id: "changing", x: x.value, width: 10, height: 10 }),
         h(GRect, { id: "stable", x: 30, width: 10, height: 10 }),
@@ -610,7 +614,7 @@ describe("graphic update continuity", () => {
   it("updates numeric graphic IDs without replacing elements or their group", async () => {
     registerExtension();
     const x = ref(1);
-    const chart = mountChart(() => ({ option: { animation: false } }), undefined, {
+    const chart = await mountChart(() => ({ option: { animation: false } }), undefined, {
       graphic: () => [
         h(GRect, { id: 0, x: x.value, width: 10, height: 10 }),
         h(GGroup, { id: 7, x: x.value }, () => [
@@ -656,7 +660,7 @@ describe("graphic update continuity", () => {
   it("preserves a sibling's running animation during a different node update", async () => {
     registerExtension();
     const x = ref(0);
-    const chart = mountChart(() => ({ option: { animation: true } }), undefined, {
+    const chart = await mountChart(() => ({ option: { animation: true } }), undefined, {
       graphic: () => [
         h(GRect, { id: "changing", x: x.value, width: 10, height: 10 }),
         h(GRect, {
@@ -714,7 +718,7 @@ describe("graphic update continuity", () => {
         return () => order.value.map((name) => h(Wrapper, { key: name, name }));
       },
     });
-    const chart = mountChart(() => ({ option: {} }), undefined, {
+    const chart = await mountChart(() => ({ option: {} }), undefined, {
       graphic: () => [h(GraphicTree)],
     });
     const ids = () =>
@@ -745,7 +749,7 @@ describe("graphic update continuity", () => {
     const x = ref(0);
     const visible = ref(true);
     const errors: unknown[] = [];
-    const chart = mountChart(() => ({ option: pieOption(1) }), errors, {
+    const chart = await mountChart(() => ({ option: pieOption(1) }), errors, {
       graphic: () => [
         h(GRect, { id: "changing", x: x.value, width: 10, height: 10 }),
         visible.value ? h(GRect, { id: "removed", width: 10, height: 10 }) : null,

@@ -37,9 +37,9 @@ beforeEach(() => {
 
 afterEach(() => vi.useRealTimers());
 
-function mountAnalysis() {
+async function mountAnalysis() {
   let analysis!: ReturnType<typeof useOptionAnalysis>;
-  const screen = render(
+  const screen = await render(
     defineComponent(() => {
       analysis = useOptionAnalysis("first");
       return () => null;
@@ -65,7 +65,7 @@ function reply(request: AnalyzeRequest, dependencies: string[]): void {
 describe("useOptionAnalysis", () => {
   it("times out a request and recovers on the next edit", async () => {
     vi.useFakeTimers();
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
     await vi.advanceTimersByTimeAsync(120);
     const oldWorker = worker.target;
 
@@ -85,12 +85,12 @@ describe("useOptionAnalysis", () => {
     expect(analysis.state.status).toBe("ready");
     expect(analysis.state.dependencies).toEqual(["TitleComponent"]);
     expect(analysis.state.issues).toEqual([]);
-    screen.unmount();
+    await screen.unmount();
   });
 
   it("replaces a busy worker and ignores its late messages and errors", async () => {
     vi.useFakeTimers();
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
     await vi.advanceTimersByTimeAsync(120);
     const oldWorker = worker.target;
     const first = worker.postMessage.mock.calls[0][0];
@@ -104,12 +104,12 @@ describe("useOptionAnalysis", () => {
     expect(analysis.state.status).toBe("analyzing");
     reply(worker.postMessage.mock.calls[1][0], ["BarChart"]);
     expect(analysis.state.dependencies).toEqual(["BarChart"]);
-    screen.unmount();
+    await screen.unmount();
   });
 
   it.each(["error", "messageerror"])("recovers from a worker %s", async (type) => {
     vi.useFakeTimers();
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
     await vi.advanceTimersByTimeAsync(120);
     worker.target?.dispatchEvent(new Event(type, { cancelable: true }));
     expect(analysis.state.status).toBe("error");
@@ -122,7 +122,7 @@ describe("useOptionAnalysis", () => {
     await vi.advanceTimersByTimeAsync(120);
     reply(worker.postMessage.mock.calls[1][0], []);
     expect(analysis.state.status).toBe("ready");
-    screen.unmount();
+    await screen.unmount();
   });
 
   it("reports synchronous submission failures and cancels work on unmount", async () => {
@@ -130,20 +130,20 @@ describe("useOptionAnalysis", () => {
     worker.postMessage.mockImplementationOnce(() => {
       throw new Error("cannot post");
     });
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
     await vi.advanceTimersByTimeAsync(120);
     expect(analysis.state.status).toBe("error");
     expect(worker.terminate).toHaveBeenCalledOnce();
     analysis.code.value = "second";
     await nextTick();
-    screen.unmount();
+    await screen.unmount();
     await vi.advanceTimersByTimeAsync(6000);
     expect(worker.postMessage).toHaveBeenCalledOnce();
   });
 
   it("reuses an idle worker and clears its deadline on unmount", async () => {
     vi.useFakeTimers();
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
     await vi.advanceTimersByTimeAsync(120);
     const initialWorker = worker.target;
     reply(worker.postMessage.mock.calls[0][0], []);
@@ -151,14 +151,14 @@ describe("useOptionAnalysis", () => {
     await nextTick();
     await vi.advanceTimersByTimeAsync(120);
     expect(worker.target).toBe(initialWorker);
-    screen.unmount();
+    await screen.unmount();
     await vi.advanceTimersByTimeAsync(5000);
     expect(analysis.state.status).toBe("analyzing");
     expect(worker.terminate).toHaveBeenCalledOnce();
   });
 
   it("invalidates stale results as soon as source changes", async () => {
-    const { analysis, screen } = mountAnalysis();
+    const { analysis, screen } = await mountAnalysis();
 
     await vi.waitFor(() => expect(worker.postMessage).toHaveBeenCalledTimes(1));
     const first = worker.postMessage.mock.calls[0][0];
@@ -181,7 +181,7 @@ describe("useOptionAnalysis", () => {
     expect(analysis.state.status).toBe("analyzing");
     expect(analysis.state.dependencies).toBeNull();
 
-    screen.unmount();
+    await screen.unmount();
     expect(worker.terminate).toHaveBeenCalledOnce();
   });
 });

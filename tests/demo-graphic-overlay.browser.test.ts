@@ -44,7 +44,7 @@ it("skips and stops overlay animation when reduced motion is preferred", async (
   const requestFrame = vi.spyOn(window, "requestAnimationFrame").mockReturnValue(7);
   const cancelFrame = vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
   const random = vi.spyOn(Math, "random").mockReturnValue(0);
-  render(GraphicOverlay);
+  await render(GraphicOverlay);
 
   const randomize = Array.from(document.querySelectorAll("button")).find(
     (button) => button.textContent?.trim() === "Randomize trend",

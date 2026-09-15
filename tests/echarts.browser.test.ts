@@ -68,7 +68,7 @@ describe("ECharts component", () => {
     const appliedGroups: Array<string | undefined> = [];
     chartStub.setOption.mockImplementation(() => appliedGroups.push(chartStub.group));
 
-    const screen = renderChart(() => ({ option: option.value, group: group.value }), exposed);
+    const screen = await renderChart(() => ({ option: option.value, group: group.value }), exposed);
     await nextTick();
 
     expect(init).toHaveBeenCalledTimes(1);
@@ -97,13 +97,13 @@ describe("ECharts component", () => {
     await nextTick();
     expect(chartStub.group).toBe("");
 
-    screen.unmount();
+    await screen.unmount();
     await nextTick();
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
   });
 
   it("shows initial loading before applying the option", async () => {
-    renderChart(() => ({ option: { series: [] }, loading: true }), shallowRef<Exposed>());
+    await renderChart(() => ({ option: { series: [] }, loading: true }), shallowRef<Exposed>());
     await nextTick();
 
     expect(chartStub.showLoading).toHaveBeenCalledOnce();
@@ -120,7 +120,7 @@ describe("ECharts component", () => {
       { flush: "sync" },
     );
 
-    renderChart(() => ({ option: {} }), exposed);
+    await renderChart(() => ({ option: {} }), exposed);
     stop();
     await nextTick();
 
@@ -134,7 +134,7 @@ describe("ECharts component", () => {
     const optionRef = ref();
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
     await nextTick();
 
     expect(typeof getExposed(exposed).setOption).toBe("function");
@@ -151,7 +151,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<Exposed>();
     const updateOptions: UpdateOptions = { lazyUpdate: true };
 
-    renderChart(
+    await renderChart(
       () => ({
         option: { title: { text: "initial" } },
         updateOptions,
@@ -173,7 +173,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
     const initialCalls = chartStub.setOption.mock.calls.length;
@@ -192,7 +192,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ manualUpdate: true, initOptions: initOptions.value }), exposed);
+    await renderChart(() => ({ manualUpdate: true, initOptions: initOptions.value }), exposed);
     await nextTick();
 
     const manualOption: Option = {
@@ -223,7 +223,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         manualUpdate: true,
@@ -270,7 +270,7 @@ describe("ECharts component", () => {
     const colors = reactive(["#fff"]);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         theme: theme.value,
@@ -329,7 +329,7 @@ describe("ECharts component", () => {
     const theme = { palette } as unknown as Theme;
     const initOptions = { locale } as unknown as InitOptions;
 
-    renderChart(() => ({ option: {}, theme, initOptions }), shallowRef<Exposed>());
+    await renderChart(() => ({ option: {}, theme, initOptions }), shallowRef<Exposed>());
     await nextTick();
     readTheme.mockClear();
     readLocale.mockClear();
@@ -357,7 +357,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     expect(init.mock.calls[0][1]).toBe("");
@@ -378,7 +378,7 @@ describe("ECharts component", () => {
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         theme: theme.value,
@@ -401,7 +401,7 @@ describe("ECharts component", () => {
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         theme: theme.value,
@@ -442,7 +442,7 @@ describe("ECharts component", () => {
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         theme: theme.value,
@@ -490,7 +490,7 @@ describe("ECharts component", () => {
       return () => h(ECharts, { option: option.value, theme: theme.value });
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     chartStub.setOption.mockClear();
 
@@ -510,7 +510,7 @@ describe("ECharts component", () => {
       const initOptions = ref<InitOptions>({ renderer: "canvas" });
       const exposed = shallowRef<Exposed>();
 
-      renderChart(
+      await renderChart(
         () => ({
           option: option.value,
           initOptions: initOptions.value,
@@ -552,7 +552,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ useDirtyRect: true });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, initOptions: initOptions.value }), exposed);
+    await renderChart(() => ({ option: option.value, initOptions: initOptions.value }), exposed);
     await nextTick();
 
     const firstStub = chartStub;
@@ -582,7 +582,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ locale: typedLocale });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: {}, initOptions: initOptions.value }), exposed);
+    await renderChart(() => ({ option: {}, initOptions: initOptions.value }), exposed);
     await nextTick();
 
     const firstStub = chartStub;
@@ -616,7 +616,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     expect(init).toHaveBeenCalledTimes(1);
@@ -640,7 +640,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     chartStub.setOption.mockClear();
 
@@ -656,7 +656,10 @@ describe("ECharts component", () => {
     const updateOptions = ref({ notMerge: true, replaceMerge: ["series"] });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, updateOptions: updateOptions.value }), exposed);
+    await renderChart(
+      () => ({ option: option.value, updateOptions: updateOptions.value }),
+      exposed,
+    );
     await nextTick();
 
     expect(chartStub.setOption.mock.calls[0][1]).toBe(updateOptions.value);
@@ -679,7 +682,7 @@ describe("ECharts component", () => {
     const updateOptions = ref<UpdateOptions | undefined>({ notMerge: false });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({ option: option.value, theme: theme.value, updateOptions: updateOptions.value }),
       exposed,
     );
@@ -710,7 +713,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<Exposed>();
     const firstStub = chartStub;
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         manualUpdate: manualUpdate.value,
@@ -759,7 +762,7 @@ describe("ECharts component", () => {
     const option = { title } as Option;
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option, manualUpdate: true }), exposed);
     await nextTick();
     read.mockClear();
 
@@ -789,7 +792,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
 
     await nextTick();
 
@@ -811,7 +814,7 @@ describe("ECharts component", () => {
     const optionRef = ref({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option: optionRef.value, manualUpdate: true }), exposed);
     await nextTick();
 
     const instance = getExposed(exposed);
@@ -833,7 +836,7 @@ describe("ECharts component", () => {
     });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
     const activeChart = chartStub;
@@ -862,7 +865,7 @@ describe("ECharts component", () => {
     const loadingOptions = ref({ text: "Loading", progress: 0.5 });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         loading: loading.value,
@@ -904,7 +907,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     expect(chartStub.showLoading).toHaveBeenLastCalledWith({
@@ -938,7 +941,7 @@ describe("ECharts component", () => {
     });
 
     const exposed = shallowRef<Exposed>();
-    renderChart(() => ({ option: {}, onRendered }), exposed);
+    await renderChart(() => ({ option: {}, onRendered }), exposed);
     await nextTick();
 
     expect(onRendered).toHaveBeenCalledOnce();
@@ -954,7 +957,7 @@ describe("ECharts component", () => {
     const option = ref({});
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         onClick: clickHandler,
@@ -1013,7 +1016,7 @@ describe("ECharts component", () => {
     const onClickOnce = vi.fn();
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: {},
         "onNative:ChartReady": onChartReady,
@@ -1048,7 +1051,7 @@ describe("ECharts component", () => {
     });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         ...listeners.value,
@@ -1123,7 +1126,7 @@ describe("ECharts component", () => {
     const nativeHandler = ref(nativeA);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         "onNative:click": nativeHandler.value,
@@ -1156,7 +1159,7 @@ describe("ECharts component", () => {
     const onceHandler = ref(onceA);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         onClickOnce: onceHandler.value,
@@ -1201,7 +1204,7 @@ describe("ECharts component", () => {
     } satisfies Option);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
     chartStub.setOption.mockClear();
 
@@ -1220,7 +1223,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<Exposed>();
     const observeSpy = vi.spyOn(window.ResizeObserver.prototype, "observe");
 
-    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    await renderChart(() => ({ option: option.value, autoresize: true }), exposed);
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalled();
@@ -1231,7 +1234,7 @@ describe("ECharts component", () => {
   it("finishes deferred initialization without an option", async () => {
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ autoresize: true }), exposed);
+    await renderChart(() => ({ autoresize: true }), exposed);
     await nextTick();
 
     expect(getExposed(exposed).chart).toBe(chartStub);
@@ -1241,7 +1244,7 @@ describe("ECharts component", () => {
   it("skips the initial resize while the chart host has a zero dimension", async () => {
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: { title: { text: "hidden" } },
         autoresize: true,
@@ -1260,8 +1263,9 @@ describe("ECharts component", () => {
     const autoresize = ref(true);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option, autoresize: autoresize.value }), exposed);
+    const rendering = renderChart(() => ({ option, autoresize: autoresize.value }), exposed);
     autoresize.value = false;
+    await rendering;
     await nextTick();
 
     expect(chartStub.resize).not.toHaveBeenCalled();
@@ -1272,7 +1276,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<Exposed>();
     chartStub.resize.mockImplementation(() => getExposed(exposed).dispose());
 
-    renderChart(() => ({ option: {}, autoresize: true }), exposed);
+    await renderChart(() => ({ option: {}, autoresize: true }), exposed);
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalledOnce();
@@ -1284,8 +1288,9 @@ describe("ECharts component", () => {
     const option = ref<Option>({ title: { text: "initial" } });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    const rendering = renderChart(() => ({ option: option.value, autoresize: true }), exposed);
     option.value = { title: { text: "latest" } };
+    await rendering;
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalledTimes(1);
@@ -1299,7 +1304,7 @@ describe("ECharts component", () => {
     const exposed = shallowRef<Exposed>();
     const manualOption = { title: { text: "manual" } };
 
-    renderChart(
+    const rendering = renderChart(
       () => ({
         option: { title: { text: "initial" } },
         manualUpdate: true,
@@ -1308,6 +1313,7 @@ describe("ECharts component", () => {
       exposed,
     );
     getExposed(exposed).setOption(manualOption);
+    await rendering;
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalledTimes(1);
@@ -1319,8 +1325,9 @@ describe("ECharts component", () => {
     const option = ref<Option>({ series: [] });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, autoresize: true }), exposed);
+    const rendering = renderChart(() => ({ option: option.value, autoresize: true }), exposed);
     getExposed(exposed).clear();
+    await rendering;
     await nextTick();
 
     expect(chartStub.resize).toHaveBeenCalledOnce();
@@ -1344,7 +1351,7 @@ describe("ECharts component", () => {
     const theme = ref<Theme>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
+    await renderChart(() => ({ option: option.value, theme: theme.value }), exposed);
     await nextTick();
 
     getExposed(exposed).clear();
@@ -1368,7 +1375,7 @@ describe("ECharts component", () => {
       const theme = ref<Theme | undefined>("dark");
       const exposed = shallowRef<Exposed>();
 
-      renderChart(
+      const rendering = renderChart(
         () => ({
           option: option.value,
           theme: theme.value,
@@ -1379,6 +1386,7 @@ describe("ECharts component", () => {
       );
       option.value = { title: { text: "latest" } };
       theme.value = undefined;
+      await rendering;
       await nextTick();
 
       expect(chartStub.setTheme).toHaveBeenLastCalledWith({});
@@ -1396,7 +1404,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "manual" } });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -1419,7 +1427,7 @@ describe("ECharts component", () => {
     const option = ref({ options: [{}, {}] } satisfies Option);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -1434,7 +1442,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "init-manual" } });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
 
     init.mockClear();
     chartStub.setOption.mockClear();
@@ -1450,7 +1458,7 @@ describe("ECharts component", () => {
     const option = ref<Option | null>(null);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     init.mockClear();
     chartStub.setOption.mockClear();
 
@@ -1467,7 +1475,7 @@ describe("ECharts component", () => {
     } satisfies Option);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value }), exposed);
+    await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -1485,7 +1493,7 @@ describe("ECharts component", () => {
     const option = ref({ series: [{ type: "bar", data: [1] }] });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
+    await renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -1525,7 +1533,7 @@ describe("ECharts component", () => {
     const onClick = vi.fn();
     const exposed = shallowRef<Exposed>();
 
-    const screen = renderChart(
+    const screen = await renderChart(
       () => ({
         option: option.value,
         initOptions: initOptions.value,
@@ -1579,14 +1587,14 @@ describe("ECharts component", () => {
     expect(init).not.toHaveBeenCalled();
     expect(chartStub.setOption).not.toHaveBeenCalled();
 
-    screen.unmount();
+    await screen.unmount();
     expect(element.__dispose).toBeNull();
   });
 
   it("exposes chart and root as read-only accessors", async () => {
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: {} }), exposed);
+    await renderChart(() => ({ option: {} }), exposed);
     await nextTick();
 
     const instance = getExposed(exposed);
@@ -1617,7 +1625,7 @@ describe("ECharts component", () => {
         }),
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     expect(init).not.toHaveBeenCalled();
@@ -1634,7 +1642,7 @@ describe("ECharts component", () => {
       }
     };
 
-    render(
+    await render(
       defineComponent({
         setup: () => () => h(ECharts, { ref: clearOnRef, option }),
       }),
@@ -1647,11 +1655,11 @@ describe("ECharts component", () => {
 
   it("clears public state after the component unmounts", async () => {
     const exposed = shallowRef<Exposed>();
-    const screen = renderChart(() => ({ option: { series: [] } }), exposed);
+    const screen = await renderChart(() => ({ option: { series: [] } }), exposed);
     await nextTick();
     const instance = getExposed(exposed);
 
-    screen.unmount();
+    await screen.unmount();
 
     expect(instance.isDisposed()).toBe(true);
     expect(instance.chart).toBeUndefined();
@@ -1659,7 +1667,7 @@ describe("ECharts component", () => {
     expect(() => instance.getOption()).toThrowError("ECharts has been disposed.");
   });
 
-  it("disposes when unmounted from a detached container", () => {
+  it("disposes when unmounted from a detached container", async () => {
     const container = document.createElement("div");
     const app = createApp({
       render: () => h(ECharts, { option: { series: [] } }),
@@ -1678,7 +1686,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "wc-dispose" } });
     const exposed = shallowRef<Exposed>();
 
-    const screen = renderChart(() => ({ option: option.value }), exposed);
+    const screen = await renderChart(() => ({ option: option.value }), exposed);
     await nextTick();
 
     const el = getExposed(exposed).root ?? document.querySelector<EChartsElement>("x-vue-echarts");
@@ -1689,7 +1697,7 @@ describe("ECharts component", () => {
     chartStub.dispose.mockClear();
 
     // Disconnect cleanup waits a microtask so a synchronously moved element can reconnect first.
-    screen.unmount();
+    await screen.unmount();
     await nextTick();
 
     expect(chartStub.dispose).toHaveBeenCalledTimes(1);
@@ -1700,7 +1708,7 @@ describe("ECharts component", () => {
     const option = ref({ title: { text: "mounted" } });
     const exposed = shallowRef<Exposed>();
 
-    const screen = renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
+    const screen = await renderChart(() => ({ option: option.value, manualUpdate: true }), exposed);
     await nextTick();
 
     const callsBefore = chartStub.setOption.mock.calls.length;
@@ -1709,7 +1717,7 @@ describe("ECharts component", () => {
     const callSetOption: SetOptionType = getExposed(exposed).setOption;
 
     // Public calls stop synchronously even if custom-element cleanup is deferred.
-    screen.unmount();
+    await screen.unmount();
 
     // Calling setOption after unmount should be a no-op and not throw
     expect(() => callSetOption({ title: { text: "after" } })).not.toThrow();
@@ -1746,7 +1754,7 @@ describe("ECharts component", () => {
         },
       });
 
-      render(Root);
+      await render(Root);
       await nextTick();
       chartStub.setOption.mockClear();
 
@@ -1792,7 +1800,7 @@ describe("ECharts component", () => {
         },
       });
 
-      render(Root);
+      await render(Root);
       await nextTick();
       chartStub.setOption.mockClear();
 
@@ -1836,7 +1844,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const initialCalls = chartStub.setOption.mock.calls.length;
@@ -1859,16 +1867,24 @@ describe("ECharts component", () => {
   });
 
   it("abandons deferred autoresize initialization after unmount", async () => {
-    const option = ref({});
-    const exposed = shallowRef<Exposed>();
+    // Mount and unmount in the same tick, before Vue flushes deferred initialization.
+    const container = document.body.appendChild(document.createElement("div"));
+    const app = createApp(ECharts, {
+      option: {},
+      autoresize: true,
+      style: { width: "120px", height: "80px" },
+    });
+    try {
+      app.mount(container);
+      app.unmount();
+      await nextTick();
 
-    const screen = renderChart(() => ({ option: option.value, autoresize: true }), exposed);
-    screen.unmount();
-    await nextTick();
-
-    expect(chartStub.dispose).toHaveBeenCalledTimes(1);
-    expect(chartStub.resize).not.toHaveBeenCalled();
-    expect(chartStub.setOption).not.toHaveBeenCalled();
+      expect(chartStub.dispose).toHaveBeenCalledTimes(1);
+      expect(chartStub.resize).not.toHaveBeenCalled();
+      expect(chartStub.setOption).not.toHaveBeenCalled();
+    } finally {
+      container.remove();
+    }
   });
 
   it("stops reactive updates after toggling manualUpdate to true", async () => {
@@ -1876,7 +1892,7 @@ describe("ECharts component", () => {
     const manual = ref(false);
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, manualUpdate: manual.value }), exposed);
+    await renderChart(() => ({ option: option.value, manualUpdate: manual.value }), exposed);
     await nextTick();
 
     chartStub.setOption.mockClear();
@@ -1905,7 +1921,7 @@ describe("ECharts component", () => {
     const option = ref({});
     const exposed = shallowRef<Exposed>();
 
-    renderChart(() => ({ option: option.value, onClick: undefined }), exposed);
+    await renderChart(() => ({ option: option.value, onClick: undefined }), exposed);
     await nextTick();
 
     expect(chartStub.on).not.toHaveBeenCalled();
@@ -1917,7 +1933,7 @@ describe("ECharts component", () => {
     const theme = ref<Theme | undefined>("dark");
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         manualUpdate: manualUpdate.value,
@@ -1953,7 +1969,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         initOptions: initOptions.value,
@@ -1986,7 +2002,7 @@ describe("ECharts component", () => {
     const updateOptions = ref<UpdateOptions>({ notMerge: false });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         theme: theme.value,
@@ -2046,7 +2062,7 @@ describe("ECharts component", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await nextTick();
 
@@ -2069,7 +2085,7 @@ describe("ECharts component", () => {
     const initOptions = ref<InitOptions>({ renderer: "canvas" });
     const exposed = shallowRef<Exposed>();
 
-    renderChart(
+    await renderChart(
       () => ({
         option: option.value,
         loading: loading.value,

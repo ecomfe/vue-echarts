@@ -31,7 +31,7 @@ vi.mock("../demo/data/world.json", () => ({
 }));
 
 it("reports progress while loading the manual chart data", async () => {
-  render(ManualChart);
+  await render(ManualChart);
   const button = document.querySelector<HTMLButtonElement>("button");
   if (!button) {
     throw new Error("Expected a load button.");

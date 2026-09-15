@@ -5,12 +5,12 @@ import { useLoading } from "../src/composables/loading";
 import type { EChartsType, LoadingOptions } from "../src/types";
 import { render } from "./helpers/testing";
 
-function mountLoading(
+async function mountLoading(
   chart: Ref<EChartsType | undefined>,
   options: Ref<LoadingOptions | undefined>,
   loading = ref(true),
 ) {
-  return render(
+  return await render(
     defineComponent({
       setup() {
         useLoading(chart, loading, ref(), options);
@@ -21,52 +21,55 @@ function mountLoading(
 }
 
 describe("useLoading", () => {
-  it.each(["callback", "getter"])("routes loading %s errors through the component", (source) => {
-    const chart = shallowRef<EChartsType>();
-    const text = ref("Initial");
-    const failure = new Error(`loading ${source} failed`);
-    const options = ref({
-      get text() {
-        if (source === "getter" && text.value === "Changed") {
-          throw failure;
-        }
-        return text.value;
-      },
-    });
-    const captured = vi.fn();
-    const errorHandler = vi.fn();
-    const Child = defineComponent({
-      setup() {
-        useLoading(chart, ref(true), ref(), options);
-        return () => h("div");
-      },
-    });
-    render(
-      defineComponent({
-        setup() {
-          onErrorCaptured(captured);
-          return () => h(Child);
+  it.each(["callback", "getter"])(
+    "routes loading %s errors through the component",
+    async (source) => {
+      const chart = shallowRef<EChartsType>();
+      const text = ref("Initial");
+      const failure = new Error(`loading ${source} failed`);
+      const options = ref({
+        get text() {
+          if (source === "getter" && text.value === "Changed") {
+            throw failure;
+          }
+          return text.value;
         },
-      }),
-      { global: { config: { errorHandler } } },
-    );
-    chart.value = {
-      showLoading: vi.fn(() => {
-        if (source === "callback" && text.value === "Changed") {
-          throw failure;
-        }
-      }),
-      hideLoading: vi.fn(),
-    } as unknown as EChartsType;
+      });
+      const captured = vi.fn();
+      const errorHandler = vi.fn();
+      const Child = defineComponent({
+        setup() {
+          useLoading(chart, ref(true), ref(), options);
+          return () => h("div");
+        },
+      });
+      await render(
+        defineComponent({
+          setup() {
+            onErrorCaptured(captured);
+            return () => h(Child);
+          },
+        }),
+        { global: { config: { errorHandler } } },
+      );
+      chart.value = {
+        showLoading: vi.fn(() => {
+          if (source === "callback" && text.value === "Changed") {
+            throw failure;
+          }
+        }),
+        hideLoading: vi.fn(),
+      } as unknown as EChartsType;
 
-    expect(() => {
-      text.value = "Changed";
-    }).not.toThrow();
-    expect(captured.mock.calls.map(([error]) => error)).toEqual([failure]);
-    expect(errorHandler.mock.calls.map(([error]) => error)).toEqual([failure]);
-  });
+      expect(() => {
+        text.value = "Changed";
+      }).not.toThrow();
+      expect(captured.mock.calls.map(([error]) => error)).toEqual([failure]);
+      expect(errorHandler.mock.calls.map(([error]) => error)).toEqual([failure]);
+    },
+  );
 
-  it("watches loading configuration without traversing chart internals", () => {
+  it("watches loading configuration without traversing chart internals", async () => {
     const readChartOption = vi.fn(() => ({
       series: Array.from({ length: 100 }, () => ({ data: [1, 2, 3] })),
     }));
@@ -84,7 +87,7 @@ describe("useLoading", () => {
     const options = ref({ custom: { color: "red" } });
     const loading = ref(false);
 
-    mountLoading(chart, options, loading);
+    await mountLoading(chart, options, loading);
     expect(instance.hideLoading).toHaveBeenCalledOnce();
     expect(readChartOption).not.toHaveBeenCalled();
 
@@ -96,7 +99,7 @@ describe("useLoading", () => {
     expect(readChartOption).not.toHaveBeenCalled();
   });
 
-  it("only observes loading options while a chart is active", () => {
+  it("only observes loading options while a chart is active", async () => {
     const text = ref("Initial");
     const readText = vi.fn(() => text.value);
     const options = ref({
@@ -107,7 +110,7 @@ describe("useLoading", () => {
     const chart = shallowRef<EChartsType>();
     const instance = { showLoading: vi.fn(), hideLoading: vi.fn() };
 
-    const screen = mountLoading(chart, options);
+    const screen = await mountLoading(chart, options);
     expect(readText).not.toHaveBeenCalled();
 
     chart.value = instance as unknown as EChartsType;
@@ -120,19 +123,19 @@ describe("useLoading", () => {
 
     chart.value = instance as unknown as EChartsType;
     expect(instance.showLoading).toHaveBeenLastCalledWith({ text: "Changed" });
-    screen.unmount();
+    await screen.unmount();
     readText.mockClear();
     text.value = "Unmounted";
     expect(readText).not.toHaveBeenCalled();
     expect(instance.showLoading).toHaveBeenCalledTimes(2);
   });
 
-  it("synchronizes replacement charts while loading stays hidden", () => {
+  it("synchronizes replacement charts while loading stays hidden", async () => {
     const first = { showLoading: vi.fn(), hideLoading: vi.fn() };
     const second = { showLoading: vi.fn(), hideLoading: vi.fn() };
     const chart = shallowRef(first as unknown as EChartsType);
 
-    mountLoading(chart, ref(), ref(false));
+    await mountLoading(chart, ref(), ref(false));
     expect(first.hideLoading).toHaveBeenCalledOnce();
     chart.value = second as unknown as EChartsType;
     expect(second.hideLoading).toHaveBeenCalledOnce();
@@ -141,7 +144,7 @@ describe("useLoading", () => {
     expect(second.showLoading).not.toHaveBeenCalled();
   });
 
-  it("stops configuration updates when the first loading effect clears its chart", () => {
+  it("stops configuration updates when the first loading effect clears its chart", async () => {
     const chart = shallowRef<EChartsType>();
     const options = ref({ text: "Initial" });
     const first = {
@@ -152,7 +155,7 @@ describe("useLoading", () => {
     };
     chart.value = first as unknown as EChartsType;
 
-    mountLoading(chart, options);
+    await mountLoading(chart, options);
     expect(first.showLoading).toHaveBeenCalledOnce();
 
     options.value.text = "Changed";

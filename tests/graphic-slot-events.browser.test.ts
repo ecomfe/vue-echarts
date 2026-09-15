@@ -43,7 +43,7 @@ describe("graphic slot event handling", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -105,7 +105,7 @@ describe("graphic slot event handling", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -179,7 +179,7 @@ describe("graphic slot event handling", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -267,7 +267,7 @@ describe("graphic slot event handling", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 

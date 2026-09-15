@@ -136,7 +136,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["a", "c"]);
@@ -181,7 +181,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["a", "b", "c"]);
@@ -218,7 +218,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["a", "b", "c"]);
@@ -287,7 +287,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -336,7 +336,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     const ids = getLastGraphicIds(suite.getChartStub());
@@ -377,7 +377,7 @@ describe("graphic slot order and tree behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["a", "b", "c"]);

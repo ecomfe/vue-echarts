@@ -88,7 +88,7 @@ describe("ECharts theme behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const chart = getChart(exposed.value);
@@ -124,7 +124,7 @@ describe("ECharts theme behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     option.value = {
@@ -170,7 +170,7 @@ describe("ECharts theme behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushFrames();
 
@@ -218,7 +218,7 @@ describe("ECharts callback slots (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const chart = getChart(exposed.value);

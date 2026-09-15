@@ -54,7 +54,7 @@ describe("graphic slot manual-update behavior", () => {
     });
 
     await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -93,7 +93,7 @@ describe("graphic slot manual-update behavior", () => {
     });
 
     await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -139,7 +139,7 @@ describe("graphic slot manual-update behavior", () => {
     });
 
     await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -198,7 +198,7 @@ describe("graphic slot manual-update behavior", () => {
     });
 
     await withConsoleWarnAsync(async () => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -251,7 +251,7 @@ describe("graphic slot manual-update behavior", () => {
     });
 
     await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 

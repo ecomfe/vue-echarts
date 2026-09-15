@@ -31,6 +31,12 @@
       "matchUpdateTypes": ["major"],
       "groupName": null,
       "automerge": false
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/*", "vitest-browser-vue"],
+      "groupName": "Vitest",
+      "separateMajorMinor": false,
+      "automerge": false
     }
   ]
 }
