@@ -1,7 +1,7 @@
 {
   "name": "vue-echarts",
   "version": "8.3.0",
-  "description": "Vue.js component for Apache ECharts™.",
+  "description": "Vue.js component for Apache ECharts\u2122.",
   "license": "MIT",
   "author": "GU Yiling <justice360@gmail.com>",
   "repository": {
@@ -51,7 +51,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/browser-playwright": "^5.0.0",
-    "@vitest/coverage-istanbul": "^4.1.11",
+    "@vitest/coverage-istanbul": "^5.0.0",
     "@vue/runtime-core-3.3": "npm:@vue/runtime-core@3.3.0",
     "@vue/runtime-dom-3.3": "npm:@vue/runtime-dom@3.3.0",
     "@vue/server-renderer": "^3.5.41",
