@@ -104,7 +104,7 @@ describe("graphic update behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -153,7 +153,7 @@ describe("graphic update behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -203,7 +203,7 @@ describe("graphic update behavior (real echarts)", () => {
         },
       });
 
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -251,7 +251,7 @@ describe("graphic update behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -322,7 +322,7 @@ describe("graphic update behavior (real echarts)", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 

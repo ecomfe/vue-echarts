@@ -110,12 +110,12 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function renderCodegen() {
+async function renderCodegen() {
   const open = ref(false);
   const mounted = ref(false);
   const trigger = ref<HTMLButtonElement | null>(null);
 
-  const screen = render(
+  const screen = await render(
     defineComponent(
       () => () =>
         h("div", [
@@ -171,16 +171,16 @@ async function openCodegen(trigger: HTMLButtonElement, expectedFocusCount = 1) {
 
 describe("code generator dialog", () => {
   it("stops option analysis once when unmounted", async () => {
-    const { trigger, unmount } = renderCodegen();
+    const { trigger, unmount } = await renderCodegen();
     await openCodegen(trigger);
 
-    unmount();
+    await unmount();
 
     expect(mocks.analysisStop).toHaveBeenCalledOnce();
   });
 
   it("closes from a visible control or Escape and restores the trigger", async () => {
-    const { open, trigger } = renderCodegen();
+    const { open, trigger } = await renderCodegen();
 
     for (const expectedFocusCount of [1, 2]) {
       const modal = await openCodegen(trigger, expectedFocusCount);
@@ -204,7 +204,7 @@ describe("code generator dialog", () => {
   });
 
   it("applies each Monaco theme change once", async () => {
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     await openCodegen(trigger);
 
     expect(mocks.monacoSetTheme).toHaveBeenCalledOnce();
@@ -221,7 +221,7 @@ describe("code generator dialog", () => {
 
   it("shows feedback when initial analysis outlives editor setup", async () => {
     mocks.analysisPending = true;
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const editor = modal.querySelector<HTMLElement>(".option-code");
     if (!editor) {
@@ -232,7 +232,7 @@ describe("code generator dialog", () => {
   });
 
   it("reports clipboard success and failure accurately", async () => {
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const copyButton = modal.querySelector<HTMLButtonElement>("button.copy");
     const message = modal.querySelector<HTMLElement>("[role='status']");
@@ -262,7 +262,7 @@ describe("code generator dialog", () => {
   });
 
   it("disables copying while edited source is awaiting analysis", async () => {
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const copyButton = modal.querySelector<HTMLButtonElement>("button.copy");
     if (!copyButton || !mocks.editorChange) {
@@ -278,7 +278,7 @@ describe("code generator dialog", () => {
   });
 
   it("shows blocking issue details and restores generated code after recovery", async () => {
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const copyButton = modal.querySelector<HTMLButtonElement>("button.copy");
     if (!copyButton || !mocks.analysis) {
@@ -320,7 +320,7 @@ describe("code generator dialog", () => {
   });
 
   it("keeps renderer selection out of formatter preferences", async () => {
-    const { trigger } = renderCodegen();
+    const { trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const renderer = modal.querySelector<HTMLSelectElement>("select");
     if (!renderer) {
@@ -339,7 +339,7 @@ describe("code generator dialog", () => {
   });
 
   it("closes only when a pointer gesture stays outside the dialog content", async () => {
-    const { open, trigger } = renderCodegen();
+    const { open, trigger } = await renderCodegen();
     const modal = await openCodegen(trigger);
     const content = modal.querySelector<HTMLElement>(".dialog");
     const checkbox = modal.querySelector<HTMLInputElement>('input[type="checkbox"]');

@@ -3,7 +3,7 @@ import { createApp, defineComponent, h, nextTick, provide, ref, shallowRef } fro
 import type { LinearGradientObject, PatternObject } from "echarts";
 
 import { render } from "./helpers/testing";
-import { createFrame, withConsoleWarn } from "./helpers/dom";
+import { createFrame, withConsoleWarnAsync } from "./helpers/dom";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "../src/graphic/context";
 import { GArc, GGroup, GImage, GPolyline, GRect, GText } from "../src/graphic/components";
 import { GraphicMount } from "../src/graphic/mount";
@@ -59,8 +59,8 @@ describe("graphic components", () => {
       },
     });
 
-    withConsoleWarn((warnSpy) => {
-      render(Root);
+    await withConsoleWarnAsync(async (warnSpy) => {
+      await render(Root);
       const hasWarning = warnSpy.mock.calls.some((call: unknown[]) =>
         String(call[0]).includes("must be used inside `#graphic` slot"),
       );
@@ -89,8 +89,8 @@ describe("graphic components", () => {
       }),
     );
 
-    withConsoleWarn((warnSpy) => {
-      render(Root);
+    await withConsoleWarnAsync(async (warnSpy) => {
+      await render(Root);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) =>
           String(call[0]).includes('type check failed for prop "keyframeAnimation"'),
@@ -127,7 +127,7 @@ describe("graphic components", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     expect(groupSlot).toHaveBeenCalledOnce();
@@ -155,8 +155,8 @@ describe("graphic components", () => {
     );
 
     try {
-      withConsoleWarn((warnSpy) => {
-        render(Root);
+      await withConsoleWarnAsync(async (warnSpy) => {
+        await render(Root);
         expect(
           warnSpy.mock.calls.some((call: unknown[]) =>
             String(call[0]).includes('type check failed for prop "image"'),
@@ -240,8 +240,8 @@ describe("graphic components", () => {
     } as const;
     const Root = withGraphicProvider(collector, () => h(GRect, { id: "paint", ...paint }));
 
-    withConsoleWarn((warnSpy) => {
-      render(Root);
+    await withConsoleWarnAsync(async (warnSpy) => {
+      await render(Root);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) =>
           String(call[0]).includes("type check failed for prop"),
@@ -276,8 +276,8 @@ describe("graphic components", () => {
       h(GText, { id: "text-box", text: "Label", ...textStyle }),
     );
 
-    withConsoleWarn((warnSpy) => {
-      render(Root);
+    await withConsoleWarnAsync(async (warnSpy) => {
+      await render(Root);
       expect(
         warnSpy.mock.calls.some((call: unknown[]) =>
           String(call[0]).includes("type check failed for prop"),
@@ -309,7 +309,7 @@ describe("graphic components", () => {
       h(GArc, { id: "clockwise", clockwise: true }),
     ]);
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const propsById = Object.fromEntries(
@@ -346,7 +346,7 @@ describe("graphic components", () => {
 
     const Root = withGraphicProvider(collector, () => h(GRect, { x: x.value }));
 
-    render(Root);
+    await render(Root);
     await nextTick();
     const id = getLastRegisterPayload(collector).id;
     expect(id).toEqual(expect.any(String));
@@ -363,7 +363,7 @@ describe("graphic components", () => {
 
     const Root = withGraphicProvider(collector, () => h(GRect, { id: id.value }));
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     id.value = "rect-b";
@@ -386,7 +386,7 @@ describe("graphic components", () => {
       h(GGroup, { id: "group-empty" }),
     ]);
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const calls = collector.register.mock.calls.map((entry) => entry[0] as any);
@@ -403,7 +403,7 @@ describe("graphic components", () => {
       visible.value ? h(GRect, { id: "toggle-node" }) : null,
     );
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     visible.value = false;

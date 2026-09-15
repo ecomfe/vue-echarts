@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createSSRApp, defineComponent, h, nextTick, onUnmounted, reactive, ref } from "vue";
 import { render } from "./helpers/testing";
-import { flushAnimationFrame, withConsoleWarn, withConsoleWarnAsync } from "./helpers/dom";
+import { flushAnimationFrame, withConsoleWarnAsync } from "./helpers/dom";
 import { createEChartsModule } from "./helpers/mock";
 import ECharts from "../src/ECharts";
 import { registerExtension } from "../src/graphic/extension";
@@ -40,8 +40,8 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    withConsoleWarn((warnSpy) => {
-      render(Root);
+    await withConsoleWarnAsync(async (warnSpy) => {
+      await render(Root);
       const hasGraphicHint = warnSpy.mock.calls.some((call: unknown[]) =>
         String(call[0]).includes("Import from `vue-echarts/graphic` to enable it."),
       );
@@ -118,7 +118,7 @@ describe("graphic slot edge and integration behavior", () => {
     });
 
     await withConsoleWarnAsync(async (warnSpy) => {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -158,7 +158,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
 
     const chartStub = suite.getChartStub();
@@ -192,7 +192,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -228,7 +228,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -262,7 +262,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -296,7 +296,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     const chartStub = suite.getChartStub();
@@ -345,7 +345,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -385,7 +385,7 @@ describe("graphic slot edge and integration behavior", () => {
         ),
     );
 
-    render(Root);
+    await render(Root);
     await nextTick();
     expect(onGraphicUnmounted).not.toHaveBeenCalled();
 
@@ -417,7 +417,7 @@ describe("graphic slot edge and integration behavior", () => {
     });
 
     await withConsoleWarnAsync(async () => {
-      render(Root);
+      await render(Root);
       await nextTick();
       const chartStub = suite.getChartStub();
       expect(getLastGraphicOption(chartStub)).toMatchObject(option.value);
@@ -469,7 +469,7 @@ describe("graphic slot edge and integration behavior", () => {
 
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {
-      render(Root);
+      await render(Root);
       await nextTick();
       await flushAnimationFrame();
 
@@ -511,7 +511,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
     expect(getLastGraphicIds(suite.getChartStub())).toEqual(["wrapped"]);
@@ -557,7 +557,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -615,7 +615,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -671,7 +671,7 @@ describe("graphic slot edge and integration behavior", () => {
         ),
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 
@@ -718,7 +718,7 @@ describe("graphic slot edge and integration behavior", () => {
       },
     });
 
-    render(Root);
+    await render(Root);
     await nextTick();
     await flushAnimationFrame();
 

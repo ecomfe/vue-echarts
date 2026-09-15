@@ -36,6 +36,12 @@
       "description": "Keep exact minimum-supported runtime and type fixtures pinned.",
       "matchDepNames": ["@vue/runtime-core-3.3", "@vue/runtime-dom-3.3", "echarts-6.0"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/*", "vitest-browser-vue"],
+      "groupName": "Vitest",
+      "separateMajorMinor": false,
+      "automerge": false
     }
   ]
 }

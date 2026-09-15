@@ -58,10 +58,10 @@ function isSlotTestHandle(value: unknown): value is SlotTestHandle {
   return typeof value === "object" && value !== null && "patchOption" in value && "render" in value;
 }
 
-function renderSlotComponent(
+async function renderSlotComponent(
   slotFactory: () => SlotDictionary,
   onChange?: () => void,
-): Ref<SlotTestHandle | undefined> {
+): Promise<Ref<SlotTestHandle | undefined>> {
   const exposed = shallowRef<SlotTestHandle>();
 
   const Root = defineComponent({
@@ -84,7 +84,7 @@ function renderSlotComponent(
     },
   });
 
-  render(Root);
+  await render(Root);
 
   return exposed;
 }
@@ -143,7 +143,7 @@ function getSeriesOption(option: Option, index: number): TooltipComponentOption 
 
 describe("useSlotOption", () => {
   it("returns the original option when no callback slots exist", async () => {
-    const exposed = renderSlotComponent(() => ({}));
+    const exposed = await renderSlotComponent(() => ({}));
     const option = { series: [{ type: "line", data: [1, 2, 3] }] };
 
     await nextTick();
@@ -192,7 +192,7 @@ describe("useSlotOption", () => {
   it("patches tooltip slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 
-    const exposed = renderSlotComponent(
+    const exposed = await renderSlotComponent(
       () => ({
         tooltip: (...args: unknown[]) => {
           const params = args[0] as { dataIndex: number };
@@ -226,7 +226,7 @@ describe("useSlotOption", () => {
 
   it("releases callback containers across chart replacement", async () => {
     const tooltip = vi.fn(() => h("span", "tooltip"));
-    const exposed = renderSlotComponent(() => ({ tooltip }));
+    const exposed = await renderSlotComponent(() => ({ tooltip }));
 
     await nextTick();
 
@@ -254,7 +254,7 @@ describe("useSlotOption", () => {
   it("patches dataView slots and renders teleported content", async () => {
     const changeSpy = vi.fn();
 
-    const exposed = renderSlotComponent(
+    const exposed = await renderSlotComponent(
       () => ({
         dataView: () => [h("span", "data-view")],
       }),
@@ -280,7 +280,7 @@ describe("useSlotOption", () => {
   });
 
   it("patches repeatable callback components by index", async () => {
-    const exposed = renderSlotComponent(() => ({
+    const exposed = await renderSlotComponent(() => ({
       "tooltip-0": () => null,
       "tooltip-0-media-1-option": () => null,
       "dataView-1": () => null,
@@ -307,7 +307,7 @@ describe("useSlotOption", () => {
   it("uses the latest slot when an existing formatter runs", async () => {
     const changeSpy = vi.fn();
     const tooltipSlot = shallowRef(() => [h("span", "first")]);
-    const exposed = renderSlotComponent(() => ({ tooltip: tooltipSlot.value }), changeSpy);
+    const exposed = await renderSlotComponent(() => ({ tooltip: tooltipSlot.value }), changeSpy);
 
     await nextTick();
 
@@ -330,7 +330,7 @@ describe("useSlotOption", () => {
     const changeSpy = vi.fn();
     const extraName = ref<"tooltip-extra" | "tooltip-next">("tooltip-extra");
 
-    const exposed = renderSlotComponent(
+    const exposed = await renderSlotComponent(
       () => ({ [extraName.value]: () => [h("span", "extra")] }),
       changeSpy,
     );
@@ -354,7 +354,7 @@ describe("useSlotOption", () => {
     const reversed = ref(false);
     const tooltip = () => [h("span", "root")];
     const nested = () => [h("span", "series")];
-    renderSlotComponent(
+    await renderSlotComponent(
       () =>
         reversed.value
           ? { "tooltip-series-0": nested, tooltip }
@@ -380,7 +380,7 @@ describe("useSlotOption", () => {
       toolbox: { feature: {} },
     };
 
-    const exposed = renderSlotComponent(() => {
+    const exposed = await renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (showNested.value) {
         slots["tooltip-series-0"] = tooltipSlot;
@@ -431,7 +431,7 @@ describe("useSlotOption", () => {
 
   it("clears a removed callback without replacing a source callback", async () => {
     const visible = ref(true);
-    const exposed = renderSlotComponent(() => {
+    const exposed = await renderSlotComponent(() => {
       const slots: SlotDictionary = {};
       if (visible.value) {
         slots.tooltip = () => h("span", "tooltip");
@@ -457,7 +457,7 @@ describe("useSlotOption", () => {
   it("warns for declared invalid slot names", async () => {
     const changeSpy = vi.fn();
     await withConsoleWarnAsync(async (warnSpy) => {
-      const exposed = renderSlotComponent(
+      const exposed = await renderSlotComponent(
         () => ({
           legend: () => [h("span", "legend")],
           "tooltip-": () => [h("span", "empty-tooltip-path")],
@@ -487,7 +487,7 @@ describe("useSlotOption", () => {
   });
 
   it("clones existing array branches when patching series tooltip slots", async () => {
-    const exposed = renderSlotComponent(() => ({
+    const exposed = await renderSlotComponent(() => ({
       "tooltip-series-0": () => [h("span", "series-0")],
     }));
 
@@ -521,7 +521,7 @@ describe("useSlotOption", () => {
 
   it("keeps shared callback paths independent while removing a sibling slot", async () => {
     const showFirst = ref(true);
-    const exposed = renderSlotComponent(() => ({
+    const exposed = await renderSlotComponent(() => ({
       ...(showFirst.value ? { "tooltip-series-0": () => h("span", "first") } : {}),
       "tooltip-series-1": () => h("span", "second"),
       "tooltip-series-1-data-0": () => h("span", "data"),
@@ -564,7 +564,7 @@ describe("useSlotOption", () => {
   });
 
   it("does not cross object and array path segments", async () => {
-    const exposed = renderSlotComponent(() => ({
+    const exposed = await renderSlotComponent(() => ({
       tooltip: () => [h("span", "invalid")],
       "tooltip-series-name": () => [h("span", "invalid")],
       "dataView-0": () => [h("span", "invalid")],
@@ -584,7 +584,7 @@ describe("useSlotOption", () => {
   });
 
   it("does not create missing array paths", async () => {
-    const exposed = renderSlotComponent(() => ({
+    const exposed = await renderSlotComponent(() => ({
       "tooltip-series-0": () => null,
     }));
 

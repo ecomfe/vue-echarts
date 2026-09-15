@@ -5,7 +5,7 @@ import { render } from "./helpers/testing";
 
 it("recovers from code that blocks the real worker", async () => {
   let analysis!: ReturnType<typeof useOptionAnalysis>;
-  const screen = render(
+  const screen = await render(
     defineComponent(() => {
       analysis = useOptionAnalysis("({ title: { text: 'initial' } })");
       return () => null;
@@ -27,6 +27,6 @@ it("recovers from code that blocks the real worker", async () => {
     expect(analysis.state.issues).toEqual([]);
     expect(analysis.state.dependencies).toEqual(["TooltipComponent", "LineChart"]);
   } finally {
-    screen.unmount();
+    await screen.unmount();
   }
 }, 30000);
