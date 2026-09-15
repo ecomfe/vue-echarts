@@ -50,7 +50,7 @@
     "@types/node": "^24.13.3",
     "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-vue": "^6.0.8",
-    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/browser-playwright": "^5.0.0",
     "@vitest/coverage-istanbul": "^4.1.11",
     "@vue/runtime-core-3.3": "npm:@vue/runtime-core@3.3.0",
     "@vue/runtime-dom-3.3": "npm:@vue/runtime-dom@3.3.0",
