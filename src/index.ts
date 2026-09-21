@@ -7,7 +7,6 @@ export interface VChartSlotsExtension {
 
 export default ECharts;
 export * from "./ECharts";
-export type { AutoResize, LoadingOptions } from "./types";
-export type { PublicComponent } from "./types";
+export type { AutoResize, LoadingOptions, PublicComponent } from "./types";
 export type { PublicMethods } from "./composables/api";
 export type { SlotsTypes } from "./composables/slot";
