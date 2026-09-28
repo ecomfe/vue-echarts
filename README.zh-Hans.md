@@ -224,6 +224,10 @@ const chart = ref<InstanceType<typeof VChart> | null>(null);
 
 Vue 3.5 的 `useTemplateRef` 可以自动推导此类型。
 
+`VChartExposed` 描述通过模板 ref 暴露的图表方法及只读的 `chart`、`root` 属性，包含 `setOption` 和下文列出的其它方法。如果还需要 Vue 组件实例属性，请使用 `InstanceType<typeof VChart>`。
+
+组件库可以重新导出或包装 `VChart` 及 `vue-echarts/graphic` 组件，并生成自己的 TypeScript 声明。根入口导出共享的 Vue 组件定义辅助类型 `DefineChartComponent` 和 `VChart` 使用的 Vue `SlotsType` 元数据 `VChartSlotsType`，使推导出的声明能够引用公开类型。graphic 入口导出对应的 `GraphicComponent` 类型。需要可调用的插槽类型时，使用 `InstanceType<typeof VChart>["$slots"]`；需要声明额外插槽时，在 `vue-echarts` 模块中扩展 `VChartSlotsExtension`。graphic 入口重新导出的是同一个扩展接口。
+
 ### 事件
 
 可以使用 Vue 的 `v-on` 指令绑定事件。

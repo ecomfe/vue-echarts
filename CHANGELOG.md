@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixes
+
+- Fixed TypeScript declaration generation for libraries that re-export or wrap Vue ECharts components. The public type exports are `DefineChartComponent`, `VChartExposed`, and `VChartSlotsType`; `VChartExposed` includes all exposed chart methods and read-only state.
+
 ## 8.3.0
 
 ### Improvements

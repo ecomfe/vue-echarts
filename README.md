@@ -223,6 +223,10 @@ const chart = ref<InstanceType<typeof VChart> | null>(null);
 
 Vue 3.5's `useTemplateRef` can infer this type automatically.
 
+`VChartExposed` describes the chart methods and read-only `chart` and `root` properties exposed through a template ref. It includes `setOption` and the other methods listed below; use `InstanceType<typeof VChart>` when you also need Vue's component instance properties.
+
+Libraries can re-export or wrap `VChart` and the `vue-echarts/graphic` components while emitting their own TypeScript declarations. The root entry exports `DefineChartComponent`, the shared Vue component definition helper, and `VChartSlotsType`, the Vue `SlotsType` metadata used by `VChart`, so inferred declarations can reference public types. The graphic entry exports its corresponding `GraphicComponent` type. For callable slots, use `InstanceType<typeof VChart>["$slots"]`; augment `VChartSlotsExtension` in `vue-echarts` to declare additional slots. The graphic entry re-exports the same extension interface.
+
 ### Events
 
 You can bind events with Vue's `v-on` directive.

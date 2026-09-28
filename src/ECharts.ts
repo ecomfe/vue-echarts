@@ -19,7 +19,7 @@ import type { InjectionKey, PropType, VNodeChild } from "vue";
 import { usePublicAPI, type PublicMethods } from "./composables/api";
 import { useAutoresize, autoresizeProps } from "./composables/autoresize";
 import { useLoading, loadingProps } from "./composables/loading";
-import { useSlotOption, type SlotsTypes } from "./composables/slot";
+import { useSlotOption, type VChartSlotsType } from "./composables/slot";
 import { hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -38,7 +38,7 @@ import type {
   UpdateOptions,
   UpdateOptionsInjection,
   Emits,
-  PublicComponent,
+  DefineChartComponent,
 } from "./types";
 import type { EChartsElement } from "./wc";
 
@@ -72,7 +72,8 @@ const chartProps = {
   ...loadingProps,
 };
 
-type Bindings = {
+/** Methods and read-only state exposed by VChart through a template ref. */
+export type VChartExposed = {
   setOption: SetOptionType;
   readonly root: HTMLElement | undefined;
   readonly chart: EChartsType | undefined;
@@ -83,7 +84,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
   inheritAttrs: false,
   props: chartProps,
   emits: {} as Emits,
-  slots: Object as SlotsTypes,
+  slots: Object as VChartSlotsType,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
@@ -533,6 +534,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       );
     }) as unknown as typeof exposed & PublicMethods;
   },
-}) as PublicComponent<typeof chartProps, Bindings, Emits, SlotsTypes>;
+}) as DefineChartComponent<typeof chartProps, VChartExposed, Emits, VChartSlotsType>;
 
 export default ECharts;

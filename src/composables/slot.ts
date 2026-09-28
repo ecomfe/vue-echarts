@@ -275,7 +275,8 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
   };
 }
 
-export type SlotsTypes = SlotsType<
+/** Vue SlotsType metadata for VChart, including VChartSlotsExtension augmentations. */
+export type VChartSlotsType = SlotsType<
   Record<"tooltip" | `tooltip-${string}`, TooltipComponentFormatterCallbackParams> &
     Record<"dataView" | `dataView-${string}`, Option> &
     VChartSlotsExtension
