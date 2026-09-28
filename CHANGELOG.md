@@ -2,22 +2,11 @@
 
 ### Fixes
 
-- Fixed TypeScript declaration generation for libraries that re-export or wrap Vue ECharts components. The public type exports are `Component`, `Exposed`, and `Slots`; `Exposed` includes all exposed chart methods and read-only state.
-- Fixed declaration generation for re-exported graphic components by exporting `GraphicComponent` from `vue-echarts/graphic`.
-- Fixed smart updates when graphic elements with explicit IDs move between parent groups, and kept numeric graphic IDs consistent during updates.
-- Fixed graphic-slot hydration with Vue 3.3.
-- Fixed loading-state observation traversing native chart internals and handled chart replacement during loading effects.
-- Ensured newly added listeners receive events emitted synchronously during theme updates.
-- Fixed charts failing to shrink in flex-column layouts and chart backgrounds extending beyond rounded corners.
-
-### Improvements
-
-- Avoided repeated DOM scans when graphic element order is unchanged and reduced copying for callback slots that share option paths.
-
-### Demo
-
-- Fixed import-code generation for options containing callbacks, improved invalid-export diagnostics, and added recovery from failed or timed-out analysis.
-- Corrected graphic-overlay positioning after axis-label layout adjustments on narrow screens and theme changes.
+- Fixed TypeScript declaration errors when re-exporting or wrapping chart and graphic components.
+- Fixed graphic updates when elements move between groups or use numeric IDs.
+- Fixed hydration of server-rendered graphic charts with Vue 3.3.
+- Fixed missed chart events when listeners and the theme change together.
+- Fixed charts failing to shrink in flex-column layouts and backgrounds overflowing rounded corners.
 
 ## 8.3.0
 
