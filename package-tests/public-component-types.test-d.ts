@@ -1,11 +1,11 @@
 import VChart, {
-  type DefineChartComponent,
-  type VChartExposed,
+  type PublicComponent,
+  type Exposed,
   type VChartSlotsExtension,
-  type VChartSlotsType,
+  type SlotsType,
 } from "vue-echarts";
 import type { VChartSlotsExtension as GraphicSlotsExtension } from "vue-echarts/graphic";
-import type { SlotsType } from "vue";
+import type { SlotsType as VueSlotsType } from "vue";
 import type { EChartsType } from "echarts/core";
 
 declare module "vue-echarts" {
@@ -21,14 +21,14 @@ type Instance = InstanceType<typeof VChart>;
 type Slots = Instance["$slots"];
 
 export type ExposedMatchesInstance = Assert<
-  IsEqual<Pick<Instance, keyof VChartExposed>, { [K in keyof VChartExposed]: VChartExposed[K] }>
+  IsEqual<Pick<Instance, keyof Exposed>, { [K in keyof Exposed]: Exposed[K] }>
 >;
 export type ExposedIncludesSetOption = Assert<
-  IsEqual<VChartExposed["setOption"], EChartsType["setOption"]>
+  IsEqual<Exposed["setOption"], EChartsType["setOption"]>
 >;
-export type ExposedPreservesZRender = Assert<IsEqual<VChartExposed["getZr"], EChartsType["getZr"]>>;
+export type ExposedPreservesZRender = Assert<IsEqual<Exposed["getZr"], EChartsType["getZr"]>>;
 export type ExposedStateIsReadonly = Assert<
-  IsEqual<Pick<VChartExposed, "chart" | "root">, Readonly<Pick<VChartExposed, "chart" | "root">>>
+  IsEqual<Pick<Exposed, "chart" | "root">, Readonly<Pick<Exposed, "chart" | "root">>>
 >;
 export type CustomSlotProps = Assert<
   IsEqual<Parameters<NonNullable<Slots["custom"]>>[0], { value: number }>
@@ -36,16 +36,16 @@ export type CustomSlotProps = Assert<
 export type GraphicSlotIsPreserved = Assert<"graphic" extends keyof Slots ? true : false>;
 export type GraphicUsesSameExtension = Assert<IsEqual<GraphicSlotsExtension, VChartSlotsExtension>>;
 export type SlotMetadataIsPreserved = Assert<
-  VChartSlotsType extends SlotsType<VChartSlotsExtension> ? true : false
+  SlotsType extends VueSlotsType<VChartSlotsExtension> ? true : false
 >;
 export type InferredPropsArePreserved = Assert<
   IsEqual<Instance["$props"]["manualUpdate"], boolean | undefined>
 >;
 
 // All exported names remain usable in consumers that emit their own declarations.
-export type WrapperComponent = DefineChartComponent<
+export type WrapperComponent = PublicComponent<
   Record<never, never>,
-  VChartExposed,
+  Exposed,
   Record<never, never>,
-  VChartSlotsType
+  SlotsType
 >;
