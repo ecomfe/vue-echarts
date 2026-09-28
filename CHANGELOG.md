@@ -1,8 +1,12 @@
-## Unreleased
+## 8.3.1
 
 ### Fixes
 
-- Fixed TypeScript declaration generation for libraries that re-export or wrap Vue ECharts components. The public type exports are `Component`, `Exposed`, and `Slots`; `Exposed` includes all exposed chart methods and read-only state.
+- Fixed TypeScript declaration errors when re-exporting or wrapping chart and graphic components.
+- Fixed graphic updates when elements move between groups or use numeric IDs.
+- Fixed hydration of server-rendered graphic charts with Vue 3.3.
+- Fixed missed chart events when listeners and the theme change together.
+- Fixed charts failing to shrink in flex-column layouts and backgrounds overflowing rounded corners.
 
 ## 8.3.0
 
