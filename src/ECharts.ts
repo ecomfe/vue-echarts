@@ -19,7 +19,7 @@ import type { InjectionKey, PropType, VNodeChild } from "vue";
 import { usePublicAPI, type PublicMethods } from "./composables/api";
 import { useAutoresize, autoresizeProps } from "./composables/autoresize";
 import { useLoading, loadingProps } from "./composables/loading";
-import { useSlotOption, type SlotsType } from "./composables/slot";
+import { useSlotOption, type Slots } from "./composables/slot";
 import { hasZeroDimension, isIgnorableWatchChange, warn } from "./utils";
 import { register, TAG_NAME } from "./wc";
 import { useRuntime as useGraphic } from "./graphic/runtime";
@@ -38,7 +38,7 @@ import type {
   UpdateOptions,
   UpdateOptionsInjection,
   Emits,
-  PublicComponent,
+  Component,
 } from "./types";
 import type { EChartsElement } from "./wc";
 
@@ -84,7 +84,7 @@ const ECharts = /* @__PURE__ */ defineComponent({
   inheritAttrs: false,
   props: chartProps,
   emits: {} as Emits,
-  slots: Object as SlotsType,
+  slots: Object as Slots,
   setup(props, { attrs, expose, slots }) {
     const root = shallowRef<EChartsElement>();
     const chartHost = shallowRef<HTMLDivElement>();
@@ -534,6 +534,6 @@ const ECharts = /* @__PURE__ */ defineComponent({
       );
     }) as unknown as typeof exposed & PublicMethods;
   },
-}) as PublicComponent<typeof chartProps, Exposed, Emits, SlotsType>;
+}) as Component<typeof chartProps, Exposed, Emits, Slots>;
 
 export default ECharts;

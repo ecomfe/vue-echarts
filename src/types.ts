@@ -31,7 +31,7 @@ type EventProps<T> = {
 
 /** Shared component definition for VChart and graphic components across supported Vue versions. */
 // The first 13 DefineComponent parameters are stable across the supported Vue versions.
-export type PublicComponent<
+export type Component<
   Props extends ComponentPropsOptions,
   Bindings,
   Events extends EmitsOptions,

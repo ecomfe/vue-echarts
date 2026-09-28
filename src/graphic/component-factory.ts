@@ -11,7 +11,7 @@ import {
   watch,
 } from "vue";
 
-import type { PublicComponent } from "../types";
+import type { Component } from "../types";
 import { warn } from "../utils";
 import { GRAPHIC_COLLECTOR_KEY, GRAPHIC_PARENT_ID_KEY } from "./context";
 import { resolveIdentity } from "./identity";
@@ -201,7 +201,7 @@ export function createComponent<T extends GraphicComponentType>(
   }) as GraphicComponent<T>;
 }
 
-export type GraphicComponent<T extends GraphicComponentType> = PublicComponent<
+export type GraphicComponent<T extends GraphicComponentType> = Component<
   ComponentProps<T>,
   Record<never, never>,
   GraphicEmits,

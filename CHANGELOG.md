@@ -2,7 +2,7 @@
 
 ### Fixes
 
-- Fixed TypeScript declaration generation for libraries that re-export or wrap Vue ECharts components. The public type exports are `PublicComponent`, `Exposed`, and `SlotsType`; `Exposed` includes all exposed chart methods and read-only state.
+- Fixed TypeScript declaration generation for libraries that re-export or wrap Vue ECharts components. The public type exports are `Component`, `Exposed`, and `Slots`; `Exposed` includes all exposed chart methods and read-only state.
 
 ## 8.3.0
 

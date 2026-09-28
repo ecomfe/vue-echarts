@@ -7,7 +7,7 @@ import {
   shallowRef,
   shallowReactive,
 } from "vue";
-import type { Slots, SlotsType as VueSlotsType } from "vue";
+import type { Slots as VueSlots, SlotsType as VueSlotsType } from "vue";
 import type { Option } from "../types";
 import { isPlainObject, isValidArrayIndex, warn } from "../utils";
 import type { TooltipComponentFormatterCallbackParams } from "echarts";
@@ -110,7 +110,7 @@ function writePath(
   return true;
 }
 
-export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
+export function useSlotOption(slots: VueSlots, onSlotsChange: () => void) {
   const instance = getCurrentInstance()!;
   let detachedRoot: HTMLDivElement | undefined;
   const containers = shallowReactive<SlotMap<HTMLElement>>({});
@@ -276,7 +276,7 @@ export function useSlotOption(slots: Slots, onSlotsChange: () => void) {
 }
 
 /** Vue SlotsType metadata for VChart, including VChartSlotsExtension augmentations. */
-export type SlotsType = VueSlotsType<
+export type Slots = VueSlotsType<
   Record<"tooltip" | `tooltip-${string}`, TooltipComponentFormatterCallbackParams> &
     Record<"dataView" | `dataView-${string}`, Option> &
     VChartSlotsExtension
