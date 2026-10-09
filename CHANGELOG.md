@@ -1,3 +1,9 @@
+## 8.3.2
+
+### Fixes
+
+- Fixed `autoresize` interrupting chart animations in containers with fractional pixel dimensions.
+
 ## 8.3.1
 
 ### Fixes
