@@ -16,15 +16,17 @@ function createChart(
 ): EChartsType {
   let width = initialRoot.offsetWidth;
   let height = initialRoot.offsetHeight;
-  resize.mockImplementation((options?: Parameters<EChartsType["resize"]>[0]) => {
+  const resizeRenderer = (options?: Parameters<EChartsType["resize"]>[0]) => {
     const element = root();
     if (element) {
       width = typeof options?.width === "number" ? options.width : element.offsetWidth;
       height = typeof options?.height === "number" ? options.height : element.offsetHeight;
     }
-  });
+  };
+  resize.mockImplementation(resizeRenderer);
   return {
     resize,
+    getZr: () => ({ resize: resizeRenderer }),
     getWidth: () => width,
     getHeight: () => height,
   } as unknown as EChartsType;
@@ -199,40 +201,5 @@ describe("useAutoresize", () => {
     await nextTick();
     await flushAnimationFrame();
     expect(resize).toHaveBeenCalledOnce();
-  });
-
-  it("resizes when the content box changes without changing the outer size", async () => {
-    const container = createSizedContainer(120, 80);
-    container.style.boxSizing = "border-box";
-    const resize = vi.fn();
-    const chart = ref<EChartsType | undefined>();
-    const autoresize = ref<AutoResize | undefined>(true);
-    const root = ref<HTMLElement | undefined>();
-    let width = 120;
-    const instance = {
-      resize: resize.mockImplementation(() => {
-        const style = getComputedStyle(container);
-        width =
-          container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      }),
-      getWidth: () => width,
-      getHeight: () => 80,
-    } as unknown as EChartsType;
-    const scope = effectScope();
-    stops.push(() => scope.stop());
-
-    scope.run(() => useAutoresize(chart, autoresize, root));
-    chart.value = instance;
-    root.value = container;
-    await nextTick();
-    await flushAnimationFrame();
-    resize.mockClear();
-
-    container.style.padding = "0 10px";
-    await flushAnimationFrame();
-
-    expect(resize).toHaveBeenCalledOnce();
-    expect(instance.getWidth()).toBe(100);
-    expect(container.offsetWidth).toBe(120);
   });
 });

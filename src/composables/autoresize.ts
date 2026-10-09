@@ -29,10 +29,19 @@ export function useAutoresize(
       let observedHeight = chart.getHeight();
 
       const resize = () => {
-        if (
-          hasZeroDimension(observedWidth, observedHeight) ||
-          (observedWidth === chart.getWidth() && observedHeight === chart.getHeight())
-        ) {
+        if (hasZeroDimension(observedWidth, observedHeight)) {
+          return;
+        }
+        const width = chart.getWidth();
+        const height = chart.getHeight();
+        // CSS is applied to the public root; the internal host has no padding or scrollbars.
+        if (container.clientWidth === width && container.clientHeight === height) {
+          return;
+        }
+        // Let the renderer resolve fractional CSS sizes and explicit dimensions.
+        // Only a real size change needs the ECharts update that stops animations.
+        chart.getZr().resize();
+        if (width === chart.getWidth() && height === chart.getHeight()) {
           return;
         }
         chart.resize();

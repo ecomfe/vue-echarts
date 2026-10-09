@@ -32,6 +32,7 @@ export function createEChartsModule() {
 type ZRenderStub = {
   on: Mock;
   off: Mock;
+  resize: Mock;
 };
 
 type MockedMethod<T> = T extends (...args: infer Args) => infer R
@@ -68,6 +69,7 @@ function createChartStub(): ChartStub {
   const zr: ZRenderStub = {
     on: vi.fn(),
     off: vi.fn(),
+    resize: vi.fn(),
   };
   let lastOption: unknown;
   let disposed = false;
