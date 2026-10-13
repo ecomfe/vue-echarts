@@ -56,7 +56,7 @@
     "@vue/runtime-dom-3.3": "npm:@vue/runtime-dom@3.3.0",
     "@vue/server-renderer": "^3.5.42",
     "@vue/tsconfig": "^0.9.1",
-    "@vueuse/core": "^14.4.0",
+    "@vueuse/core": "^15.0.0",
     "bumpp": "^12.3.0",
     "comment-mark": "^2.2.0",
     "echarts": "^6.1.0",
