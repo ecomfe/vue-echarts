@@ -47,14 +47,14 @@
     "bench:graphic": "node scripts/bench-graphic.mjs"
   },
   "devDependencies": {
-    "@types/node": "^24.19.1",
+    "@types/node": "^24.19.2",
     "@vercel/analytics": "^2.0.1",
-    "@vitejs/plugin-vue": "^6.0.9",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/browser-playwright": "^5.0.4",
     "@vitest/coverage-istanbul": "^5.0.4",
     "@vue/runtime-core-3.3": "npm:@vue/runtime-core@3.3.0",
     "@vue/runtime-dom-3.3": "npm:@vue/runtime-dom@3.3.0",
-    "@vue/server-renderer": "^3.5.43",
+    "@vue/server-renderer": "^3.5.44",
     "@vue/tsconfig": "^0.9.1",
     "@vueuse/core": "^15.0.0",
     "bumpp": "^12.3.0",
@@ -63,28 +63,28 @@
     "echarts-6.0": "npm:echarts@6.0.0",
     "echarts-gl": "^2.1.0",
     "jiti": "^2.7.0",
-    "lefthook": "^2.2.1",
+    "lefthook": "^2.2.2",
     "monaco-editor": "0.54.0",
-    "oxfmt": "^0.72.0",
-    "oxlint": "^1.87.0",
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
     "pinia": "^4.0.3",
     "playwright": "^1.64.0",
     "postcss-nested": "^8.0.1",
     "publint": "^0.3.25",
     "releaselog": "^8.1.0",
-    "tsdown": "^0.23.0",
+    "tsdown": "^0.23.1",
     "typescript": "^6.0.3",
     "unplugin-raw": "^0.8.0",
     "vite": "8.3.4",
     "vitest": "^5.0.4",
     "vitest-browser-vue": "^3.1.0",
-    "vue": "^3.5.43",
-    "vue-component-type-helpers": "^3.3.12",
-    "vue-tsc": "^3.3.12"
+    "vue": "^3.5.44",
+    "vue-component-type-helpers": "^3.3.13",
+    "vue-tsc": "^3.3.13"
   },
   "peerDependencies": {
     "echarts": "^6.0.0",
     "vue": "^3.3.0"
   },
-  "packageManager": "pnpm@12.11.1"
+  "packageManager": "pnpm@12.13.0"
 }
