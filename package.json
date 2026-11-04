@@ -65,14 +65,14 @@
     "jiti": "^2.7.0",
     "lefthook": "^2.2.2",
     "monaco-editor": "0.54.0",
-    "oxfmt": "^0.74.0",
-    "oxlint": "^1.89.0",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "pinia": "^4.1.0",
     "playwright": "^1.64.1",
     "postcss-nested": "^8.0.1",
     "publint": "^0.3.25",
     "releaselog": "^8.1.0",
-    "tsdown": "^0.23.2",
+    "tsdown": "^0.23.3",
     "typescript": "^6.0.3",
     "unplugin-raw": "^0.8.0",
     "vite": "8.3.5",
@@ -86,5 +86,5 @@
     "echarts": "^6.0.0",
     "vue": "^3.3.0"
   },
-  "packageManager": "pnpm@12.16.0"
+  "packageManager": "pnpm@12.16.1"
 }
