@@ -47,7 +47,7 @@
     "bench:graphic": "node scripts/bench-graphic.mjs"
   },
   "devDependencies": {
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/browser-playwright": "^5.0.4",
