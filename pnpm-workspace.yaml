@@ -1,6 +1,8 @@
 overrides:
   dompurify: "3.4.17"
-  "minimatch@9": "10.2.6"
+  "minimatch@9": "11.0.8"
+  # glob 10 expects RegExp objects in minimatch's parsed patterns; v11 uses matchers.
+  "js-beautify>glob": "14.0.6"
 
 peerDependencyRules:
   allowedVersions:
