@@ -33,6 +33,12 @@ We run Vitest in three projects:
   - Node only: `pnpm test:node`
   - Minimum supported runtimes: `pnpm test:min`
 
+The exact ECharts 6.0.0 alias is a compatibility fixture used only by the
+`browser-min` project and minimum-version declaration checks. It is not bundled
+or used by the demo, which uses ECharts 6.1.0 or newer. Keep fixture inputs trusted:
+ECharts versions before 6.1.0 have a Lines-series tooltip XSS vulnerability
+([GHSA-fgmj-fm8m-jvvx](https://github.com/advisories/GHSA-fgmj-fm8m-jvvx)).
+
 The option analysis tests cover timeout, worker errors, stale responses, and cleanup with fake workers. Node tests import the analysis module directly to cover export validation and dependency extraction. Separate real-worker tests check callback-bearing options, dependency-only responses, and recovery after blocking code triggers the main-thread timeout. Native rendering checks cover flex-column shrinkage, rounded corners, and narrow-screen overlay coordinates.
 
 ## Graphic performance
