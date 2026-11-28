@@ -46,7 +46,7 @@ jobs:
         run: pnpm run test
 
       - name: Extract release notes
-        run: pnpm releaselog --format=notes ${{ github.ref_name }} > RELEASE_NOTES.md
+        run: pnpm releaselog --format=notes "$GITHUB_REF_NAME" > RELEASE_NOTES.md
 
       - name: Get dist tag
         id: tag
